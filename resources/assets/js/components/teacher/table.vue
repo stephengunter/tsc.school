@@ -1,0 +1,166 @@
+<template>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th style="width:5%" v-if="canCheck">
+                            <check-box v-show="dataCounts" :value="0" :default="checkAll"
+							 @selected="onCheckAll" @unselected="unCheckAll">
+							</check-box>
+                        </th>
+                        <th style="width:10%">姓名</th>
+                        <th style="width:20%">Email</th>
+                        <th style="width:10%">手機</th>
+                        <th style="width:20%">地址</th>
+                        
+                        <th style="width:10%">專長</th>
+                        <th style="width:10%" v-if="!center">所屬中心</th>
+                        <th style="width:10%">審核</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(teacher,index) in getViewList()" :key="index">
+                        <td v-if="canCheck">
+							<check-box :value="teacher.id" :default="beenChecked(teacher.id)"
+								@selected="onChecked" @unselected="unChecked">
+							</check-box>
+                        </td>
+                        <td v-if="can_select">
+                            <a  href="#" @click.prevent="onSelected(teacher.id)" v-text="teacher.user.profile.fullname"> </a> 
+                           
+                        </td>
+                        <td v-else v-text="teacher.user.profile.fullname">  </td>
+
+                       
+                        <td>{{  teacher.user.email }}</td>
+                        <td>{{  teacher.user.phone }}</td>
+                        <td>
+                            <span v-if="hasAddress(teacher)">
+                                {{  teacher.user.contactInfo.address.fullText }}
+                            </span>
+                        </td>
+
+
+                        <td>{{  teacher.specialty }}</td>
+
+                        <td v-if="!center">{{  teacher.centers }}</td>
+                        
+                        <td v-html="$options.filters.reviewedLabel(teacher.reviewed)" ></td>
+                        
+                    </tr>    
+                </tbody>
+
+            </table>
+        </div>
+        <slot name="table-footer"> 
+        
+        </slot> 
+            
+    </div>
+</template>
+
+<script>
+export default {
+    name:'TeacherTable',
+    props: {
+        model: {
+            type: Object,
+            default: null
+        },
+        teachers:{
+            type: Array,
+            default: null
+        },
+        can_review:{
+            type: Boolean,
+            default: false
+        },
+        can_select:{
+            type: Boolean,
+            default: true
+        },
+        can_checked:{
+            type: Boolean,
+            default: false
+        },
+        center: {
+            type: Boolean,
+            default: false
+        },
+	},
+	data() {
+		return {
+			checked_ids:[],
+			checkAll: false,
+		};
+	},
+	computed:{
+		canCheck(){
+            if(this.can_review) return true;
+            return this.can_checked;
+        },
+        dataCounts(){
+            let viewList=this.getViewList();
+            if(!viewList) return 0;
+            return viewList.length;
+        }
+		
+    }, 
+	watch: {
+		checked_ids() {
+			this.$emit('check-changed',this.checked_ids);
+		}
+	},
+    methods:{
+        getViewList(){
+			if(this.model) return this.model.viewList;
+			return this.teachers;
+		},
+        hasContactInfo(teacher){
+            if(teacher.user.contactInfo) return true;
+            return false;
+        },
+        hasAddress(teacher){
+             
+            if(!this.hasContactInfo(teacher)) return false;
+            if(teacher.user.contactInfo.address) return true;
+            return false;
+        },
+        onSelected(id){
+           
+           this.$emit('selected',id);
+        },
+        beenChecked(id){
+            return this.checked_ids.includes(id);
+		},
+        onChecked(id){
+				
+			if(!this.beenChecked(id))  this.checked_ids.push(id);
+		},
+		unChecked(id){
+				
+			let index= this.checked_ids.indexOf(id);
+			if(index >= 0)  this.checked_ids.splice(index, 1); 
+				
+		},
+		onCheckAll(){
+			this.checkAll=true;
+			
+			let teacherList = this.getViewList();
+			if(!teacherList)  return false;
+
+			teacherList.forEach( teacher => {
+				this.onChecked(teacher.id)
+			});
+		},
+		unCheckAll(){
+			this.checkAll=false;
+			this.checked_ids=[];
+		},
+        
+   }
+}
+</script>
+
