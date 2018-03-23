@@ -24,6 +24,9 @@ Vue.component('review-editor', require('./components/review-editor'))
 Vue.component('searcher', require('./components/searcher'));
 Vue.component('user-selector', require('./components/user/selector'));
 
+Vue.component('login-view', require('./views/login'));
+Vue.component('change-password-view', require('./views/auth/change-password'));
+
 Vue.component('home-view', require('./views/home'));
 
 Vue.component('centers-index', require('./views/centers/index'));

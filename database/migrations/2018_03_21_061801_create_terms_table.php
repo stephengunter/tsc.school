@@ -18,6 +18,7 @@ class CreateTermsTable extends Migration
             $table->integer('year');
             $table->integer('order');
             $table->integer('number');
+            $table->string('name');	
             $table->date('openDate'); 
             $table->date('closeDate');
             $table->date('birdDate'); 

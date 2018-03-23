@@ -39,7 +39,6 @@
 
 
                     </div>
-
                     
                     <small class="text-danger" v-if="hasError" v-text="err_msg"></small>
                 </div>
@@ -69,7 +68,9 @@
 
                 files: [],
 
-                err_msg:''
+                err_msg:'',
+
+                test:{}
                
             }
         },
@@ -120,39 +121,8 @@
                         this.$emit('imported');
                     })
                     .catch(error => {
-                        
-                        let msg =Helper.getErrorMsg(error);
-                        if(msg){
-                            this.err_msg=msg;
-                            
-                        }else{
-                            Helper.BusEmitError(error);
-                        }
-
-                        this.loading=false
-                    })
-            },
-            submitImport() {
-                this.loading=true;
-
-                let form = new FormData();
-                for (let i = 0; i < this.files.length; i++) {
-                    form.append('file', this.files[i]);                    
-                }
-
-                form.append('type', this.type);
-
-                let store=Category.import(form);
-                
-                store.then(result => {
                        
-                        Helper.BusEmitOK();
-                        this.loading=false;
-                        this.$emit('imported');
-                    })
-                    .catch(error => {
-                        
-                        let msg =Helper.getErrorMsg(error);
+                        let msg =error.response.data.errors.msg[0];
                         if(msg){
                             this.err_msg=msg;
                             
@@ -175,14 +145,13 @@
 
                 let store=Files.upload(form);
                 
-                store.then(result => {
-                       
+                store.then(() => {
                         Helper.BusEmitOK();
                         this.loading=false;
                         this.$emit('imported');
                     })
                     .catch(error => {
-                        
+                      
                         let msg =Helper.getErrorMsg(error);
                         if(msg){
                             this.err_msg=msg;

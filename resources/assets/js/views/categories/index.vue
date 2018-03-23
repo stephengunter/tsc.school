@@ -6,14 +6,15 @@
                     <h3 v-html="title">
                    </h3>
                 </div>
-                <div class="col-sm-7 form-inline" style="margin-top: 20px;">
-					<div class="form-group" style="padding-left:1cm;">
-						<!-- <toggle :items="activeOptions"   :default_val="params.active" @selected="setActive"></toggle> -->
-					</div>
+                <div class="col-sm-6 form-inline" style="margin-top: 20px;">
+					
 				</div>
                 
-                <div align="right" class="col-sm-2" style="margin-top: 20px;">
-                    <a v-if="can_edit" @click.prevent="beginImport" href="#" class="btn btn-warning">
+                <div align="right" class="col-sm-3" style="margin-top: 20px;">
+                    <a v-if="can_edit" @click.prevent="onCreate" href="#" class="btn btn-primary">
+                        <i class="fa fa-plus-circle"></i> 新增
+                    </a>
+                    <a v-if="can_import" @click.prevent="beginImport" href="#" class="btn btn-warning">
                         <i class="fa fa-upload"></i>
                         匯入
                     </a>
@@ -21,15 +22,17 @@
             </div>
 
             <hr/>
-            <category-table :model="model" :can_edit="can_edit" :can_order="can_edit"
-                @selected="onSelected" @saved="onSaved"
+            <category-table ref="categoryTable" :model="model" :can_edit="can_edit" :can_order="can_edit"
+                @selected="onSelected" @saved="onSaved" @delete="beginDelete"
                 @up="up" @down="down" @save-orders="saveImportances">
             </category-table>
             
 
         </div>
 
-
+        <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
+        @close="closeConfirm" @confirmed="submitDelete">        
+        </delete-confirm>
         
     </div> 
 </template>
@@ -67,12 +70,16 @@
                 model:null,
                 
                 params:{
-                    active:true,
                     page:1,
-                    pageSize:10
+                    pageSize:99
                 },
 
-                activeOptions:Helper.activeOptions(),
+                deleteConfirm:{
+                    id:0,
+                    show:false,
+                    msg:'',
+
+                }
             }
         },
         watch: {
@@ -98,7 +105,7 @@
                 this.$emit('import');
             },
             onCreate(){
-                this.$emit('create');
+                this.$refs.categoryTable.onCreate();
             },
             onSelected(id){
                this.$emit('selected',id);
@@ -185,6 +192,34 @@
 				.catch(error => {
 					Helper.BusEmitError(error,'存檔失敗');
 				})
+            },
+            beginDelete(category){
+                
+                let name=category.name;
+                let id=category.id;
+
+                this.deleteConfirm.msg='確定要刪除課程分類 ' + name + ' 嗎?';
+                this.deleteConfirm.id=id;
+                this.deleteConfirm.show=true;                
+            },
+            closeConfirm(){
+                this.deleteConfirm.show=false;
+            },
+            submitDelete(){
+                this.closeConfirm();
+                
+                let id = this.deleteConfirm.id; 
+                let remove= Category.remove(id);
+                remove.then(() => {
+                    this.fetchData();
+                    Helper.BusEmitOK('刪除成功');
+
+                    this.$emit('deleted');
+                })
+                .catch(error => {
+                    Helper.BusEmitError(error,'刪除失敗');
+                    this.closeConfirm();   
+                })
             },
             
         }

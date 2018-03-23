@@ -1,0 +1,205 @@
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+
+/* Wrapping element */
+
+
+/* Set some basic padding to keep content from hitting the edges */
+
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+
+/* Carousel */
+
+.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+
+/* Make .svg files in the carousel display properly in older browsers */
+
+.carousel-inner .item img[src$=".svg"] {
+    width: 100%;
+}
+
+
+/* QR code generator */
+
+#qrCode {
+    margin: 15px;
+}
+
+
+/* Hide/rearrange for smaller screens */
+
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption {
+        display: none;
+    }
+}
+
+.panel-heading {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    font-family: "微軟正黑體", "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+.show-data {
+    font-size: 18px;
+}
+
+.label-title {
+    font-size: 15px;
+}
+
+.dropup,
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 0.3em;
+    vertical-align: middle;
+    content: "";
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-left: 0.3em solid transparent;
+}
+
+.dropdown-toggle:focus {
+    outline: 0;
+}
+
+.dropup .dropdown-toggle::after {
+    border-top: 0;
+    border-bottom: 0.3em solid;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 10rem;
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    font-size: 1rem;
+    color: #292b2c;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+}
+
+.dropdown-divider {
+    height: 1px;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    background-color: #eceeef;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 3px 1.5rem;
+    clear: both;
+    font-weight: normal;
+    color: #292b2c;
+    text-align: inherit;
+    white-space: nowrap;
+    background: none;
+    border: 0;
+    font-size: 15px;
+}
+
+.dropdown-item:focus,
+.dropdown-item:hover {
+    color: #1d1e1f;
+    text-decoration: none;
+    background-color: #f7f7f9;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+    color: #fff;
+    text-decoration: none;
+    background-color: #0275d8;
+}
+
+.dropdown-item.disabled,
+.dropdown-item:disabled {
+    color: #636c72;
+    cursor: not-allowed;
+    background-color: transparent;
+}
+
+.show>.dropdown-menu {
+    display: block;
+}
+
+.show>a {
+    outline: 0;
+}
+
+.dropdown-menu-right {
+    right: 0;
+    left: auto;
+}
+
+.dropdown-menu-left {
+    right: auto;
+    left: 0;
+}
+
+.dropdown-header {
+    display: block;
+    padding: 0.5rem 1.5rem;
+    margin-bottom: 0;
+    font-size: 0.875rem;
+    color: #636c72;
+    white-space: nowrap;
+}
+
+.dropdown-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 990;
+}
+
+.dropup .dropdown-menu {
+    top: auto;
+    bottom: 100%;
+    margin-bottom: 0.125rem;
+}
+
+video {
+    max-width: 85%;
+    max-height: 85%;
+}

@@ -8,7 +8,7 @@ class Category {
     }
  
     static source() {
-        return '/categories';
+        return '/manage/categories';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;
@@ -26,7 +26,7 @@ class Category {
         return this.source() + `/${id}`;
     }
     static deleteUrl(id){
-        return this.source() + '/delete/' + id;
+        return this.source() + `/${id}`;
     }
     static importancesUrl(id) {
         return this.source() + '/importances';

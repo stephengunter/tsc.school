@@ -5,6 +5,11 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
+use Illuminate\Auth\AuthenticationException;
+use App\Exceptions\EmailUnconfirmed;
+use App\Exceptions\RequestError;
+use App\Core\Helper;
+
 class Handler extends ExceptionHandler
 {
     /**
@@ -49,5 +54,37 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         return parent::render($request, $exception);
+    }
+
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+      
+        if ($request->expectsJson()) {
+             return response()->json(['error' => '權限不足','code' => 401 ], 401);
+        }
+
+        if(Helper::str_starts_with($request->path(),'manage')){
+            return redirect()->guest(route('manage-login'));
+        }
+
+        
+    }
+    protected function emailUnconfirmed($request, EmailUnconfirmed $e)
+    {
+       
+        if ($request->expectsJson()) {
+            return response()->json(['error' => 'email unconfirmed','code' => 439 ], 439);
+           
+        }
+        return redirect()->route('email-unconfirmed', ['email' => $e->email]);
+        
+    }
+    protected function requestError($request, RequestError $e)
+    {
+        $err=$e->getError();
+        $key=$err['key'];
+        $msg=$err['value'];
+        return response()->json([ $key =>  [$msg] ]  ,  422);
+        
     }
 }

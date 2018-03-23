@@ -2,32 +2,24 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Requests\BaseRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class Term extends FormRequest
+class TermRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
+   
     public function authorize()
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
+   
     public function rules()
     {
+       
         return [
-            'term.openDate.required' => '請填寫報名起始日',
-            'term.birdDate.required' => '請填寫早鳥截止日', 
-            'term.closeDate.required' => '請填寫開課決定日',
-            
+            'term.openDate' => 'required',
+            'term.birdDate' => 'required',
+            'term.closeDate'=> 'required', 
         ];
     }
 
@@ -38,9 +30,10 @@ class Term extends FormRequest
             'term.birdDate.required' => '必須填寫早鳥優惠截止日',
             'term.closeDate.required' => '必須填寫報名截止日',     
         ];
+       
     }
 
-    public function getValues($updated_by,$removed)
+    public function getValues()
     {
        
         $values=array_except($this->get('term'), ['canDelete']); 
@@ -48,8 +41,9 @@ class Term extends FormRequest
         
         if(!$values['name'])    $values['name']=$values['number'];
       
-        $values= static::setUpdatedBy($values,$updated_by);
+        return  $values;
         
         
     }
+
 }

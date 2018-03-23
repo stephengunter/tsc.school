@@ -143,13 +143,16 @@ export default {
             this.form.term.active = val;
         },
         setOpenDate(val){
-            this.form.term.openDate=val;
+			this.form.term.openDate=val;
+			this.clearErrorMsg('term.openDate');
         },
         setBirdDate(val){
-            this.form.term.birdDate=val;
+			this.form.term.birdDate=val;
+			this.clearErrorMsg('term.birdDate');
         },
         setCloseDate(val){
-            this.form.term.closeDate=val;
+			this.form.term.closeDate=val;
+			this.clearErrorMsg('term.closeDate');
         },
 		onSubmit(){
 			

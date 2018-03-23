@@ -10,14 +10,14 @@ class CheckAdmin
 {
     public static function canLogin($user)
     {
-        return true;
-        //if(!$user) return false;
         
+        if(!$user) return false;
 
-        // if($user->isDev()) return true;
-        // if($user->isAdmin()) return true;
+        if($user->isDev()) return true;
+        if($user->isBoss()) return true;
+        if($user->isStaff()) return true;
 
-        //return false;
+        return false;
     }
     
 
@@ -28,23 +28,18 @@ class CheckAdmin
         $can_login= static::canLogin($user);
 
         if($can_login) return $next($request);
-        return static::exceptions($user);
-        
-        
+        throw new AuthenticationException();
         
     }
+
     public static function exceptions($user=null)
     {
-        $email='';
-        if($user){
-            if(!$user->email_confirmed) $email=$user->email;
-            auth()->logout();
-        } 
-
-        if($email)  throw new EmailUnconfirmed($email);
+        
+        if($user) auth()->logout();
 
         throw new AuthenticationException();
     }
+    
 
     
 }

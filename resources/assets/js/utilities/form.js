@@ -122,13 +122,14 @@ class Form {
      *
      * @param {object} errors
      */
-    onFail(errors) {
-
-        this.errors.record(errors);
+    onFail(data) {
+        
+        if(data.errors)  this.errors.record(data.errors);
+       
     }
 
     hasError(){
-        return this.errors.any()
+        return this.errors.any();
        
     }
 }

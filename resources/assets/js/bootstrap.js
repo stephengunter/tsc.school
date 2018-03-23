@@ -60,24 +60,48 @@ if (token) {
 
 
 
-window.Helper = require('./helper');
-window.Helper = require('./utilities/form');
-window.Menus = require('./models/menus');
-window.Term = require('./models/term');
-window.Teacher = require('./models/teacher');
-window.TeacherGroup = require('./models/teacherGroup');
-window.User = require('./models/user');
-window.Admin = require('./models/admin');
-window.Center = require('./models/center');
-window.Category = require('./models/category');
-window.ContactInfo = require('./models/contactInfo');
-window.Course = require('./models/course');
-window.ClassTime = require('./models/classTime');
-window.Process = require('./models/process');
-window.Signup = require('./models/signup');
-window.Bill = require('./models/bill');
-window.Student = require('./models/student');
-window.Files = require('./models/files');
+
+import Helper from './helper';
+window.Helper = Helper;
+
+import Form from './utilities/form';
+window.Form = Form;
+
+import Auth from './models/auth';
+import Menus from './models/menus';
+import Term from './models/term';
+import Teacher from './models/teacher';
+import TeacherGroup from './models/teacherGroup';
+import User from './models/user';
+import Admin from './models/admin';
+import Center from './models/center';
+import Category from './models/category';
+import ContactInfo from './models/contactInfo';
+import Course from './models/course';
+import ClassTime from './models/classTime';
+import Process from './models/process';
+import Signup from './models/signup';
+import Bill from './models/bill';
+import Student from './models/student';
+import Files from './models/files';
+
+window.Auth=Auth;
+window.Menus=Menus;
+window.Term=Term;
+window.Teacher=Teacher;
+window.TeacherGroup=TeacherGroup;
+window.User=User;
+window.Admin=Admin;
+window.Center=Center;
+window.Category=Category;
+window.ContactInfo=ContactInfo;
+window.Course=Course;
+window.ClassTime=ClassTime;
+window.Process=Process;
+window.Signup=Signup;
+window.Bill=Bill;
+window.Student=Student;
+window.Files=Files;
 
 window.Bus = new Vue({});
 

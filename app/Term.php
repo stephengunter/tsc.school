@@ -13,7 +13,22 @@ class Term extends Model
                           
     
 		
+	public static function init($year)
+	{
+		return [
+			'name' => '',
+			'year' => $year,
+			'order' => 1,
+			'number' => '',
+			'openDate' => '',
+			'closeDate' => '',
+			'birdDate' => '',
+			'active' => 0
 
+		];
+	}	
+	
+	
 
     public function	  canBird(Date $date)
 	{

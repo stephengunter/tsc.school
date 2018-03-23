@@ -13,6 +13,7 @@
                                 <span aria-hidden="true" class="glyphicon glyphicon-floppy-disk"></span>
                             </button>
                         </th>
+                        <th style="width:7%"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -20,10 +21,10 @@
                        @cancel="creating=false" @submit="onSubmit">
                     </row>
 
-                    <row v-for="(category,index) in model.viewList" :key="index" :category="category"
+                    <row v-for="(category,index) in model.viewList" :key="index" :index="index" :category="category"
                      :can_edit="can_edit" :form="form" :edit="form.id==category.id"
                      @cancel="form.id=0" @submit="onSubmit" @edit="beginEdit" 
-                     @up="up(category,index)"  @down="down(category,index)" >
+                     @up="up(category,index)"  @down="down(category,index)" @delete="onDelete">
                         
                     </row>  
                 </tbody>
@@ -56,7 +57,7 @@ export default {
         can_order:{
             type: Boolean,
             default: false
-        }
+        },
         
 	},
 	data() {
@@ -76,22 +77,23 @@ export default {
 		
     }, 
 	watch: {
-		
+	
 	},
     methods:{
         init(){
-            this.form.id=0;
             this.creating=false;
+            this.form.id=0;
         },
-        hasContactInfo(category){
-            if(category.contactInfo) return true;
-            return false;
-        },
-        hasAddress(category){
-             
-            if(!this.hasContactInfo(category)) return false;
-            if(category.contactInfo.address) return true;
-            return false;
+        onCreate(){
+            
+            this.form = new Form({
+                id:0,
+                name:'',
+                code:'',
+                importance:0,
+                active:true
+            });
+            this.creating=true;
         },
         onSelected(id){
            this.$emit('selected',id);
@@ -131,6 +133,9 @@ export default {
                     
                     Helper.BusEmitError(error,'存檔失敗');
                 })
+        },
+        onDelete(category){
+            this.$emit('delete',category);
         }
         
    }

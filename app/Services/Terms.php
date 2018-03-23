@@ -16,7 +16,7 @@ class Terms
         return $this->getAll()->where('active',$active);
     }
 
-    public function getTermByNumber(int $number)
+    public function getTermByNumber($number)
     {
         return $this->getAll()->where('number',$number)->first();
          
@@ -24,7 +24,7 @@ class Terms
 
     public function getOrdered($terms)
     {
-        return $terms->orderBy('active','desc')->orderBy('number','desc') ->get();
+        return $terms->orderBy('active','desc')->orderBy('number','desc');
     }
 
    

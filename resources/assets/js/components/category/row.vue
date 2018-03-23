@@ -1,5 +1,5 @@
 <template>
-    <tr v-if="edit">
+    <tr v-if="edit" @keydown="clearErrorMsg($event.target.name)">
         <td>
             <button  @click.prevent="onSubmit" class="btn btn-success btn-sm" >
                 <i class="fa fa-save"></i>
@@ -22,6 +22,9 @@
         <td>
             
         </td>
+        <td>
+            
+        </td>
     </tr>
     <tr v-else>
         <td>
@@ -36,11 +39,16 @@
         </td>
         
         <td v-if="can_order" >
-            <button class="btn btn-sm btn-default" v-if="can_order" @click.prevent="up(category,index)">
+            <button class="btn btn-sm btn-default" v-if="can_order" @click.prevent="up(category)">
                 <i class="fa fa-arrow-up" aria-hidden="true"></i>
             </button>
-            <button class="btn btn-sm btn-default" v-if="can_order"  @click.prevent="down(category,index)">
+            <button class="btn btn-sm btn-default" v-if="can_order"  @click.prevent="down(category)">
                 <i class="fa fa-arrow-down" aria-hidden="true"></i>
+            </button>
+        </td>
+        <td>
+            <button v-if="can_edit"  @click.prevent="beginDelete(category)" class="btn btn-danger btn-sm" >
+                <i class="fa fa-trash"></i> 
             </button>
         </td>
     </tr>
@@ -56,6 +64,10 @@
             category:{
                type: Object,
                default: null
+            },
+            index:{
+               type: Number,
+               default: 0
             },
             edit:{
                type: Boolean,
@@ -101,14 +113,17 @@
             clearErrorMsg(name) {
                 this.form.errors.clear(name);
             },
-            up(category,index){
+            up(category){
 				
-                this.$emit('up' , category, index);
+                this.$emit('up' , category, this.index);
 
             },
-            down(category,index){
-                this.$emit('down' , category, index);
+            down(category){
+                this.$emit('down' , category, this.index);
             },
+            beginDelete(category){
+                this.$emit('delete' , category);
+            }
                 
         }
     }

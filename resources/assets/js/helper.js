@@ -10,8 +10,8 @@ class Helper {
 	static getErrorMsg(error){
 		
 		if(!error.response.data) return '';
-		if(!error.response.data.msg) return '';
-		return error.response.data.msg[0] ;
+		if(error.response.data.msg) return error.response.data.msg[0] ;
+		if(error.response.data.errors) return error.response.data.errors.msg[0] ;
 	}
 	static getScrollBarWidth() {
 		return CommonService.getScrollBarWidth();
