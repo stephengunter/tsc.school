@@ -7,11 +7,7 @@ use Excel;
 
 class Categories 
 {
-    // public function __construct(Excel $excel)
-    // {
-    //     $this->categories=$categories;
-    //     $this->excel = $excel;
-    // }
+    
 
     public function getAll()
     {
@@ -27,6 +23,7 @@ class Categories
         }
 
         $category->save();
+        return $category;
     }
     public function removeCategory(Category $category, $updatedBy)
     {

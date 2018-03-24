@@ -15,10 +15,9 @@ use App\Core\Helper;
 class TermsController extends Controller
 {
     
-    public function __construct(Terms $terms , Users $users)
+    public function __construct(Terms $terms )
     {
         $this->terms=$terms;
-        $this->users=$users;
     }
 
     function canEdit()
@@ -180,75 +179,5 @@ class TermsController extends Controller
         return response() ->json();
     }
 
-    public function importCategories($file,$current_user)
-    {
-        $err_msg='';
-
-        $excel=Excel::load($file, function($reader) {             
-            $reader->limitColumns(16);
-            $reader->limitRows(100);
-        })->get();
-
-        $categoryList=$excel->toArray()[0];
-        for($i = 1; $i < count($categoryList); ++$i) {
-            $row=$categoryList[$i];
-            
-            $name=trim($row['name']);
-            if(!$name){
-               continue;
-            }
-
-            $exist_category=null;
-
-            $code=trim($row['code']);
-            $top=(int)trim($row['top']);  
-            $public=false;
-            if($top>0){
-                $public=true;
-                $exist_category=$this->topCategories()
-                ->where('name',$name)->first();
-            }else{
-                $public=false;
-                if(!$code){
-                    $err_msg .= '必須填寫分類代碼';
-                    continue;
-                }
-                $exist_category=$this->normalCategories()
-                              ->where('code',$code)->first();
-            }
-             
-                        
-            $order=(int)trim($row['order']);
-            $active=true;
-            if($order>=0){
-                $active=true;
-            }else{
-                $active=false;
-            }
-           
-            $icon=trim($row['icon']);
-            $updated_by=$current_user->id;
-
-            $values=[
-                'name' => $name,
-                'code' => $code,
-                'order' => $order,
-                'icon' => $icon,
-                'public' => $public,
-                'active' => $active,
-                'updated_by' => $updated_by
-            ];
-
-            if($exist_category){                                    
-               
-                $exist_category->update($values);
-            
-            }else{                
-                $category=Category::create($values);
-            
-            }
-        }  //end for  
-
-        return $err_msg;
-    }
+    
 }

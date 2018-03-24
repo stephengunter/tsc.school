@@ -6,7 +6,7 @@
                     <tr>
                         <th style="width:15%">名稱</th>
                         <th style="width:5%">代碼</th>
-                        <th >地址</th>
+                        <th>地址</th>
                         <th style="width:10%">電話</th>
                         <th style="width:10%">傳真</th>
                         <th style="width:15%">課程洽詢電話</th>

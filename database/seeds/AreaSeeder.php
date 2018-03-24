@@ -10,6 +10,11 @@ class AreaSeeder extends Seeder {
     {
 		$areas = [
 			[
+				'name' => '宜花東',
+				'code' => 'E',
+
+			],
+			[
 				'name' => '北北基',
 				'code' => 'N',
 

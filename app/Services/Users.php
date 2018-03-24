@@ -11,9 +11,17 @@ use DB;
 
 class Users
 {
+	public function __construct()
+    {
+        $this->with=['profile','contactInfoes.address.district.city'];
+    }
     
     public function createUser(User $user,Profile $profile, array $roleNames=[])
     {
+		$userName = $user->email;
+		if (!$user->email) $userName = $user->phone;
+		$user->name=$userName;
+
 		if(!$user->password) $user->password = '000000';
 		$user= DB::transaction(function() use($user,$profile) {
             $user->save();
@@ -29,6 +37,47 @@ class Users
 
 		return $user;
         
+	}
+
+	public function storeUser($email, $phone, Profile $profile, array $roleNames=[])
+	{
+		$userName = $email;
+		if (!$email) $userName = $phone;
+
+		$user=new User([
+			'name' => $userName,
+			'email' => $email,
+			'phone' => $phone
+		]);
+		
+
+		return $this->createUser($user,$profile, $roleNames);
+
+	}
+
+
+	public function findByName($name)
+	{
+		User::where('name',$name)->first();
+
+	}
+
+	public function findUser($email, $phone)
+	{
+		$email=strtolower($email);
+		$user=$this->findByName($email);
+		if($user) return $user;
+
+		return $this->findByName($phone);
+	}
+
+	public function findBySID($sid)
+	{
+		$sid=strtoupper($sid);
+		$profile=Profile::where('sid',$sid)->first();
+        if(!$profile) return null;
+
+        return User::find($profile->userId);
 	}
 	
 	public function addRole(User $user ,string $roleName)

@@ -26,7 +26,7 @@ class Role extends Model
 
     public static function bossRoleName()
     {
-        return 'Boss';
+        return 'Owner';
     }
 
     public static function studentRoleName()

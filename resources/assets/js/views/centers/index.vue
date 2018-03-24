@@ -6,13 +6,13 @@
                     <h3 v-html="title">
                    </h3>
                 </div>
-                <div class="col-sm-7 form-inline" style="margin-top: 20px;">
-                    <div class="form-group">
+                <div class="col-sm-6 form-inline" style="margin-top: 20px;">
+                    <div v-show="params.active" class="form-group">
 						<drop-down :items="overseaOptions" :selected="params.oversea"
 							@selected="onOverseaSelected">
 						</drop-down>
 					</div>
-					<div class="form-group">
+					<div v-show="params.active" class="form-group">
 						<drop-down v-show="!params.oversea" :items="areas" :selected="area.value"
 							@selected="onAreaSelected">
 						</drop-down>
@@ -24,9 +24,11 @@
 					
 				</div>
                 
-                <div  align="right" class="col-sm-2" style="margin-top: 20px;">
-
-                    <a v-if="can_edit" @click.prevent="beginImport" href="#" class="btn btn-warning">
+                <div  align="right" class="col-sm-3" style="margin-top: 20px;">
+                    <a v-if="can_edit" @click.prevent="onCreate" href="#" class="btn btn-primary">
+                        <i class="fa fa-plus-circle"></i> 新增
+                    </a>    
+                    <a v-if="can_import" @click.prevent="beginImport" href="#" class="btn btn-warning">
                         <i class="fa fa-upload"></i>
                         匯入
                     </a>

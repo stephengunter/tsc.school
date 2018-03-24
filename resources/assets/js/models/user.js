@@ -203,11 +203,16 @@ class User {
 
 
     static roleLabels(roles){
+     
         if(!roles) return '';
-        
-        if(!roles.isArray){
+
+        if(Array.isArray){
+            if(!roles.length) return '';
+            roles=roles.split(',');
+        }else{
             roles=roles.split(',');
         }
+        
         let html='';
         roles.forEach((role)=>{
             html+= this.roleLabel(role);

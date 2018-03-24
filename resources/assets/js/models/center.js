@@ -8,7 +8,7 @@ class Center {
     }
  
     static source() {
-        return '/centers';
+        return '/manage/centers';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;

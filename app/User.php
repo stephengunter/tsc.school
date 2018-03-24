@@ -31,7 +31,12 @@ class User extends Authenticatable
     public function contactInfoes() 
 	{
 		return $this->hasMany('App\ContactInfo','userId');
-	}
+    }
+    
+    public function admin() 
+	{
+		return $this->hasOne(Admin::class,'userId');
+    }
 
     public function setPasswordAttribute($value) 
     {
@@ -66,5 +71,20 @@ class User extends Authenticatable
         return $this->hasRole(Role::studentRoleName());
     }
     
+    public function getContactInfo()
+	{
+		return $this->contactInfoes->first();
+	}
+	public function loadContactInfo()
+	{
+		$this->contactInfo=$this->getContactInfo();
+		if($this->contactInfo)  $this->contactInfo->address->fullText();
+    }
     
+    public function addRole(string $roleName)
+	{
+		$role=Role::getByName($roleName);
+		
+		$this->roles()->attach($role);
+	}
 }

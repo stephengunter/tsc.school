@@ -34,7 +34,9 @@
                         <td>{{  admin.user.phone }}</td>
                         
 
-                        <td v-if="!center">{{  admin.centers }}</td>
+                        <td v-if="!center" v-text="centerNames(admin)">
+
+                        </td>
                         
                         
                         <td v-html="roleLabels(admin.user)"> </td>
@@ -96,7 +98,11 @@ export default {
         getViewList(){
 			if(this.model) return this.model.viewList;
 			return null;
-		},
+        },
+        centerNames(admin){
+            if(admin.centerNames) return admin.centerNames;
+            return admin.centers;
+        },
         hasContactInfo(admin){
             if(admin.user.contactInfo) return true;
             return false;
@@ -108,6 +114,7 @@ export default {
             return false;
         },
         roleLabels(user){
+            if(user.roleNames) return User.roleLabels(user.roleNames);
             return User.roleLabels(user.roles);
         },
         onSelected(id){

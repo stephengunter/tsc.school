@@ -8,7 +8,7 @@ class Admin {
     }
  
     static source() {
-        return '/admins';
+        return '/manage/admins';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;

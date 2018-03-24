@@ -28,9 +28,20 @@ Route::get('/manage', function () {
 Route::group(['middleware' => 'admin'], function()
 {
     Route::resource('/manage/change-password', 'ChangePasswordController',['only' => ['index','store']]);
+    
     Route::resource('/manage/terms', 'TermsController');
+
+    Route::resource('/manage/admins', 'AdminsController');
+    Route::post('/manage/admins/import', 'AdminsController@import');
+
     Route::resource('/manage/categories', 'CategoriesController');
     Route::post('/manage/categories/importances', 'CategoriesController@importances');
     Route::post('/manage/categories/import', 'CategoriesController@import');
+
+    Route::resource('/manage/centers', 'CentersController');
+    Route::post('/manage/centers/importances', 'CentersController@importances');
+    Route::post('/manage/centers/import', 'CentersController@import');
+
+    Route::resource('/manage/contactInfoes', 'ContactInfoesController');
 
 });

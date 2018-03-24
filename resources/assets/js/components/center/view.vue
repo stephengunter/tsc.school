@@ -57,7 +57,7 @@
         },
         data() {
             return {
-                icon:Menus.getIcon('Centers') ,//+ ' 開課中心',
+                icon:Menus.getIcon('Centers') ,
                 readOnly:true,
 
                 center:null,
@@ -106,7 +106,7 @@
                 }; 
             },
             fetchData() {
-                
+               
                 let getData=Center.show(this.id);
                
                 getData.then(center => {

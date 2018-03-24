@@ -204,16 +204,6 @@ export default {
             this.oversea=Helper.isTrue(val);
             this.form.center.oversea=this.oversea;
         },
-		onCategorySelected(category){
-			this.form.center.categoryId=category.value;
-		},
-		// setReviewed(val) {
-        //     this.form.center.reviewed = val;
-		// },
-		// setTop(val) {
-        //     this.form.center.top = val;
-        // },
-		
 		onSubmit(){
             
             if(this.oversea){
@@ -224,6 +214,7 @@ export default {
 
 			save.then(() => {
 					Helper.BusEmitOK('資料已存檔');
+					this.$emit('saved');
 				})
 				.catch(error => {
 					Helper.BusEmitError(error,'存檔失敗');

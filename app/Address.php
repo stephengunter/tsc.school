@@ -9,7 +9,17 @@ class Address extends Model
 	protected $primaryKey = 'contactInfoId';
 
   	protected $fillable = [ 'districtId', 'street', 'updatedBy' ];
-		
+	
+	public static function init()
+	{
+		return [
+			'cityId' => 0,
+			'districtId' => 0,
+			'street' => '',
+			'zipCode' => ''
+		];
+	}
+    
     public function contactInfo()
     {
 		return $this->belongsTo('App\ContactInfo','contactInfoId');
@@ -18,5 +28,15 @@ class Address extends Model
     public function district()
     {
 		return $this->belongsTo('App\District','districtId');
-    }
+	}
+
+	public function fullText()
+	{
+		$text=$this->street;
+		if($this->district){
+			$text= $this->district->city->name .  $this->district->name .$text;
+		} 
+		$this->fullText=$text;
+		return  $text;
+	}
 }

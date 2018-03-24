@@ -10,7 +10,7 @@ class Area extends Model
     
 	public function centers() 
 	{
-		return $this->hasMany('App\Center','areaId');
+		return $this->hasMany('App\Center','areaId', 'id');
 	}						 
 						  
 }

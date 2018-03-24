@@ -27,21 +27,7 @@ class Menus
                  
              );
         } 
-        if($key=='UsersAdmin'){
-        return array(
-                [
-                    'text' => '使用者管理',
-                    'path' => '/manage/users',
-                    'active' => $current =='manage/users'
-                ],
-                [
-                    'text' => '教師管理',
-                    'path' => '/manage/teachers',
-                    'active' => $current=='manage/teachers'
-                ],
-                
-            );
-        }
+        
         if($key=='UsersAdmin'){
             return array(
                     [

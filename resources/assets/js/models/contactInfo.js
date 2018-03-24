@@ -8,7 +8,7 @@ class ContactInfo {
     }
  
     static source() {
-        return '/contactInfoes';
+        return '/manage/contactInfoes';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;
@@ -26,7 +26,7 @@ class ContactInfo {
         return this.source() + `/${id}`;
     }
     static deleteUrl(id){
-        return this.source() + '/delete/' + id;
+        return this.source() + `/${id}`;
     }
 
     static show(id) {

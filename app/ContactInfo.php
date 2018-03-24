@@ -3,14 +3,25 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Address;
 
 class ContactInfo extends Model
 {
     protected $table = 'contactInfoes';
 
-    protected $fillable = [ 'tel', 'fax', 'importance','updatedBy' ];
+    protected $fillable = [ 'tel', 'fax', 'userId' , 'centerId', 'importance','updatedBy' ];
 						 
-	
+	public static function init()
+	{
+		return [
+			'tel' => '',
+			'fax' => '',
+			'importance' => 0,
+		
+			'address'=>Address::init()
+
+		];
+	}	
 
     public function address() 
 	{
@@ -25,5 +36,7 @@ class ContactInfo extends Model
     public function user() 
 	{
 		return $this->hasOne('App\User','userId');
-    }
+	}
+	
+	
 }

@@ -92,7 +92,7 @@
                 return this.contactInfo.canEdit;
             },
             canCreate(){
-                if(!this.canEdit) return false;
+                if(!this.can_edit) return false;
                 return this.contactInfoId < 1;
             },
             canDelete(){
