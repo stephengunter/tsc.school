@@ -27,7 +27,7 @@
 							</check-box>
                         </td>
                         <td>
-                            <a href="#" @click.prevent="onSelected(admin.id)" v-text="admin.user.profile.fullname"> </a> 
+                            <a href="#" @click.prevent="onSelected(admin)" v-text="admin.user.profile.fullname"> </a> 
                            
                         </td>
                         <td>{{  admin.user.email }}</td>
@@ -117,9 +117,10 @@ export default {
             if(user.roleNames) return User.roleLabels(user.roleNames);
             return User.roleLabels(user.roles);
         },
-        onSelected(id){
+        onSelected(admin){
+           if(admin.id)  this.$emit('selected',admin.id);
+           else this.$emit('selected',admin.userId);
            
-           this.$emit('selected',id);
         },
         beenChecked(id){
             return this.checked_ids.includes(id);

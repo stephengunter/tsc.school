@@ -8,8 +8,8 @@
             </div>
             <div class="col-sm-3">
                 <label class="label-title">所屬中心</label>
-                <p>
-                    {{ admin.centers }}
+                <p v-text="centerNames(admin)">
+                
                 </p>                   
             </div>
             <div class="col-sm-3">
@@ -67,7 +67,14 @@
             }
         }, 
         methods: { 
+            centerNames(admin){
+              
+                if(admin.centerNames) return admin.centerNames;
+                return admin.centers;
+            },
             roleLabels(user){
+              
+                if(user.roleNames) return User.roleLabels(user.roleNames);
                 return User.roleLabels(user.roles);
             },
             editReview(){

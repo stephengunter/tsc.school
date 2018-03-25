@@ -11,6 +11,11 @@ class Area extends Model
 	public function centers() 
 	{
 		return $this->hasMany('App\Center','areaId', 'id');
-	}						 
+	}	
+	
+	public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class,'center_teacher','center_id','teacher_id');
+	}
 						  
 }

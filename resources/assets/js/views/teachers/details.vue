@@ -146,7 +146,10 @@
                 };
 
                 this.teacher.user.canEdit=teacher.canEdit;
-                this.teacher.user.contactInfo.canEdit=teacher.canEdit;
+                if(this.teacher.user.contactInfo){
+                      this.teacher.user.contactInfo.canEdit=teacher.canEdit;
+                }
+              
 
                 this.userSettings.id=teacher.user.id;
                 this.userSettings.user={

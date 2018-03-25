@@ -11,7 +11,18 @@ class Profile extends Model
 	protected $fillable = [
 	   'fullname', 'sid', 'gender', 
        'dob' ,  'updatedBy'
-    ];
+	];
+	
+	public static function init()
+	{
+		return [
+			'fullname' => '',
+			'sid' => '',
+			'gender' => 1,
+			'dob' =>'1975-6-30',
+
+		];
+	}
     
     public function user()
     {

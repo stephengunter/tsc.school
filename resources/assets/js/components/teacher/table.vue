@@ -28,7 +28,7 @@
 							</check-box>
                         </td>
                         <td v-if="can_select">
-                            <a  href="#" @click.prevent="onSelected(teacher.id)" v-text="teacher.user.profile.fullname"> </a> 
+                            <a  href="#" @click.prevent="onSelected(teacher.userId)" v-text="teacher.user.profile.fullname"> </a> 
                            
                         </td>
                         <td v-else v-text="teacher.user.profile.fullname">  </td>
@@ -45,7 +45,7 @@
 
                         <td>{{  teacher.specialty }}</td>
 
-                        <td v-if="!center">{{  teacher.centers }}</td>
+                        <td v-if="!center" v-text="centerNames(teacher)"></td>
                         
                         <td v-html="$options.filters.reviewedLabel(teacher.reviewed)" ></td>
                         
@@ -117,7 +117,11 @@ export default {
         getViewList(){
 			if(this.model) return this.model.viewList;
 			return this.teachers;
-		},
+        },
+        centerNames(teacher){
+            if(teacher.centerNames) return teacher.centerNames;
+            return teacher.centers;
+        },
         hasContactInfo(teacher){
             if(teacher.user.contactInfo) return true;
             return false;
@@ -129,7 +133,7 @@ export default {
             return false;
         },
         onSelected(id){
-           
+        
            this.$emit('selected',id);
         },
         beenChecked(id){

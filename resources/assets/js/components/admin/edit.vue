@@ -123,7 +123,7 @@ export default {
 					this.centerOptions=model.centerOptions.slice(0);
 					
 					this.form.centerIds=model.centerIds.map((id)=>{
-						return id.toString();
+						return parseInt(id);
 					});
 				}
 				

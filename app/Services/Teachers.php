@@ -5,7 +5,8 @@ use App\User;
 use App\Role;
 use App\Profile;
 use App\Center;
-use App\Admin;
+use App\Teacher;
+use App\Wage;
 use App\ContactInfo;
 use App\Address;
 use App\District;
@@ -13,7 +14,7 @@ use App\Services\Users;
 use DB;
 use Excel;
 
-class Admins 
+class Teachers 
 {
     public function __construct(Users $users)
     {
@@ -22,46 +23,55 @@ class Admins
     }
     public function getAll()
     {
-        return Admin::with($this->with)->where('removed',false); 
+        return Teacher::with($this->with)->where('removed',false); 
     }
     public function getById($id)
     {   
-        return Admin::with($this->with)->find($id);
+        return Teacher::with($this->with)->find($id);
     }
 
-    public function createAdmin(User $user,Admin $admin,$roleName)
+    public function createTeacher(User $user,Teacher $teacher,Array $wageValues)
     {
-        $user->admin()->save($admin);
+        $user->teacher()->save($teacher);
         
-        $user->addRole($roleName);
+        $user->addRole(Role::teacherRoleName());
 
-        return $admin;
+        $wage=$user->wages->first();
+        if($wage) $wage->update($wageValues);
+        else $user->wages()->save(new Wage($wageValues));
+
+        return $teacher;
         
     }
-    public function deleteAdmin(Admin $admin)
+
+    
+
+
+    public function deleteTeacher(Teacher $teacher,$updatedBy)
     {
-        $admin->user->removeRole(Role::staffRoleName());
-        $admin->user->removeRole(Role::bossRoleName());
-        $admin->delete();
+        $teacher->removeRole();
+
+        $teacher->removed=true;
+        $teacher->updatedBy=$updatedBy;
+        $teacher->save();
         
     }
     
-    public function fetchAdmins(Center $center = null, $keyword = '')
+    public function fetchTeachers(Center $center = null, bool $reviewed=true,  $keyword = '')
     {
-        $admins=null;
-        if($keyword) $admins=$this->getByKeyword($keyword);
-        else $admins=$this->getAll();
+        $teachers=null;
+        if($keyword) $teachers=$this->getByKeyword($keyword);
+        else $teachers=$this->getAll();
 
         if($center){
-            $admins=$admins->whereHas('centers', function($q) use ($center)
+            $teachers=$teachers->whereHas('centers', function($q) use ($center)
             {
                 $q->where('id',$center->id );
             });
           
         }
-  
 
-        return $admins;
+        return $teachers->where('reviewed',$reviewed);
     }
 
     public function  getByKeyword($keyword)
@@ -77,27 +87,27 @@ class Admins
     }
         
 
-    public function getAdminBySID($sid)
+    public function getTeacherBySID($sid)
     {
         $profile=Profile::where('sid',$sid)->first();
         if(!$profile) return null;
 
-        return Admin::find($profile->userId);
+        return Teacher::find($profile->userId);
     }
     
-    public function importAdmins($file,$updatedBy)
+    public function importTeachers($file,$updatedBy)
     {
         $err_msg='';
 
         $excel=Excel::load($file, function($reader) {             
-            $reader->limitColumns(16);
+            $reader->limitColumns(20);
             $reader->limitRows(100);
         })->get();
 
-        $adminList=$excel->toArray()[0];
+        $teacherList=$excel->toArray()[0];
        
-        for($i = 1; $i < count($adminList); ++$i) {
-            $row=$adminList[$i];
+        for($i = 1; $i < count($teacherList); ++$i) {
+            $row=$teacherList[$i];
 
             $center_codes=trim($row['centers']);
             $sid=trim($row['id']);
@@ -120,31 +130,43 @@ class Admins
             $zipcode=trim($row['zipcode']);
             $street=trim($row['street']);
 
-            $role=trim($row['role']);
+            $education=trim($row['education']);
+            $specialty=trim($row['specialty']);
+            $job=trim($row['job']);
+            $description=trim($row['description']);
 
-            if(!$fullname){
-               continue;
+            $experiences='';               
+            $array_experiences = explode(',', trim($row['experiences']));
+            for($j = 0; $j < count($array_experiences); ++$j){
+                $experiences .= $array_experiences[$j] . '<br>';
             }
 
+            if(!$fullname){
+                continue;
+            }
+
+            $wage=trim($row['wage']);
+            if(!$wage){
+                $err_msg .= '鐘點費不可空白' . ',';
+                continue;
+            }else{
+                $wage=floatval($wage);
+                if(!$wage){
+                    $err_msg .= '鐘點費錯誤' . ',';
+                    continue;
+                } 
+            }
+
+            $account=trim($row['account']);
+            if(!$account){
+                $err_msg .= '帳號不可空白' . ',';
+                continue;
+            }
+
+            
             $center_codes=trim($row['centers']);
             if(!$center_codes){
                 $err_msg .= '中心代碼不可空白' . ',';
-                continue;
-            }
-
-            if(!$role){
-                $err_msg .= '角色名稱不可空白' . ',';
-                continue;
-            }
-
-         
-            $roleName='';
-            if(strtolower($role) == strtolower(Role::staffRoleName()) ){
-                $roleName=Role::staffRoleName();
-            }else if(strtolower($role) == strtolower(Role::bossRoleName()) ){
-                $roleName=Role::bossRoleName();
-            }else{
-                $err_msg .= '角色名稱' . $role . '錯誤,';
                 continue;
             }
 
@@ -159,10 +181,10 @@ class Admins
                 array_push($centerIds, $center->id);
             }
 
-            $existAdmin = $this->getAdminBySID($sid);
-            if($existAdmin)
+            $existTeacher = $this->getTeacherBySID($sid);
+            if($existTeacher)
             {
-                $existAdmin->centers()->sync($centerIds);
+                $existTeacher->centers()->sync($centerIds);
                 continue;
             }
 
@@ -179,6 +201,22 @@ class Admins
                
                 'updatedBy' => $updatedBy
               
+            ];   
+
+            $teacherValues=[
+                'education' => $education,
+                'specialty' => $specialty,
+                'description' => $description,
+                'experiences' => $experiences,
+                'job' => $job,
+                'updatedBy' => $updatedBy,
+                'removed' => false
+            ];
+
+            $wageValues=[
+                'money' => $wage,
+                'account' => $account,
+                'updatedBy' => $updatedBy,
             ];
 
             $user= $this->users->findUser($email, $phone);
@@ -191,7 +229,6 @@ class Admins
                 );
                
             }
-            
          
             $district=null;
             $zipcode=trim($row['zipcode']);
@@ -209,8 +246,6 @@ class Admins
                 'updatedBy' => $updatedBy
             ]);
             
-         
-
             $contactInfo=new ContactInfo([
                 'tel'=>'',
                 'fax' => '',
@@ -218,15 +253,12 @@ class Admins
 
             $this->users->setContactInfo($user,$contactInfo,$address);
     
-            $admin = new Admin([
-                'active' => true,
-                'updatedBy' => $updatedBy
-            ]);
+            $teacher = new Teacher($teacherValues);
 
-            $admin=$this->createAdmin($user,$admin,$roleName);
+            $teacher=$this->createTeacher($user,$teacher,$wageValues);
      
-            $admin->userId=$user->id;
-            $admin->centers()->sync($centerIds);
+            $teacher->userId=$user->id;
+            $teacher->centers()->sync($centerIds);
             
            
         }  //end for  

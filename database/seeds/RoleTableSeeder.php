@@ -13,7 +13,7 @@ class RoleTableSeeder extends Seeder {
 
 			],
 			[
-				'name' => 'Owner',
+				'name' => 'Boss',
 					'title' => '主管',
 
 			],

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Services\Menus;
 use App\Role;
 use Route;
+use App\Center;
 
 use Illuminate\Auth\AuthenticationException;
 
@@ -41,6 +42,17 @@ class Controller extends BaseController
     {
         $roleName=Role::devRoleName();
         return $this->currentUser()->hasRole($roleName);
+    }
+
+    
+
+    protected function centersCanAdmin()
+    {
+        if($this->currentUserIsDev()) return Center::where('removed',false)->get();
+        $admin = $this->currentUser();
+        if(!$admin) return [];
+
+        return $admin->centersCanAdmin();
     }
 
     protected function isAjaxRequest()

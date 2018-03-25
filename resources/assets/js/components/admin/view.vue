@@ -135,6 +135,11 @@
             'version':'init'
         },
         methods: {
+            getAdminId(){
+                if(!this.admin) return null;
+                if(this.admin.id) return this.admin.id;
+                return this.admin.userId;
+            },
             init() {
                 if(this.id){
                     this.fetchData();
@@ -215,7 +220,7 @@
             beginDelete(){
                 
                 let name=this.admin.user.profile.fullname;
-                let id=this.admin.id;
+                let id=this.getAdminId();
 
                 this.deleteConfirm.msg='確定要刪除管理員 ' + name + ' 嗎？'
                 this.deleteConfirm.id=id

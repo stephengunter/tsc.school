@@ -8,8 +8,8 @@
             </div>
             <div class="col-sm-4">
                 <label class="label-title">所屬中心</label>
-                <p>
-                    {{ teacher.centerName }}
+                <p v-text="teacher.center.name">
+                
                 </p>                   
             </div>
             <div class="col-sm-4">
@@ -35,8 +35,8 @@
             </div>
             <div class="col-sm-4">
                 <label class="label-title">所屬中心</label>
-                <p>
-                    {{ teacher.centers }}
+                <p v-text="centerNames(teacher)">
+                 
                 </p>                   
             </div>
             <div class="col-sm-4">
@@ -78,7 +78,7 @@
         <div class="row">
             <div class="col-sm-4">
                 <label class="label-title">鐘點費</label>
-                <p>{{ teacher.wage  }}</p>           
+                <p>{{ teacher.wage | formatMoney }}</p>           
             </div>
             <div class="col-sm-4">
                 <label class="label-title">銀行帳號</label> 
@@ -131,6 +131,11 @@
             }
         }, 
         methods: { 
+            centerNames(teacher){
+              
+                if(teacher.centerNames) return teacher.centerNames;
+                return teacher.centers;
+            },
             editReview(){
                 this.$emit('edit-review')
             }

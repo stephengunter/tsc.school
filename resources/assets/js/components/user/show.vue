@@ -98,6 +98,7 @@
                 this.$emit('edit-review')
             },
             roleLabels(){
+                if(this.user.roleNames) return User.roleLabels(this.user.roleNames);
                 return User.roleLabels(this.user.roles);
             }
             

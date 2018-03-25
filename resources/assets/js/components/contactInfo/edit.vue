@@ -77,8 +77,8 @@
                default: true
             },
             user_id:{
-              type: String,
-              default: ''
+              type: Number,
+              default: 0
             },
             center_id:{
               type: Number,

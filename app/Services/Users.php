@@ -14,7 +14,45 @@ class Users
 	public function __construct()
     {
         $this->with=['profile','contactInfoes.address.district.city'];
+	}
+	public function getAll()
+    {
+        return User::with($this->with); 
+	}
+	public function getById($id)
+    {   
+        return User::with($this->with)->find($id);
     }
+	
+	public function fetchUsers(Role $role = null, $keyword = '')
+	{
+		$users=null;
+		if($keyword) $users=$this->getByKeyword($keyword);
+		else $users=$this->getAll();
+
+		if ($role)
+		{
+			$users=$users->whereHas('roles', function($query) use ($role)
+			{
+				$query->where('id',$role->id );
+			});
+
+		}
+
+		
+		return $users;
+	}
+		
+	public function  getByKeyword($keyword)
+	{
+		$byFullnames=Profile::where('fullname', 'LIKE', '%' .$keyword .'%')->pluck('userId')->toArray();
+		$byUserNames=User::where('name', 'LIKE', '%' .$keyword .'%')->pluck('id')->toArray();
+		
+		$userIds=array_unique(array_merge($byFullnames,$byUserNames));
+
+		return $this->getAll()->whereIn('id' , $userIds );
+		
+	}
     
     public function createUser(User $user,Profile $profile, array $roleNames=[])
     {
@@ -55,6 +93,18 @@ class Users
 
 	}
 
+	public function updateUser(User $user,array $values)
+	{
+		$userName = $values['email'];
+		if (!$userName) $userName = $values['phone'];
+
+		if(!$userName) abort(500); 
+
+		$values['name'] = $userName;
+
+		$user->update($values);
+	}
+
 
 	public function findByName($name)
 	{
@@ -69,6 +119,31 @@ class Users
 		if($user) return $user;
 
 		return $this->findByName($phone);
+	}
+
+	public function findUsers($email, $phone, $sid)
+	{
+		$byEmails=[];
+		if($email){
+			$email=strtolower($email);
+			$byEmails=User::where('email', $email)->pluck('id')->toArray();
+		} 
+
+		$byPhones=[];
+		if($phone){
+		
+			$byPhones=User::where('phone', $phone)->pluck('id')->toArray();
+		} 
+
+		$bySIDs=[];
+		if($sid){
+			$sid=strtoupper($email);
+			$bySIDs=Profile::where('sid', $sid)->pluck('userId')->toArray();
+		} 
+       
+        $userIds=array_unique(array_merge($byPhones,$byEmails,$bySIDs));
+
+        return User::with(['profile'])->whereIn('userId' , $userIds );
 	}
 
 	public function findBySID($sid)
@@ -103,4 +178,51 @@ class Users
 			});
 		}
 	}
+
+	public function getOrdered($users)
+    {
+        return $users->orderBy('id','desc');
+    }
+
+	public function validateUserInputs($values)
+    {
+        $errors=[];
+
+        $id=0;        
+		if(array_key_exists ('id' ,$values)) $id=(int)$values['id']; 
+		
+		$email=$values['email'];
+		$phone=$values['phone'];
+		$existUser=null;
+		if(!$email){
+			//沒有email
+			if(!$phone){
+				$errors['user.phone'] = ['必須填寫手機'];
+			}else{
+				$values['name']=$phone;
+				$existUser=$this->findByName($values['name']);
+				if($existUser && $existUser->id!=$id){
+					$errors['user.phone'] = ['手機號碼重複了'];
+				} 
+			}
+			
+		}else{
+			$values['name']=$email;
+			$existUser=$this->findByName($values['name']);
+			if($existUser && $existUser->id!=$id){
+				$errors['user.email'] = ['Email重複了'];
+			} 
+			
+		}
+
+		$sid=$values['profile']['sid'];
+		if($sid){
+			$existUser=$this->findBySID($sid);
+			if($existUser && $existUser->id!=$id){
+				$errors['user.profile.sid'] = ['身分證號重複了'];
+			} 
+		}
+
+        return $errors;
+    }
 }

@@ -7,8 +7,12 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AdminRequest;
 
 use App\Admin;
+use App\User;
+use App\Profile;
 use App\Center;
+use App\Role;
 use App\Services\Admins;
+use App\Services\Users;
 use App\Services\Centers;
 use App\Core\PagedList;
 use Carbon\Carbon;
@@ -18,30 +22,62 @@ use Illuminate\Support\Facades\Input;
 class AdminsController extends Controller
 {
     
-    public function __construct(Admins $admins, Centers $centers)
+    public function __construct(Admins $admins, Users $users,Centers $centers)
     {
         $this->admins=$admins;
+        $this->users=$users;
         $this->centers=$centers;
     }
 
-    function canEdit()
+    function canEdit($admin)
     {
-        return $this->currentUserIsDev();
+        if($this->currentUserIsDev()) return true;
+        if(!count($admin->centers)) return true;
+      
+        $centersCanAdmin= $this->centersCanAdmin();
+        $intersect = $centersCanAdmin->intersect($admin->centers);
+
+        if(count($intersect)) return true;
+        return false;
+
+
     }
+
+    function canDelete($admin)
+    {
+        return $this->canEdit($admin);
+    }
+
+
     function canImport()
     {
         return $this->currentUserIsDev();
     }
+
+    function canEditCenters()
+    {
+        if($this->currentUserIsDev()) return true;
+        return $this->currentUser()->admin->isHeadCenterAdmin();
+    }
+
+   
+    function roleOptions()
+    {
+        return [
+            ['text'=>'職員', 'value'=> Role::staffRoleName()],
+            ['text'=>'主管', 'value'=> Role::bossRoleName()]
+           
+        ];
+    }
    
     function centerOptions()
     {
-        $localCenters= $this->centers->getLocalCenters(true)->get();
+        $centers= $this->centersCanAdmin();
 
-        $options = $localCenters->map(function ($item) {
+        $options = $centers->map(function ($item) {
             return [ 'text' => $item->name ,  'value' => $item->id ];
         })->all();
 
-        array_unshift($options, ['text' => '所有中心' , 'value' =>'0']);
         return $options;
     }
 
@@ -70,7 +106,6 @@ class AdminsController extends Controller
     
     public function index()
     {
-     
 
         $request=request();
 
@@ -80,7 +115,7 @@ class AdminsController extends Controller
         $keyword='';
         if($request->keyword)  $keyword=$request->keyword;
 
-        $page=0;
+        $page=1;
         if($request->page)  $page=(int)$request->page;
 
         $pageSize=999;
@@ -100,7 +135,7 @@ class AdminsController extends Controller
 
         $admins =  $this->admins->fetchAdmins($selectedCenter, $keyword);
       
-        $pageList = new PagedList($admins);
+        $pageList = new PagedList($admins,$page,$pageSize);
         
 
         foreach($pageList->viewList as $admin){
@@ -115,11 +150,12 @@ class AdminsController extends Controller
      
         $menus=$this->adminMenus('UsersAdmin');
 
+        $centers=$this->centers->centerOptions();
        
         return view('admins.index')->with([
             'title' => '權限管理',
             'menus' => $menus,
-            'centers' => $this->centerOptions(),
+            'centers' => $centers,
            
             'canImport' => $this->canImport(),
             'list' =>  $pageList
@@ -128,17 +164,25 @@ class AdminsController extends Controller
 
     public function create()
     {
-        $areaOptions=$this->areaOptions();
-        $cityOptions=$this->cityOptions();
         $admin=Admin::init();
-       
-
-        $admin['contactInfo']['address']['cityId']=$cityOptions->first()->id;
+        $user=User::init();
+        $roleOptions=$this->roleOptions();
+        $centerOptions = $this->centerOptions();
+        $centerIds=[];
+        if (count($centerOptions))
+        {
+            array_push($centerIds,$centerOptions[0]['value']);
+           
+            $user['roles'] = Role::staffRoleName();
+        }
       
         $form=[
             'admin' => $admin,
-            'areaOptions' => $areaOptions,
-            'cityOptions' => $cityOptions,
+            'user' => $user,
+            'roleOptions' => $roleOptions,
+            'centerOptions' => $centerOptions,
+            'centerIds' => $centerIds
+
         ];
 
         return response() ->json($form);
@@ -147,19 +191,63 @@ class AdminsController extends Controller
 
     public function store(AdminRequest $request)
     {
-        $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
 
-        $admin=new Admin($request->getAdminValues());
-        $contactInfo=new ContactInfo($request->getContactInfoValues());
-        $address=new Address($request->getAddressValues());
+        $adminValues=$request->getAdminValues();
+        $userValues=$request->getUserValues();
+        $profileValues= $userValues['profile'];
+
         
-        $updatedBy=$current_user->id;
-        $admin->updatedBy=$updatedBy;
-        $contactInfo->updatedBy=$updatedBy;
-        $address->updatedBy=$updatedBy;
+        $errors=$this->users->validateUserInputs($userValues);
+        if($errors) return $this->requestError($errors);
 
-        $admin = $this->admins->createAdmin($admin,$contactInfo,$address);
+        $sid=$userValues['profile']['sid'];
+        if(!$sid){
+            $errors['user.profile.sid'] = ['必須填寫身分證號'];
+            return $this->requestError($errors);
+        }
+
+        $centerIds=$request->getCenterIds();
+        if(!count($centerIds)){
+            $errors['centerIds'] = ['請選擇所屬中心'];
+            return $this->requestError($errors);
+        }
+
+        $current_user=$this->currentUser();
+        $updatedBy=$current_user->id;
+
+        $adminValues['updatedBy']=$updatedBy;
+        $userValues['updatedBy']=$updatedBy;
+        $profileValues['updatedBy']=$updatedBy;
+
+        $role = $userValues['roles'];
+        
+        $userValues=array_except($userValues,['profile','roles']);
+        $userId=$request->getUserId();
+        $user=null;
+        if($userId){
+            $user = User::find($userId);
+            
+            $user->profile->update($profileValues);
+            $this->users->updateUser($user,$userValues);
+            
+        }else{
+          
+           $user=$this->users-> createUser(new User($userValues),new Profile($profileValues));
+           $userId=$user->id;
+         
+        }
+
+        $admin=Admin::find($userId);
+        if($admin){
+            $admin->update($adminValues);
+            $admin->setRole($role);
+        }else{
+            $admin=$this->admins->createAdmin($user,new Admin($adminValues),$role);
+            $admin->userId=$userId;
+        }
+
+        $admin->centers()->sync($centerIds);
+       
         return response() ->json($admin);
     }
 
@@ -169,12 +257,14 @@ class AdminsController extends Controller
         if(!$admin) abort(404);
 
         $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
 
-        $admin->loadContactInfo();
-        $admin->canEdit=$this->canEdit();
+        $this->loadCenterNames($admin);
+        $this->loadRoleNames($admin);
 
-        if($admin->contactInfo)  $admin->contactInfo->canEdit= $admin->canEdit;
+        $admin->user->loadContactInfo();
+     
+        $admin->canEdit=$this->canEdit($admin);
+        $admin->canDelete=$this->canDelete($admin);
        
 
         return response() ->json($admin);
@@ -183,18 +273,35 @@ class AdminsController extends Controller
 
     public function edit($id)
     {
-        $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
-
         $admin = Admin::findOrFail($id);
+        
+        if(!$this->canEdit($admin)) $this->unauthorized();
 
-        $areaOptions= $this->areaOptions();
-        $cityOptions=$this->cityOptions();
+        $roleOptions= $this->roleOptions();
+
+      
+        $role='';
+        if($admin->user->isBoss())  $role=Role::bossRoleName();
+        else if ($admin->user->isStaff())  $role=Role::staffRoleName();
+
+       
+        $centerIds=[];
+        $centerOptions=[];
+        if ($this->canEditCenters())
+        {
+            $centerIds = $admin->centers->pluck('id')->toArray();
+          
+            $centerOptions = $this->centerOptions();
+        }
+
       
         $form=[
             'admin' => $admin,
-            'areaOptions' => $areaOptions,
-            'cityOptions' => $cityOptions,
+            'roleOptions' => $roleOptions,
+            'role' => $role,
+            'centerOptions' => $centerOptions,
+            'centerIds' => $centerIds
+
         ];
 
         return response() ->json($form);
@@ -205,29 +312,40 @@ class AdminsController extends Controller
 
     public function update(AdminRequest $request, $id)
     {
-        $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
-
         $admin = Admin::findOrFail($id);
+        if(!$this->canEdit($admin)) $this->unauthorized();
        
         $values=$request->getAdminValues();
+        $roleName=$request->getRole();
 
+        $current_user=$this->currentUser();
         $values['updatedBy'] = $current_user->id;
-        
         $admin->update($values);
+
+        $admin->setRole($roleName);
+     
+        if ($this->canEditCenters())
+        {
+            $centerIds=$request->getCenterIds();
+            if(!count($centerIds)){
+                $errors['centerIds'] = ['請選擇所屬中心'];
+                return $this->requestError($errors);
+            }
+
+            $admin->centers()->sync($centerIds);
+        }
+
         return response() ->json();
     }
 
-    public function importances(Request $request)
+    public function destroy($id) 
     {
-        $values=$request->get('importances');
-        foreach ($values as $value)
-        {
-            $value['id'];
-            $value['importance'];
-            $this->admins->updateImportance($value['id'],  $value['importance']);
-        }
+        $admin = Admin::findOrFail($id);
+        if(!$this->canDelete($admin)) $this->unauthorized();
 
+        $this->admins->deleteAdmin($admin);
+       
+       
         return response() ->json();
     }
 

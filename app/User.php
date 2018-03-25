@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
+use App\Profile;
 use App\Role;
 
 class User extends Authenticatable
@@ -16,7 +16,20 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-   
+
+    public static function init()
+	{
+		return [
+			'name' => '',
+			'email' => '',
+			'phone' => '',
+			'password' => '',
+			
+
+			'profile'=> Profile::init()
+
+		];
+	}
 
     public function profile() 
 	{
@@ -32,10 +45,20 @@ class User extends Authenticatable
 	{
 		return $this->hasMany('App\ContactInfo','userId');
     }
+
+    public function wages() 
+	{
+		return $this->hasMany('App\Wage','userId');
+    }
     
     public function admin() 
 	{
 		return $this->hasOne(Admin::class,'userId');
+    }
+
+    public function teacher() 
+	{
+		return $this->hasOne(Teacher::class,'userId');
     }
 
     public function setPasswordAttribute($value) 
@@ -83,8 +106,18 @@ class User extends Authenticatable
     
     public function addRole(string $roleName)
 	{
+        if($this->hasRole($roleName)) return;
+        $role=Role::getByName($roleName);
+       
+		
+		$this->roles()->attach($role->id);
+    }
+    
+    public function removeRole(string $roleName)
+	{
+        if(!$this->hasRole($roleName)) return;
 		$role=Role::getByName($roleName);
 		
-		$this->roles()->attach($role);
-	}
+		$this->roles()->detach($role->id);
+	}   
 }

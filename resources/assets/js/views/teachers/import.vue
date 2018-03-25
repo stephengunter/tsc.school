@@ -164,7 +164,7 @@
                     })
                     .catch(error => {
                         
-                        let msg =Helper.getErrorMsg(error);
+                        let msg =error.response.data.errors.msg[0];
                         if(msg){
                             this.err_msg=msg;
                             

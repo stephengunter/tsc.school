@@ -118,6 +118,8 @@ export default {
 							centerIds:[]
 						});
 					}
+
+					this.form.teacher.wage=Helper.formatMoney(this.form.teacher.wage);
 					
 				}
 
@@ -126,7 +128,7 @@ export default {
 					
 					if(model.centerIds){
 						this.form.centerIds=model.centerIds.map((id)=>{
-							return id.toString();
+							return parseInt(id);
 						});
 					}
 					

@@ -67,8 +67,8 @@
         },
         props: {
             id: {
-              type: String,
-              default: ''
+              type: Number,
+              default: 0
             },
             can_back: {
               type: Boolean,
@@ -120,8 +120,11 @@
                     ...user
                 };
 
+                if(this.user.contactInfo){
+                    this.user.contactInfo.canEdit=user.canEdit;
+                }
               
-                this.user.contactInfo.canEdit=user.canEdit;
+              
 
               
              

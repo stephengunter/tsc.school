@@ -91,12 +91,12 @@ export default {
             return false;
         },
         hasAddress(user){
-             
             if(!this.hasContactInfo(user)) return false;
             if(user.contactInfo.address) return true;
             return false;
         },
         roleLabels(user){
+            if(user.roleNames) return User.roleLabels(user.roleNames);
             return User.roleLabels(user.roles);
         },
         onSelected(id){

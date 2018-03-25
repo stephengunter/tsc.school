@@ -121,6 +121,10 @@
             'version':'init'
         },
         methods: {
+            getTeacherId(){
+                if(this.teacher.userId) return  this.teacher.userId;
+                return this.teacher.id;
+            },
             init() {
                 if(this.id){
                     this.fetchData();
@@ -199,7 +203,7 @@
             beginDelete(){
                 
                 let name=this.teacher.user.profile.fullname;
-                let id=this.teacher.id;
+                let id=this.getTeacherId();
 
                 this.deleteConfirm.msg='確定要刪除教師 ' + name + ' 嗎？'
                 this.deleteConfirm.id=id

@@ -1,0 +1,458 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Http\Requests\TeacherRequest;
+
+use App\Teacher;
+use App\User;
+use App\Profile;
+use App\Center;
+use App\Role;
+use App\Services\Teachers;
+use App\Services\Users;
+use App\Services\Centers;
+use App\Core\PagedList;
+use Carbon\Carbon;
+use App\Core\Helper;
+use Illuminate\Support\Facades\Input;
+
+class TeachersController extends Controller
+{
+    
+    public function __construct(Teachers $teachers, Users $users,Centers $centers)
+    {
+        $this->teachers=$teachers;
+        $this->users=$users;
+        $this->centers=$centers;
+    }
+
+    function canEdit($teacher)
+    {
+        if($this->currentUserIsDev()) return true;
+        if(!count($teacher->centers)) return true;
+      
+        $centersCanAdmin= $this->centersCanAdmin();
+        $intersect = $centersCanAdmin->intersect($teacher->centers);
+
+        if(count($intersect)) return true;
+        return false;
+
+    }
+
+    function canReview(Teacher $teacher)
+    {
+        if($this->currentUserIsDev()) return true;
+        return $this->currentUser()->isBoss();
+    }
+    function canReviewCenter(Center $center)
+    {
+        if($this->currentUserIsDev()) return true;
+        if(!$this->currentUser()->isBoss()) return false;;
+
+        $centersCanAdmin= $this->centersCanAdmin();
+        $intersect = $centersCanAdmin->intersect([$center]);
+
+        if(count($intersect)) return true;
+        return false;
+    }
+
+    function canDelete($teacher)
+    {
+        return $this->canReview($teacher);
+    }
+
+
+    function canImport()
+    {
+        return $this->currentUserIsDev();
+    }
+
+    function canEditCenters()
+    {
+        if($this->currentUserIsDev()) return true;
+        return $this->currentUser()->admin->isHeadCenterTeacher();
+    }
+
+
+    function loadCenterNames($teacher)
+    {
+        if(count($teacher->centers)){
+            $teacher->centerNames=join(',',$teacher->centers->pluck('name')->toArray() );
+        }else{
+            $teacher->centerNames='';
+        }
+       
+        
+    }
+    function loadRoleNames($teacher)
+    {
+        if(count($teacher->user->roles)){
+          
+            $teacher->user->roleNames=join(',',$teacher->user->roles->pluck('name')->toArray() );
+        }else{
+            $teacher->user->roleNames='';
+        }
+       
+        
+    }
+    function loadWage($teacher)
+    {
+        $wage = $teacher->getWage();
+        if($wage){
+            $teacher->wage=$wage->money;
+            $teacher->account=$wage->account;
+        }else{
+            $teacher->wage=0;
+            $teacher->account='';
+        }
+        
+    }
+ 
+   
+    public function index()
+    {
+        $request=request();
+
+        $group=false;
+        if($request->group)  $group=Helper::isTrue($request->group);
+      
+
+        $center=0;
+        if($request->center)  $center=(int)$request->center;
+
+        $reviewed=true;
+        if($request->reviewed)  $reviewed=Helper::isTrue($request->reviewed);
+
+        $keyword='';
+        if($request->keyword)  $keyword=$request->keyword;
+
+        $page=1;
+        if($request->page)  $page=(int)$request->page;
+
+        $pageSize=999;
+        if($request->pageSize)  $pageSize=(int)$request->pageSize;
+
+        $selectedCenter = null;
+        if ($center) $selectedCenter = Center::find($center);
+        if ($selectedCenter == null)
+        {
+            $center = 0;
+            if ($pageSize == 999) $pageSize = 10;
+        }
+        else
+        {
+            $pageSize = 999;
+        }
+
+        if($group){
+            return $this->teacherGroupsIndex($selectedCenter, $keyword ,$page, $pageSize);
+        }
+
+        $canReview=false;
+        if($selectedCenter)   $canReview=$this->canReviewCenter($selectedCenter);
+      
+        $teachers =  $this->teachers->fetchTeachers($selectedCenter, $reviewed, $keyword);
+      
+        $pageList = new PagedList($teachers,$page,$pageSize);
+        
+        if (!$selectedCenter)
+        {
+            foreach($pageList->viewList as $teacher){
+                $this->loadCenterNames($teacher);
+                $teacher->user->loadContactInfo();
+            } 
+        }
+       
+
+        if($this->isAjaxRequest()){
+            return response() ->json([
+                'canReview' => $canReview,
+                'model' => $pageList
+            ]);
+        }
+       
+     
+        $menus=$this->adminMenus('UsersAdmin');
+
+        $centers=$this->centers->centerOptions();
+       
+       
+        return view('teachers.index')->with([
+            'title' => '教師管理',
+            'menus' => $menus,
+            'centers' => $centers,
+            'canReview' => $canReview,
+            'canImport' => $this->canImport(),
+            'list' =>  $pageList
+        ]);
+    }
+
+   
+
+    public function create()
+    {
+        $teacher=Teacher::init();
+        $user=User::init();
+
+    
+        $centersCanAdmin= $this->centersCanAdmin();
+        $centerOptions = $centersCanAdmin->map(function ($item) {
+            return [ 'text' => $item->name ,  'value' => $item->id ];
+        })->all();
+
+        $centerIds=[];
+        if (count($centerOptions))
+        {
+            array_push($centerIds,$centerOptions[0]['value']);
+        }
+      
+        $form=[
+            'teacher' => $teacher,
+            'user' => $user,
+            'centerOptions' => $centerOptions,
+            'centerIds' => $centerIds
+
+        ];
+
+        return response() ->json($form);
+      
+    }
+
+    public function validateTeacherInputs($values)
+    {
+        $errors=[];
+
+        $group=false;
+        if(array_key_exists('group',$values)) $group=Helper::isTrue($values['group']);
+        
+        if($group){
+
+
+        }else{
+            $wage=0;
+            if($values['wage']) $wage=floatval($values['wage']);
+            if(!$wage) 	$errors['teacher.wage'] = ['必須填寫鐘點費'];
+
+            if(!$values['account']) 	$errors['teacher.account'] = ['必須填寫銀行帳號'];
+
+        }
+
+        return $errors;
+    }
+
+    public function store(TeacherRequest $request)
+    {
+
+        $teacherValues=$request->getTeacherValues();
+        $userValues=$request->getUserValues();
+        $profileValues= $userValues['profile'];
+
+        
+        $errors=$this->users->validateUserInputs($userValues);
+        if($errors) return $this->requestError($errors);
+
+        $errors=$this->validateTeacherInputs($teacherValues);
+
+        $sid=$userValues['profile']['sid'];
+        if(!$sid){
+            $errors['user.profile.sid'] = ['必須填寫身分證號'];
+        }
+
+        $centerIds=$request->getCenterIds();
+        if(!count($centerIds)){
+            $errors['centerIds'] = ['請選擇所屬中心'];
+        }
+
+      
+        if($errors) return $this->requestError($errors);
+
+        $current_user=$this->currentUser();
+        $updatedBy=$current_user->id;
+
+        $teacherValues['updatedBy']=$updatedBy;
+        $userValues['updatedBy']=$updatedBy;
+        $profileValues['updatedBy']=$updatedBy;
+        
+        $userValues=array_except($userValues,['profile']);
+        $userId=$request->getUserId();
+        $user=null;
+        if($userId){
+            $user = User::find($userId);
+
+            $user->profile->update($profileValues);
+            $this->users->updateUser($user,$userValues);
+            
+        }else{
+          
+           $user=$this->users-> createUser(new User($userValues),new Profile($profileValues));
+           $userId=$user->id;
+         
+        }
+
+        $wageValues=[
+            'account' => $teacherValues['account'],
+            'money' => $teacherValues['wage'],
+            'updatedBy' => $updatedBy,
+        ];
+
+        $teacher=Teacher::find($userId);
+        if($teacher){
+            $teacher->update($teacherValues);
+            $teacher->addRole();
+
+            $wage=$teacher->getWage();
+            if($wage) $wage->update($wageValues);
+
+        }else{
+            $teacher=$this->teachers->createTeacher($user,new Teacher($teacherValues), $wage);
+            $teacher->userId=$userId;
+        }
+
+        $teacher->centers()->sync($centerIds);
+       
+        return response() ->json($teacher);
+    }
+
+    public function show($id)
+    {
+        $teacher = $this->teachers->getById($id);
+        if(!$teacher) abort(404);
+
+        $current_user=$this->currentUser();
+
+        $this->loadCenterNames($teacher);
+        $this->loadRoleNames($teacher);
+
+        $this->loadWage($teacher);
+
+        $teacher->user->loadContactInfo();
+     
+        $teacher->canEdit=$this->canEdit($teacher);
+        $teacher->canDelete=$this->canDelete($teacher);
+       
+
+        return response() ->json($teacher);
+        
+    }
+
+    public function edit($id)
+    {
+        $teacher = Teacher::findOrFail($id);        
+        if(!$this->canEdit($teacher)) $this->unauthorized();
+
+        $this->loadWage($teacher);
+       
+        $centerIds=$teacher->centers->pluck('id')->toArray();
+
+        $centersCanAdmin= $this->centersCanAdmin();
+        $centerOptions = $centersCanAdmin->map(function ($item) {
+            return [ 'text' => $item->name ,  'value' => $item->id ];
+        })->all();
+
+      
+        $form=[
+            'teacher' => $teacher,
+         
+            'centerOptions' => $centerOptions,
+            'centerIds' => $centerIds
+
+        ];
+
+        return response() ->json($form);
+       
+        
+    }
+
+
+    public function update(TeacherRequest $request, $id)
+    {
+        $teacher = Teacher::findOrFail($id);
+        if(!$this->canEdit($teacher)) $this->unauthorized();
+       
+        $values=$request->getTeacherValues();
+
+        $errors=$this->validateTeacherInputs($values);
+
+        $centerIds=$request->getCenterIds();
+        if(!count($centerIds)){
+            $errors['centerIds'] = ['請選擇所屬中心'];
+        }
+
+        if($errors) return $this->requestError($errors);
+
+        $current_user=$this->currentUser();
+        $values['updatedBy'] = $current_user->id;
+
+        $teacher->update($values);
+
+        $teacher->user->addRole(Role::teacherRoleName());
+
+        $wageValues=[
+            'account' => $values['account'],
+            'money' => $values['wage'],
+            'updatedBy' =>  $current_user->id
+        ];
+
+        $teacher->setWage($wageValues);
+     
+        $centerIds=$request->getCenterIds();
+        if(!count($centerIds)){
+            $errors['centerIds'] = ['請選擇所屬中心'];
+            return $this->requestError($errors);
+        }
+
+        $teacher->centers()->sync($centerIds);
+
+        return response() ->json();
+    }
+
+    public function destroy($id) 
+    {
+        $teacher = Teacher::findOrFail($id);
+        if(!$this->canDelete($teacher)) $this->unauthorized();
+
+        $this->teachers->deleteTeacher($teacher, $this->currentUserId());
+       
+       
+        return response() ->json();
+    }
+
+    public function import(Request $form)
+    {
+        
+        if(!$this->canImport()){
+            return $this->unauthorized();
+        }
+
+        $group=Helper::isTrue($form['group']);
+        if($group){
+
+        }
+
+        $errors=[];
+      
+        if(!$form->hasFile('file')){
+            $errors['msg'] = ['無法取得上傳檔案'];
+        } 
+
+        if($errors) return $this->requestError($errors);
+
+
+        $file=Input::file('file');   
+     
+        $err_msg=$this->teachers->importTeachers($file,$this->currentUserId());
+        
+        if($err_msg)
+        {
+            $errors['msg'] = [$err_msg];
+            return $this->requestError($errors);
+        }
+
+        return response() ->json();
+
+       
+    }
+}

@@ -45,8 +45,8 @@ export default {
     name:'EditUser',
     props: {
         id: {
-            type: String,
-            default: ''
+            type: Number,
+            default: 0
         },
 	},
 	components: {

@@ -29,10 +29,17 @@ Route::group(['middleware' => 'admin'], function()
 {
     Route::resource('/manage/change-password', 'ChangePasswordController',['only' => ['index','store']]);
     
+    Route::resource('/manage/users', 'UsersController');
+    Route::post('/manage/users/find', 'UsersController@find');
+
     Route::resource('/manage/terms', 'TermsController');
 
     Route::resource('/manage/admins', 'AdminsController');
     Route::post('/manage/admins/import', 'AdminsController@import');
+
+    Route::resource('/manage/teachers', 'TeachersController');
+    Route::post('/manage/teachers/import', 'TeachersController@import');
+
 
     Route::resource('/manage/categories', 'CategoriesController');
     Route::post('/manage/categories/importances', 'CategoriesController@importances');

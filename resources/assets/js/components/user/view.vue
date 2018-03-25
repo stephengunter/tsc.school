@@ -46,8 +46,8 @@
                 default: null
             },
             id: {
-                type: String,
-                default: ''
+                type: Number,
+                default: 0
             },
             can_edit:{
                 type: Boolean,

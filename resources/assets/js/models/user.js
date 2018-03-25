@@ -8,7 +8,7 @@ class User {
     }
  
     static source() {
-        return '/users';
+        return '/manage/users';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;
@@ -206,9 +206,9 @@ class User {
      
         if(!roles) return '';
 
-        if(Array.isArray){
+        if(Array.isArray(roles)){
             if(!roles.length) return '';
-            roles=roles.split(',');
+           
         }else{
             roles=roles.split(',');
         }

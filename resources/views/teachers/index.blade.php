@@ -4,18 +4,18 @@
 @section('content')
 
 
-<admins-index v-show="indexMode" :init_model="model" :centers="centers" :can_import="can_import" :version="version"
-                v-on:selected="onSelected" v-on:create="onCreate" v-on:import="beginImport">
-</admins-index>
-<admins-details v-if="selected" :id="selected"
-                  v-on:back="backToIndex" v-on:admin-deleted="backToIndex">
-</admins-details>
-<admins-create v-if="creating" v-on:cancel="backToIndex" v-on:saved="backToIndex">
-</admins-create>
+<teachers-index v-show="indexMode" :init_model="model" :centers="centers" :can_review="can_review" :can_import="can_import" :version="version"
+               v-on:selected="onSelected" v-on:create="onCreate" v-on:import="beginImport" v-on:group-changed="setGroup">
+</teachers-index>
+<teachers-details v-if="selected" :id="selected" :group="group"
+                 v-on:back="backToIndex" v-on:teacher-deleted="backToIndex">  
+</teachers-details>
+<teachers-create v-if="creating" :group="group" v-on:back="backToIndex">
+</teachers-create>
 
-<admins-import v-if="importing" :can_import="can_import" :centers="centers" 
-                 v-on:cancel="backToIndex" v-on:imported="backToIndex">
-</admins-import>
+<teachers-import v-if="importing"  :can_import="can_import"  :centers="centers"
+                v-on:cancel="backToIndex" v-on:imported="backToIndex">
+</teachers-import>
 
 
 
@@ -35,12 +35,15 @@
                     can_review: false,
                     can_import: false,
 
+                  
                     centers: [],
 
                     creating:false,
                     selected: 0,
 
-                    importing: false
+                    importing: false,
+
+                    group:false
 
                 }
             },
@@ -56,7 +59,8 @@
             beforeMount() {
                 this.model = {!! json_encode($list) !!} ;
                 this.centers = {!! json_encode($centers) !!} ;
-             
+                
+                this.can_review = Helper.isTrue('{!! $canReview !!}');  
                 this.can_import = Helper.isTrue('{!! $canImport !!}');  
 
 			},
@@ -64,21 +68,23 @@
                 onCreate() {
                     this.creating = true;
                 },
-                onSelected(id) {
-                  
+                onSelected(id,group) {
                     this.selected = id;
+                    this.group = Helper.isTrue(group);
                 },
                 beginImport() {
 
                     this.importing = true;
                 },
                 backToIndex() {
-                   
                     this.version += 1;
 
                     this.selected = 0;
                     this.creating = false;
                     this.importing = false;
+                },
+                setGroup(val){
+                    this.group=val;
                 }
 
 			}

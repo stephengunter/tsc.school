@@ -52714,7 +52714,7 @@ var Teacher = function () {
     _createClass(Teacher, null, [{
         key: 'source',
         value: function source() {
-            return '/teachers';
+            return '/manage/teachers';
         }
     }, {
         key: 'showUrl',
@@ -53114,7 +53114,7 @@ var User = function () {
     _createClass(User, null, [{
         key: 'source',
         value: function source() {
-            return '/users';
+            return '/manage/users';
         }
     }, {
         key: 'showUrl',
@@ -53310,9 +53310,8 @@ var User = function () {
 
             if (!roles) return '';
 
-            if (Array.isArray) {
+            if (Array.isArray(roles)) {
                 if (!roles.length) return '';
-                roles = roles.split(',');
             } else {
                 roles = roles.split(',');
             }
@@ -64465,12 +64464,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			return false;
 		},
 		hasAddress: function hasAddress(user) {
-
 			if (!this.hasContactInfo(user)) return false;
 			if (user.contactInfo.address) return true;
 			return false;
 		},
 		roleLabels: function roleLabels(user) {
+			if (user.roleNames) return User.roleLabels(user.roleNames);
 			return User.roleLabels(user.roles);
 		},
 		onSelected: function onSelected(id) {
@@ -69223,8 +69222,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             default: true
         },
         user_id: {
-            type: String,
-            default: ''
+            type: Number,
+            default: 0
         },
         center_id: {
             type: Number,
@@ -73821,6 +73820,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (this.model) return this.model.viewList;
             return this.teachers;
         },
+        centerNames: function centerNames(teacher) {
+            if (teacher.centerNames) return teacher.centerNames;
+            return teacher.centers;
+        },
         hasContactInfo: function hasContactInfo(teacher) {
             if (teacher.user.contactInfo) return true;
             return false;
@@ -73960,7 +73963,7 @@ var render = function() {
                         on: {
                           click: function($event) {
                             $event.preventDefault()
-                            _vm.onSelected(teacher.id)
+                            _vm.onSelected(teacher.userId)
                           }
                         }
                       })
@@ -73990,7 +73993,11 @@ var render = function() {
                 _c("td", [_vm._v(_vm._s(teacher.specialty))]),
                 _vm._v(" "),
                 !_vm.center
-                  ? _c("td", [_vm._v(_vm._s(teacher.centers))])
+                  ? _c("td", {
+                      domProps: {
+                        textContent: _vm._s(_vm.centerNames(teacher))
+                      }
+                    })
                   : _vm._e(),
                 _vm._v(" "),
                 _c("td", {
@@ -74748,6 +74755,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         'version': 'init'
     },
     methods: {
+        getTeacherId: function getTeacherId() {
+            if (this.teacher.userId) return this.teacher.userId;
+            return this.teacher.id;
+        },
         init: function init() {
             if (this.id) {
                 this.fetchData();
@@ -74822,7 +74833,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         beginDelete: function beginDelete() {
 
             var name = this.teacher.user.profile.fullname;
-            var id = this.teacher.id;
+            var id = this.getTeacherId();
 
             this.deleteConfirm.msg = '確定要刪除教師 ' + name + ' 嗎？';
             this.deleteConfirm.id = id;
@@ -75033,6 +75044,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
     },
     methods: {
+        centerNames: function centerNames(teacher) {
+
+            if (teacher.centerNames) return teacher.centerNames;
+            return teacher.centers;
+        },
         editReview: function editReview() {
             this.$emit('edit-review');
         }
@@ -75065,13 +75081,9 @@ var render = function() {
                     _vm._v("所屬中心")
                   ]),
                   _vm._v(" "),
-                  _c("p", [
-                    _vm._v(
-                      "\r\n                    " +
-                        _vm._s(_vm.teacher.centerName) +
-                        "\r\n                "
-                    )
-                  ])
+                  _c("p", {
+                    domProps: { textContent: _vm._s(_vm.teacher.center.name) }
+                  })
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-sm-4" }, [
@@ -75116,13 +75128,11 @@ var render = function() {
                     _vm._v("所屬中心")
                   ]),
                   _vm._v(" "),
-                  _c("p", [
-                    _vm._v(
-                      "\r\n                    " +
-                        _vm._s(_vm.teacher.centers) +
-                        "\r\n                "
-                    )
-                  ])
+                  _c("p", {
+                    domProps: {
+                      textContent: _vm._s(_vm.centerNames(_vm.teacher))
+                    }
+                  })
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-sm-4" }, [
@@ -75204,7 +75214,9 @@ var render = function() {
                     _vm._v("鐘點費")
                   ]),
                   _vm._v(" "),
-                  _c("p", [_vm._v(_vm._s(_vm.teacher.wage))])
+                  _c("p", [
+                    _vm._v(_vm._s(_vm._f("formatMoney")(_vm.teacher.wage)))
+                  ])
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-sm-4" }, [
@@ -75402,6 +75414,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 							centerIds: []
 						});
 					}
+
+					_this.form.teacher.wage = Helper.formatMoney(_this.form.teacher.wage);
 				}
 
 				if (model.centerOptions) {
@@ -75409,7 +75423,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 					if (model.centerIds) {
 						_this.form.centerIds = model.centerIds.map(function (id) {
-							return id.toString();
+							return parseInt(id);
 						});
 					}
 				}
@@ -76730,6 +76744,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'TeacherInputs',
@@ -76754,7 +76778,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
 
-    computed: {},
+    computed: {
+        canEditCenters: function canEditCenters() {
+            if (!this.centers) return false;
+            return this.centers.length > 1;
+        }
+    },
     watch: {},
     beforeMount: function beforeMount() {
         this.init();
@@ -76765,6 +76794,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         onCenterSelected: function onCenterSelected(center) {
 
             this.form.teacher.centerId = center.value;
+        },
+        onCentersChanged: function onCentersChanged(values) {
+            this.form.centerIds = values.slice(0);
+            if (values.length) this.form.errors.clear('centerIds');
         },
         setActive: function setActive(val) {
             this.form.teacher.active = val;
@@ -76913,6 +76946,40 @@ var render = function() {
         ])
       ])
     : _c("div", [
+        _vm.canEditCenters
+          ? _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-sm-12" }, [
+                _c(
+                  "div",
+                  { staticClass: "form-group" },
+                  [
+                    _c("label", [_vm._v("所屬中心")]),
+                    _vm._v(" "),
+                    _c("check-box-list", {
+                      attrs: {
+                        options: _vm.centers,
+                        default_values: _vm.form.centerIds
+                      },
+                      on: { "select-changed": _vm.onCentersChanged }
+                    }),
+                    _vm._v(" "),
+                    _vm.form.errors.has("centerIds")
+                      ? _c("small", {
+                          staticClass: "text-danger",
+                          domProps: {
+                            textContent: _vm._s(
+                              _vm.form.errors.get("centerIds")
+                            )
+                          }
+                        })
+                      : _vm._e()
+                  ],
+                  1
+                )
+              ])
+            ])
+          : _vm._e(),
+        _vm._v(" "),
         _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-sm-4" }, [
             _c("div", { staticClass: "form-group" }, [
@@ -77994,7 +78061,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             this.teacher = _extends({}, teacher);
 
             this.teacher.user.canEdit = teacher.canEdit;
-            this.teacher.user.contactInfo.canEdit = teacher.canEdit;
+            if (this.teacher.user.contactInfo) {
+                this.teacher.user.contactInfo.canEdit = teacher.canEdit;
+            }
 
             this.userSettings.id = teacher.user.id;
             this.userSettings.user = _extends({
@@ -78841,8 +78910,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             default: null
         },
         id: {
-            type: String,
-            default: ''
+            type: Number,
+            default: 0
         },
         can_edit: {
             type: Boolean,
@@ -79113,6 +79182,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.$emit('edit-review');
         },
         roleLabels: function roleLabels() {
+            if (this.user.roleNames) return User.roleLabels(this.user.roleNames);
             return User.roleLabels(this.user.roles);
         }
     }
@@ -79312,8 +79382,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 	name: 'EditUser',
 	props: {
 		id: {
-			type: String,
-			default: ''
+			type: Number,
+			default: 0
 		}
 	},
 	components: {
@@ -81039,7 +81109,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 _this.$emit('imported');
             }).catch(function (error) {
 
-                var msg = Helper.getErrorMsg(error);
+                var msg = error.response.data.errors.msg[0];
                 if (msg) {
                     _this.err_msg = msg;
                 } else {
@@ -81721,9 +81791,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (user.roleNames) return User.roleLabels(user.roleNames);
             return User.roleLabels(user.roles);
         },
-        onSelected: function onSelected(id) {
-
-            this.$emit('selected', id);
+        onSelected: function onSelected(admin) {
+            if (admin.id) this.$emit('selected', admin.id);else this.$emit('selected', admin.userId);
         },
         beenChecked: function beenChecked(id) {
             return this.checked_ids.includes(id);
@@ -81841,7 +81910,7 @@ var render = function() {
                     on: {
                       click: function($event) {
                         $event.preventDefault()
-                        _vm.onSelected(admin.id)
+                        _vm.onSelected(admin)
                       }
                     }
                   })
@@ -82310,6 +82379,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         'version': 'init'
     },
     methods: {
+        getAdminId: function getAdminId() {
+            if (!this.admin) return null;
+            if (this.admin.id) return this.admin.id;
+            return this.admin.userId;
+        },
         init: function init() {
             if (this.id) {
                 this.fetchData();
@@ -82379,7 +82453,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         beginDelete: function beginDelete() {
 
             var name = this.admin.user.profile.fullname;
-            var id = this.admin.id;
+            var id = this.getAdminId();
 
             this.deleteConfirm.msg = '確定要刪除管理員 ' + name + ' 嗎？';
             this.deleteConfirm.id = id;
@@ -82527,7 +82601,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
     },
     methods: {
+        centerNames: function centerNames(admin) {
+
+            if (admin.centerNames) return admin.centerNames;
+            return admin.centers;
+        },
         roleLabels: function roleLabels(user) {
+
+            if (user.roleNames) return User.roleLabels(user.roleNames);
             return User.roleLabels(user.roles);
         },
         editReview: function editReview() {
@@ -82558,13 +82639,9 @@ var render = function() {
           _c("div", { staticClass: "col-sm-3" }, [
             _c("label", { staticClass: "label-title" }, [_vm._v("所屬中心")]),
             _vm._v(" "),
-            _c("p", [
-              _vm._v(
-                "\n                " +
-                  _vm._s(_vm.admin.centers) +
-                  "\n            "
-              )
-            ])
+            _c("p", {
+              domProps: { textContent: _vm._s(_vm.centerNames(_vm.admin)) }
+            })
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-3" }, [
@@ -82760,7 +82837,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 					_this.centerOptions = model.centerOptions.slice(0);
 
 					_this.form.centerIds = model.centerIds.map(function (id) {
-						return id.toString();
+						return parseInt(id);
 					});
 				}
 			}).catch(function (error) {
@@ -90996,8 +91073,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     },
     props: {
         id: {
-            type: String,
-            default: ''
+            type: Number,
+            default: 0
         },
         can_back: {
             type: Boolean,
@@ -91041,7 +91118,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         onUserLoaded: function onUserLoaded(user) {
             this.user = _extends({}, user);
 
-            this.user.contactInfo.canEdit = user.canEdit;
+            if (this.user.contactInfo) {
+                this.user.contactInfo.canEdit = user.canEdit;
+            }
         },
         reloadUser: function reloadUser() {
 

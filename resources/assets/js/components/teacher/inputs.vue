@@ -41,7 +41,17 @@
     </div> <!--  row   -->
 </div>
 <div v-else>
-    
+    <div v-if="canEditCenters" class="row">
+        <div class="col-sm-12">
+            <div class="form-group">                           
+                <label>所屬中心</label>
+                <check-box-list :options="centers" :default_values="form.centerIds" 
+					@select-changed="onCentersChanged">
+				</check-box-list>
+                <small class="text-danger" v-if="form.errors.has('centerIds')" v-text="form.errors.get('centerIds')"></small>
+            </div>
+        </div> 
+    </div>
     <div class="row">
         <div class="col-sm-4">
             <div class="form-group">                           
@@ -149,7 +159,10 @@
             }
         },
         computed:{
-            
+            canEditCenters(){
+                if(!this.centers) return false;
+                return this.centers.length > 1
+            },
             
         },
         watch:{
@@ -165,6 +178,10 @@
             onCenterSelected(center){
                
                this.form.teacher.centerId=center.value;
+            },
+            onCentersChanged(values){
+                this.form.centerIds=values.slice(0);
+                if(values.length)  this.form.errors.clear('centerIds');
             },
             setActive(val){
                 this.form.teacher.active=val;

@@ -66,6 +66,18 @@ class Centers
         return $centers->orderBy('importance','desc');
     }
 
+    public function centerOptions($withEmpty=true)
+    {
+        $localCenters= $this->getLocalCenters(true)->get();
+        $options = $localCenters->map(function ($item) {
+            return [ 'text' => $item->name ,  'value' => $item->id ];
+        })->all();
+
+        if($withEmpty) array_unshift($options, ['text' => '所有中心' , 'value' =>'0']);
+        
+        return $options;
+    }
+
     public function updateImportance($id,$importance)
     {
         $center=Center::find($id);

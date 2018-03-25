@@ -45,7 +45,16 @@ class Center extends Model
     {
         return $this->belongsToMany(Admin::class,'center_admin','center_id','admin_id');
 	}
-	
+
+	public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class,'center_teacher','center_id','teacher_id');
+	}
+	public function teacherGroups()
+    {
+		return $this->hasMany('App\TeacherGroup','centerId', 'id');
+      
+	}
 
 	public function getContactInfo()
 	{
