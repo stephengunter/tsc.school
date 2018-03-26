@@ -56,6 +56,10 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/centers/importances', 'CentersController@importances');
     Route::post('/manage/centers/import', 'CentersController@import');
 
+    Route::resource('/manage/courses', 'CoursesController');
+    Route::post('/manage/courses/import', 'CoursesController@import');
+    Route::post('/manage/teacourseschers/review', 'CoursesController@review');
+
     Route::resource('/manage/contactInfoes', 'ContactInfoesController');
 
 });

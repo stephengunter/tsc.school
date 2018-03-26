@@ -60,6 +60,18 @@ class Categories
         if(!$min) return 0;
         return $min;
     }
+
+    public function options($withEmpty=true)
+    {
+        $categories= $this->fetchCategories()->get();
+        $options = $categories->map(function ($item) {
+            return [ 'text' => $item->name ,  'value' => $item->id ];
+        })->all();
+
+        if($withEmpty) array_unshift($options, ['text' => '所有分類' , 'value' =>'0']);
+        
+        return $options;
+    }
     
     public function importCategories($file,$updatedBy)
     {

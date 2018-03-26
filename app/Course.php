@@ -3,7 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Category;
+use App\Center;
+use App\Term;
 use Carbon\Carbon;
 
 class Course extends Model
@@ -32,6 +34,8 @@ class Course extends Model
         
         return [            
             'name' => '',
+            'level' => '',
+            'number' => '',
             'discount' => 1,
           
             'centerId' => $center_id,
@@ -48,6 +52,21 @@ class Course extends Model
            
         ];
     }
+    public static function initCourseNumber($serial ,Category $category,Center $center ,Term $term )
+    {
+        // 8A1071-001
+        $serial = (int)$serial;
+        if (!$serial) return '';
+
+        $numString = '';
+        if ($serial < 10) $numString = '00' .(string)$serial;
+        else if ($serial < 100) $numString = '0' . (string)$serial;
+        else $numString = (string)$serial;
+
+        return $category->code . $center->code . (string)$term->number .'-' . $numString;
+
+    }
+    
 
     public function term() 
 	{
@@ -70,7 +89,7 @@ class Course extends Model
     
     public function categories()
     {
-        return $this->belongsToMany(Category::class,'category_course','category_id','course_id');
+        return $this->belongsToMany(Category::class,'category_course','course_id','category_id');
     }
     
     public function classTimes() 
@@ -81,7 +100,15 @@ class Course extends Model
     public function processes() 
 	{
 		return $this->hasMany('App\Process','courseId');
-	}
+    }
+    
+    public function fullName()
+    {
+        $fullname=$this->name;
+        if($this->level) $fullname .= ' - ' . $this->level;
+        $this->fullName=$fullname;
+        return $fullname;
+    }
 
     
 }

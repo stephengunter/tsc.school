@@ -8,7 +8,7 @@ class Course {
     }
  
     static source() {
-        return '/courses';
+        return '/manage/courses';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;

@@ -61,7 +61,7 @@
 							</check-box>
                         </td>
                        
-                        <td v-if="!center" > {{ course.centerName }} </td>
+                        <td v-if="!center" > {{ course.center.name }}  </td>
                         <td> {{ course.number }} </td>
                         <td> 
                             <a v-if="can_select" href="#" @click.prevent="onSelected(course.id)" v-text="course.fullName"> </a>
@@ -87,7 +87,7 @@
 								@selected="onChecked" @unselected="unChecked">
 							</check-box>
                         </td>
-                        <td v-if="!center" > {{ course.centerName }} </td>
+                        <td v-if="!center" > {{ course.center.name }} </td>
                         <td> {{ course.number }}  </td>
                         <td> 
                             <a v-if="can_select" href="#" @click.prevent="onSelected(course.id)" v-text="course.fullName"> </a>

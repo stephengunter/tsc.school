@@ -47,7 +47,15 @@ class TeachersController extends Controller
     function canReview(Teacher $teacher)
     {
         if($this->currentUserIsDev()) return true;
-        return $this->currentUser()->isBoss();
+        if(!$this->currentUser()->isBoss()) return false;
+
+        $centersCanAdmin= $this->centersCanAdmin();
+        $intersect = $centersCanAdmin->intersect($teacher->centers);
+
+        
+        if(count($intersect)) return true;
+        return false;
+
     }
     function canReviewCenter(Center $center)
     {

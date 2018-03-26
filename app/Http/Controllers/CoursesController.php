@@ -11,10 +11,10 @@ use App\User;
 use App\Profile;
 use App\Center;
 use App\Role;
+use App\Services\Terms;
 use App\Services\Courses;
-use App\Services\CourseGroups;
-use App\Services\Users;
 use App\Services\Centers;
+use App\Services\Categories;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -23,12 +23,12 @@ use Illuminate\Support\Facades\Input;
 class CoursesController extends Controller
 {
     
-    public function __construct(Courses $courses, Users $users,Centers $centers ,CourseGroups $courseGroups)
+    public function __construct(Courses $courses, Terms $terms,Centers $centers,Categories $categories)
     {
         $this->courses=$courses;
-        $this->users=$users;
+        $this->terms=$terms;
         $this->centers=$centers;
-        $this->courseGroups=$courseGroups;
+        $this->categories=$categories;
     }
 
     function canEdit($course)
@@ -47,9 +47,17 @@ class CoursesController extends Controller
     function canReview(Course $course)
     {
         if($this->currentUserIsDev()) return true;
-        return $this->currentUser()->isBoss();
+        if(!$this->currentUser()->isBoss()) return false;
+
+        $centersCanAdmin= $this->centersCanAdmin();
+        $intersect = $centersCanAdmin->intersect([$course->center]);
+
+        
+        if(count($intersect)) return true;
+        return false;
+
     }
-    function canReviewCenter(Center $center)
+    function canReviewCenter(Center $center=null)
     {
         if(!$center) return false;
 
@@ -80,52 +88,55 @@ class CoursesController extends Controller
         return $this->currentUser()->admin->isHeadCenterCourse();
     }
 
+    function termOptions()
+    {
+        $terms=$this->terms->getAll();
+        $terms=$this->terms->getOrdered($terms)->get();
 
-    function loadCenterNames($course)
-    {
-        if(count($course->centers)){
-            $course->centerNames=join(',',$course->centers->pluck('name')->toArray() );
-        }else{
-            $course->centerNames='';
-        }
-       
-        
+        $options = $terms->map(function ($item) {
+            return [ 'text' => $item->name ,  'value' => $item->id ];
+        })->all();
+
+        return $options;
+
+
     }
-    function loadRoleNames($course)
-    {
-        if(count($course->user->roles)){
-          
-            $course->user->roleNames=join(',',$course->user->roles->pluck('name')->toArray() );
-        }else{
-            $course->user->roleNames='';
-        }
-       
-        
-    }
-    function loadWage($course)
-    {
-        $wage = $course->getWage();
-        if($wage){
-            $course->wage=$wage->money;
-            $course->account=$wage->account;
-        }else{
-            $course->wage=0;
-            $course->account='';
-        }
-        
-    }
+
+    
  
-   
+    function setTeachers($course)
+    {
+        $teachers=$course->teachers;
+        if($course->teacherGroup) $course->teacherNames=$course->teacherGroup->name;
+        if(count($teachers)){
+            $names=join(',',$teachers->pluck('user.profile.fullname')->toArray());
+            if($course->teacherNames) $course->teacherNames .= $names;
+            else $course->teacherNames=$names;
+        }
+
+    }
+
+    function setCategories($course)
+    {
+        $categories=$course->categories;
+        $course->categoryName=join(',',$categories->pluck('name')->toArray());
+
+        $course->categoryId =$categories->where('top',false)->first()->id;
+    }
+
     public function index()
     {
+       
         $request=request();
 
-        $group=false;
-        if($request->group)  $group=Helper::isTrue($request->group);
-      
+        $term=0;
+        if($request->term)  $term=(int)$request->term;
 
         $center=0;
         if($request->center)  $center=(int)$request->center;
+
+        $category=0;
+        if($request->category)  $category=(int)$request->category;
 
         $reviewed=true;
         if($request->reviewed)  $reviewed=Helper::isTrue($request->reviewed);
@@ -151,25 +162,24 @@ class CoursesController extends Controller
             $pageSize = 999;
         }
 
-        if($group){
-            return $this->courseGroupsIndex($selectedCenter, $keyword ,$page, $pageSize);
-        }
+        $canReview=$this->canReviewCenter($selectedCenter);
 
-        $canReview=false;
-        if($selectedCenter)   $canReview=$this->canReviewCenter($selectedCenter);
+        $selectedCategory = null;
+        if ($category) $selectedCategory = Category::find($category);
+
+        $termOptions = $this->termOptions();
+        if (!$term) $term = (int)$termOptions[0]['value'];
       
-        $courses =  $this->courses->fetchCourses($selectedCenter, $reviewed, $keyword);
+        $courses =  $this->courses->fetchCourses($term ,$selectedCenter, $selectedCategory,$reviewed, $keyword);
       
         $pageList = new PagedList($courses,$page,$pageSize);
-        
-        if (!$selectedCenter)
-        {
-            foreach($pageList->viewList as $course){
-                $this->loadCenterNames($course);
-                $course->user->loadContactInfo();
-            } 
-        }
-       
+
+        foreach($pageList->viewList as $course){
+            $course->fullName();
+            //$course->fullName();
+            $this->setTeachers($course);
+            $this->setCategories($course);
+        } 
 
         if($this->isAjaxRequest()){
             return response() ->json([
@@ -177,66 +187,30 @@ class CoursesController extends Controller
                 'model' => $pageList
             ]);
         }
-       
-     
-        $menus=$this->adminMenus('UsersAdmin');
 
-        $centers=$this->centers->centerOptions();
-       
-       
-        return view('courses.index')->with([
-            'title' => '教師管理',
-            'menus' => $menus,
-            'centers' => $centers,
-            'canReview' => $canReview,
-            'canImport' => $this->canImport(),
-            'list' =>  $pageList
-        ]);
-    }
-
-    function courseGroupsIndex($selectedCenter, $keyword ,$page, $pageSize)
-    {
-        $courses =  $this->courseGroups->fetchCourseGroups($selectedCenter, $keyword);
-      
-        $pageList = new PagedList($courses,$page,$pageSize);
-        
-        if (!$selectedCenter)
+        foreach ($termOptions as $item)
         {
-            foreach($pageList->viewList as $courseGroup){
-                $courseGroup->getCourseNames();
-                $courseGroup->centerName=$courseGroup->center->name;
-            } 
+            $item['text'] .= '學期';
         }
 
-        $canReview=false;
-        if($selectedCenter)   $canReview=$this->canReviewCenter($selectedCenter);
+        $centerOptions=$this->centers->centerOptions();
+        $categoryOptions = $this->categories->options();
 
-        if($this->isAjaxRequest()){
-            return response() ->json([
-                'canReview' => $canReview,
-                'model' => $pageList
-            ]);
-        }
-       
-     
-        $menus=$this->adminMenus('UsersAdmin');
+        $model=[
+            'title' => '課程管理',
+            'menus' => $this->adminMenus('CoursesAdmin'),
 
-        
+            'centers' => $centerOptions,
+            'terms' => $termOptions,
+            'categories' => $categoryOptions,
 
-        $centers=$this->centers->centerOptions();
-       
-       
-        return view('courses.index')->with([
-            'title' => '教師管理',
-            'menus' => $menus,
-            'centers' => $centers,
             'canReview' => $canReview,
             'canImport' => $this->canImport(),
             'list' =>  $pageList
-        ]);
-    }
+        ];
 
-   
+        return view('courses.index')->with($model);
+    }
 
     public function create()
     {
@@ -495,6 +469,26 @@ class CoursesController extends Controller
             return $this->unauthorized();
         }
 
+       
+
+         //只新增,不更新
+           
+        //  string errMsg = "";
+        //  if (form.type == "create")
+        //  {
+        //      errMsg = await ImportCourses(GetImportedCourseModels(form));
+        //  }
+        //  else if (form.type == "details")
+        //  {
+        //      errMsg = await ImportCourseDetails(GetImportedCourseModels(form));
+        //  }
+        
+        //  else return BadRequest();
+
+        //  if (String.IsNullOrEmpty(errMsg)) return Ok();
+
+        //  return BadRequestWithMessage(errMsg);
+
         
         $errors=[];
       
@@ -507,12 +501,12 @@ class CoursesController extends Controller
 
         $file=Input::file('file');   
 
-        $group=Helper::isTrue($form['group']);
-        if($group){
-            $err_msg=$this->courseGroups->importCourseGroups($file,$this->currentUserId());
-        }else{
-            
+        $type=$form['type'];
+        if($type=='create'){
             $err_msg=$this->courses->importCourses($file,$this->currentUserId());
+        }else if($type=='details'){
+            
+            $err_msg=$this->courses->importCourseDetails($file,$this->currentUserId());
         
         }
 

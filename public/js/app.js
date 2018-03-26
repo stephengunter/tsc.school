@@ -54090,7 +54090,7 @@ var Course = function () {
     _createClass(Course, null, [{
         key: 'source',
         value: function source() {
-            return '/courses';
+            return '/manage/courses';
         }
     }, {
         key: 'showUrl',
@@ -78649,7 +78649,7 @@ var render = function() {
                     _vm._v(" "),
                     !_vm.center
                       ? _c("td", [
-                          _vm._v(" " + _vm._s(course.centerName) + " ")
+                          _vm._v(" " + _vm._s(course.center.name) + "  ")
                         ])
                       : _vm._e(),
                     _vm._v(" "),
@@ -78744,7 +78744,7 @@ var render = function() {
                     _vm._v(" "),
                     !_vm.center
                       ? _c("td", [
-                          _vm._v(" " + _vm._s(course.centerName) + " ")
+                          _vm._v(" " + _vm._s(course.center.name) + " ")
                         ])
                       : _vm._e(),
                     _vm._v(" "),
@@ -90387,7 +90387,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 _this.$emit('imported');
             }).catch(function (error) {
 
-                var msg = Helper.getErrorMsg(error);
+                var msg = error.response.data.errors.msg[0];
                 if (msg) {
                     _this.err_msg = msg;
                 } else {
