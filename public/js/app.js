@@ -51839,6 +51839,12 @@ var Helper = function () {
 
 			return __WEBPACK_IMPORTED_MODULE_0__services_common__["a" /* default */].numberOptions(min, max, desc);
 		}
+	}, {
+		key: 'replaceAll',
+		value: function replaceAll(strVal, oldVal, newVal) {
+			if (!strVal) return '';
+			return strVal.replace(new RegExp(oldVal, 'g'), newVal);
+		}
 	}]);
 
 	return Helper;
@@ -52909,7 +52915,7 @@ var TeacherGroup = function () {
     _createClass(TeacherGroup, null, [{
         key: 'source',
         value: function source() {
-            return '/TeacherGroups';
+            return '/manage/teacherGroups';
         }
     }, {
         key: 'showUrl',
@@ -73493,7 +73499,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
-//
 
 
 
@@ -73537,7 +73542,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             params: {
                 group: false,
                 reviewed: true,
-                active: true,
+
                 center: '0',
 
                 keyword: '',
@@ -73548,7 +73553,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             canReview: false,
 
             groupOptions: Teacher.groupOptions(),
-            activeOptions: Helper.activeOptions(),
             reviewedOptions: Helper.reviewedOptions(),
 
             center: null,
@@ -73618,10 +73622,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         setGroup: function setGroup(val) {
             this.params.group = val;
             this.$emit('group-changed', this.isGroup);
-            this.fetchData();
-        },
-        setActive: function setActive(val) {
-            this.params.active = val;
             this.fetchData();
         },
         setCenter: function setCenter(center) {
@@ -73839,6 +73839,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.$emit('selected', id);
         },
         beenChecked: function beenChecked(id) {
+
             return this.checked_ids.includes(id);
         },
         onChecked: function onChecked(id) {
@@ -73859,7 +73860,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (!teacherList) return false;
 
             teacherList.forEach(function (teacher) {
-                _this.onChecked(teacher.id);
+                _this.onChecked(teacher.userId);
             });
         },
         unCheckAll: function unCheckAll() {
@@ -73940,8 +73941,8 @@ var render = function() {
                       [
                         _c("check-box", {
                           attrs: {
-                            value: teacher.id,
-                            default: _vm.beenChecked(teacher.id)
+                            value: teacher.userId,
+                            default: _vm.beenChecked(teacher.userId)
                           },
                           on: {
                             selected: _vm.onChecked,
@@ -74117,7 +74118,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'TeacherGroupTable',
@@ -74131,7 +74131,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     return {};
   },
 
-  computed: {},
+  computed: {
+    hasData: function hasData() {
+      var list = this.getViewList();
+      if (!list) return false;
+      return list.length > 0;
+    }
+  },
   watch: {},
   methods: {
     getViewList: function getViewList() {
@@ -74161,37 +74167,31 @@ var render = function() {
         _c("table", { staticClass: "table table-striped" }, [
           _vm._m(0),
           _vm._v(" "),
-          _c(
-            "tbody",
-            _vm._l(_vm.model.viewList, function(group, index) {
-              return _c("tr", { key: index }, [
-                _c("td", [
-                  _c("a", {
-                    attrs: { href: "#" },
-                    domProps: { textContent: _vm._s(group.name) },
-                    on: {
-                      click: function($event) {
-                        $event.preventDefault()
-                        _vm.onSelected(group.id)
-                      }
-                    }
-                  })
-                ]),
-                _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(group.centerName))]),
-                _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(group.teachers))]),
-                _vm._v(" "),
-                _c("td", {
-                  domProps: {
-                    innerHTML: _vm._s(
-                      _vm.$options.filters.activeLabel(group.active)
-                    )
-                  }
+          _vm.hasData
+            ? _c(
+                "tbody",
+                _vm._l(_vm.getViewList(), function(group, index) {
+                  return _c("tr", { key: index }, [
+                    _c("td", [
+                      _c("a", {
+                        attrs: { href: "#" },
+                        domProps: { textContent: _vm._s(group.name) },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            _vm.onSelected(group.id)
+                          }
+                        }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(group.centerName))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(group.teacherNames))])
+                  ])
                 })
-              ])
-            })
-          )
+              )
+            : _vm._e()
         ])
       ]),
       _vm._v(" "),
@@ -74211,9 +74211,7 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", { staticStyle: { width: "15%" } }, [_vm._v("所屬中心")]),
         _vm._v(" "),
-        _c("th", [_vm._v("群組中的教師")]),
-        _vm._v(" "),
-        _c("th", { staticStyle: { width: "10%" } }, [_vm._v("狀態")])
+        _c("th", [_vm._v("群組中的教師")])
       ])
     ])
   }
@@ -74300,21 +74298,15 @@ var render = function() {
                       staticStyle: { "padding-left": "1em" }
                     },
                     [
-                      _vm.isGroup
+                      !_vm.isGroup
                         ? _c("toggle", {
-                            attrs: {
-                              items: _vm.activeOptions,
-                              default_val: _vm.params.active
-                            },
-                            on: { selected: _vm.setActive }
-                          })
-                        : _c("toggle", {
                             attrs: {
                               items: _vm.reviewedOptions,
                               default_val: _vm.params.reviewed
                             },
                             on: { selected: _vm.setReviewed }
                           })
+                        : _vm._e()
                     ],
                     1
                   )
@@ -74456,7 +74448,7 @@ var render = function() {
                     ref: "teachersTable",
                     attrs: {
                       model: _vm.model,
-                      can_review: _vm.canReview,
+                      can_review: _vm.canReview && !_vm.params.reviewed,
                       center: _vm.center != null
                     },
                     on: {
@@ -74783,6 +74775,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
                 _this.teacher = _extends({}, teacher);
 
+                _this.teacher.group = _this.group;
+
                 _this.$emit('loaded', _this.teacher);
             }).catch(function (error) {
                 _this.loaded = false;
@@ -74801,8 +74795,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             this.init();
         },
         onEditReview: function onEditReview() {
-            this.reviewEditor.id = this.teacher.id;
-            this.reviewEditor.reviewed = this.teacher.reviewed;
+            this.reviewEditor.id = this.getTeacherId();
+            this.reviewEditor.reviewed = Helper.isTrue(this.teacher.reviewed);
             this.reviewEditor.show = true;
         },
         updateReview: function updateReview(reviewed) {
@@ -74831,11 +74825,17 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             this.init();
         },
         beginDelete: function beginDelete() {
+            var name = '';
+            var id = 0;
+            if (this.group) {
+                name = this.teacher.name;
+                id = this.teacher.id;
+            } else {
+                name = this.teacher.user.profile.fullname;
+                id = this.getTeacherId();
+            }
 
-            var name = this.teacher.user.profile.fullname;
-            var id = this.getTeacherId();
-
-            this.deleteConfirm.msg = '確定要刪除教師 ' + name + ' 嗎？';
+            this.deleteConfirm.msg = '確定要刪除 ' + name + ' 嗎？';
             this.deleteConfirm.id = id;
             this.deleteConfirm.show = true;
         },
@@ -74845,10 +74845,17 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         deleteTeacher: function deleteTeacher() {
             var _this3 = this;
 
+            var id = this.deleteConfirm.id;
+            var remove = null;
+
+            if (this.group) {
+                remove = TeacherGroup.remove(id);
+            } else {
+                remove = Teacher.remove(id);
+            }
+
             this.closeConfirm();
 
-            var id = this.deleteConfirm.id;
-            var remove = Teacher.remove(id);
             remove.then(function () {
                 Helper.BusEmitOK('刪除成功');
                 _this3.$emit('deleted');
@@ -75086,19 +75093,25 @@ var render = function() {
                   })
                 ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-4" }, [
-                  _c("label", { staticClass: "label-title" }, [_vm._v("狀態")]),
-                  _vm._v(" "),
-                  _c("p", [
-                    _c("span", {
-                      domProps: {
-                        innerHTML: _vm._s(
-                          _vm.$options.filters.activeLabel(_vm.teacher.active)
-                        )
-                      }
-                    })
-                  ])
-                ])
+                false
+                  ? _c("div", { staticClass: "col-sm-4" }, [
+                      _c("label", { staticClass: "label-title" }, [
+                        _vm._v("狀態")
+                      ]),
+                      _vm._v(" "),
+                      _c("p", [
+                        _c("span", {
+                          domProps: {
+                            innerHTML: _vm._s(
+                              _vm.$options.filters.activeLabel(
+                                _vm.teacher.active
+                              )
+                            )
+                          }
+                        })
+                      ])
+                    ])
+                  : _vm._e()
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "row" }, [
@@ -75396,9 +75409,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 					_this.centerOptions = model.centerOptions.slice(0);
 					_this.form = new Form({
-						teacher: _extends({}, model.teacher),
+						teacher: _extends({}, model.teacher)
 
-						centerIds: []
 					});
 				} else {
 					if (_this.id) {
@@ -75414,6 +75426,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 							centerIds: []
 						});
 					}
+
+					_this.form.teacher.experiences = Helper.replaceAll(_this.form.teacher.experiences, '<br>', '\n');
 
 					_this.form.teacher.wage = Helper.formatMoney(_this.form.teacher.wage);
 				}
@@ -75452,6 +75466,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			if (this.group) {
 				if (this.id) save = TeacherGroup.update(this.id, this.form);else save = TeacherGroup.store(this.form);
 			} else {
+
 				if (this.id) save = Teacher.update(this.id, this.form);else {
 					save = Teacher.store(this.form);
 					this.form.teacher.user = _extends({}, this.form.user);
@@ -76819,7 +76834,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm.form.teacher.group
+  return _vm.group
     ? _c("div", [
         _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-sm-4" }, [
@@ -76879,25 +76894,27 @@ var render = function() {
             ])
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "col-sm-4" }, [
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", [_vm._v("狀態")]),
-              _vm._v(" "),
-              _c(
-                "div",
-                [
-                  _c("toggle", {
-                    attrs: {
-                      items: _vm.activeOptions,
-                      default_val: _vm.form.teacher.active
-                    },
-                    on: { selected: _vm.setActive }
-                  })
-                ],
-                1
-              )
-            ])
-          ])
+          false
+            ? _c("div", { staticClass: "col-sm-4" }, [
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", [_vm._v("狀態")]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    [
+                      _c("toggle", {
+                        attrs: {
+                          items: _vm.activeOptions,
+                          default_val: _vm.form.teacher.active
+                        },
+                        on: { selected: _vm.setActive }
+                      })
+                    ],
+                    1
+                  )
+                ])
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "row" }, [
@@ -78060,15 +78077,17 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         onTeacherLoaded: function onTeacherLoaded(teacher) {
             this.teacher = _extends({}, teacher);
 
-            this.teacher.user.canEdit = teacher.canEdit;
-            if (this.teacher.user.contactInfo) {
-                this.teacher.user.contactInfo.canEdit = teacher.canEdit;
-            }
+            if (this.teacher.user) {
+                this.teacher.user.canEdit = teacher.canEdit;
+                if (this.teacher.user.contactInfo) {
+                    this.teacher.user.contactInfo.canEdit = teacher.canEdit;
+                }
 
-            this.userSettings.id = teacher.user.id;
-            this.userSettings.user = _extends({
-                canEdit: teacher.canEdit
-            }, teacher.user);
+                this.userSettings.id = teacher.user.id;
+                this.userSettings.user = _extends({
+                    canEdit: teacher.canEdit
+                }, teacher.user);
+            }
         },
         reloadTeacher: function reloadTeacher() {
 
@@ -80248,7 +80267,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         onRemove: function onRemove(teacher) {
 
             var name = teacher.user.profile.fullname;
-            var id = teacher.id;
+            var id = teacher.userId;
 
             this.deleteConfirm.msg = '確定要將教師 ' + name + ' 從群組中移除嗎？';
             this.deleteConfirm.id = id;

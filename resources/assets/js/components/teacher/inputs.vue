@@ -1,5 +1,5 @@
 <template>
-<div v-if="form.teacher.group">
+<div v-if="group">
     <div class="row">
         <div class="col-sm-4">
             <div class="form-group">                           
@@ -18,7 +18,7 @@
                 </div>        
             </div>
         </div>
-        <div class="col-sm-4">
+        <div v-if="false" class="col-sm-4">
             <div class="form-group">                           
                 <label>狀態</label>
                 <div>

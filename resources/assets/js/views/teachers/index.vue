@@ -17,8 +17,7 @@
 					</div>
 					
 					<div class="form-group" style="padding-left:1em;">
-                        <toggle v-if="isGroup" :items="activeOptions"   :default_val="params.active" @selected="setActive"></toggle>
-						<toggle  v-else :items="reviewedOptions"   :default_val="params.reviewed" @selected="setReviewed"></toggle>
+                       <toggle  v-if="!isGroup" :items="reviewedOptions"   :default_val="params.reviewed" @selected="setReviewed"></toggle>
                         
 					</div>
 					
@@ -62,7 +61,7 @@
                 </div>
             </group-table>
 
-            <teacher-table v-else ref="teachersTable"  :model="model" :can_review="canReview" :center="center!=null"
+            <teacher-table v-else ref="teachersTable"  :model="model" :can_review="canReview && !params.reviewed" :center="center!=null"
                 @selected="onSelected" @check-changed="onCheckIdsChanged">
 
                 <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
@@ -126,7 +125,7 @@
                 params:{
                     group:false,
                     reviewed:true,
-                    active:true,
+                  
                     center:'0',
 
                     keyword:'',
@@ -137,7 +136,6 @@
                 canReview:false,
 
                 groupOptions:Teacher.groupOptions(),
-                activeOptions:Helper.activeOptions(),
                 reviewedOptions:Helper.reviewedOptions(),
                 
                 center:null,
@@ -207,10 +205,6 @@
             setGroup(val){
                 this.params.group=val;
                 this.$emit('group-changed', this.isGroup);
-                this.fetchData();
-            },
-            setActive(val){
-                this.params.active=val;
                 this.fetchData();
             },
             setCenter(center){

@@ -6,7 +6,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class TeacherGroup extends Model
 {
-    protected $table = 'teacherGroups';
+	protected $table = 'teacherGroups';
+	
+	protected $fillable = [ 
+        'centerId','name','description',
+        'removed','active','updatedBy'
+    
+    ];
+       
+    public static function init()
+	{
+		return [
+           
+            'name' =>'',
+            'description' =>'',
+
+			'active' => 1,
+            'removed' => 0,
+
+		];
+	}  
+	
+
 
     public function center() 
 	{
@@ -17,4 +38,36 @@ class TeacherGroup extends Model
     {
         return $this->belongsToMany(Teacher::class,'group_teacher','group_id','teacher_id');
 	}
+
+	public function courses() 
+	{
+		return $this->hasMany('App\Course','teacherGroupId');
+	}
+	
+	public function getTeacherNames()
+	{
+		$teacherNames='';
+		if(count($this->teachers)){
+			
+			$teacherNames=join(',',$this->teachers->pluck('user.profile.fullname')->toArray() );
+		}
+
+		$this->teacherNames=$teacherNames;
+		return $teacherNames;
+
+		
+	}
+
+	public function addTeachers(array $teacherIds)
+	{
+		$this->teachers()->attach($teacherIds);
+	}
+
+	public function removeTeachers(array $teacherIds)
+	{
+		
+		$this->teachers()->detach($teacherIds);
+	}
+
+
 }

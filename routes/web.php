@@ -39,6 +39,13 @@ Route::group(['middleware' => 'admin'], function()
 
     Route::resource('/manage/teachers', 'TeachersController');
     Route::post('/manage/teachers/import', 'TeachersController@import');
+    Route::post('/manage/teachers/review', 'TeachersController@review');
+
+    Route::resource('/manage/teacherGroups', 'TeacherGroupsController');
+    Route::get('/manage/teacherGroups/{id}/teachers', 'TeacherGroupsController@teachers');
+    Route::get('/manage/teacherGroups/{id}/EditTeacher', 'TeacherGroupsController@editTeacher');
+    Route::put('/manage/teacherGroups/{id}/AddTeachers', 'TeacherGroupsController@addTeachers');
+    Route::put('/manage/teacherGroups/{id}/RemoveTeacher', 'TeacherGroupsController@removeTeacher');
 
 
     Route::resource('/manage/categories', 'CategoriesController');

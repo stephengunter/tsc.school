@@ -8,7 +8,7 @@ class TeacherGroup {
     }
  
     static source() {
-        return '/TeacherGroups';
+        return '/manage/teacherGroups';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;

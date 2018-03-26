@@ -95,7 +95,6 @@ export default {
 										...model.teacher
 									},
 									
-									centerIds:[]
 								});
 
 				}else{
@@ -118,7 +117,9 @@ export default {
 							centerIds:[]
 						});
 					}
-
+					
+					this.form.teacher.experiences=Helper.replaceAll(this.form.teacher.experiences,'<br>' , '\n')
+					
 					this.form.teacher.wage=Helper.formatMoney(this.form.teacher.wage);
 					
 				}
@@ -159,6 +160,8 @@ export default {
 				if(this.id) save=TeacherGroup.update(this.id,this.form);
             	else  save=TeacherGroup.store(this.form); 
 			}else{
+
+				
 				if(this.id) save=Teacher.update(this.id,this.form);
            	    else{
 					save=Teacher.store(this.form);

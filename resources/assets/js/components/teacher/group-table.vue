@@ -8,20 +8,19 @@
                         <th style="width:20%">名稱</th>
                         <th style="width:15%">所屬中心</th>
                         <th>群組中的教師</th>
-                        <th style="width:10%">狀態</th>
+                       
                         
                     </tr>
                 </thead>
-                <tbody>
-                    <tr v-for="(group,index) in model.viewList" :key="index">
+                <tbody v-if="hasData">
+                    <tr v-for="(group,index) in getViewList()" :key="index">
                         
                         <td>
                             <a href="#" @click.prevent="onSelected(group.id)" v-text="group.name"> </a> 
                            
                         </td>
                         <td >{{  group.centerName }}</td>
-                        <td >{{  group.teachers }}</td>
-                        <td v-html="$options.filters.activeLabel(group.active)" ></td>
+                        <td >{{  group.teacherNames }}</td>
                         
                     </tr>    
                 </tbody>
@@ -50,7 +49,11 @@ export default {
 		};
 	},
 	computed:{
-		
+		hasData(){
+            let list=this.getViewList();
+            if(!list) return false;
+            return list.length > 0;
+        }
         
 		
     }, 

@@ -12,7 +12,7 @@
                 
                 </p>                   
             </div>
-            <div class="col-sm-4">
+            <div v-if="false" class="col-sm-4">
                 <label class="label-title">狀態</label>
                 <p>
                     <span v-html="$options.filters.activeLabel(teacher.active)"></span>

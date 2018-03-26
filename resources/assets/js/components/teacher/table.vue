@@ -23,7 +23,7 @@
                 <tbody>
                     <tr v-for="(teacher,index) in getViewList()" :key="index">
                         <td v-if="canCheck">
-							<check-box :value="teacher.id" :default="beenChecked(teacher.id)"
+							<check-box :value="teacher.userId" :default="beenChecked(teacher.userId)"
 								@selected="onChecked" @unselected="unChecked">
 							</check-box>
                         </td>
@@ -137,6 +137,7 @@ export default {
            this.$emit('selected',id);
         },
         beenChecked(id){
+         
             return this.checked_ids.includes(id);
 		},
         onChecked(id){
@@ -156,7 +157,7 @@ export default {
 			if(!teacherList)  return false;
 
 			teacherList.forEach( teacher => {
-				this.onChecked(teacher.id)
+				this.onChecked(teacher.userId)
 			});
 		},
 		unCheckAll(){

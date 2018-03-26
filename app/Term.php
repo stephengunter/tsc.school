@@ -27,10 +27,15 @@ class Term extends Model
 
 		];
 	}	
+
+	public function courses() 
+	{
+		return $this->hasMany('App\Course','termId');
+    }
 	
 	
 
-    public function	  canBird(Date $date)
+    public function	 canBird(Date $date)
 	{
 		return $date <= $this->birdDate;
 	}

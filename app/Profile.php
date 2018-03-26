@@ -27,10 +27,12 @@ class Profile extends Model
     public function user()
     {
 		return $this->belongsTo('App\User','userId');
-    }
-    
-    public function setsidAttribute($value) {
-
+	}
+	
+	public function setsidAttribute($value) 
+	{
 		$this->attributes['sid'] = strtoupper($value);
 	}
+    
+	
 }

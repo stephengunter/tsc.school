@@ -34,7 +34,7 @@ class Teachers
     {
         $user->teacher()->save($teacher);
         
-        $user->addRole(Role::teacherRoleName());
+       
 
         $wage=$user->wages->first();
         if($wage) $wage->update($wageValues);
@@ -44,7 +44,37 @@ class Teachers
         
     }
 
-    
+    public function reviewOK(array $ids, $reviewedBy)
+    {
+        $teachers=Teacher::where('removed',false)->whereIn('userId',$ids)->get();
+        foreach($teachers as $teacher){
+            $teacher->reviewed=true;
+            $teacher->reviewedBy=$reviewedBy;
+            $teacher->updatedBy=$reviewedBy;
+            $teacher->save();
+
+            $teacher->user->addRole(Role::teacherRoleName());
+        } 
+    }
+
+    public function  updateReview($id,bool $reviewed,int $reviewedBy)
+    {
+        $teacher=$this->getById($id);
+        $teacher->reviewed=$reviewed;
+        $teacher->updatedBy=$reviewedBy;
+
+        if($reviewed){
+            $teacher->reviewedBy=$reviewedBy;
+            $teacher->save();
+
+            $teacher->user->addRole(Role::teacherRoleName());
+        }else{
+            $teacher->reviewedBy='';
+            $teacher->save();
+
+            $teacher->user->removeRole(Role::teacherRoleName());
+        }
+    }
 
 
     public function deleteTeacher(Teacher $teacher,$updatedBy)

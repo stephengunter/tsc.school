@@ -145,17 +145,24 @@
                     ...teacher
                 };
 
-                this.teacher.user.canEdit=teacher.canEdit;
-                if(this.teacher.user.contactInfo){
-                      this.teacher.user.contactInfo.canEdit=teacher.canEdit;
+                if(this.teacher.user){
+                    this.teacher.user.canEdit=teacher.canEdit;
+                    if(this.teacher.user.contactInfo){
+                        this.teacher.user.contactInfo.canEdit=teacher.canEdit;
+                    }
+
+                    this.userSettings.id=teacher.user.id;
+                    this.userSettings.user={
+                        canEdit:teacher.canEdit,
+                        ...teacher.user
+                    };
+
                 }
+
+               
               
 
-                this.userSettings.id=teacher.user.id;
-                this.userSettings.user={
-                    canEdit:teacher.canEdit,
-                    ...teacher.user
-                };
+                
                 
             },
             reloadTeacher(){

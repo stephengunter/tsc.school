@@ -42,6 +42,12 @@ class Teacher extends Model
 
 		];
     }  
+
+    public function setexperiencesAttribute($value) 
+	{
+
+		$this->attributes['experiences'] = str_replace("\n",'<br>',$value);
+	}
     
     public function user()
     {
@@ -53,9 +59,14 @@ class Teacher extends Model
         return $this->belongsToMany(Center::class,'center_teacher','teacher_id','center_id');
     }
 
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class,'course_teacher','teacher_id','course_id');
+    }
+
     public function groups()
     {
-        return $this->belongsToMany(TeacherGroup::class,'group_teacher','group_id','center_id');
+        return $this->belongsToMany(TeacherGroup::class,'group_teacher','teacher_id','group_id');
     }
 
     public function addRole()

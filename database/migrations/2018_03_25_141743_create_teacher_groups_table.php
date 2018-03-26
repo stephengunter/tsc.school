@@ -18,7 +18,7 @@ class CreateTeacherGroupsTable extends Migration
             $table->boolean('removed')->default(false);
             $table->boolean('active')->default(true);
             
-            $table->integer('updated_by')->unsigned()->nullable();
+            $table->integer('updatedBy')->unsigned()->nullable();
 			
             $table->timestamps();
         });

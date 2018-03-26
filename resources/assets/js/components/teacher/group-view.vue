@@ -107,7 +107,7 @@
                 let getData=TeacherGroup.teachers(this.groupId);
                
                 getData.then(teachers => {
-                   
+                
                     this.teachers = teachers.slice(0);
                 })
                 .catch(error=> {
@@ -148,7 +148,7 @@
             onRemove(teacher){
                 
                 let name=teacher.user.profile.fullname;
-                let id=teacher.id;
+                let id=teacher.userId;
 
                 this.deleteConfirm.msg='確定要將教師 ' + name + ' 從群組中移除嗎？'
                 this.deleteConfirm.id=id

@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Requests\TeacherRequest;
+use App\Http\Requests\CourseRequest;
 
-use App\Teacher;
+use App\Course;
 use App\User;
 use App\Profile;
 use App\Center;
 use App\Role;
-use App\Services\Teachers;
-use App\Services\TeacherGroups;
+use App\Services\Courses;
+use App\Services\CourseGroups;
 use App\Services\Users;
 use App\Services\Centers;
 use App\Core\PagedList;
@@ -20,31 +20,31 @@ use Carbon\Carbon;
 use App\Core\Helper;
 use Illuminate\Support\Facades\Input;
 
-class TeachersController extends Controller
+class CoursesController extends Controller
 {
     
-    public function __construct(Teachers $teachers, Users $users,Centers $centers ,TeacherGroups $teacherGroups)
+    public function __construct(Courses $courses, Users $users,Centers $centers ,CourseGroups $courseGroups)
     {
-        $this->teachers=$teachers;
+        $this->courses=$courses;
         $this->users=$users;
         $this->centers=$centers;
-        $this->teacherGroups=$teacherGroups;
+        $this->courseGroups=$courseGroups;
     }
 
-    function canEdit($teacher)
+    function canEdit($course)
     {
         if($this->currentUserIsDev()) return true;
-        if(!count($teacher->centers)) return true;
+        if(!count($course->centers)) return true;
       
         $centersCanAdmin= $this->centersCanAdmin();
-        $intersect = $centersCanAdmin->intersect($teacher->centers);
+        $intersect = $centersCanAdmin->intersect($course->centers);
 
         if(count($intersect)) return true;
         return false;
 
     }
 
-    function canReview(Teacher $teacher)
+    function canReview(Course $course)
     {
         if($this->currentUserIsDev()) return true;
         return $this->currentUser()->isBoss();
@@ -63,9 +63,9 @@ class TeachersController extends Controller
         return false;
     }
 
-    function canDelete($teacher)
+    function canDelete($course)
     {
-        return $this->canReview($teacher);
+        return $this->canReview($course);
     }
 
 
@@ -77,40 +77,40 @@ class TeachersController extends Controller
     function canEditCenters()
     {
         if($this->currentUserIsDev()) return true;
-        return $this->currentUser()->admin->isHeadCenterTeacher();
+        return $this->currentUser()->admin->isHeadCenterCourse();
     }
 
 
-    function loadCenterNames($teacher)
+    function loadCenterNames($course)
     {
-        if(count($teacher->centers)){
-            $teacher->centerNames=join(',',$teacher->centers->pluck('name')->toArray() );
+        if(count($course->centers)){
+            $course->centerNames=join(',',$course->centers->pluck('name')->toArray() );
         }else{
-            $teacher->centerNames='';
+            $course->centerNames='';
         }
        
         
     }
-    function loadRoleNames($teacher)
+    function loadRoleNames($course)
     {
-        if(count($teacher->user->roles)){
+        if(count($course->user->roles)){
           
-            $teacher->user->roleNames=join(',',$teacher->user->roles->pluck('name')->toArray() );
+            $course->user->roleNames=join(',',$course->user->roles->pluck('name')->toArray() );
         }else{
-            $teacher->user->roleNames='';
+            $course->user->roleNames='';
         }
        
         
     }
-    function loadWage($teacher)
+    function loadWage($course)
     {
-        $wage = $teacher->getWage();
+        $wage = $course->getWage();
         if($wage){
-            $teacher->wage=$wage->money;
-            $teacher->account=$wage->account;
+            $course->wage=$wage->money;
+            $course->account=$wage->account;
         }else{
-            $teacher->wage=0;
-            $teacher->account='';
+            $course->wage=0;
+            $course->account='';
         }
         
     }
@@ -152,21 +152,21 @@ class TeachersController extends Controller
         }
 
         if($group){
-            return $this->teacherGroupsIndex($selectedCenter, $keyword ,$page, $pageSize);
+            return $this->courseGroupsIndex($selectedCenter, $keyword ,$page, $pageSize);
         }
 
         $canReview=false;
         if($selectedCenter)   $canReview=$this->canReviewCenter($selectedCenter);
       
-        $teachers =  $this->teachers->fetchTeachers($selectedCenter, $reviewed, $keyword);
+        $courses =  $this->courses->fetchCourses($selectedCenter, $reviewed, $keyword);
       
-        $pageList = new PagedList($teachers,$page,$pageSize);
+        $pageList = new PagedList($courses,$page,$pageSize);
         
         if (!$selectedCenter)
         {
-            foreach($pageList->viewList as $teacher){
-                $this->loadCenterNames($teacher);
-                $teacher->user->loadContactInfo();
+            foreach($pageList->viewList as $course){
+                $this->loadCenterNames($course);
+                $course->user->loadContactInfo();
             } 
         }
        
@@ -184,7 +184,7 @@ class TeachersController extends Controller
         $centers=$this->centers->centerOptions();
        
        
-        return view('teachers.index')->with([
+        return view('courses.index')->with([
             'title' => '教師管理',
             'menus' => $menus,
             'centers' => $centers,
@@ -194,17 +194,17 @@ class TeachersController extends Controller
         ]);
     }
 
-    function teacherGroupsIndex($selectedCenter, $keyword ,$page, $pageSize)
+    function courseGroupsIndex($selectedCenter, $keyword ,$page, $pageSize)
     {
-        $teachers =  $this->teacherGroups->fetchTeacherGroups($selectedCenter, $keyword);
+        $courses =  $this->courseGroups->fetchCourseGroups($selectedCenter, $keyword);
       
-        $pageList = new PagedList($teachers,$page,$pageSize);
+        $pageList = new PagedList($courses,$page,$pageSize);
         
         if (!$selectedCenter)
         {
-            foreach($pageList->viewList as $teacherGroup){
-                $teacherGroup->getTeacherNames();
-                $teacherGroup->centerName=$teacherGroup->center->name;
+            foreach($pageList->viewList as $courseGroup){
+                $courseGroup->getCourseNames();
+                $courseGroup->centerName=$courseGroup->center->name;
             } 
         }
 
@@ -226,7 +226,7 @@ class TeachersController extends Controller
         $centers=$this->centers->centerOptions();
        
        
-        return view('teachers.index')->with([
+        return view('courses.index')->with([
             'title' => '教師管理',
             'menus' => $menus,
             'centers' => $centers,
@@ -240,7 +240,7 @@ class TeachersController extends Controller
 
     public function create()
     {
-        $teacher=Teacher::init();
+        $course=Course::init();
         $user=User::init();
 
     
@@ -256,7 +256,7 @@ class TeachersController extends Controller
         }
       
         $form=[
-            'teacher' => $teacher,
+            'course' => $course,
             'user' => $user,
             'centerOptions' => $centerOptions,
             'centerIds' => $centerIds
@@ -267,7 +267,7 @@ class TeachersController extends Controller
       
     }
 
-    public function validateTeacherInputs($values)
+    public function validateCourseInputs($values)
     {
         $errors=[];
 
@@ -280,19 +280,19 @@ class TeachersController extends Controller
         }else{
             $wage=0;
             if($values['wage']) $wage=floatval($values['wage']);
-            if(!$wage) 	$errors['teacher.wage'] = ['必須填寫鐘點費'];
+            if(!$wage) 	$errors['course.wage'] = ['必須填寫鐘點費'];
 
-            if(!$values['account']) 	$errors['teacher.account'] = ['必須填寫銀行帳號'];
+            if(!$values['account']) 	$errors['course.account'] = ['必須填寫銀行帳號'];
 
         }
 
         return $errors;
     }
 
-    public function store(TeacherRequest $request)
+    public function store(CourseRequest $request)
     {
 
-        $teacherValues=$request->getTeacherValues();
+        $courseValues=$request->getCourseValues();
         $userValues=$request->getUserValues();
         $profileValues= $userValues['profile'];
 
@@ -300,7 +300,7 @@ class TeachersController extends Controller
         $errors=$this->users->validateUserInputs($userValues);
         if($errors) return $this->requestError($errors);
 
-        $errors=$this->validateTeacherInputs($teacherValues);
+        $errors=$this->validateCourseInputs($courseValues);
 
         $sid=$userValues['profile']['sid'];
         if(!$sid){
@@ -318,7 +318,7 @@ class TeachersController extends Controller
         $current_user=$this->currentUser();
         $updatedBy=$current_user->id;
 
-        $teacherValues['updatedBy']=$updatedBy;
+        $courseValues['updatedBy']=$updatedBy;
         $userValues['updatedBy']=$updatedBy;
         $profileValues['updatedBy']=$updatedBy;
         
@@ -339,59 +339,59 @@ class TeachersController extends Controller
         }
 
         $wageValues=[
-            'account' => $teacherValues['account'],
-            'money' => $teacherValues['wage'],
+            'account' => $courseValues['account'],
+            'money' => $courseValues['wage'],
             'updatedBy' => $updatedBy,
         ];
 
-        $teacher=Teacher::find($userId);
-        if($teacher){
-            $teacher->update($teacherValues);
-            $teacher->addRole();
+        $course=Course::find($userId);
+        if($course){
+            $course->update($courseValues);
+            $course->addRole();
 
-            $wage=$teacher->getWage();
+            $wage=$course->getWage();
             if($wage) $wage->update($wageValues);
 
         }else{
-            $teacher=$this->teachers->createTeacher($user,new Teacher($teacherValues), $wageValues);
-            $teacher->userId=$userId;
+            $course=$this->courses->createCourse($user,new Course($courseValues), $wageValues);
+            $course->userId=$userId;
         }
 
-        $teacher->centers()->sync($centerIds);
+        $course->centers()->sync($centerIds);
        
-        return response() ->json($teacher);
+        return response() ->json($course);
     }
 
     public function show($id)
     {
-        $teacher = $this->teachers->getById($id);
-        if(!$teacher) abort(404);
+        $course = $this->courses->getById($id);
+        if(!$course) abort(404);
 
         $current_user=$this->currentUser();
 
-        $this->loadCenterNames($teacher);
-        $this->loadRoleNames($teacher);
+        $this->loadCenterNames($course);
+        $this->loadRoleNames($course);
 
-        $this->loadWage($teacher);
+        $this->loadWage($course);
 
-        $teacher->user->loadContactInfo();
+        $course->user->loadContactInfo();
      
-        $teacher->canEdit=$this->canEdit($teacher);
-        $teacher->canDelete=$this->canDelete($teacher);
+        $course->canEdit=$this->canEdit($course);
+        $course->canDelete=$this->canDelete($course);
        
 
-        return response() ->json($teacher);
+        return response() ->json($course);
         
     }
 
     public function edit($id)
     {
-        $teacher = Teacher::findOrFail($id);        
-        if(!$this->canEdit($teacher)) $this->unauthorized();
+        $course = Course::findOrFail($id);        
+        if(!$this->canEdit($course)) $this->unauthorized();
 
-        $this->loadWage($teacher);
+        $this->loadWage($course);
        
-        $centerIds=$teacher->centers->pluck('id')->toArray();
+        $centerIds=$course->centers->pluck('id')->toArray();
 
         $centersCanAdmin= $this->centersCanAdmin();
         $centerOptions = $centersCanAdmin->map(function ($item) {
@@ -400,7 +400,7 @@ class TeachersController extends Controller
 
       
         $form=[
-            'teacher' => $teacher,
+            'course' => $course,
          
             'centerOptions' => $centerOptions,
             'centerIds' => $centerIds
@@ -413,14 +413,14 @@ class TeachersController extends Controller
     }
 
 
-    public function update(TeacherRequest $request, $id)
+    public function update(CourseRequest $request, $id)
     {
-        $teacher = Teacher::findOrFail($id);
-        if(!$this->canEdit($teacher)) $this->unauthorized();
+        $course = Course::findOrFail($id);
+        if(!$this->canEdit($course)) $this->unauthorized();
        
-        $values=$request->getTeacherValues();
+        $values=$request->getCourseValues();
      
-        $errors=$this->validateTeacherInputs($values);
+        $errors=$this->validateCourseInputs($values);
 
         $centerIds=$request->getCenterIds();
         if(!count($centerIds)){
@@ -432,7 +432,7 @@ class TeachersController extends Controller
         $current_user=$this->currentUser();
         $values['updatedBy'] = $current_user->id;
 
-        $teacher->update($values);
+        $course->update($values);
 
         $wageValues=[
             'account' => $values['account'],
@@ -440,7 +440,7 @@ class TeachersController extends Controller
             'updatedBy' =>  $current_user->id
         ];
 
-        $teacher->setWage($wageValues);
+        $course->setWage($wageValues);
      
         $centerIds=$request->getCenterIds();
         if(!count($centerIds)){
@@ -448,7 +448,7 @@ class TeachersController extends Controller
             return $this->requestError($errors);
         }
 
-        $teacher->centers()->sync($centerIds);
+        $course->centers()->sync($centerIds);
 
         return response() ->json();
     }
@@ -457,18 +457,18 @@ class TeachersController extends Controller
     {
         $reviewedBy=$this->currentUserId();
         
-        $teachers=  $form['teachers'];
+        $courses=  $form['courses'];
 
-        if(count($teachers) > 1){
-            $teacherIds=array_pluck($teachers, 'id');
-            $this->teachers->reviewOK($teacherIds, $reviewedBy);
+        if(count($courses) > 1){
+            $courseIds=array_pluck($courses, 'id');
+            $this->courses->reviewOK($courseIds, $reviewedBy);
         }else{
             
-            $id=$teachers[0]['id'];
+            $id=$courses[0]['id'];
          
-            $reviewed=Helper::isTrue($teachers[0]['reviewed']);
+            $reviewed=Helper::isTrue($courses[0]['reviewed']);
 
-            $this->teachers->updateReview($id,$reviewed ,$reviewedBy);
+            $this->courses->updateReview($id,$reviewed ,$reviewedBy);
         }
         
 
@@ -479,10 +479,10 @@ class TeachersController extends Controller
 
     public function destroy($id) 
     {
-        $teacher = Teacher::findOrFail($id);
-        if(!$this->canDelete($teacher)) $this->unauthorized();
+        $course = Course::findOrFail($id);
+        if(!$this->canDelete($course)) $this->unauthorized();
 
-        $this->teachers->deleteTeacher($teacher, $this->currentUserId());
+        $this->courses->deleteCourse($course, $this->currentUserId());
        
        
         return response() ->json();
@@ -509,10 +509,10 @@ class TeachersController extends Controller
 
         $group=Helper::isTrue($form['group']);
         if($group){
-            $err_msg=$this->teacherGroups->importTeacherGroups($file,$this->currentUserId());
+            $err_msg=$this->courseGroups->importCourseGroups($file,$this->currentUserId());
         }else{
             
-            $err_msg=$this->teachers->importTeachers($file,$this->currentUserId());
+            $err_msg=$this->courses->importCourses($file,$this->currentUserId());
         
         }
 

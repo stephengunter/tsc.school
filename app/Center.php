@@ -36,6 +36,13 @@ class Center extends Model
 	{
 		return $this->hasMany('App\ContactInfo','centerId');
 	}
+
+	public function courses() 
+	{
+		return $this->hasMany('App\Course','centerId');
+	}
+
+
 	public function area() 
 	{
 		return $this->hasOne('App\Area', 'id' ,'areaId');

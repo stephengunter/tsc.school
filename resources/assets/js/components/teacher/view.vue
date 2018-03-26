@@ -151,6 +151,8 @@
                         ...teacher
                     }; 
 
+                    this.teacher.group=this.group;
+
                     this.$emit('loaded',this.teacher);
                 })
                 .catch(error=> {
@@ -171,8 +173,8 @@
                 this.init();
             },
             onEditReview(){
-                this.reviewEditor.id=this.teacher.id;
-                this.reviewEditor.reviewed=this.teacher.reviewed;
+                this.reviewEditor.id=this.getTeacherId();
+                this.reviewEditor.reviewed=Helper.isTrue(this.teacher.reviewed);
                 this.reviewEditor.show=true;
             },
             updateReview(reviewed){
@@ -201,11 +203,17 @@
                 this.init();
             },  
             beginDelete(){
-                
-                let name=this.teacher.user.profile.fullname;
-                let id=this.getTeacherId();
+                let name='';
+                let id= 0;
+                if(this.group){
+                    name=this.teacher.name;
+                    id=this.teacher.id;
+                }else{
+                    name=this.teacher.user.profile.fullname;
+                    id=this.getTeacherId();
+                } 
 
-                this.deleteConfirm.msg='確定要刪除教師 ' + name + ' 嗎？'
+                this.deleteConfirm.msg='確定要刪除 ' + name + ' 嗎？'
                 this.deleteConfirm.id=id
                 this.deleteConfirm.show=true                
             },
@@ -213,10 +221,18 @@
                 this.deleteConfirm.show=false
             },
             deleteTeacher(){
-                this.closeConfirm()
-                
-                let id = this.deleteConfirm.id 
-                let remove= Teacher.remove(id)
+             
+                let id = this.deleteConfirm.id; 
+                let remove= null;
+
+                if(this.group){
+                   remove=TeacherGroup.remove(id);
+                }else{
+                   remove=Teacher.remove(id);
+                } 
+
+                this.closeConfirm();
+
                 remove.then(() => {
                     Helper.BusEmitOK('刪除成功')
                     this.$emit('deleted')
@@ -225,6 +241,9 @@
                     Helper.BusEmitError(error,'刪除失敗')
                     this.closeConfirm()   
                 })
+
+                   
+                
             },
 
             
