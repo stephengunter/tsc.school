@@ -12,11 +12,11 @@
                 </div>  
                 <div class="col-sm-4">
                     <label class="label-title">開課中心</label>  
-                    <p> {{ course.centerName }}</p>                          
+                    <p> {{ course.center.name }}</p>                          
                 </div> 
                 <div class="col-sm-4">
                     <label class="label-title">學期</label>
-                    <p v-text="course.termNumber">                       
+                    <p v-text="course.term.number">                       
                     </p>
                 </div>    
             </div> 

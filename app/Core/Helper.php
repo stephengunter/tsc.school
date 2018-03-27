@@ -44,6 +44,21 @@ class Helper
     {
         return count($array) !== count(array_unique($array));
     }
+
+    public static function toTimeString($val)
+    {
+        $val=(string)$val;
+        if (strlen($val) == 3)
+        {
+            return substr($val,0,1) . ':' . substr($val,1,2);
+            
+        }
+        if (strlen($val) == 4)
+        {
+            return substr($val,0,2) . ':' . substr($val,2,2);
+        }
+
+    }
   
 
 }

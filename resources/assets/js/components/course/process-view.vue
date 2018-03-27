@@ -18,7 +18,7 @@
                     新增
                 </button>
                
-                <label v-if="showImportBtn" @click="beginImport" href="#" class="btn btn-warning btn-sm btn-file" >
+                <label v-if="false" @click="beginImport" href="#" class="btn btn-warning btn-sm btn-file" >
                     <i class="fa fa-upload"></i>
                     匯入
                     <input  type="file"  ref="fileinput"  name="import_file" style="display: none;"  
@@ -141,9 +141,14 @@
                
             },
             beginCreate(){
+                let order=1;
+                if(this.course.processes.length){
+                    order=this.course.processes.length+1;
+                }
+              
                 this.form=new Form({
                     id:0,
-                    order:1,
+                    order:order,
                     courseId:this.course.id,
                     title:'',
                     content:''

@@ -65,6 +65,8 @@
                 this.terms = {!! json_encode($terms) !!} ;
                 this.centers = {!! json_encode($centers) !!} ;
                 this.categories = {!! json_encode($categories) !!} ;
+
+                this.weekdays = {!! json_encode($weekdays) !!} ;
                 
                 this.can_review = Helper.isTrue('{!! $canReview !!}');  
                 this.can_import = Helper.isTrue('{!! $canImport !!}'); 

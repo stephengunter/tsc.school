@@ -39,4 +39,10 @@ class Term extends Model
 	{
 		return $date <= $this->birdDate;
 	}
+
+	public function toOption()
+    {
+        return [ 'text' => $this->number ,  'value' => $this->id  ];
+    }
+
 }

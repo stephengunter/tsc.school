@@ -8,7 +8,7 @@ class Process {
     }
  
     static source() {
-        return '/processes';
+        return '/manage/processes';
     }
     
     static storeUrl() {

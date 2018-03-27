@@ -15,8 +15,8 @@ class Process extends Model
 		return [
 			'courseId' => 0,
 			'order' => 1,
-			'title' => 1400,
-			'content' => 1600,
+			'title' => '',
+			'content' => '',
 			'materials' => '',
 
 		];

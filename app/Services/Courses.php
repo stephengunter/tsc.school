@@ -24,7 +24,7 @@ class Courses
     public function __construct()
     {
        
-        $this->with=['teacherGroup','term','center'];
+        $this->with=['teacherGroup','term','center','classTimes.weekday'];
     }
     public function getAll(bool $includStudents = false)
     {
@@ -48,6 +48,15 @@ class Courses
         
     }
 
+    public function  updateCourse(Course $course ,Array $categoryIds,Array $teacherIds=[])
+    {
+        $course->save();
+        $course->categories()->sync($categoryIds);
+
+        if(count($teacherIds)) $course->teachers()->sync($teacherIds);
+        else $course->teachers()->delete();
+    }
+
     public function reviewOK(array $ids, $reviewedBy)
     {
         $courses=Course::where('removed',false)->whereIn('id',$ids)->get();
@@ -61,7 +70,7 @@ class Courses
 
     public function  updateReview($id,bool $reviewed,int $reviewedBy)
     {
-        $course=$this->getById($id);
+        $course=Course::find($id);
         $course->reviewed=$reviewed;
         $course->updatedBy=$reviewedBy;
 
@@ -76,8 +85,6 @@ class Courses
 
     public function deleteCourse(Course $course,$updatedBy)
     {
-        $course->removeRole();
-
         $course->removed=true;
         $course->updatedBy=$updatedBy;
         $course->save();

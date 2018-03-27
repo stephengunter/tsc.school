@@ -19,7 +19,7 @@
                             <a href="#" @click.prevent="onSelected(group.id)" v-text="group.name"> </a> 
                            
                         </td>
-                        <td >{{  group.centerName }}</td>
+                        <td >{{  group.center.name }}</td>
                         <td >{{  group.teacherNames }}</td>
                         
                     </tr>    

@@ -56,10 +56,21 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/centers/importances', 'CentersController@importances');
     Route::post('/manage/centers/import', 'CentersController@import');
 
-    Route::resource('/manage/courses', 'CoursesController');
-    Route::post('/manage/courses/import', 'CoursesController@import');
-    Route::post('/manage/teacourseschers/review', 'CoursesController@review');
 
+    // Courses
+    Route::resource('/manage/courses', 'CoursesController');
+    Route::get('/manage/courses/{id}/EditInfo', 'CoursesController@editInfo');
+    Route::put('/manage/courses/{id}/UpdateInfo', 'CoursesController@updateInfo');
+    Route::post('/manage/courses/import', 'CoursesController@import');
+    Route::post('/manage/courses/review', 'CoursesController@review');
+
+    Route::resource('/manage/ClassTimes', 'ClassTimesController');
+    Route::post('/manage/ClassTimes/import', 'ClassTimesController@import');
+
+    Route::resource('/manage/processes', 'ProcessesController');
+    Route::post('/manage/processes/import', 'ProcessesController@import');
+
+    
     Route::resource('/manage/contactInfoes', 'ContactInfoesController');
 
 });

@@ -94,4 +94,9 @@ class Teacher extends Model
         
     }
 
+    public function  toOption()
+    {
+        return [ 'text' => $this->user->profile->fullname ,  'value' => $this->userId , 'group' => false ];
+    }
+
 }

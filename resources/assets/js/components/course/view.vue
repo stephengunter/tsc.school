@@ -163,7 +163,7 @@
             },
             onEditReview(){
                 this.reviewEditor.id=this.course.id;
-                this.reviewEditor.reviewed=this.course.reviewed;
+                this.reviewEditor.reviewed=Helper.isTrue(this.course.reviewed);
                 this.reviewEditor.show=true;
             },
             updateReview(reviewed){

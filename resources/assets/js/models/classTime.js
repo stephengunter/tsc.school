@@ -8,7 +8,7 @@ class ClassTime {
     }
  
     static source() {
-        return '/ClassTimes';
+        return '/manage/ClassTimes';
     }
     
     static storeUrl() {

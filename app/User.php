@@ -9,6 +9,8 @@ use App\Role;
 
 class User extends Authenticatable
 {
+    public static $snakeAttributes = false;
+    
     use Notifiable;
     protected $fillable = [
         'name', 'email', 'password','phone','updatedBy'

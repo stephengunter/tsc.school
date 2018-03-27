@@ -5,16 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\CourseRequest;
+use App\Http\Requests\CourseInfoRequest;
 
+use App\Term;
 use App\Course;
 use App\User;
 use App\Profile;
 use App\Center;
-use App\Role;
+use App\Category;
 use App\Services\Terms;
 use App\Services\Courses;
 use App\Services\Centers;
 use App\Services\Categories;
+use App\Services\Teachers;
+use App\Services\TeacherGroups;
+use App\Services\CourseInfoes;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -23,12 +28,16 @@ use Illuminate\Support\Facades\Input;
 class CoursesController extends Controller
 {
     
-    public function __construct(Courses $courses, Terms $terms,Centers $centers,Categories $categories)
+    public function __construct(Courses $courses, Teachers $teachers,TeacherGroups $teacherGroups,
+        Terms $terms,Centers $centers,Categories $categories,CourseInfoes $courseInfoes)
     {
         $this->courses=$courses;
+        $this->teachers=$teachers;
+        $this->teacherGroups=$teacherGroups;
         $this->terms=$terms;
         $this->centers=$centers;
         $this->categories=$categories;
+        $this->courseInfoes=$courseInfoes;
     }
 
     function canEdit($course)
@@ -88,21 +97,6 @@ class CoursesController extends Controller
         return $this->currentUser()->admin->isHeadCenterCourse();
     }
 
-    function termOptions()
-    {
-        $terms=$this->terms->getAll();
-        $terms=$this->terms->getOrdered($terms)->get();
-
-        $options = $terms->map(function ($item) {
-            return [ 'text' => $item->name ,  'value' => $item->id ];
-        })->all();
-
-        return $options;
-
-
-    }
-
-    
  
     function setTeachers($course)
     {
@@ -123,6 +117,25 @@ class CoursesController extends Controller
 
         $course->categoryId =$categories->where('top',false)->first()->id;
     }
+
+    function getTeacherIds(Course $course)
+    {
+        $options =[];
+        $teachers=$course->teachers;
+        if(count($teachers)){
+            $options = $teachers->map(function ($item) {
+                return $item->toOption();
+            })->all();
+        }
+
+        if($course->teacherGroup){
+            array_push($options, [ 'text' => $course->teacherGroup->name ,  'value' => $course->teacherGroup->id ]);
+        }
+
+        return  $options;
+    }
+
+    
 
     public function index()
     {
@@ -167,8 +180,11 @@ class CoursesController extends Controller
         $selectedCategory = null;
         if ($category) $selectedCategory = Category::find($category);
 
-        $termOptions = $this->termOptions();
-        if (!$term) $term = (int)$termOptions[0]['value'];
+        $termOptions = $this->terms->options();
+        if (!$term){
+            if(count($termOptions)) $term = (int)$termOptions[0]['value'];
+            
+        } 
       
         $courses =  $this->courses->fetchCourses($term ,$selectedCenter, $selectedCategory,$reviewed, $keyword);
       
@@ -176,7 +192,7 @@ class CoursesController extends Controller
 
         foreach($pageList->viewList as $course){
             $course->fullName();
-            //$course->fullName();
+            $course->loadClassTimes();
             $this->setTeachers($course);
             $this->setCategories($course);
         } 
@@ -203,7 +219,7 @@ class CoursesController extends Controller
             'centers' => $centerOptions,
             'terms' => $termOptions,
             'categories' => $categoryOptions,
-
+            'weekdays' => $this->courseInfoes->weekdayOptions(),
             'canReview' => $canReview,
             'canImport' => $this->canImport(),
             'list' =>  $pageList
@@ -241,23 +257,18 @@ class CoursesController extends Controller
       
     }
 
-    public function validateCourseInputs($values)
+    function validateCourseInputs(array $courseValues, array $teacherIds)
     {
         $errors=[];
 
-        $group=false;
-        if(array_key_exists('group',$values)) $group=Helper::isTrue($values['group']);
-        
-        if($group){
+        if(!count($teacherIds))  $errors['teacherIds'] = ['請選擇教師'];
 
+        $beginDate= Carbon::parse($courseValues['beginDate']);
+        $endDate= Carbon::parse($courseValues['endDate']);
 
-        }else{
-            $wage=0;
-            if($values['wage']) $wage=floatval($values['wage']);
-            if(!$wage) 	$errors['course.wage'] = ['必須填寫鐘點費'];
-
-            if(!$values['account']) 	$errors['course.account'] = ['必須填寫銀行帳號'];
-
+        if ($endDate <= $beginDate)
+        {
+            $errors['course.endDate'] = ['日期錯誤'];
         }
 
         return $errors;
@@ -341,18 +352,16 @@ class CoursesController extends Controller
         $course = $this->courses->getById($id);
         if(!$course) abort(404);
 
-        $current_user=$this->currentUser();
+        $course->fullName();
+        $course->loadClassTimes();
+        $this->setTeachers($course);
+        $this->setCategories($course);
 
-        $this->loadCenterNames($course);
-        $this->loadRoleNames($course);
+        $course->processes;
 
-        $this->loadWage($course);
-
-        $course->user->loadContactInfo();
-     
-        $course->canEdit=$this->canEdit($course);
-        $course->canDelete=$this->canDelete($course);
-       
+        $course->canEdit = $this->canEdit($course);
+        $course->canReview =$this->canReview($course);
+        $course->canDelete = $this->canDelete($course);
 
         return response() ->json($course);
         
@@ -360,25 +369,36 @@ class CoursesController extends Controller
 
     public function edit($id)
     {
-        $course = Course::findOrFail($id);        
+       
+        $course = $this->courses->getById($id); 
+        if(!$course) abort(404);   
         if(!$this->canEdit($course)) $this->unauthorized();
 
-        $this->loadWage($course);
+        $course->number=$course->serial();
+        $this->setCategories($course);
        
-        $centerIds=$course->centers->pluck('id')->toArray();
+        $teacherIds=$this->getTeacherIds($course);
 
         $centersCanAdmin= $this->centersCanAdmin();
         $centerOptions = $centersCanAdmin->map(function ($item) {
             return [ 'text' => $item->name ,  'value' => $item->id ];
         })->all();
 
-      
+        $withEmpty=false;
+        $categoryOptions = $this->categories->options($withEmpty);
+        
+        $center=$course->center;
+       
+        $teacherOptions = array_merge($this->teachers->options($center), $this->teacherGroups->options($center));
+       
         $form=[
             'course' => $course,
-         
+            'teacherIds' =>$teacherIds,
+            'teacherOptions' => $teacherOptions,
+            'termOptions' => $this->terms->options(),
             'centerOptions' => $centerOptions,
-            'centerIds' => $centerIds
-
+            'categoryOptions' => $categoryOptions
+        
         ];
 
         return response() ->json($form);
@@ -389,40 +409,46 @@ class CoursesController extends Controller
 
     public function update(CourseRequest $request, $id)
     {
-        $course = Course::findOrFail($id);
+        $course = $this->courses->getById($id); 
+        if(!$course) abort(404);   
         if(!$this->canEdit($course)) $this->unauthorized();
-       
-        $values=$request->getCourseValues();
-     
-        $errors=$this->validateCourseInputs($values);
 
-        $centerIds=$request->getCenterIds();
-        if(!count($centerIds)){
-            $errors['centerIds'] = ['請選擇所屬中心'];
+        $courseValues=$request->getCourseValues();
+        $teacherIdValues=$request->getTeacherIds();
+       
+        $errors=$this->validateCourseInputs($courseValues,$teacherIdValues);
+        
+        $category =Category::find($courseValues['categoryId']);
+        $center = Center::find($courseValues['centerId']);
+        $term = Term::find($courseValues['termId']);
+
+        $courseValues['number'] =Course::initCourseNumber($courseValues['number'] ,$category,$center ,$term );
+        $duplicate = $this->courses->getCourseByNumber($courseValues['number']);
+        if ($duplicate && $duplicate->id != $id)
+        {
+            $errors['course.number'] = ['編號重複了'];
         }
+       
 
         if($errors) return $this->requestError($errors);
 
-        $current_user=$this->currentUser();
-        $values['updatedBy'] = $current_user->id;
 
-        $course->update($values);
-
-        $wageValues=[
-            'account' => $values['account'],
-            'money' => $values['wage'],
-            'updatedBy' =>  $current_user->id
-        ];
-
-        $course->setWage($wageValues);
-     
-        $centerIds=$request->getCenterIds();
-        if(!count($centerIds)){
-            $errors['centerIds'] = ['請選擇所屬中心'];
-            return $this->requestError($errors);
+        $teacherIds = [];
+        foreach($teacherIdValues as $item){
+            if (Helper::isTrue($item['group']))
+            {
+                $courseValues['teacherGroupId'] = $item['value'];
+            }
+            else
+            {
+                array_push($teacherIds,$item['value']);
+            }
         }
 
-        $course->centers()->sync($centerIds);
+        $courseValues['updatedBy']=$this->currentUserId();
+        $course->fill($courseValues);
+
+        $this->courses->updateCourse($course,[$category->id], $teacherIds);
 
         return response() ->json();
     }
@@ -462,32 +488,45 @@ class CoursesController extends Controller
         return response() ->json();
     }
 
+    public function editInfo($id)
+    {
+        $course = Course::findOrFail($id);
+        if(!$this->canEdit($course)) $this->unauthorized();
+
+        return response() ->json(['course' => $course]);
+    }
+
+    public function updateInfo($id, CourseInfoRequest $request)
+    {
+        $course = Course::findOrFail($id);
+        if(!$course) abort(404);   
+        if(!$this->canEdit($course)) $this->unauthorized();
+
+        $values=$request->getValues();
+
+        $errors=[];
+        $tuition=floatval($values['tuition']);
+        if(!$tuition){
+            $errors['course.tuition'] = ['學費錯誤'];
+        }
+        $limit=(int)$values['limit'];
+        if(!$limit){
+            $errors['course.limit'] = ['人數上限錯誤'];
+        }
+
+        if($errors) return $this->requestError($errors);
+        
+        $values['updatedBy']=$this->currentUserId();
+        $course->update($values);
+
+    }
+
     public function import(Request $form)
     {
         
         if(!$this->canImport()){
             return $this->unauthorized();
         }
-
-       
-
-         //只新增,不更新
-           
-        //  string errMsg = "";
-        //  if (form.type == "create")
-        //  {
-        //      errMsg = await ImportCourses(GetImportedCourseModels(form));
-        //  }
-        //  else if (form.type == "details")
-        //  {
-        //      errMsg = await ImportCourseDetails(GetImportedCourseModels(form));
-        //  }
-        
-        //  else return BadRequest();
-
-        //  if (String.IsNullOrEmpty(errMsg)) return Ok();
-
-        //  return BadRequestWithMessage(errMsg);
 
         
         $errors=[];
@@ -505,11 +544,10 @@ class CoursesController extends Controller
         if($type=='create'){
             $err_msg=$this->courses->importCourses($file,$this->currentUserId());
         }else if($type=='details'){
-            
             $err_msg=$this->courses->importCourseDetails($file,$this->currentUserId());
-        
-        }
-
+        }else{
+            abort(404);
+        } 
      
         
         if($err_msg)

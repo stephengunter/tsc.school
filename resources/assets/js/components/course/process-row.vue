@@ -1,36 +1,15 @@
 <template>
     <tr v-if="edit">
-        <!-- <td style="width:80%;white-space:nowrap;">
-            <form class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
-                <table style="width:95%;">
-                    <tr>
-                        <td style="width:30%;">
-                            <select v-model="form.weekdayId" class="form-control" style="width:90%">
-                                <option v-for="(item,index) in weekdays" :key="index"  :value="item.value" v-text="item.text"></option>
-                            </select>
-                        </td>
-                        
-                        <td style="width:35%;">
-                            <input type="text" name="on" class="form-control" v-model="form.on" style="width:90%">
-                            <small class="text-danger" v-if="form.errors.has('on')" v-text="form.errors.get('on')"></small>
-                        </td>
-
-                        <td style="width:35%;">
-                            <input type="text" name="off" class="form-control" v-model="form.off" style="width:90%">
-                            <small class="text-danger" v-if="form.errors.has('off')" v-text="form.errors.get('off')"></small>
-                        </td>
-                    </tr>
-                </table>
-            </form>
-            
-        </td> -->
+      
         <td>
             <select v-model="form.order" class="form-control">
                 <option v-for="(item,index) in orders" :key="index"  :value="item.value" v-text="item.text"></option>
+               
             </select>
         </td>
         <td>
             <input type="text" name="title" class="form-control" v-model="form.title">
+            <small class="text-danger" v-if="form.errors.has('order')" v-text="form.errors.get('order')"></small>              
             <small class="text-danger" v-if="form.errors.has('title')" v-text="form.errors.get('title')"></small>
         </td>
         <td>

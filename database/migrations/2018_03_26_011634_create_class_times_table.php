@@ -13,7 +13,7 @@ class CreateClassTimesTable extends Migration
      */
     public function up()
     {
-        Schema::create('class_times', function (Blueprint $table) {
+        Schema::create('classTimes', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('courseId')->unsigned(); 
             $table->foreign('courseId')->references('id')->on('courses')->onDelete('cascade');
@@ -21,7 +21,7 @@ class CreateClassTimesTable extends Migration
             $table->integer('weekdayId')->unsigned(); 
             $table->integer('on')->unsigned(); 
             $table->integer('off')->unsigned(); 
-            $table->string('location');
+            $table->string('location')->nullable();
 
             $table->integer('updatedBy')->unsigned()->nullable();
             $table->timestamps();
@@ -35,6 +35,6 @@ class CreateClassTimesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('class_times');
+        Schema::dropIfExists('classTimes');
     }
 }

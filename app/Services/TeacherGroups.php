@@ -41,14 +41,9 @@ class TeacherGroups
         if($keyword) $teacherGroups=$this->getByKeyword($keyword);
         else $teacherGroups=$this->getAll();
 
-        if($center){
-            $teacherGroups=$teacherGroups->whereHas('centers', function($q) use ($center)
-            {
-                $q->where('id',$center->id );
-            });
-          
-        }
+        if($center) $teacherGroups=$teacherGroups->where('centerId',$center->id);
 
+        
         return $teacherGroups;
     }
 
@@ -57,6 +52,18 @@ class TeacherGroups
        
         return $this->getAll()->where('name' , 'LIKE', '%' .$keyword .'%' );
        
+    }
+
+    public function  getByCenter(Center $center)
+    {   
+        return $this->fetchTeacherGroups($center);
+    } 
+    public function  options(Center $center)
+    {
+        $teacherGroups=$this->getByCenter($center)->get();
+        return $teacherGroups->map(function ($teacherGroup) {
+            return $teacherGroup->toOption();
+        })->all();
     }
 
     public function validateInputs($values)

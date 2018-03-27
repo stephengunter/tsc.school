@@ -54368,7 +54368,7 @@ var ClassTime = function () {
     _createClass(ClassTime, null, [{
         key: 'source',
         value: function source() {
-            return '/ClassTimes';
+            return '/manage/ClassTimes';
         }
     }, {
         key: 'storeUrl',
@@ -54465,7 +54465,7 @@ var Process = function () {
     _createClass(Process, null, [{
         key: 'source',
         value: function source() {
-            return '/processes';
+            return '/manage/processes';
         }
     }, {
         key: 'storeUrl',
@@ -74185,7 +74185,7 @@ var render = function() {
                       })
                     ]),
                     _vm._v(" "),
-                    _c("td", [_vm._v(_vm._s(group.centerName))]),
+                    _c("td", [_vm._v(_vm._s(group.center.name))]),
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(group.teacherNames))])
                   ])
@@ -85651,7 +85651,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         onEditReview: function onEditReview() {
             this.reviewEditor.id = this.course.id;
-            this.reviewEditor.reviewed = this.course.reviewed;
+            this.reviewEditor.reviewed = Helper.isTrue(this.course.reviewed);
             this.reviewEditor.show = true;
         },
         updateReview: function updateReview(reviewed) {
@@ -85924,14 +85924,14 @@ var render = function() {
                   _vm._v("開課中心")
                 ]),
                 _vm._v(" "),
-                _c("p", [_vm._v(" " + _vm._s(_vm.course.centerName))])
+                _c("p", [_vm._v(" " + _vm._s(_vm.course.center.name))])
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "col-sm-4" }, [
                 _c("label", { staticClass: "label-title" }, [_vm._v("學期")]),
                 _vm._v(" "),
                 _c("p", {
-                  domProps: { textContent: _vm._s(_vm.course.termNumber) }
+                  domProps: { textContent: _vm._s(_vm.course.term.number) }
                 })
               ])
             ]),
@@ -89329,9 +89329,14 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             this.creating = false;
         },
         beginCreate: function beginCreate() {
+            var order = 1;
+            if (this.course.processes.length) {
+                order = this.course.processes.length + 1;
+            }
+
             this.form = new Form({
                 id: 0,
-                order: 1,
+                order: order,
                 courseId: this.course.id,
                 title: '',
                 content: ''
@@ -89531,27 +89536,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'ProcessRow',
@@ -89679,6 +89663,13 @@ var render = function() {
               }
             }
           }),
+          _vm._v(" "),
+          _vm.form.errors.has("order")
+            ? _c("small", {
+                staticClass: "text-danger",
+                domProps: { textContent: _vm._s(_vm.form.errors.get("order")) }
+              })
+            : _vm._e(),
           _vm._v(" "),
           _vm.form.errors.has("title")
             ? _c("small", {
@@ -89843,7 +89834,7 @@ var render = function() {
                         )
                       : _vm._e(),
                     _vm._v(" "),
-                    _vm.showImportBtn
+                    false
                       ? _c(
                           "label",
                           {

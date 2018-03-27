@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Core\Helper;
 
 class ClassTime extends Model
 {
@@ -33,5 +34,12 @@ class ClassTime extends Model
 	public function weekday() 
 	{
 		return $this->hasOne('App\Weekday', 'id' ,'weekdayId');
-    }
+	}
+	
+	public function timeString()
+	{
+		$timeString= Helper::toTimeString($this->on) . '~' . Helper::toTimeString($this->off);
+		$this->timeString=$timeString;
+		return $timeString;
+	}
 }

@@ -17,7 +17,7 @@ class CreateWeekdaysTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('title');
-            $table->integer('value'); 
+            $table->integer('val'); 
          
             $table->timestamps();
         });

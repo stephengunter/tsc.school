@@ -102,12 +102,30 @@ class Course extends Model
 		return $this->hasMany('App\Process','courseId');
     }
     
+    public function serial()
+    {
+        $serial=0;
+        if($this->number){
+            $arr=explode('-', $this->number); 
+            if($arr) $serial = (int)$arr[1];
+        }
+        $this->serial=$serial;
+        return $serial;
+    }
+
     public function fullName()
     {
         $fullname=$this->name;
         if($this->level) $fullname .= ' - ' . $this->level;
         $this->fullName=$fullname;
         return $fullname;
+    }
+
+    public function loadClassTimes()
+    {
+        foreach($this->classTimes as $classTime){
+            $classTime->timeString();
+        }
     }
 
     

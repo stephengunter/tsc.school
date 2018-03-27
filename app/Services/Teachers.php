@@ -115,7 +115,18 @@ class Teachers
         return $this->getAll()->whereIn('userId' , $userIds );
        
     }
-        
+    public function  getByCenter(Center $center)
+    {   
+        return $this->fetchTeachers($center);
+    } 
+    public function  options(Center $center)
+    {
+       
+        $teachers=$this->getByCenter($center)->get();
+        return $teachers->map(function ($teacher) {
+            return $teacher->toOption();
+        })->all();
+    }
 
     public function getTeacherBySID($sid)
     {
@@ -124,6 +135,8 @@ class Teachers
 
         return Teacher::find($profile->userId);
     }
+
+    
     
     public function importTeachers($file,$updatedBy)
     {

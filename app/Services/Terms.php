@@ -27,6 +27,18 @@ class Terms
         return $terms->orderBy('active','desc')->orderBy('number','desc');
     }
 
+    public function options()
+    {
+        $terms=$this->getAll();
+        $terms=$this->getOrdered($terms)->get();
+        $options = $terms->map(function ($item) {
+            return $item->toOption();
+        })->all();
+
+        return $options;
+
+    }
+
    
     
     
