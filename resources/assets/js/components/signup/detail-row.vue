@@ -1,7 +1,7 @@
 <template>
     
     <tr>
-        <td> {{ model.course.centerName }}</td>
+        <td> {{ model.course.center.name }}</td>
         <td> {{ model.course.number }}</td>    
         <td> {{ model.course.fullName }}</td>  
         <td v-html="$options.filters.classTimesHtml(model.course)">  

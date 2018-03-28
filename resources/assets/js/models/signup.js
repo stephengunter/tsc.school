@@ -10,7 +10,7 @@ class Signup {
     }
  
     static source() {
-        return '/signups';
+        return '/manage/signups';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;

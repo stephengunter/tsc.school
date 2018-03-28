@@ -56,6 +56,8 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/centers/importances', 'CentersController@importances');
     Route::post('/manage/centers/import', 'CentersController@import');
 
+    Route::get('/manage/SeedDiscountCenters', 'CentersController@seedDiscountCenters');
+
 
     // Courses
     Route::resource('/manage/courses', 'CoursesController');
@@ -69,6 +71,10 @@ Route::group(['middleware' => 'admin'], function()
 
     Route::resource('/manage/processes', 'ProcessesController');
     Route::post('/manage/processes/import', 'ProcessesController@import');
+
+
+    //Signups
+    Route::resource('/manage/signups', 'SignupsController');
 
     
     Route::resource('/manage/contactInfoes', 'ContactInfoesController');

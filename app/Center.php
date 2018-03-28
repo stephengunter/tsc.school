@@ -62,6 +62,10 @@ class Center extends Model
 		return $this->hasMany('App\TeacherGroup','centerId', 'id');
       
 	}
+	public function discounts()
+    {
+        return $this->belongsToMany(Discount::class,'center_discount','center_id','discount_id');
+	}
 
 	public function getContactInfo()
 	{
@@ -72,6 +76,12 @@ class Center extends Model
 		$this->contactInfo=$this->getContactInfo();
 		if($this->contactInfo)  $this->contactInfo->address->fullText();
 	}
+
+	public function  toOption()
+    {
+		return [ 'text' => $this->name ,  'value' => $this->id ];
+       
+    }
 
 	
 }

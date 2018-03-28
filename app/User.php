@@ -63,6 +63,19 @@ class User extends Authenticatable
 		return $this->hasOne(Teacher::class,'userId');
     }
 
+    public function signups() 
+	{
+		return $this->hasMany('App\Signup','userId');
+    }
+    
+    public function students() 
+	{
+		return $this->hasMany('App\Students','userId');
+    }
+    public function identities()
+    {
+        return $this->belongsToMany(Identity::class,'identity_user','user_id','identity_id');
+    }
     public function setPasswordAttribute($value) 
     {
 		$this->attributes['password'] = bcrypt($value);

@@ -48,8 +48,7 @@ class CourseRequest extends FormRequest
     public function getValues()
     {
         return $this->get('course');
-        return array_except($values, ['teacherGroup','term','center','classTimes','teachers']);
-        
+      
     }
 
     public function getTeacherIds()

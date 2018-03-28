@@ -14,6 +14,7 @@ class Course extends Model
     
     protected $fillable = [ 
         'termId', 'centerId', 'name', 'level', 
+        'teacherGroupId' , 'categoryId',
         'number', 'caution', 'limit','min',
         'beginDate' ,  'endDate' , 'weeks', 'hours',
         'description','target',
@@ -37,6 +38,8 @@ class Course extends Model
             'level' => '',
             'number' => '',
             'discount' => 1,
+
+            'categoryId' => 0,
           
             'centerId' => $center_id,
             'termId' => $term_id,
@@ -96,6 +99,11 @@ class Course extends Model
 	{
 		return $this->hasMany('App\ClassTime','courseId');
     }
+
+    public function students() 
+	{
+		return $this->hasMany('App\Student','courseId');
+    }
     
     public function processes() 
 	{
@@ -127,6 +135,13 @@ class Course extends Model
             $classTime->timeString();
         }
     }
+
+    public function toOption()
+    {
+        return [ 'text' => $this->fullName() ,  'value' => $this->id  ];
+    }
+
+
 
     
 }

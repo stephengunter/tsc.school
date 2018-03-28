@@ -54,10 +54,42 @@ class CentersController extends Controller
         $cities=City::with(['districts'])->get(); 
         return $cities;
     }
+
+    public function seedDiscountCenters()
+    {
+       
+        if(!$this->currentUserIsDev()) return;
+        $eastCenter = Center::where('removed',false)->where('head',true)->first();
+       
+        $eastDiscountCodes=[
+            "new" , "multi" , "member" , "lotus", "over65", "poor", "religion"
+        ];
+        foreach($eastDiscountCodes as $eastDiscountCode){
+           
+            $discount=\App\Discount::where('code' , $eastDiscountCode)->first();
+           
+            $eastCenter->discounts()->attach($discount->id);
+        }
+
+
+        $westDiscountCodes = [
+            "one-west", "multi-west", "over65-west" ,"helf-west" ,"lotus-west"
+        ];
+
+
+        $westCenters =Center::where('removed',false)->where('head',false)->where('oversea',false)->get(); 
+        foreach ($westCenters as  $westCenter)
+        {
+            foreach($westDiscountCodes as $westDiscountCode){
+                $discount=\App\Discount::where('code' , $westDiscountCode)->first();
+                $westCenter->discounts()->attach($discount->id);
+            }
+        }
+    }
     
     public function index()
     {
-      
+       
         $request=request();
 
         $oversea=false;

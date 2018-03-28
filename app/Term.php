@@ -42,7 +42,7 @@ class Term extends Model
 
 	public function toOption()
     {
-        return [ 'text' => $this->number ,  'value' => $this->id  ];
+        return [ 'text' => $this->number . '學期' ,  'value' => $this->id  ];
     }
 
 }

@@ -12,12 +12,14 @@
                 </span> 
             </div>  
             <div class="panel-body">
-                <user-create-inputs :form="form"></user-create-inputs>
+                <user-view v-if="existUser" :model="this.form.user" ref="userView"
+                   :can_edit="userSettings.can_edit" :can_back="userSettings.can_back" 
+                   @back="resetUser" > 
+                </user-view>
+                <user-create-inputs v-else :form="form" :readonly="existUser"></user-create-inputs>
             </div>
         
         </div>
-        
-        
         
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -55,10 +57,12 @@
 <script>
 import Details from './detail-view';
 import UserInputs from '../user/create-inputs';
+import UserView from '../user/view';
 export default {
     name: 'SignupCreateInputs',
     components: {
         'user-create-inputs':UserInputs,
+        'user-view':UserView,
         'signup-details':Details
     },
     props: {
@@ -77,9 +81,13 @@ export default {
     },
     data(){
 		return {
-            lotusOptions:Helper.boolOptions()
-            
-			
+            lotusOptions:Helper.boolOptions(),
+            userSettings:{
+                can_edit:true,
+                can_back:true,
+                can_delete:false
+                   
+           },
 		}
 	},
     computed:{
@@ -87,6 +95,14 @@ export default {
             if(!this.center_options) return false;
             return this.center_options.length > 1;
         },
+        existUser(){
+           
+            if(!this.form) return false;
+            if(!this.form.user) return false;
+            if(!this.form.user.id) return false;
+
+            return parseInt(this.form.user.id) > 0;
+        }
         
     },
     methods:{
@@ -110,7 +126,11 @@ export default {
         },
         setLotus(val){
             this.form.lotus=val;
+        },
+        resetUser(){
+            this.$emit('reset-user')
         }
+
     }
 }
 </script>

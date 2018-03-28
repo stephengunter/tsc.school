@@ -4,7 +4,7 @@
 			
 			
 			<signup-create-inputs  :form="form" :identity_options="identityOptions" 
-				@add-detail="onAddDetail">
+				@add-detail="onAddDetail" @reset-user="resetUser">
 			</signup-create-inputs> 
 
 			<submit-buttons :form="form"  :submitting="submitting"
@@ -158,6 +158,20 @@ export default {
 		},
 		setUser(user){
 			this.form.user={...user };
+		},
+		resetUser(){
+			this.form.user={
+				id:0,
+				email:'',
+				phone:'',
+				profile:{
+					dob:'',
+					sid:'',
+					fullname:'',
+					gender:1
+				}
+
+			};
 		},
 		onAddDetail(){
 			this.courseSelector.show=true;

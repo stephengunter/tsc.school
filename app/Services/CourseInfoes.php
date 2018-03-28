@@ -160,9 +160,13 @@ class CourseInfoes
                 continue;
             }else{
                 $course=Course::where('number',$courseNumber)->first();
-                if(!$course)   $err_msg .= '課程編號' . $courseNumber . '不存在,';
+                if(!$course) {
+                    $err_msg .= '課程編號' . $courseNumber . '不存在,';
+                    continue;
+                } 
             }
 
+           
            
 
             if(!$order){
@@ -170,7 +174,11 @@ class CourseInfoes
                 continue;
             }else{
                 $orderExist=Process::where('courseId',$course->id)->where('order',$order)->first();
-                if($orderExist)   $err_msg .= '順序重複了' . $courseNumber;
+                if($orderExist){
+                    $err_msg .= '順序重複了' . $courseNumber;
+                    continue;
+                }  
+               
         
             }
             

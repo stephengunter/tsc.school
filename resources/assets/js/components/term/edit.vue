@@ -23,11 +23,11 @@
                 
             </div>
             <div class="form-group">
-				<label class="col-md-2 control-label">名稱</label>
+				<!-- <label class="col-md-2 control-label">名稱</label>
 				<div class="col-md-4">
 					<input type="text" name="term.name" v-model="form.term.name" class="form-control"  >
                     <small class="text-danger" v-if="form.errors.has('term.name')" v-text="form.errors.get('term.name')"></small>
-				</div>
+				</div> -->
                 <label class="col-md-2 control-label">狀態</label>
 				<div class="col-md-4">
 					<toggle :items="activeOptions"   :default_val="form.term.active" @selected="setActive"></toggle>

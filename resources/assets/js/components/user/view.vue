@@ -10,10 +10,10 @@
                     <i class="fa fa-arrow-circle-left"></i>
                     返回
                 </button>
-                <button v-if="canEdit" @click="beginEdit" class="btn btn-primary btn-sm" >
+                <button v-if="canEdit" @click.prevent="beginEdit" class="btn btn-primary btn-sm" >
                         <i class="fa fa-edit"></i> 編輯
                 </button>
-                <button v-if="canDelete" v-show="can_edit" @click="beginDelete" class="btn btn-danger btn-sm" >
+                <button v-if="canDelete" v-show="can_edit" @click.prevent="beginDelete" class="btn btn-danger btn-sm" >
                     <i class="fa fa-trash"></i>  刪除
                 </button>
                

@@ -54579,7 +54579,7 @@ var Signup = function () {
     _createClass(Signup, null, [{
         key: 'source',
         value: function source() {
-            return '/signups';
+            return '/manage/signups';
         }
     }, {
         key: 'showUrl',
@@ -72927,43 +72927,6 @@ var render = function() {
             _vm._v(" "),
             _c("div", { staticClass: "form-group" }, [
               _c("label", { staticClass: "col-md-2 control-label" }, [
-                _vm._v("名稱")
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-md-4" }, [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.form.term.name,
-                      expression: "form.term.name"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  attrs: { type: "text", name: "term.name" },
-                  domProps: { value: _vm.form.term.name },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.$set(_vm.form.term, "name", $event.target.value)
-                    }
-                  }
-                }),
-                _vm._v(" "),
-                _vm.form.errors.has("term.name")
-                  ? _c("small", {
-                      staticClass: "text-danger",
-                      domProps: {
-                        textContent: _vm._s(_vm.form.errors.get("term.name"))
-                      }
-                    })
-                  : _vm._e()
-              ]),
-              _vm._v(" "),
-              _c("label", { staticClass: "col-md-2 control-label" }, [
                 _vm._v("狀態")
               ]),
               _vm._v(" "),
@@ -75740,6 +75703,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'UserCreateInputs',
@@ -75747,6 +75712,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         form: {
             type: Object,
             default: null
+        },
+        readonly: {
+            type: Boolean,
+            default: false
         }
     },
     data: function data() {
@@ -75806,7 +75775,11 @@ var render = function() {
                 }
               ],
               staticClass: "form-control",
-              attrs: { type: "text", name: "user.profile.fullname" },
+              attrs: {
+                readonly: _vm.readonly,
+                type: "text",
+                name: "user.profile.fullname"
+              },
               domProps: { value: _vm.form.user.profile.fullname },
               on: {
                 input: function($event) {
@@ -75870,7 +75843,11 @@ var render = function() {
                 }
               ],
               staticClass: "form-control",
-              attrs: { type: "text", name: "user.profile.sid" },
+              attrs: {
+                readonly: _vm.readonly,
+                type: "text",
+                name: "user.profile.sid"
+              },
               domProps: { value: _vm.form.user.profile.sid },
               on: {
                 input: function($event) {
@@ -75900,10 +75877,16 @@ var render = function() {
             "div",
             { staticClass: "col-md-4" },
             [
-              _c("datetime-picker", {
-                attrs: { date: _vm.form.user.profile.dob, can_clear: true },
-                on: { selected: _vm.setDOB }
-              }),
+              _vm.readonly
+                ? _c("input", {
+                    staticClass: "form-control",
+                    attrs: { readonly: _vm.readonly, type: "text" },
+                    domProps: { value: _vm.form.user.profile.dob }
+                  })
+                : _c("datetime-picker", {
+                    attrs: { date: _vm.form.user.profile.dob, can_clear: true },
+                    on: { selected: _vm.setDOB }
+                  }),
               _vm._v(" "),
               _vm.form.errors.has("user.profile.dob")
                 ? _c("small", {
@@ -75936,7 +75919,11 @@ var render = function() {
                 }
               ],
               staticClass: "form-control",
-              attrs: { type: "text", name: "user.email" },
+              attrs: {
+                readonly: _vm.readonly,
+                type: "text",
+                name: "user.email"
+              },
               domProps: { value: _vm.form.user.email },
               on: {
                 input: function($event) {
@@ -75973,7 +75960,11 @@ var render = function() {
                 }
               ],
               staticClass: "form-control",
-              attrs: { type: "text", name: "user.phone" },
+              attrs: {
+                readonly: _vm.readonly,
+                type: "text",
+                name: "user.phone"
+              },
               domProps: { value: _vm.form.user.phone },
               on: {
                 input: function($event) {
@@ -80007,7 +79998,12 @@ var render = function() {
                     "button",
                     {
                       staticClass: "btn btn-primary btn-sm",
-                      on: { click: _vm.beginEdit }
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          return _vm.beginEdit($event)
+                        }
+                      }
                     },
                     [
                       _c("i", { staticClass: "fa fa-edit" }),
@@ -80029,7 +80025,12 @@ var render = function() {
                         }
                       ],
                       staticClass: "btn btn-danger btn-sm",
-                      on: { click: _vm.beginDelete }
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          return _vm.beginDelete($event)
+                        }
+                      }
                     },
                     [
                       _c("i", { staticClass: "fa fa-trash" }),
@@ -98079,6 +98080,20 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		setUser: function setUser(user) {
 			this.form.user = _extends({}, user);
 		},
+		resetUser: function resetUser() {
+			this.form.user = {
+				id: 0,
+				email: '',
+				phone: '',
+				profile: {
+					dob: '',
+					sid: '',
+					fullname: '',
+					gender: 1
+				}
+
+			};
+		},
 		onAddDetail: function onAddDetail() {
 			this.courseSelector.show = true;
 		},
@@ -98226,6 +98241,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__detail_view___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__detail_view__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__user_create_inputs__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__user_create_inputs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__user_create_inputs__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__user_view__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__user_view___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__user_view__);
 //
 //
 //
@@ -98280,6 +98297,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+
 
 
 
@@ -98287,6 +98307,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     name: 'SignupCreateInputs',
     components: {
         'user-create-inputs': __WEBPACK_IMPORTED_MODULE_1__user_create_inputs___default.a,
+        'user-view': __WEBPACK_IMPORTED_MODULE_2__user_view___default.a,
         'signup-details': __WEBPACK_IMPORTED_MODULE_0__detail_view___default.a
     },
     props: {
@@ -98305,8 +98326,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     data: function data() {
         return {
-            lotusOptions: Helper.boolOptions()
+            lotusOptions: Helper.boolOptions(),
+            userSettings: {
+                can_edit: true,
+                can_back: true,
+                can_delete: false
 
+            }
         };
     },
 
@@ -98314,6 +98340,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         canEditCenters: function canEditCenters() {
             if (!this.center_options) return false;
             return this.center_options.length > 1;
+        },
+        existUser: function existUser() {
+
+            if (!this.form) return false;
+            if (!this.form.user) return false;
+            if (!this.form.user.id) return false;
+
+            return parseInt(this.form.user.id) > 0;
         }
     },
     methods: {
@@ -98334,6 +98368,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         setLotus: function setLotus(val) {
             this.form.lotus = val;
+        },
+        resetUser: function resetUser() {
+            this.$emit('reset-user');
         }
     }
 });
@@ -98630,7 +98667,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("tr", [
-    _c("td", [_vm._v(" " + _vm._s(_vm.model.course.centerName))]),
+    _c("td", [_vm._v(" " + _vm._s(_vm.model.course.center.name))]),
     _vm._v(" "),
     _c("td", [_vm._v(" " + _vm._s(_vm.model.course.number))]),
     _vm._v(" "),
@@ -98828,7 +98865,21 @@ var render = function() {
             _c(
               "div",
               { staticClass: "panel-body" },
-              [_c("user-create-inputs", { attrs: { form: _vm.form } })],
+              [
+                _vm.existUser
+                  ? _c("user-view", {
+                      ref: "userView",
+                      attrs: {
+                        model: this.form.user,
+                        can_edit: _vm.userSettings.can_edit,
+                        can_back: _vm.userSettings.can_back
+                      },
+                      on: { back: _vm.resetUser }
+                    })
+                  : _c("user-create-inputs", {
+                      attrs: { form: _vm.form, readonly: _vm.existUser }
+                    })
+              ],
               1
             )
           ]),
@@ -99153,7 +99204,10 @@ var render = function() {
                   form: _vm.form,
                   identity_options: _vm.identityOptions
                 },
-                on: { "add-detail": _vm.onAddDetail }
+                on: {
+                  "add-detail": _vm.onAddDetail,
+                  "reset-user": _vm.resetUser
+                }
               }),
               _vm._v(" "),
               _c("submit-buttons", {

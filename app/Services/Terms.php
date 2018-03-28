@@ -10,6 +10,10 @@ class Terms
     {
         return Term::where('removed',false); 
     }
+    public function getById($id)
+    {
+        return $this->getAll()->where('id',$id)->first();
+    }
     
     public function fetchTerms(bool $active=true)
     {

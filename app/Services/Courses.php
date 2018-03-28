@@ -39,6 +39,7 @@ class Courses
 
     public function createCourse(Course $course,Array $categoryIds,Array $teacherIds=[])
     {
+        $course->categoryId=$categoryIds[0];
         $course->save();
         $course->categories()->attach($categoryIds);
 
@@ -131,6 +132,19 @@ class Courses
     public function getCourseByNumber($number)
     {
         return $this->getAll()->where('number',$number)->first();
+    }
+
+    public function  options(Term $term, Center $center,bool $withEmpty=false)
+    {
+        $courses=$this->fetchCourses($term->id,$center)->get();
+        $options =  $courses->map(function ($course) {
+            return $course->toOption();
+        })->all();
+
+        if($withEmpty) array_unshift($options, ['text' => '所有課程' , 'value' =>'0']);
+        
+        return $options;
+       
     }
     
     public function importCourses($file,$updatedBy)

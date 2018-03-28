@@ -137,13 +137,13 @@ class Users
 
 		$bySIDs=[];
 		if($sid){
-			$sid=strtoupper($email);
+			$sid=strtoupper($sid);
 			$bySIDs=Profile::where('sid', $sid)->pluck('userId')->toArray();
 		} 
        
-        $userIds=array_unique(array_merge($byPhones,$byEmails,$bySIDs));
+		$userIds=array_unique(array_merge($byPhones,$byEmails,$bySIDs));
 
-        return User::with(['profile'])->whereIn('userId' , $userIds );
+        return User::with(['profile'])->whereIn('id' , $userIds );
 	}
 
 	public function findBySID($sid)
@@ -184,7 +184,7 @@ class Users
         return $users->orderBy('id','desc');
     }
 
-	public function validateUserInputs($values)
+	public function validateUserInputs($values, bool $needFullname=true,bool $needSID=false,bool $needDOB=false)
     {
         $errors=[];
 
@@ -215,13 +215,33 @@ class Users
 			
 		}
 
+		if($needFullname){
+			$fullname=$values['profile']['fullname'];
+			if(!$fullname) $errors['user.profile.fullname'] = ['必須填寫姓名'];
+				
+		}
+
 		$sid=$values['profile']['sid'];
+
 		if($sid){
 			$existUser=$this->findBySID($sid);
 			if($existUser && $existUser->id!=$id){
 				$errors['user.profile.sid'] = ['身分證號重複了'];
 			} 
+		}else{
+			//沒填身分證號
+			if($needSID){
+				$errors['user.profile.sid'] = ['必須填寫身分證號'];
+			}
 		}
+
+		if($needDOB){
+			$dob=$values['profile']['dob'];
+			if(!$dob) $errors['user.profile.dob'] = ['必須填寫生日'];
+				
+		}
+
+		
 
         return $errors;
     }

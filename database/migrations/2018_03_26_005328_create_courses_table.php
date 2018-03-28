@@ -19,6 +19,7 @@ class CreateCoursesTable extends Migration
             $table->integer('termId')->unsigned(); 
             $table->integer('centerId')->unsigned(); 
             $table->integer('teacherGroupId')->unsigned()->nullable(); 
+            $table->integer('categoryId')->unsigned(); 
 
             $table->string('name');
             $table->string('level')->nullable(); 

@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Input;
 
 class UsersController extends Controller
 {
-    
     public function __construct(Users $users)
     {
         $this->users=$users;
@@ -47,7 +46,7 @@ class UsersController extends Controller
     
     public function index()
     {
-      
+
         $request=request();
 
         $keyword='';
@@ -151,6 +150,8 @@ class UsersController extends Controller
         $users=$this->users->findUsers($email, $phone, $sid);
 
         $pageList = new PagedList($users);
+
+        
         
         foreach($pageList->viewList as $user){
             

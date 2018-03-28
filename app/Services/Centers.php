@@ -23,11 +23,14 @@ class Centers
     }
     public function getById($id)
     {
-        return Center::with($this->with)->find($id);
+        return $this->getAll()->where('id',$id)->first();
     }
+    
 
     public function createCenter(Center $center, ContactInfo $contactInfo=null,Address $address=null)
     {
+        if($center->code=='A') $center->head=true;
+        
         if(!$center->importance)
         {
             $min=$this->getMinImportance();
@@ -69,13 +72,17 @@ class Centers
     public function centerOptions($withEmpty=true)
     {
         $localCenters= $this->getLocalCenters(true)->get();
-        $options = $localCenters->map(function ($item) {
-            return [ 'text' => $item->name ,  'value' => $item->id ];
+        $options = $localCenters->map(function ($center) {
+            return $center->toOption();
         })->all();
 
         if($withEmpty) array_unshift($options, ['text' => '所有中心' , 'value' =>'0']);
         
         return $options;
+    }
+    public function options($withEmpty=false)
+    {
+        return $this->centerOptions($withEmpty);
     }
 
     public function updateImportance($id,$importance)
