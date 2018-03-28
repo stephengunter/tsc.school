@@ -33,9 +33,12 @@ class Courses
     }
     public function getById($id)
     {   
-        return Course::with($this->with)->find($id);
+        return $this->getAll()->where('id',$id)->first();
     }
-        
+    public function getByIds($ids)
+    {   
+        return $this->getAll()->whereIn('id',$ids);
+    }    
 
     public function createCourse(Course $course,Array $categoryIds,Array $teacherIds=[])
     {

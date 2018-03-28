@@ -269,7 +269,11 @@ class SignupsController extends Controller
 
     public function store(SignupRequest $request)
     {
+       
+        $updatedBy=$this->currentUserId();
+
         $userId=$request->getUserId();
+        $identityIds = $request['identityIds'];
         // if(!$userId){
         //     //New User
         //     $userValues=$request->getUserValues();
@@ -298,9 +302,14 @@ class SignupsController extends Controller
 
         // }
 
-        $signupValues=$request->getSignupValues();
+        // $user=User::find($userId);
 
-        dd($signupValues);
+        // $identityIds = $request['identityIds'];
+        // if(count($identityIds)){
+        //    $this->users->addIdentitiesToUser();
+        // }
+
+        $user=User::first();
 
         $courseIds=$request['courseIds'];
         if(!count($courseIds))
@@ -309,93 +318,105 @@ class SignupsController extends Controller
             return $this->requestError($errors);
         }
 
-        $user = null;
-        
-        dd($userId);
+        $signupDetails=[];
 
-        // if (String.IsNullOrEmpty(model.user.id))
-        // {
-        //     user = model.user.MapToEntity(CurrentUserId);
-        //     var profile = model.user.profile.MapToEntity(CurrentUserId);
-        //     user = await userService.CreateUserAsync(user, profile);
-        // }
-        // else
-        // {
-        //     user = userService.GetUserById(model.user.id);
-        //     if (user == null) throw new Exception(String.Format("Action:SignupsController.Store , Error:GetUserById={0} 不存在", model.user.id));
+        $selectedCourses=$this->courses->getByIds($courseIds)->get();
 
-        //     user = model.user.MapToEntity(CurrentUserId, user);
-        //     user.Profile = model.user.profile.MapToEntity(CurrentUserId, user.Profile);
+          //User報名過的課程記錄
+        $coursesSignupedIds = [];
+        $userSignupDetailRecords = $this->signups->getSignupDetailsByUser($user);
+        $coursesSignupedIds = $userSignupDetailRecords->pluck('courseId')->toArray();
+        foreach ($selectedCourses as $selectedCourse)
+        {
 
-        //     await userService.UpdateUserAsync(user);
-        // }
+            if (in_array($selectedCourse->id, $coursesSignupedIds)){
+                $errors['courseIds'] = ['此學員已經報名過課程' . $selectedCourse->fullName() ];
+                return $this->requestError($errors);
+            }
 
+            $detail = new SignupDetail([
+                'courseId' => $selectedCourse->id,
+                'tuition' => $selectedCourse->tuition,
+                'cost' => $selectedCourse->cost,
+                'updatedBy' => $updatedBy
 
-
-
-    
-
-
-
-        $sid=$userValues['profile']['sid'];
-        if(!$sid){
-            $errors['user.profile.sid'] = ['必須填寫身分證號'];
+            ]);
+            array_push($signupDetails,$detail);
         }
 
-        $centerIds=$request->getCenterIds();
-        if(!count($centerIds)){
-            $errors['centerIds'] = ['請選擇所屬中心'];
-        }
+        $signup=new Signup(['userId' => $userId , 'net'=> false]);
 
-      
-        if($errors) return $this->requestError($errors);
+        $this->setSignupMoney($signup, $signupDetails ,$selectedCourses, $identityIds,  $request['lotus']);
 
-        $current_user=$this->currentUser();
-        $updatedBy=$current_user->id;
+        dd($signup);
+        // await SetSignupMoney(signup, courses, identityIds, model.lotus);
 
-        $signupValues['updatedBy']=$updatedBy;
-        $userValues['updatedBy']=$updatedBy;
-        $profileValues['updatedBy']=$updatedBy;
-        
-        $userValues=array_except($userValues,['profile']);
-        $userId=$request->getUserId();
-        $user=null;
-        if($userId){
-            $user = User::find($userId);
+        // signup.Net = false;
 
-            $user->profile->update($profileValues);
-            $this->users->updateUser($user,$userValues);
-            
-        }else{
-          
-           $user=$this->users-> createUser(new User($userValues),new Profile($profileValues));
-           $userId=$user->id;
-         
-        }
+        // signup = await signupService.CreateSignupAsync(signup);
 
-        $wageValues=[
-            'account' => $signupValues['account'],
-            'money' => $signupValues['wage'],
-            'updatedBy' => $updatedBy,
-        ];
 
-        $signup=Signup::find($userId);
-        if($signup){
-            $signup->update($signupValues);
-            $signup->addRole();
 
-            $wage=$signup->getWage();
-            if($wage) $wage->update($wageValues);
-
-        }else{
-            $signup=$this->signups->createSignup($user,new Signup($signupValues), $wageValues);
-            $signup->userId=$userId;
-        }
-
-        $signup->centers()->sync($centerIds);
+        // return Ok(signup);
        
-        return response() ->json($signup);
+
+        
+
+       
     }
+
+    function setSignupMoney(Signup $signup, array $signupDetails ,$courses, $identityIds, $lotus)
+    {
+        $terms= $courses->pluck('termId')->all();
+        if(Helper::array_has_dupes($terms)) abort(500);
+
+        $centers= $courses->pluck('centerId')->all();
+        if(Helper::array_has_dupes($centers)) abort(500);
+        
+     
+        $center = $courses[0]->center;
+        $term = $courses[0]->term;
+
+        $bestDiscount=$this->discounts->findBestDiscount($center,$term,$identityIds,$lotus, count($courses));
+        
+        if($term->canBird(Carbon::today())){
+        
+           
+            $signup->points = $bestDiscount->pointOne;
+
+            if ($signup->points < 100)
+            {
+                $signup->discount = $bestDiscount->name;
+            }
+
+            if ($bestDiscount->bird())
+            {
+                $signup->discount .= " - 早鳥優惠";
+            }
+
+        }else{
+        
+            if ($signup->points < 100)
+            {
+                $signup->discount = $bestDiscount->name;
+            }
+
+            $signup->points = $bestDiscount->pointTwo;
+        }
+
+        $tuitions = 0;
+        foreach($signupDetails as $signupDetail) {
+            $tuitions += $signupDetail['tuition'];
+        }
+        
+        $signup->tuitions = $tuitions * $signup->points / 100;
+        $signup->costs = 0;
+        foreach($signupDetails as $signupDetail) {
+            if($signupDetail->cost)  $signup->costs += $signupDetail->cost;
+        }
+
+    }
+
 
     public function show($id)
     {

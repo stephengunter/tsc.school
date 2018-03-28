@@ -35,7 +35,7 @@ class Term extends Model
 	
 	
 
-    public function	 canBird(Date $date)
+    public function	 canBird($date)
 	{
 		return $date <= $this->birdDate;
 	}

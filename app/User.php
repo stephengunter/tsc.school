@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Profile;
 use App\Role;
+use App\Identity;
 
 class User extends Authenticatable
 {
@@ -134,5 +135,25 @@ class User extends Authenticatable
 		$role=Role::getByName($roleName);
 		
 		$this->roles()->detach($role->id);
-	}   
+    }
+
+    public function hasIdentity($identityId)
+    {
+        $identityId=(int)$identityId;
+        $hasIdentityIds=$this->identities->pluck('id')->toArray();
+        return in_array( $identityId,$hasRohasIdentityIdsleNames);
+    }
+    
+    public function addIdentity($identityId)
+	{
+        if($this->hasIdentity($identityId)) return;
+		$this->identities()->attach($identityId);
+    }
+
+    public function removeIdentity($identityId)
+	{
+        if(!$this->hasIdentity($identityId)) return;
+		$this->identities()->detach($identityId);
+    }
+
 }

@@ -179,6 +179,13 @@ class Users
 		}
 	}
 
+	public function addIdentitiesToUser(User $user,array $identityIds)
+	{
+		foreach($identityIds as $identityId){
+			$user->addIdentity($identityId);
+		}
+	}
+
 	public function getOrdered($users)
     {
         return $users->orderBy('id','desc');

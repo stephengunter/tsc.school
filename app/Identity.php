@@ -15,5 +15,13 @@ class Identity extends Model
     public function users()
     {
         return $this->belongsToMany(User::class,'identity_user','identity_id','user_id');
-	}
+    }
+
+    public function  toOption()
+    {
+		return [ 'text' => $this->name ,  'value' => $this->id ];
+       
+    }
+    
+   
 }

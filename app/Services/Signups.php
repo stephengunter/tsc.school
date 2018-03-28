@@ -124,6 +124,16 @@ class Signups
         return $this->getByIds($signupIds);
     }
 
+    public function getSignupDetailsByUser(User $user)
+    {
+        //有效的(未取消的)報名紀錄
+        $recordIds = Signup::where('userId', $user->id)
+                            ->where('status', '>=', 0)->pluck('id')->toArray();
+			
+
+		return SignupDetail::whereIn('id',$recordIds);
+    }
+
     public function statusOptions()
     {
         return $this->statuses;

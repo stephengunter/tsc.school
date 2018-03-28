@@ -3,12 +3,9 @@
 namespace App\Services;
 use App\Term;
 use App\Center;
-use App\User;
-use App\Role;
-use App\Profile;
 use App\Course;
 use App\Discount;
-use App\Services\Users;
+use App\Identity;
 use DB;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -35,7 +32,7 @@ class Discounts
         return $this->getAll()->whereIn('id', $ids);
     }
         
-    public function getIdentitiesOptions(Center $center, bool $withEmpty=true)
+    public function getIdentitiesOptions(Center $center)
     {
         $identityIds=[];
         foreach($center->discounts as $discount)
@@ -44,19 +41,24 @@ class Discounts
          
         }
 
-        $identities=Discount::whereIn('id',$identityIds)->get();
+        $identities=Identity::whereIn('id',$identityIds)->get();
 
         $options = $identities->map(function ($identity) {
             return $identity->toOption();
         })->all();
-
-        if($withEmpty) array_unshift($options, ['text' => '無' , 'value' =>'0']);
+       
         
         return $options;
 
         
         
     }
-    
+
+    public function findBestDiscount(Center $center, Term $term, array $identityIds, bool $lotus, int $courseCount)
+    {
+        return Discount::first();
+    }
+
+   
     
 }
