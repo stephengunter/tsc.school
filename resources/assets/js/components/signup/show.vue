@@ -15,7 +15,7 @@
             <div class="col-sm-3">
                 <label class="label-title">網路報名</label>
                 <p>
-                    <i v-if="signup.net" class="fa fa-check-circle" style="color:green"></i>
+                    <i v-if="isTrue(signup.net)" class="fa fa-check-circle" style="color:green"></i>
                 </p>    
             </div>
             <div class="col-sm-3">
@@ -115,6 +115,9 @@
         methods: { 
             editReview(){
                 this.$emit('edit-review')
+            },
+            isTrue(val){
+                return Helper.isTrue(val);
             }
             
         }

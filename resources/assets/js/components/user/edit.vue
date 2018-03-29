@@ -47,7 +47,11 @@ export default {
         id: {
             type: Number,
             default: 0
-        },
+		},
+		role:{
+			type: String,
+            default: ''	
+		}
 	},
 	components: {
 		'user-inputs':UserInputs,
@@ -85,6 +89,7 @@ export default {
 					user:{
 						...model.user
 					},
+					role:this.role
 					
 				});
 				

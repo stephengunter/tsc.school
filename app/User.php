@@ -141,7 +141,7 @@ class User extends Authenticatable
     {
         $identityId=(int)$identityId;
         $hasIdentityIds=$this->identities->pluck('id')->toArray();
-        return in_array( $identityId,$hasRohasIdentityIdsleNames);
+        return in_array( $identityId,$hasIdentityIds);
     }
     
     public function addIdentity($identityId)

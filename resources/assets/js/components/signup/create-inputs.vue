@@ -12,9 +12,9 @@
                 </span> 
             </div>  
             <div class="panel-body">
-                <user-view v-if="existUser" :model="this.form.user" ref="userView"
+                <user-view v-if="existUser" :model="this.form.user" :role="userSettings.role" ref="userView"
                    :can_edit="userSettings.can_edit" :can_back="userSettings.can_back" 
-                   @back="resetUser" > 
+                   @back="resetUser" @saved="onUserUpdated"> 
                 </user-view>
                 <user-create-inputs v-else :form="form" :readonly="existUser"></user-create-inputs>
             </div>
@@ -83,6 +83,7 @@ export default {
 		return {
             lotusOptions:Helper.boolOptions(),
             userSettings:{
+                role:'Student',
                 can_edit:true,
                 can_back:true,
                 can_delete:false
@@ -129,6 +130,10 @@ export default {
         },
         resetUser(){
             this.$emit('reset-user')
+        },
+        onUserUpdated(){
+            
+            this.$emit('user-saved', this.form.user.id);
         }
 
     }

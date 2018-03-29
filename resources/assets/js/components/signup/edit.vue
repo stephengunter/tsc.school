@@ -4,7 +4,7 @@
 			
 			
 			<signup-create-inputs  :form="form" :identity_options="identityOptions" 
-				@add-detail="onAddDetail" @reset-user="resetUser">
+				@add-detail="onAddDetail" @reset-user="resetUser" @user-saved="onUserSaved">
 			</signup-create-inputs> 
 
 			<submit-buttons :form="form"  :submitting="submitting"
@@ -172,6 +172,10 @@ export default {
 				}
 
 			};
+		},
+		onUserSaved(id){
+		
+			this.$emit('user-saved',id);
 		},
 		onAddDetail(){
 			this.courseSelector.show=true;

@@ -81,7 +81,12 @@ class Center extends Model
     {
 		return [ 'text' => $this->name ,  'value' => $this->id ];
        
-    }
+	}
+	
+	public function isEast()
+	{
+		return $this->head;
+	}
 
 	
 }

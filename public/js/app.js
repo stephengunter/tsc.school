@@ -55005,7 +55005,6 @@ var Bill = function () {
                 }
             }
 
-            //PDF.autoPrint();
             window.open(PDF.output('bloburl'), '_blank');
         }
     }]);
@@ -78923,6 +78922,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             type: Number,
             default: 0
         },
+        role: {
+            type: String,
+            default: ''
+        },
         can_edit: {
             type: Boolean,
             default: true
@@ -79036,6 +79039,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         onSaved: function onSaved() {
             this.init();
+            this.$emit('saved');
         }
     }
 });
@@ -79394,6 +79398,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		id: {
 			type: Number,
 			default: 0
+		},
+		role: {
+			type: String,
+			default: ''
 		}
 	},
 	components: {
@@ -79431,7 +79439,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			getData.then(function (model) {
 
 				_this.form = new Form({
-					user: _extends({}, model.user)
+					user: _extends({}, model.user),
+					role: _this.role
 
 				});
 			}).catch(function (error) {
@@ -80049,7 +80058,7 @@ var render = function() {
           _vm.readOnly
             ? _c("show", { attrs: { user: _vm.user } })
             : _c("edit", {
-                attrs: { id: _vm.userId },
+                attrs: { id: _vm.userId, role: _vm.role },
                 on: { saved: _vm.onSaved, cancel: _vm.onEditCanceled }
               })
         ],
@@ -91432,8 +91441,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.checked_ids = [];
         },
         courseNames: function courseNames(signup) {
-
             return Signup.courseNames(signup);
+        },
+        isTrue: function isTrue(val) {
+            return Helper.isTrue(val);
         }
     }
 });
@@ -91542,7 +91553,7 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _c("td", [
-                  signup.net
+                  _vm.isTrue(signup.net)
                     ? _c("i", {
                         staticClass: "fa fa-check-circle",
                         staticStyle: { color: "green" }
@@ -93645,6 +93656,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 Helper.BusEmitError(error);
             });
         },
+        isPayed: function isPayed(signup) {
+            return Helper.isTrue(signup.bill.payed);
+        },
         onBack: function onBack() {
             this.$emit('back');
         },
@@ -93663,8 +93677,16 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             this.userSelector.show = true;
         },
         onExistUserSelected: function onExistUserSelected(id) {
+            this.loadUser(id);
+
+            this.userSelector.show = false;
+            this.userSelector.model = null;
+        },
+        loadUser: function loadUser(id) {
             var _this2 = this;
 
+            alert(id);
+            if (!id) id = this.form.user.id;
             var getData = User.edit(id);
             getData.then(function (model) {
 
@@ -93674,9 +93696,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             }).catch(function (error) {
                 Helper.BusEmitError('無法取得使用者資料,請稍後再試.');
             });
-
-            this.userSelector.show = false;
-            this.userSelector.model = null;
         },
         onSaved: function onSaved(signup) {
             if (this.creating) this.$emit('saved', signup);else this.init();
@@ -97710,6 +97729,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
         editReview: function editReview() {
             this.$emit('edit-review');
+        },
+        isTrue: function isTrue(val) {
+            return Helper.isTrue(val);
         }
     }
 });
@@ -97752,7 +97774,7 @@ var render = function() {
               _c("label", { staticClass: "label-title" }, [_vm._v("網路報名")]),
               _vm._v(" "),
               _c("p", [
-                _vm.signup.net
+                _vm.isTrue(_vm.signup.net)
                   ? _c("i", {
                       staticClass: "fa fa-check-circle",
                       staticStyle: { color: "green" }
@@ -98094,6 +98116,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 			};
 		},
+		onUserSaved: function onUserSaved(id) {
+
+			this.$emit('user-saved', id);
+		},
 		onAddDetail: function onAddDetail() {
 			this.courseSelector.show = true;
 		},
@@ -98328,6 +98354,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             lotusOptions: Helper.boolOptions(),
             userSettings: {
+                role: 'Student',
                 can_edit: true,
                 can_back: true,
                 can_delete: false
@@ -98371,6 +98398,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         resetUser: function resetUser() {
             this.$emit('reset-user');
+        },
+        onUserUpdated: function onUserUpdated() {
+
+            this.$emit('user-saved', this.form.user.id);
         }
     }
 });
@@ -98871,10 +98902,11 @@ var render = function() {
                       ref: "userView",
                       attrs: {
                         model: this.form.user,
+                        role: _vm.userSettings.role,
                         can_edit: _vm.userSettings.can_edit,
                         can_back: _vm.userSettings.can_back
                       },
-                      on: { back: _vm.resetUser }
+                      on: { back: _vm.resetUser, saved: _vm.onUserUpdated }
                     })
                   : _c("user-create-inputs", {
                       attrs: { form: _vm.form, readonly: _vm.existUser }
@@ -99206,7 +99238,8 @@ var render = function() {
                 },
                 on: {
                   "add-detail": _vm.onAddDetail,
-                  "reset-user": _vm.resetUser
+                  "reset-user": _vm.resetUser,
+                  "user-saved": _vm.onUserSaved
                 }
               }),
               _vm._v(" "),
@@ -99502,9 +99535,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
         };
     },
+    beforeMount: function beforeMount() {},
 
     methods: {
         print: function print() {
+
             __WEBPACK_IMPORTED_MODULE_0_html2Canvas___default()(document.querySelector("#signup")).then(function (canvas) {
                 Bill.print(canvas);
             });
@@ -99842,7 +99877,8 @@ var render = function() {
                   on: {
                     saved: _vm.onSaved,
                     cancel: _vm.onEditCanceled,
-                    "exist-user": _vm.onExistUser
+                    "exist-user": _vm.onExistUser,
+                    "user-saved": _vm.loadUser
                   }
                 })
           ],
@@ -99856,8 +99892,8 @@ var render = function() {
               {
                 name: "show",
                 rawName: "v-show",
-                value: !_vm.signup.bill.payed,
-                expression: "!signup.bill.payed"
+                value: !_vm.isPayed(_vm.signup),
+                expression: "!isPayed(signup)"
               }
             ],
             ref: "billPrint",

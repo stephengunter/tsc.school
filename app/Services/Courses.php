@@ -86,6 +86,18 @@ class Courses
         $course->save();
     }
 
+    public function setActives(array $ids, $active, $reviewedBy)
+    {
+        $courses=Course::where('removed',false)->whereIn('id',$ids)->get();
+        foreach($courses as $course){
+            $course->active=$active;
+            $course->reviewedBy=$reviewedBy;
+            $course->updatedBy=$reviewedBy;
+            $course->save();
+        } 
+
+    }
+
 
     public function deleteCourse(Course $course,$updatedBy)
     {
@@ -113,7 +125,8 @@ class Courses
           
         }
 
-        return $courses->where('reviewed',$reviewed);
+        return $courses->where('reviewed',$reviewed)
+                        ->orderBy('number');
     }
 
     public function  getByNumber($number)

@@ -12,13 +12,29 @@ class UserRequest extends FormRequest
         return true;
     }
 
+    public function getId()
+    {
+        $values = $this->get('user');
+       
+        $id=0;        
+        if(array_key_exists ( 'id' ,$values)){
+            $id=(int)$values['id'];
+        }  
+        return $id;
+    }
+
+    public function getRole()
+    {
+        $role='';        
+        if(array_key_exists ( 'role' ,$this->toArray())){
+            $role=$values['role'];
+        }  
+        return $role;
+    }
    
     public function rules()
     {
-       
         return [ ];
-          
-       
     }
 
     public function messages()
@@ -26,10 +42,12 @@ class UserRequest extends FormRequest
         return [ ];
     }
 
-    public function getUserValues()
+    public function getUserValues($withProfile=false)
     {
         $values=$this->get('user');
-        return array_except($values, ['profile','contact_infoes']);
+        if($withProfile) return array_except($values, ['contactInfoes']);
+        return array_except($values, ['profile','contactInfoes']);
+        
         
     }
 
@@ -37,21 +55,7 @@ class UserRequest extends FormRequest
     {
         $values=$this->get('user');
         return $values['profile'];
-       // return array_only($values, ['profile','centers']);
         
     }
-
-    // public function getValues()
-    // {
-       
-    //     $values=array_except($this->get('term'), ['canDelete']); 
-    //     $values['number']=$values['year'] . $values['order'];
-        
-    //     if(!$values['name'])    $values['name']=$values['number'];
-      
-    //     return  $values;
-        
-        
-    // }
 
 }

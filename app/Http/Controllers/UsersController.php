@@ -113,7 +113,7 @@ class UsersController extends Controller
         if(!$user) abort(404);
       
         $form=[
-            'user' => $user,
+            'user' => $user
         ];
 
         return response() ->json($form);
@@ -125,9 +125,24 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
         if(!$this->canEdit($user)) $this->unauthorized();
-       
+
+        $userValuesWithProfile=$request->getUserValues(true);
+        $roleName=$request['role'];
+        if(!$roleName) $roleName='';
+
+        if($user->isBoss()) $roleName=Role::bossRoleName();
+        else if($user->isStaff()) $roleName=Role::staffRoleName();
+        else if($user->isTeacher()) $roleName=Role::teacherRoleName();
+        else if($user->isStudent()) $roleName=Role::isStudent();
+
+        $errors=$this->users->validateUserInputs($userValuesWithProfile, $roleName);
+
+        if($errors) return $this->requestError($errors);
+
         $userValues=$request->getUserValues();
         $profileValues=$request->getProfileValues();
+
+       
 
         $current_user=$this->currentUser();
         $userValues['updatedBy'] = $current_user->id;

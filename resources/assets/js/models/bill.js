@@ -166,8 +166,8 @@ class Bill {
                 }
             }
         }
+
         
-        //PDF.autoPrint();
         window.open(PDF.output('bloburl'), '_blank');
     }
     

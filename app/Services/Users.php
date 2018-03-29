@@ -189,9 +189,32 @@ class Users
 	public function getOrdered($users)
     {
         return $users->orderBy('id','desc');
-    }
+	}
+	
+	public function validateUserInputs(array $values, string $roleName)
+	{
+		
+		$needSID=false;
+		$needDOB=false;
+		if(!$roleName){
+			$needFullname=false;
+			return $this->validateInputs($values, $needFullname,$needSID,$needDOB);
+		}
 
-	public function validateUserInputs($values, bool $needFullname=true,bool $needSID=false,bool $needDOB=false)
+		$role=Role::where('name',$roleName)->first();
+		if($role->name==Role::studentRoleName()){
+			$needFullname=true;
+			$needSID=true;
+			$needDOB=true;
+			return $this->validateInputs($values, $needFullname,$needSID,$needDOB);
+		}
+		$needFullname=true;
+		$needSID=true;
+		$needDOB=true;
+		return $this->validateInputs($values, $needFullname,$needSID,$needDOB);
+	}
+
+	public function validateInputs($values, bool $needFullname=true,bool $needSID=false,bool $needDOB=false)
     {
         $errors=[];
 

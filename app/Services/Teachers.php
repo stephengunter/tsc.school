@@ -33,8 +33,6 @@ class Teachers
     public function createTeacher(User $user,Teacher $teacher,Array $wageValues)
     {
         $user->teacher()->save($teacher);
-        
-       
 
         $wage=$user->wages->first();
         if($wage) $wage->update($wageValues);

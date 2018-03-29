@@ -141,6 +141,11 @@ class Course extends Model
         return [ 'text' => $this->fullName() ,  'value' => $this->id  ];
     }
 
+    public function activeStudent()
+    {
+        return $this->students()->where('status' , 1);
+    }
+
 
 
     

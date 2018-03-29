@@ -8,6 +8,7 @@ use App\Role;
 use App\Profile;
 use App\Course;
 use App\Signup;
+use App\Bill;
 use App\SignupDetail;
 use App\Services\Users;
 use DB;
@@ -44,9 +45,9 @@ class Signups
         
     public function createSignup(Signup $signup, array $details)
     {
-        if($signup->tuitions)   abort(500, '報名表課程費用錯誤');
+        if(!$signup->tuitions)   abort(500, '報名表課程費用錯誤');
+        $signup->status=0;
         $bill=$this->initBill($signup);
-
       
         $signup=DB::transaction(function() use($signup,$details,$bill) {
             $signup->save();
@@ -69,6 +70,8 @@ class Signups
         return new Bill([
             'code' => $code,
             'amount' => $amount,
+            'payed' => false,
+            'payway' => 0,
             'deadLine' => $date->addDays(10)
         ]);
         
@@ -82,9 +85,8 @@ class Signups
 
     public function deleteSignup(Signup $signup,$updatedBy)
     {
-        $signup->removed=true;
-        $signup->updatedBy=$updatedBy;
-        $signup->save();
+        if($signup->status>0) abort(500);
+        $signup->delete();
         
     }
     
@@ -123,6 +125,18 @@ class Signups
 
         return $this->getByIds($signupIds);
     }
+
+    public function getSignupSummary(Term $term,Center $center, Course $course = null)
+    {
+        $signups=$this->fetchSignups($term,$center,$course)->get();
+        return [
+            'total' => $signups->count(),
+            'no' => $signups->where('status', 0 )->count(),
+            'ok' => $signups->where('status', 1 )->count(),
+            'canceled' =>  $signups->where('status', -1 )->count()
+        ];
+
+    } 
 
     public function getSignupDetailsByUser(User $user)
     {

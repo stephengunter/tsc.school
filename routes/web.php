@@ -27,6 +27,12 @@ Route::get('/manage', function () {
 
 Route::group(['middleware' => 'admin'], function()
 {
+    //test
+    Route::get('/manage/SeedDiscountCenters', 'CentersController@seedDiscountCenters');
+    Route::get('/manage/SeedSignups', 'SignupsController@seed');
+    Route::get('/manage/SeedBills', 'SignupsController@seedBills');
+
+
     Route::resource('/manage/change-password', 'ChangePasswordController',['only' => ['index','store']]);
     
     Route::resource('/manage/users', 'UsersController');
@@ -56,15 +62,14 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/centers/importances', 'CentersController@importances');
     Route::post('/manage/centers/import', 'CentersController@import');
 
-    Route::get('/manage/SeedDiscountCenters', 'CentersController@seedDiscountCenters');
-
-
+   
     // Courses
     Route::resource('/manage/courses', 'CoursesController');
     Route::get('/manage/courses/{id}/EditInfo', 'CoursesController@editInfo');
     Route::put('/manage/courses/{id}/UpdateInfo', 'CoursesController@updateInfo');
     Route::post('/manage/courses/import', 'CoursesController@import');
     Route::post('/manage/courses/review', 'CoursesController@review');
+    Route::post('/manage/courses/active', 'CoursesController@active');
 
     Route::resource('/manage/ClassTimes', 'ClassTimesController');
     Route::post('/manage/ClassTimes/import', 'ClassTimesController@import');
@@ -74,7 +79,14 @@ Route::group(['middleware' => 'admin'], function()
 
 
     //Signups
+    Route::get('/manage/signups/report', 'SignupsController@report');
     Route::resource('/manage/signups', 'SignupsController');
+
+    Route::resource('/manage/students', 'StudentsController');
+
+
+    
+
 
     
     Route::resource('/manage/contactInfoes', 'ContactInfoesController');

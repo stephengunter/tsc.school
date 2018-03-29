@@ -32,13 +32,13 @@
             <show v-if="readOnly"  :signup="signup" >  
             </show> 
             <edit v-else ref="editComponent"  :id="id" :course_id="course_id" :user="userSelector.user"
-                @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" >                 
+                @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" @user-saved="loadUser">                 
             </edit>
         </div>
         
     </div>
     
-    <bill-print v-if="signup" v-show="!signup.bill.payed" :signup="signup" ref="billPrint"></bill-print>
+    <bill-print v-if="signup" v-show="!isPayed(signup)" :signup="signup" ref="billPrint"></bill-print>
 
     <modal :showbtn="false"  :show.sync="userSelector.show"  @closed="userSelector.show=false" 
         effect="fade" :width="1200">
@@ -152,7 +152,8 @@
                 if(this.readOnly) return this.icon + ' 報名資料';
                 if(this.creating) return this.icon + ' 新增報名';
                 return this.icon + ' 編輯報名資料';
-            }
+            },
+            
            
         },
         beforeMount(){
@@ -195,6 +196,9 @@
                     Helper.BusEmitError(error)
                 })
             }, 
+            isPayed(signup){
+                return Helper.isTrue(signup.bill.payed);
+            },
             onBack(){
                 this.$emit('back');
             },
@@ -216,7 +220,14 @@
                 this.userSelector.show=true;
             },
             onExistUserSelected(id){
-                
+                this.loadUser(id);
+               
+                this.userSelector.show=false;
+                this.userSelector.model=null;
+            },
+            loadUser(id){
+                alert(id);
+                if(!id) id= this.form.user.id;
                 let getData=User.edit(id);
                 getData.then(model => {
                    
@@ -230,10 +241,6 @@
                 .catch(error=> {
                     Helper.BusEmitError('無法取得使用者資料,請稍後再試.');
                 })
-
-
-                this.userSelector.show=false;
-                this.userSelector.model=null;
             },
             onSaved(signup){
                 if(this.creating)this.$emit('saved',signup);

@@ -37,7 +37,7 @@ class Signup extends Model
     public function amount()
 	{
         $total= $this->tuitions + $this->costs;
-        $this->amount=$total;
+        
         return $total;
 
     }
@@ -48,6 +48,11 @@ class Signup extends Model
 
         return $this->details->first();
     }
+    public function getDate()
+	{
+        $this->date = $this->created_at->format('Y-m-d');
+        return $this->created_at;
+    }
 
     public function user() 
 	{
@@ -57,6 +62,15 @@ class Signup extends Model
     public function bill() 
 	{
 		return $this->hasOne(Bill::class,'signupId');
+    }
+
+    public function loadViewModel()
+    {
+        $this->getDate();
+        $this->amount=$this->amount();
+        foreach($this->details as $signupDetail){
+            $signupDetail->course->fullName();
+        } 
     }
 
 }

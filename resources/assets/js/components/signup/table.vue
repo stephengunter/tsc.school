@@ -37,7 +37,7 @@
                             {{ signup.date }} 
                         </td>
                         <td>
-                            <i v-if="signup.net" class="fa fa-check-circle" style="color:green"></i>
+                            <i v-if="isTrue(signup.net)" class="fa fa-check-circle" style="color:green"></i>
                         </td>
                         <td v-html="$options.filters.signupStatusLabel(signup.status)" ></td>
                         <td v-html="courseNames(signup)">
@@ -169,8 +169,10 @@ export default {
 			this.checked_ids=[];
         },
         courseNames(signup){
-            
             return  Signup.courseNames(signup);
+        },
+        isTrue(val){
+            return Helper.isTrue(val);
         }
         
    }

@@ -106,8 +106,12 @@
                }
             }
         },
+        beforeMount() {
+           
+        }, 
         methods: {
             print() {
+               
                 html2Canvas(document.querySelector("#signup")).then(canvas => {
                     Bill.print(canvas);
                 });

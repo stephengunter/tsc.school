@@ -22,7 +22,7 @@
         <div class="panel-body">
             <show v-if="readOnly"  :user="user" >  
             </show>
-            <edit v-else :id="userId" 
+            <edit v-else :id="userId" :role="role"
             @saved="onSaved"   @cancel="onEditCanceled" >                 
             </edit>
         </div>
@@ -48,6 +48,10 @@
             id: {
                 type: Number,
                 default: 0
+            },
+            role:{
+                type: String,
+                default: ''	
             },
             can_edit:{
                 type: Boolean,
@@ -167,7 +171,7 @@
             },
             onSaved(){
                 this.init();
-              
+                this.$emit('saved');
             }, 
 
             
