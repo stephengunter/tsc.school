@@ -22,7 +22,7 @@ new Vue({
         }
     },
     beforeMount() {
-       let systemModel = {!! json_encode($systems) !!} ;
+        let systemModel = {!! json_encode($systems) !!} ;
     
         this.systems = Object.keys(systemModel).map(i => systemModel[i]);
        

@@ -6,6 +6,7 @@ use App\Role;
 use App\Profile;
 use App\Center;
 use App\Student;
+use App\Course;
 use App\Services\Users;
 use DB;
 use Excel;
@@ -53,7 +54,9 @@ class Students
     
     public function getStudentsByCourse(Course $course)
     {
-        return Student::with($this->with)->where('courseId',$course->id);
+        return Student::with($this->with)
+                       ->where('courseId',$course->id);
+                       
     }
 
     public function  getByKeyword($keyword)

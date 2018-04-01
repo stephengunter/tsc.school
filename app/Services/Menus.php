@@ -5,8 +5,11 @@ namespace App\Services;
 
 class Menus 
 {
+    
+
     public static function adminMenus($current,$key)
     {
+        
         if($key=='MainSettings'){
             return array(
                  [

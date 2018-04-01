@@ -126,7 +126,7 @@ class Courses
         }
 
         return $courses->where('reviewed',$reviewed)
-                        ->orderBy('number');
+                       ->orderBy('number');
     }
 
     public function  getByNumber($number)

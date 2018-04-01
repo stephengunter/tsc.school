@@ -14,6 +14,11 @@ class Terms
     {
         return $this->getAll()->where('id',$id)->first();
     }
+
+    public function getActiveTerm()
+    {
+        return $this->getAll()->where('active',true)->first();
+    }
     
     public function fetchTerms(bool $active=true)
     {

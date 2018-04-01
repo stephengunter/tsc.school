@@ -55,7 +55,10 @@ class Centers
     {
         return $this->getAll()->where('oversea',false)->where('active',$active);
     }
-
+    public function  getOverseaCenters(bool $active = true)
+    {
+        return $this->getAll()->where('oversea',true)->where('active',$active);
+    }
     
 
     public function getCenterByCode($code)
@@ -170,8 +173,14 @@ class Centers
             }
 
             $importance=(int)trim($row['importance']);
-
             $course_tel=trim($row['course_tel']);
+
+            $tel=trim($row['tel']);
+            $fax=trim($row['fax']);
+
+            $zipcode=trim($row['zipcode']);
+            $street=trim($row['street']);
+
 
             $center=new Center([
                 'name' => $name,
@@ -185,21 +194,30 @@ class Centers
             ]);
 
             if($oversea){
-                $this->createCenter($center);
+                $contactInfo=new ContactInfo([
+                    'tel'=>$tel,
+                    'fax' => $fax,
+                    'updatedBy' => $updatedBy
+                ]);
+
+                $address=new Address([
+                    'street' => $street,
+                    'updatedBy' => $updatedBy
+                ]);
+
+                $this->createCenter($center,$contactInfo,$address);    
                 continue;
             }
 
             $center->areaId=$area_id;
-            
             $district=null;
-            $zipcode=trim($row['zipcode']);
             if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
             if(!$district){
                 $err_msg .= '郵遞區號' . $zipcode . '錯誤';
                 continue;
             }
           
-            $street=trim($row['street']);
+            
            
             $address=new Address([
                 'districtId'=>$district->id,
@@ -207,12 +225,12 @@ class Centers
                 'updatedBy' => $updatedBy
             ]);
             
-            $tel=trim($row['tel']);
-            $fax=trim($row['fax']);
+           
 
             $contactInfo=new ContactInfo([
                 'tel'=>$tel,
                 'fax' => $fax,
+                'updatedBy' => $updatedBy
             ]);
             
             $this->createCenter($center,$contactInfo,$address);    

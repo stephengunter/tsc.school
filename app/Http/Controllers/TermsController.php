@@ -53,6 +53,7 @@ class TermsController extends Controller
     
     public function index()
     {
+       
         $request=request();
         $active=true;
         if($request->active)  $active=Helper::isTrue($request->active);

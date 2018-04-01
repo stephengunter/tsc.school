@@ -41,7 +41,30 @@ class UserSeeder extends Seeder
         
         $user=$this->users->createUser($user,$profile);
 
-		$this->users->addRole($user,Role::devRoleName());
+        $this->users->addRole($user,Role::devRoleName());
+        
+
+        $name='test';
+		$email='test@gmail.com';
+		$phone='0932000000';
+		$testUser=\App\User::create([
+			'name' => $name,
+			'email' =>$email,
+			'phone' => $phone,
+			'password' => '000000',
+			'emailConfirmed' => true,
+		
+		]);
+		$testUserProfile=new \App\Profile([
+			'userId' => $testUser->id,					
+			'fullname'=> '何金銀',
+			'dob' =>'1975-6-1',
+			'gender' => 1,
+        ]);
+        
+        $testUser=$this->users->createUser($testUser,$testUserProfile);
+
+		$this->users->addRole($testUser,Role::devRoleName());
     }
     
 

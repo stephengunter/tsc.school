@@ -66,4 +66,31 @@ class Controller extends BaseController
         return Menus::adminMenus($current,$key);
 
     }
+
+    protected function  clientMenus()
+    {
+        $current=Route::current()->uri();
+        $user=$this->currentUser();
+      
+        if($this->currentUser()){
+            return [
+                'current' => $current,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name
+                ],
+                'teacher' => $user->isTeacher(),
+                'students' => $user->isStudent()
+            ];
+        }else{
+            return [
+                'current' => $current,
+                'user' => null,
+                'teacher' => false,
+                'students' => false
+            ];
+        }
+      
+
+    }
 }

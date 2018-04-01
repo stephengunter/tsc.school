@@ -1,32 +1,45 @@
 <?php
 
+//client routes
+Route::get('/', '\App\Http\Controllers\Client\HomeController@index')->name('home');
+Route::get('/about', '\App\Http\Controllers\Client\AboutController@index');
+Route::resource('/centers', '\App\Http\Controllers\Client\CentersController',['only' => ['index','details']]);
+
+
+
+//end client routes
+
+//Auth::routes();
+
+
+
+Route::get('/manage/SeedDiscountCenters', 'CentersController@seedDiscountCenters');
+
 Route::get('/manage/login', 'SessionsController@create')->name('manage-login');
 Route::post('/manage/login', 'SessionsController@store');
 Route::post('manage/logout', 'SessionsController@destroy');
 
-Route::get('/manage', function () {
-    $current='manage';
-    $keys=[ 'CoursesAdmin','SignupsAdmin','UsersAdmin','MainSettings' ];
-    $systems=[];
-
-    foreach ($keys as $key) {
-      
-        $item=[
-            'key' => $key,
-            'menus' => \App\Services\Menus::adminMenus($current,$key)
-        ];
-        array_push($systems, $item);
-        
-    }
-    
-    return view('manage')->with([ 'systems' => $systems ]);
-
-})->middleware('admin');;
-
-//Auth::routes();
-
 Route::group(['middleware' => 'admin'], function()
 {
+    Route::get('/manage', function () {
+        $current='manage';
+        $keys=[ 'CoursesAdmin','SignupsAdmin','UsersAdmin','MainSettings' ];
+        $systems=[];
+    
+        foreach ($keys as $key) {
+          
+            $item=[
+                'key' => $key,
+                'menus' => \App\Services\Menus::adminMenus($current,$key)
+            ];
+            array_push($systems, $item);
+            
+        }
+        
+        return view('manage')->with([ 'systems' => $systems ]);
+    
+    });
+
     //test
     Route::get('/manage/SeedDiscountCenters', 'CentersController@seedDiscountCenters');
     Route::get('/manage/SeedSignups', 'SignupsController@seed');
@@ -85,7 +98,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/students', 'StudentsController');
 
 
-    
+    Route::resource('/manage/notices', 'NoticesController');
 
 
     

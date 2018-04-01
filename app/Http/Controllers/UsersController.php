@@ -75,7 +75,7 @@ class UsersController extends Controller
             return response() ->json($pageList);
         }
        
-     
+         
         $menus=$this->adminMenus('UsersAdmin');
        
         return view('users.index')->with([

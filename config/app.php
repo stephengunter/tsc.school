@@ -12,8 +12,15 @@ return [
     | any other location as required by the application or its packages.
     |
     */
-    'company' => '慈大社推中心',
+    'company' => array(
+		'name' => '慈大社推',
+		'fullname' =>'慈濟大學社會教育推廣中心',
+        'tel' => '03-8565301轉1703、1704',
+        'address' => '花蓮市中央路三段701號',
+     ),
     'name' => '課程管理系統',
+    'address' => '',
+    'tel' => '',
     'dev'=>array(
 		'name' => 'stephen',
 		'email' =>'traders.com.tw@gmail.com',

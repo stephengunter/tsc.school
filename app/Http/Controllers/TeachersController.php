@@ -15,6 +15,7 @@ use App\Services\Teachers;
 use App\Services\TeacherGroups;
 use App\Services\Users;
 use App\Services\Centers;
+use App\Services\Courses;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -23,12 +24,15 @@ use Illuminate\Support\Facades\Input;
 class TeachersController extends Controller
 {
     
-    public function __construct(Teachers $teachers, Users $users,Centers $centers ,TeacherGroups $teacherGroups)
+    public function __construct(Teachers $teachers, TeacherGroups $teacherGroups ,Users $users,
+        Centers $centers ,Courses $courses)
     {
         $this->teachers=$teachers;
+        $this->teacherGroups=$teacherGroups;
         $this->users=$users;
         $this->centers=$centers;
-        $this->teacherGroups=$teacherGroups;
+        $this->courses=$courses;
+       
     }
 
     function canEdit($teacher)
@@ -379,6 +383,15 @@ class TeachersController extends Controller
 
         $this->loadCenterNames($teacher);
         $this->loadRoleNames($teacher);
+
+        $courseIds=$teacher->courses()->pluck('id')->toArray();
+        $courses=$this->courses->getByIds($courseIds)->get();
+        foreach($courses as $course){
+            $course->fullName();
+            $course->loadClassTimes();
+        } 
+
+        $teacher->courses = $courses;
 
         $this->loadWage($teacher);
 
