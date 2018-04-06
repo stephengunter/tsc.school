@@ -10,6 +10,7 @@ Vue.component('barcode', VueBarcode);
 
 Vue.component('top-nav', require('./components/top-nav'));
 Vue.component('main-nav', require('./components/main-nav'));
+Vue.component('sub-nav', require('./components/sub-nav'));
 Vue.component('pager', require('./components/pager'));
 
 Vue.component('home-view', require('./views/home'));
@@ -18,4 +19,5 @@ Vue.component('notices-index', require('./views/notices/index'));
 Vue.component('notice-details', require('./views/notices/details'));
 
 Vue.component('centers-index', require('./views/centers/index'));
+Vue.component('courses-index', require('./views/courses/index'));
 

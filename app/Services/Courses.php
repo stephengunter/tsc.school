@@ -23,7 +23,6 @@ class Courses
 {
     public function __construct()
     {
-       
         $this->with=['teacherGroup','term','center','classTimes.weekday'];
     }
     public function getAll(bool $includStudents = false)
@@ -118,15 +117,20 @@ class Courses
         if ($center) $courses = $courses->where('centerId',$center->id);
 
         if($category){
-            $courses=$courses->whereHas('categories', function($q) use ($category)
-            {
-                $q->where('id',$category->id );
-            });
-          
+            $courses=$this->fetchByCategory($courses , $category->id);
         }
 
         return $courses->where('reviewed',$reviewed)
                        ->orderBy('number');
+    }
+
+    public function fetchByCategory($courses , int $categoryId)
+    {
+        $courses=$courses->whereHas('categories', function($q) use ($categoryId)
+        {
+            $q->where('id',$categoryId );
+        });
+        return  $courses;
     }
 
     public function  getByNumber($number)

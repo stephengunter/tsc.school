@@ -72431,7 +72431,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    name: 'CreatermView',
+    name: 'CreateTermView',
     components: {
         'term': __WEBPACK_IMPORTED_MODULE_0__components_term_view_vue___default.a
 
@@ -74798,7 +74798,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 id = this.getTeacherId();
             }
 
-            this.deleteConfirm.msg = '確定要刪除 ' + name + ' 嗎？';
+            this.deleteConfirm.msg = '確定要刪除 ' + name + ' 嗎?';
             this.deleteConfirm.id = id;
             this.deleteConfirm.show = true;
         },

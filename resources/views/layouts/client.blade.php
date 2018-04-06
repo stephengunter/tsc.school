@@ -44,6 +44,7 @@
 				<main-nav :items="menus"></main-nav>
             </div>
         </section>
+		<sub-nav :items="subMenus"></sub-nav>
     </div>
     
     <section class="section" style="padding-top:20px;min-height: 510px;">
@@ -84,13 +85,14 @@
 				return {
 					topMenus:null,
 					menus:[],
+					subMenus:[],
 				}
 			},
 			computed:{
 				
 			},
 			created() {
-				Bus.$on('menus',this.setMenus);
+				// Bus.$on('menus',this.setMenus);
 				Bus.$on('errors',this.showErrorMsg);
 				Bus.$on('okmsg',this.showSuccessMsg);
 
@@ -102,6 +104,12 @@
 
 					this.menus = {!! json_encode($menus) !!} ;
 				
+				@endif
+
+				@if (isset($subMenus))
+
+				this.subMenus = {!! json_encode($subMenus) !!} ;
+
 				@endif
         		
 			},

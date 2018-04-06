@@ -1,21 +1,23 @@
 <template>
-    <div v-if="hasItems" class="container">
-        <nav class="tabs is-boxed">
-            <ul>
-                <li v-for="(item,index) in items" :key="index"  v-bind:class="{ 'is-active': isActive(item) }">
-                    <a @click="setActive(item)" :href="item.url" style="font-size: 1.2em;">
-                        {{  item.text }}
-                    </a>
-                </li>
-                
-            </ul>
-        </nav>       
-    </div>  
+   
+    <nav v-if="hasItems" class="nav has-shadow is-hidden-mobile" >
+        <div class="container">
+            <div class="nav-left">
+                <a v-for="(item,index) in items" :key="index"  :href="item.url" :class="{ 'nav-item is-tab':true ,  'is-active': isActive(item)}" style="font-size: 1.2em;">
+                     {{  item.text }}
+                </a>
+               
+            </div>
+        </div>
+        
+    </nav>       
+  
+    
 </template>
 
 <script>
 export default {
-    name:'MainNav',
+    name:'SubNav',
     props: {
         items: {
             type: Array,
@@ -47,7 +49,10 @@ export default {
         },
         setActive(item){
             this.selected = item.value;
-        }
+        },
+        getUrl(item){
+            return `about/?id=${item.value}`;
+        },
         
         
 

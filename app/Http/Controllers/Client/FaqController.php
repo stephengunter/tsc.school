@@ -11,7 +11,7 @@ use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
 
-class AboutController extends Controller
+class FaqController extends Controller
 {
     
     public function __construct(Contents $contents)
@@ -25,9 +25,10 @@ class AboutController extends Controller
         $id=0;
         if($request->id)  $id=(int)$request->id;
 
-        $key = 'about';
+        $key = 'faq';
 		$contents = $this->contents->fetchContents($key);
         $contents =  $this->contents->getOrdered($contents)->get();
+       
 
         $selectedContent=$contents->where('id',$id)->first();
         if(!$selectedContent) $selectedContent=$contents->first();
@@ -37,15 +38,14 @@ class AboutController extends Controller
             return [
                 'value' => $item->id,
                 'text' => $item->title,
-                'active' => $item->id ==  $selectedContent->id,
-                'url' => sprintf('/about?id=%d',  $item->id )
+                'active' => $item->id ==  $selectedContent->id
             ];
         });
 
       
 
         $model=[
-            'title' => '關於我們',
+            'title' => '常見問題',
             'topMenus' => $this->clientMenus(),
             'menus' => $menus,
 
@@ -54,7 +54,7 @@ class AboutController extends Controller
 
         
 
-        return view('client.about')->with($model);
+        return view('client.faq')->with($model);
     }
 
    

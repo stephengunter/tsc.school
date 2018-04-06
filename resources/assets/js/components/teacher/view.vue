@@ -213,12 +213,12 @@
                     id=this.getTeacherId();
                 } 
 
-                this.deleteConfirm.msg='確定要刪除 ' + name + ' 嗎？'
-                this.deleteConfirm.id=id
-                this.deleteConfirm.show=true                
+                this.deleteConfirm.msg='確定要刪除 ' + name + ' 嗎?'
+                this.deleteConfirm.id=id;
+                this.deleteConfirm.show=true;                
             },
             closeConfirm(){
-                this.deleteConfirm.show=false
+                this.deleteConfirm.show=false;
             },
             deleteTeacher(){
              

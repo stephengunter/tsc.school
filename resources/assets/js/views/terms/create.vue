@@ -11,7 +11,7 @@
     import TermComponent from '../../components/term/view.vue';
     
     export default {
-        name: 'CreatermView',
+        name: 'CreateTermView',
         components: {
             'term':TermComponent,
            

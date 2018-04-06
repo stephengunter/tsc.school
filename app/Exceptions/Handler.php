@@ -69,6 +69,7 @@ class Handler extends ExceptionHandler
 
         
     }
+    
     protected function emailUnconfirmed($request, EmailUnconfirmed $e)
     {
        

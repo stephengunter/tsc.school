@@ -51,7 +51,7 @@ class CentersController extends Controller
         $model=[
             'title' => '開課中心',
             'topMenus' => $this->clientMenus(),
-
+          
             'areas' => $areas,
             'overseas' => $overseaCenters
         ];

@@ -7,12 +7,23 @@ use Excel;
 
 class Categories 
 {
-    
 
     public function getAll()
     {
         return Category::where('removed',false); 
     }
+
+    public function getById($id)
+    {   
+        return $this->getAll()->where('id',$id)->first();
+    }  
+
+    public function getByIds($ids)
+    {   
+        return $this->getAll()->whereIn('id',$ids);
+    }   
+
+
     public function createCategory(Category $category)
     {
         if(!$category->importance)
@@ -35,6 +46,8 @@ class Categories
     {
         return $this->getAll()->where('active',$active);
     }
+
+    
 
     public function getCategoryByCode($code)
     {

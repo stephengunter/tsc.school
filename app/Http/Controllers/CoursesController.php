@@ -165,7 +165,7 @@ class CoursesController extends Controller
 
         $selectedCenter = null;
         if ($center) $selectedCenter = Center::find($center);
-        if ($selectedCenter == null)
+        if (!$selectedCenter)
         {
             $center = 0;
             if ($pageSize == 999) $pageSize = 10;
