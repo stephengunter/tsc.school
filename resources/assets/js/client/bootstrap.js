@@ -37,7 +37,7 @@ if (token) {
 
 import Helper from './helper';
 window.Helper = Helper;
-import Form from './utilities/form';
+import Form from '../utilities/form';
 window.Form = Form;
 
 import Course from './models/course';

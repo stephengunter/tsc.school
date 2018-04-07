@@ -1,17 +1,23 @@
 <?php
 
+Auth::routes();
+
 //client routes
 Route::get('/', '\App\Http\Controllers\Client\HomeController@index')->name('home');
+
 Route::get('/about', '\App\Http\Controllers\Client\AboutController@index');
 Route::get('/faq', '\App\Http\Controllers\Client\FaqController@index');
-Route::resource('/centers', '\App\Http\Controllers\Client\CentersController',['only' => ['index','details']]);
-Route::resource('/courses', '\App\Http\Controllers\Client\CoursesController',['only' => ['index','details']]);
+Route::resource('/centers', '\App\Http\Controllers\Client\CentersController',['only' => ['index','show']]);
+Route::resource('/courses', '\App\Http\Controllers\Client\CoursesController',['only' => ['index','show']]);
 
+Route::group(['middleware' => 'auth'], function()
+{
 
+});
 
 //end client routes
 
-//Auth::routes();
+
 
 
 

@@ -14,10 +14,13 @@ Vue.component('sub-nav', require('./components/sub-nav'));
 Vue.component('pager', require('./components/pager'));
 
 Vue.component('home-view', require('./views/home'));
+Vue.component('register-view', require('./views/auth/register'));
 
 Vue.component('notices-index', require('./views/notices/index'));
 Vue.component('notice-details', require('./views/notices/details'));
 
 Vue.component('centers-index', require('./views/centers/index'));
+
 Vue.component('courses-index', require('./views/courses/index'));
+Vue.component('courses-details', require('./views/courses/details'));
 

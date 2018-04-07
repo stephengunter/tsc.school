@@ -12,7 +12,7 @@
                         <ul class="info">                    
                             <li class="title-item">
                                 <span  class="tag is-success">招生中</span> 
-                                <a @click="onSelected" > 
+                                <a :href="detailsUrl" > 
                                     {{ course.fullName}}
                                 </a>
                             </li> 
@@ -42,11 +42,11 @@ export default {
     },
     data () {
         return {
-           
+           detailsUrl:'',
         }
     },
     beforeMount(){
-       
+        this.detailsUrl='/courses/' + this.course.id;
     },
     methods:{
         onSelected(){
@@ -58,7 +58,9 @@ export default {
 
 
 <style scoped>
-
+.card{
+    width: 360px;
+}
 .status{
     text-align:center;
     padding-bottom:10px;

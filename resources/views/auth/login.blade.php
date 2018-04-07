@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.client')
 
 @section('content')
 <div class="container">
@@ -66,4 +66,36 @@
         </div>
     </div>
 </div>
+@endsection
+
+
+
+@section('scripts')
+
+<script type="text/babel">
+
+
+new Vue({
+    el: '#main',
+    data() {
+        return {
+          
+        }
+    },
+    beforeMount() {
+        
+    },
+    mounted(){
+        onPageLoaded();
+    },
+    methods: {
+        
+    }
+
+});
+
+
+
+</script>
+
 @endsection

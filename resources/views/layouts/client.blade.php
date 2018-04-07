@@ -14,14 +14,14 @@
     @endif
 
     
-    <style>
+    
+</head>
+<body id="body" style="background-color: #fff; display:none">
+	<style>
 		html * {
 			font-family: "微軟正黑體", "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
 		}
 	</style>
-</head>
-<body id="body" style="background-color: #fff; display:none">
-    
     <div id="head">
 		<top-nav :model="topMenus"></top-nav>
 		<section class="hero is-primary">

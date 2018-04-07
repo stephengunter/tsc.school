@@ -1,0 +1,137 @@
+<template>
+<div>
+    <div class="columns is-vcentered register">
+        <div class="column is-4 is-offset-4">
+            <h1 class="title">
+            註冊 - 建立新帳號
+            </h1>
+            <div class="box">              
+                <form @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
+                    <div class="field">
+                        <label class="label">Email</label>
+                        <div class="control">
+                            <input name="email" class="input" type="text" v-model="form.email" >
+                            <p class="help is-danger" v-if="form.errors.has('email')" v-text="form.errors.get('email')"></p> 
+                        </div>
+                        <label class="label">密碼</label>
+                        <div class="control">
+                            <input name="password" class="input" type="password" v-model="form.password" >
+                            <p class="help is-danger" v-if="form.errors.has('password')" v-text="form.errors.get('password')"></p> 
+                        </div>
+                        <label class="label">確認密碼</label>
+                        <div class="control">
+                            <input name="confirmation" class="input" type="password" v-model="form.confirmation" >
+                            <p class="help is-danger" v-if="form.errors.has('confirmation')" v-text="form.errors.get('confirmation')"></p> 
+                        </div>
+                        <label class="label">姓名</label>
+                        <div class="control">
+                            <input name="name" class="input" type="text" v-model="form.name" >
+                            <p class="help is-danger" v-if="form.errors.has('name')" v-text="form.errors.get('name')"></p> 
+                        </div>
+                        <label class="label">性別</label>
+                        <div class="control">
+                            <radio-group v-model="form.gender">
+                                <radio val="1">男</radio>
+                                <radio val="0">女</radio>
+                            </radio-group>
+                        
+                        </div>
+                        <label class="label">手機號碼</label>
+                        <div class="control">
+                            <input name="phone" class="input" type="text" v-model="form.phone" >
+                            <p class="help is-danger" v-if="form.errors.has('phone')" v-text="form.errors.get('phone')"></p> 
+                        </div>
+                      
+                        <div class="control" style="padding-top:1em">
+                            <button type="submit" class="button is-primary" >確認送出</button>
+                            <p class="help is-danger" v-if="failed">建立新帳號失敗</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+                
+        </div>
+    </div>
+    
+</div>    
+</template>
+
+
+<script>
+    export default{
+        name:'Register',
+        data(){
+            return {
+                form: new Form({
+                    email:'',
+                    password:'',
+                    phone:'',
+                    name:'',
+                    gender:'1',
+                    confirmation:''
+                    
+                }),
+                failed:false,
+                confirmSettings:{
+                   show:false,
+                   width:600,
+                   user:{}
+                }
+
+               
+            }
+        },
+        beforeMount(){
+            
+        },
+        methods: {
+            clearErrorMsg(name) {
+                this.form.errors.clear(name)
+                this.failed = this.form.errors.any()
+            },
+            getErrors(){
+                let errors={ };
+                if(!this.form.email) errors.email=['必須填寫手機'];
+                if(!this.form.name) errors.name=['必須填寫姓名'];
+                if(!this.form.password) errors.password=['必須填寫密碼'];
+                if(!this.form.confirmation) errors.confirmation=['必須填寫確認密碼'];
+                if(!this.form.phone) errors.phone=['必須填寫手機號碼'];
+
+                return errors;
+            },
+            onSubmit(){
+                this.form.errors.clear();
+                let errors=this.getErrors();
+                if(!Helper.isEmptyObj(errors)){
+                    this.form.errors.record(errors);
+                    return;
+                }
+                
+                let url='/register';
+                this.form.post(url)
+                .then((user) => {
+                    this.confirmSettings.user=user
+                    Bus.$emit('okmsg','成功建立新帳號')
+                    this.confirmSettings.show=true
+                     
+                }).catch(error => {
+                    this.failed=true
+                })
+            },
+            onConfirmed(){
+              this.redirect()
+            }
+            
+        },
+
+
+
+    }
+</script>
+
+<style scoped>
+   
+   .register{
+     font-size: 16px;
+   }
+</style>

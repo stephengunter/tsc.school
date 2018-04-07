@@ -50,7 +50,7 @@
         <div class="col-sm-12">
                                     
             <label class="label-title">注意事項</label>
-            <p v-html="course.caution"></p>  
+            <p v-html="cautions(course)"></p>  
             
         </div>
     </div>   
@@ -97,6 +97,11 @@
         methods: { 
             editReview(){
                 this.$emit('edit-review')
+            },
+            cautions(course){
+                if(!course.caution) return '';
+                return Helper.replaceAll(course.caution,'\n' , '<br>')
+					
             }
             
         }

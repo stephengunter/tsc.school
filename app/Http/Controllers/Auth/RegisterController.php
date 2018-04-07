@@ -3,70 +3,81 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Profile;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Foundation\Auth\RegistersUsers;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Events\Registered;
+use App\Http\Requests\RegisterRequest;
+
+use App\Services\Users;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
+    protected $redirectTo = '/';
 
-    use RegistersUsers;
-
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/home';
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+   
+    public function __construct(Users $users)
     {
         $this->middleware('guest');
+        $this->users=$users;
     }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
+    protected function guard()
     {
-        return Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
+        return Auth::guard();
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\User
-     */
-    protected function create(array $data)
+    protected function registered(Request $request, $user)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+        //
+    }
+
+
+    public function showRegistrationForm()
+    {
+        $model=[
+            'title' => '註冊 - 建立新帳號',
+            'topMenus' => $this->clientMenus()
+           
+        ];
+
+        
+
+        return view('auth.register')->with($model);
+    } 
+   
+    
+
+    public function register(RegisterRequest $request)
+    {
+        //event(new Registered($user = $this->create($request->all())));
+        $values=$request->getValues();
+        $user=new User([
+            'name' => $values['email'],
+            'email' => $values['email'],
+            'password' => Hash::make($values['password']),
         ]);
+        $profile=new Profile([
+            'fullname' => $values['name'],
+            'gender' => $values['gender'],
+        ]);
+
+        $this->users->createUser($user,$profile);
+
+        $this->guard()->login($user);
+
+        return redirect($this->redirectPath());
+    }
+
+    function redirectPath()
+    {
+        if (method_exists($this, 'redirectTo')) {
+            return $this->redirectTo();
+        }
+
+        return property_exists($this, 'redirectTo') ? $this->redirectTo : '/home';
     }
 }

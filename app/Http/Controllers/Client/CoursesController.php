@@ -86,6 +86,42 @@ class CoursesController extends Controller
 
     }
     
+
+    function fetchCourses($term , $center)
+    {
+        $courses = $this->courses->fetchCourses($term->id ,$center);
+        return $courses->where('active',true);
+    }
+
+    function setCenterOptions($centerOptions, $selectedCenter)
+    {
+        return array_map(function($item)use($selectedCenter){
+            return [ 
+                'text' => $item['text'] ,  'value' => $item['value'] , 
+                'active' => (int)$item['value'] == $selectedCenter->id,
+                'url' => sprintf('/courses?center=%s', $item['value'] )
+            ];
+       
+        }, $centerOptions);
+    }
+
+    function setCategoryOptions($categoryOptions,$selectedCenter,$selectedCategory)
+    {
+        return array_map(function($item)use($selectedCenter,$selectedCategory){
+            return [ 
+                'text' => $item['text'] ,  'value' => $item['value'] , 
+                'active' => (int)$item['value'] == $selectedCategory->id,
+                'url' => sprintf('/courses?center=%d&category=%s', $selectedCenter->id ,$item['value'])
+            ];
+       
+        }, $categoryOptions);
+    }
+
+    
+
+
+   
+    
     public function index()
     {
         
@@ -101,10 +137,9 @@ class CoursesController extends Controller
 
      
         $selectedCategory = $this->getSelectedCategory();
-
         
 
-        $courses = $this->courses->fetchCourses($term->id ,$selectedCenter);
+        $courses = $this->fetchCourses($term,$selectedCenter);
 
         $categoryOptions = $this->getCategoryOptions($courses);
      
@@ -123,30 +158,13 @@ class CoursesController extends Controller
            
         } 
 
-        $centerOptions = array_map(function($item)use($selectedCenter){
-            return [ 
-                'text' => $item['text'] ,  'value' => $item['value'] , 
-                'active' => (int)$item['value'] == $selectedCenter->id,
-                'url' => sprintf('/courses?center=%s', $item['value'] )
-            ];
-       
-        }, $centerOptions);
+        $centerOptions = $this->setCenterOptions($centerOptions, $selectedCenter);
 
-        $categoryOptions = array_map(function($item)use($selectedCenter,$selectedCategory){
-            return [ 
-                'text' => $item['text'] ,  'value' => $item['value'] , 
-                'active' => (int)$item['value'] == $selectedCategory->id,
-                'url' => sprintf('/courses?center=%d&category=%s', $selectedCenter->id ,$item['value'])
-            ];
-       
-        }, $categoryOptions);
-      
-
-       
-
+        $categoryOptions = $this->setCategoryOptions($categoryOptions,$selectedCenter,$selectedCategory);
+        
             
         $model=[
-            'title' => '課程總覽',
+            'title' => $selectedCenter->name . '課程總覽',
             'topMenus' => $this->clientMenus(),
             'menus' => $centerOptions,
             'subMenus' => $categoryOptions,
@@ -154,6 +172,54 @@ class CoursesController extends Controller
         ];
 
         return view('client.courses.index')->with($model);
+    }
+
+    public function show($id)
+    {
+        $course = $this->courses->getById($id);
+        if(!$course) abort(404);
+
+        $course->fullName();
+        $course->loadClassTimes();
+        $course->center->loadContactInfo();
+        $this->setTeachers($course);
+       
+
+        $course->processes;
+
+        $withEmpty=false;
+        $centerOptions=$this->centers->centerOptions($withEmpty);
+
+        $courses = $this->fetchCourses($course->term, $course->center);
+
+
+        $selectedCategory=Category::find($course->categoryId);
+
+        $categoryOptions = $this->getCategoryOptions($courses);
+     
+        if (!$selectedCategory && count($categoryOptions)) {
+            $selectedCategory = Category::find($categoryOptions[0]['value']);
+        } 
+
+        $centerOptions = $this->setCenterOptions($centerOptions, $course->center);
+
+        $categoryOptions = $this->setCategoryOptions($categoryOptions,$course->center,$selectedCategory);
+        
+
+        // $course->canEdit = $this->canEdit($course);
+        // $course->canReview =$this->canReview($course);
+        // $course->canDelete = $this->canDelete($course);
+
+        $model=[
+            'title' => $course->center->name . ' - ' . $course->fullName,
+            'topMenus' => $this->clientMenus(),
+            'menus' => $centerOptions,
+            'subMenus' => $categoryOptions,
+            'model' => $course
+        ];
+
+        return view('client.courses.details')->with($model);
+        
     }
 
    

@@ -18,7 +18,7 @@
                 <ul class="info">                    
                     <li class="title">
                         <i class="fa fa-map-marker" aria-hidden="true"></i>&nbsp; {{ course.center.name }}
-                        <a @click.prevent="selected"> 
+                        <a :href="detailsUrl"> 
                             {{ course.fullName}}
                         </a>
                     </li> 
@@ -52,11 +52,11 @@ export default {
     },
     data () {
         return {
-            
+            detailsUrl:'',
         }
     },
     beforeMount(){
-        
+        this.detailsUrl='/courses/' + this.course.id;
     },
 }
 
