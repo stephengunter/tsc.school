@@ -15,6 +15,9 @@ Vue.component('pager', require('./components/pager'));
 
 Vue.component('home-view', require('./views/home'));
 Vue.component('register-view', require('./views/auth/register'));
+Vue.component('login-view', require('./views/auth/login'));
+
+Vue.component('change-password-view', require('./views/users/change-password'));
 
 Vue.component('notices-index', require('./views/notices/index'));
 Vue.component('notice-details', require('./views/notices/details'));

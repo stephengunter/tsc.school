@@ -2,7 +2,7 @@
 
 @section('content')
 
-<login-view :intend="intend"></login-view>
+<change-password-view ></change-password-view>
 
 @endsection
 
@@ -16,11 +16,11 @@ new Vue({
     el: '#main',
     data() {
         return {
-            intend:'',
+           
         }
     },
     beforeMount() {
-        this.intend = {!! json_encode($intend) !!} ;
+        
                
     },
     mounted(){

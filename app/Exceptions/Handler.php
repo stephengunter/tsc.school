@@ -63,10 +63,16 @@ class Handler extends ExceptionHandler
              return response()->json(['error' => '權限不足','code' => 401 ], 401);
         }
 
+       
         if(Helper::str_starts_with($request->path(),'manage')){
             return redirect()->guest(route('manage-login'));
         }
 
+       
+        $returnUrl=Helper::buildQuery($request->path(),$request->toArray());
+
+        
+        return redirect()->guest('login?intend=' . urlencode($returnUrl));
         
     }
     

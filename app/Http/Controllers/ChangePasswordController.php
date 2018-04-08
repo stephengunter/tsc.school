@@ -5,10 +5,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests\ChangePasswordRequest;
 
-//use App\Repositories\Users;
 use Illuminate\Support\Facades\Hash;
-//use App\Http\Middleware\CheckAdmin;
-//use App\Jobs\SendResetPasswordMail;
 
 use App\User;
 

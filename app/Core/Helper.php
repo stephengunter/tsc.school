@@ -59,6 +59,22 @@ class Helper
         }
 
     }
+
+    public static function buildQuery($url ,array $params)
+    {
+        if(!$params) return $url;
+        
+        $query='';
+        foreach ($params as $key => $value){
+            $query .= $key . '=' . $value . '&';
+        }
+
+        
+      
+        $query=rtrim($query,'&');
+
+         return $url . '?' . $query ;
+    }
   
 
 }

@@ -17,7 +17,7 @@
                 <a href="/about" :class="getMenuStyle('about')">
                     <i aria-hidden="true" class="fa fa-info-circle fa-fw"></i>&nbsp; 關於我們
                 </a>
-                <a href="/docs"  :class="getMenuStyle('docs')">
+                <a v-if="false" href="/docs"  :class="getMenuStyle('docs')">
                     <i aria-hidden="true" class="fa fa-download fa-fw"></i>&nbsp; 文件下載
                 </a>
                 <a href="/faq"  :class="getMenuStyle('faq')">
@@ -30,33 +30,7 @@
                 <span></span>
             </span> 
             <div  v-if="isAuth" id="nav-menu" class="nav-right nav-menu nav-item"  >
-                <dropdown ref="userdropdown" >     
-                    <a class="button is-outlined is-primary">
-                        <i class="fa fa-user-circle-o" aria-hidden="true"></i>
-                        &nbsp;{{ model.user.name }}
-                        <span class="icon is-small">
-                            <i class="fa fa-angle-down"></i>
-                        </span>
-                    </a>
-                    <div slot="content" class="menu-list">
-                           
-                            <a href="#" @click.prevent="onLogout">  
-                                <i class="fa fa-sign-out fa-fw" aria-hidden="true"></i>
-                                登出
-                            </a>
-                           
-                            
-                        <hr class="dropdown-divider" style="margin: 5px 0;">
-                            <a href="/logout">  
-                                <i class="fa fa-sign-out fa-fw" aria-hidden="true"></i>
-                                登出
-                            </a>
-                        <!-- <menus>
-                            <menu-item :click="test" :key="1">汽车汽车</menu-item>
-                            <menu-item :click="test" :key="2">汽车汽车</menu-item>
-                        </menus> -->
-                    </div>                  
-                </dropdown>
+                <user-menus :user="model.user"></user-menus>
             </div>
             <div v-else  id="nav-menu"  class="nav-right nav-menu" style="font-size:1.2em" >
                 <a href="/login"  :class="getMenuStyle('login')">
@@ -69,8 +43,12 @@
 </template>
 
 <script>
+import UserMenus from './user-menus.vue';
 export default {
     name:'TopNav',
+    components:{
+        'user-menus':UserMenus,
+    },
     props: {
         model: {
             type: Object,

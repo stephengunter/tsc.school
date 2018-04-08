@@ -12,6 +12,10 @@ Route::resource('/courses', '\App\Http\Controllers\Client\CoursesController',['o
 
 Route::group(['middleware' => 'auth'], function()
 {
+    Route::resource('/user', '\App\Http\Controllers\Client\UserController');
+    Route::get('/user/password/change', '\App\Http\Controllers\Client\UserController@showChangePasswordForm');
+    Route::post('/user/password/change', '\App\Http\Controllers\Client\UserController@changePassword');
+    Route::resource('/signups', '\App\Http\Controllers\Client\SignupsController');
 
 });
 
