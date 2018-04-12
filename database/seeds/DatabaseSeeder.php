@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
         $this->call(IdentitiesSeeder::class);
         $this->call(DiscountSeeder::class);
 
+        $this->call(ContentSeeder::class);
+
 		
     }
 }
