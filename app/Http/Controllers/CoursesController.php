@@ -409,11 +409,12 @@ class CoursesController extends Controller
 
     public function update(CourseRequest $request, $id)
     {
+       
         $course = $this->courses->getById($id); 
         if(!$course) abort(404);   
         if(!$this->canEdit($course)) $this->unauthorized();
 
-        $courseValues=$request->getCourseValues();
+        $courseValues=$request->getValues();
         $teacherIdValues=$request->getTeacherIds();
        
         $errors=$this->validateCourseInputs($courseValues,$teacherIdValues);

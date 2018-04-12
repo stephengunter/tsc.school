@@ -29,7 +29,7 @@
                         
                         <td v-if="can_remove" >
                            
-                            <button class="btn btn-xs btn-danger"  @click.prevent="remove(term)">
+                            <button v-if="term.canDelete" class="btn btn-xs btn-danger"  @click.prevent="remove(term)">
                                 <i class="fa fa-trash"></i>
                             </button>
                         </td>

@@ -24,6 +24,11 @@ class TermsController extends Controller
     {
         return $this->currentUserIsDev();
     }
+    function canDelete(Term $term)
+    {
+        if($term->active) return false;
+        return $this->canEdit();
+    }
 
     function yearOption()
     {
@@ -66,6 +71,11 @@ class TermsController extends Controller
       
         $pageList = new PagedList($terms);
 
+        foreach($pageList->viewList as $term){
+            $term->canDelete=$this->canDelete($term);
+           
+        } 
+
         if($this->isAjaxRequest()){
             return response() ->json($pageList);
         }
@@ -98,7 +108,7 @@ class TermsController extends Controller
     public function store(TermRequest $request)
     {
         $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
+        if(!$this->canEdit()) return $this->unauthorized();
 
        
         $values=$request->getValues();
@@ -115,7 +125,7 @@ class TermsController extends Controller
     public function edit($id)
     {
         $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
+        if(!$this->canEdit()) return $this->unauthorized();
 
         $term = Term::findOrFail($id);
        
@@ -164,7 +174,7 @@ class TermsController extends Controller
     public function update(TermRequest $request, $id)
     {
         $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
+        if(!$this->canEdit()) return $this->unauthorized();
 
         $term = Term::findOrFail($id);
        
@@ -177,6 +187,23 @@ class TermsController extends Controller
         $values['updatedBy'] = $current_user->id;
         
         $term->update($values);
+        return response() ->json();
+    }
+
+    public function destroy($id)
+    {
+        $term = Term::findOrFail($id);
+
+       
+        if(!$this->canDelete($term)) return $this->unauthorized();
+
+        $current_user=$this->currentUser();
+        $term->update([
+            'removed' => true,
+            'updated_by' => $current_user->id
+        ]);
+       
+       
         return response() ->json();
     }
 

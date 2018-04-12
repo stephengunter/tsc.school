@@ -26,7 +26,7 @@ class Term {
         return this.source() + `/${id}`;
     }
     static deleteUrl(id){
-        return this.source() + '/delete/' + id;
+        return this.source() + '/' + id;
     }
    
 

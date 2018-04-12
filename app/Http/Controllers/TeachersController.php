@@ -309,7 +309,7 @@ class TeachersController extends Controller
         $profileValues= $userValues['profile'];
 
         
-        $errors=$this->users->validateUserInputs($userValues);
+        $errors=$this->users->validateUserInputs($userValues,Role::teacherRoleName());
         if($errors) return $this->requestError($errors);
 
         $errors=$this->validateTeacherInputs($teacherValues);
