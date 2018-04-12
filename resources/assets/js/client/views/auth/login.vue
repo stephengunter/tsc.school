@@ -1,7 +1,7 @@
 <template>
 <div>
-    <div class="columns is-vcentered register">
-        <div class="column is-4 is-offset-4">
+    <div class="columns register" >
+        <div class="column is-4">
             <h1 class="title">
             登入
             </h1>
@@ -31,8 +31,8 @@
                 </form>
             </div>
             <p class="has-text-centered" style="margin-top: 20px;">
-                還沒有帳號?&nbsp;
-                <a href="/register" >註冊</a>&nbsp;|&nbsp;<a href="/register">忘記密碼</a> 
+                還沒有帳號?&nbsp;  
+                <a href="/register" >註冊</a>&nbsp;|&nbsp;<a href="/password/reset">忘記密碼</a> 
               
               
             </p>    

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Core;
-
+use Illuminate\Database\Eloquent\Collection;
 class Helper
 {
     public static function  str_starts_with($haystack, $needle)
@@ -74,6 +74,19 @@ class Helper
         $query=rtrim($query,'&');
 
          return $url . '?' . $query ;
+    }
+
+    public static function mergeCollections(Collection $collectionA,Collection $collectionB)
+    {
+        foreach ($collectionB as $item)
+        {
+            if ( ! $collectionA->contains($item->getKey()))
+            {
+                $collectionA->add($item);
+            }
+        }
+        
+        return $collectionA;
     }
   
 

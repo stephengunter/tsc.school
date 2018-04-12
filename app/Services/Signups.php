@@ -126,6 +126,11 @@ class Signups
         return $this->getByIds($signupIds);
     }
 
+    public function fetchSignupsByUser(User $user)
+    {
+        return $this->getAll()->where('userId',$user->id);
+    }
+
     public function getSignupSummary(Term $term,Center $center, Course $course = null)
     {
         $signups=$this->fetchSignups($term,$center,$course)->get();
@@ -144,8 +149,8 @@ class Signups
         $recordIds = Signup::where('userId', $user->id)
                             ->where('status', '>=', 0)->pluck('id')->toArray();
 			
-
-		return SignupDetail::whereIn('id',$recordIds);
+       
+		return SignupDetail::whereIn('signupId',$recordIds);
     }
 
     public function statusOptions()

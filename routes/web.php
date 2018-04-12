@@ -2,6 +2,26 @@
 
 Auth::routes();
 
+Route::get('/test', function () {
+   
+    $model=[
+        'title' => '',
+        'topMenus' => [
+            'current' => '',
+            'user' => \App\User::find(54),
+            'teacher' => false,
+            'students' => false
+        ],
+        'user' => \App\User::find(54),
+
+       
+    ];
+
+    
+
+    return view('client.signups.edit')->with($model);
+});
+
 //client routes
 Route::get('/', '\App\Http\Controllers\Client\HomeController@index')->name('home');
 
@@ -12,7 +32,11 @@ Route::resource('/courses', '\App\Http\Controllers\Client\CoursesController',['o
 
 Route::group(['middleware' => 'auth'], function()
 {
-    Route::resource('/user', '\App\Http\Controllers\Client\UserController');
+  
+    Route::get('/user/profile', '\App\Http\Controllers\Client\UserController@show');
+    Route::get('/user/edit', '\App\Http\Controllers\Client\UserController@edit');
+    Route::put('/user', '\App\Http\Controllers\Client\UserController@update');
+
     Route::get('/user/password/change', '\App\Http\Controllers\Client\UserController@showChangePasswordForm');
     Route::post('/user/password/change', '\App\Http\Controllers\Client\UserController@changePassword');
     Route::resource('/signups', '\App\Http\Controllers\Client\SignupsController');

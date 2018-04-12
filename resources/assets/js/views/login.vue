@@ -24,7 +24,7 @@
                     <hr />
                     <div class="form-group">
                         <p>
-                            <a href="#" @click.prevent="forgotPassword">忘記密碼 ?</a>
+                            <a href="/password/reset" >忘記密碼 ?</a>
                         </p>
                     
                     </div>
@@ -56,10 +56,6 @@
                     password:''
                 })
             }, 
-            forgotPassword(){
-                alert('forgotPassword');
-                this.$emit('forgot-password')
-            },
             clearErrorMsg(name) {
                 this.form.errors.clear(name);
                 this.err=false;

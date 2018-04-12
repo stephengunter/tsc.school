@@ -60,7 +60,8 @@ export default {
     },
     methods:{
         onSelected(id){
-            alert(id);
+            let url = `/courses?center=${id}`;
+            window.location = url;
         }
       
     }

@@ -109,6 +109,7 @@ class UsersController extends Controller
 
     public function edit($id)
     {
+        
         $user = $this->users->getById($id);
         if(!$user) abort(404);
       

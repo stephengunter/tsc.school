@@ -226,7 +226,7 @@
                 this.userSelector.model=null;
             },
             loadUser(id){
-                alert(id);
+                
                 if(!id) id= this.form.user.id;
                 let getData=User.edit(id);
                 getData.then(model => {

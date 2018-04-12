@@ -25,9 +25,9 @@
                 <i class="fa fa-key fa-fw" aria-hidden="true"></i>
                 變更密碼
             </a>
-            <a href="/user/password/change" >  
+            <a href="/user/profile" >  
                 <i class="fa fa-id-card fa-fw" aria-hidden="true"></i>
-                聯絡資訊
+                個人資訊
             </a>
         </div>                  
     </dropdown>

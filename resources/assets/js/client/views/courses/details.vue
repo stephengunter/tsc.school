@@ -1,6 +1,6 @@
 <template>
     <div>
-        <large-card :course="model"></large-card>
+        <large-card :course="model" @signup="onSignup"></large-card>
         <div class="back-btn" style="clear: both; text-align: right;" >    
             <a @click.prevent="onBack"  class="button is-primary is-outlined">
                 <span class="icon is-small">
@@ -80,6 +80,10 @@
         methods:{
             onBack(){
                 window.history.back();
+            },
+            onSignup(id){
+                let url = `/signups/create?course=${id}`;
+                window.location = url;
             }
             
         },

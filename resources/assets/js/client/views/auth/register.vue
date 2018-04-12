@@ -1,7 +1,7 @@
 <template>
 <div>
-    <div class="columns is-vcentered register">
-        <div class="column is-4 is-offset-4">
+    <div class="columns register">
+        <div class="column is-4">
             <h1 class="title">
             註冊 - 建立新帳號
             </h1>

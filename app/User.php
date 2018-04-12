@@ -32,7 +32,13 @@ class User extends Authenticatable
 			'profile'=> Profile::init()
 
 		];
-	}
+    }
+    
+    public function sendPasswordResetNotification($token)
+    {
+        dispatch(new \App\Jobs\SendResetPasswordMail($this,$token));  
+       
+    }
 
     public function profile() 
 	{

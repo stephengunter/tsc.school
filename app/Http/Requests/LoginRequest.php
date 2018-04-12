@@ -32,7 +32,6 @@ class LoginRequest extends FormRequest
     {
         return [
             'email.required' => '必須填寫Email',
-
             'password.required' => '必須填寫密碼',
 
         ];

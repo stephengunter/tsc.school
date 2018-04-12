@@ -11,7 +11,7 @@
                 <div class="tile is-parent is-vertical">
                     <div class="title is-2">
                         {{ course.fullName }}
-                        <a href="#" class="button is-info is-outlined  is-focused" style="margin-top: 5px;" >
+                        <a href="#" @click.prevent="onSignup" class="button is-info is-outlined  is-focused" style="margin-top: 5px;" >
                             線上報名
                         </a>
                     
@@ -61,6 +61,12 @@ export default {
             type: Object,
             default: null
         },
+    },
+    methods:{
+        onSignup(){
+            this.$emit('signup' , this.course.id);
+        }
+        
     },
     
     

@@ -43,6 +43,12 @@ window.Form = Form;
 import Course from './models/course';
 window.Course=Course;
 
+import User from './models/user';
+window.User=User;
+
+import Signup from './models/signup';
+window.Signup=Signup;
+
 // import Menus from './models/menus';
 // import Term from './models/term';
 // import Teacher from './models/teacher';
