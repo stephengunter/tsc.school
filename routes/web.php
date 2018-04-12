@@ -49,8 +49,6 @@ Route::group(['middleware' => 'auth'], function()
 
 
 
-Route::get('/manage/SeedDiscountCenters', 'CentersController@seedDiscountCenters');
-
 Route::get('/manage/login', 'SessionsController@create')->name('manage-login');
 Route::post('/manage/login', 'SessionsController@store');
 Route::post('manage/logout', 'SessionsController@destroy');
