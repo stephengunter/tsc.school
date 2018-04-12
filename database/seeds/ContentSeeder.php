@@ -2,7 +2,6 @@
 
 use App\Content;
 use Illuminate\Database\Seeder;
-use File;
 
 class ContentSeeder extends Seeder {
     
@@ -13,7 +12,7 @@ class ContentSeeder extends Seeder {
 			[
 				'key' => 'about',
 				'title'=> '單位理念',
-				'content'=> File::get(storage_path($path . '單位理念.html')),
+				'content'=> \File::get(storage_path($path . '單位理念.html')),
 				'active' => 1,
                 'importance' => 30,
                 'reviewed' => true
@@ -22,7 +21,7 @@ class ContentSeeder extends Seeder {
 			[
 				'key' => 'about',
 				'title'=> '校本部簡介',
-				'content'=> File::get(storage_path($path . '校本部簡介.html')),
+				'content'=> \File::get(storage_path($path . '校本部簡介.html')),
 				'active' => 1,
 				'importance' => 25,
                 'reviewed' => true
@@ -30,7 +29,7 @@ class ContentSeeder extends Seeder {
 			[
 				'key' => 'about',
 				'title'=> '設置辦法',
-				'content'=> File::get(storage_path($path . '設置辦法.html')),
+				'content'=> \File::get(storage_path($path . '設置辦法.html')),
 				'active' => 1,
 				'importance' => 22,
                 'reviewed' => true
@@ -39,7 +38,7 @@ class ContentSeeder extends Seeder {
 			[
 				'key' => 'faq',
 				'title'=> '報名須知',
-				'content'=> File::get(storage_path($path . '報名須知.html')),
+				'content'=> \File::get(storage_path($path . '報名須知.html')),
 				'active' => 1,
 				'importance' => 30,
                 'reviewed' => true

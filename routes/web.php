@@ -79,6 +79,11 @@ Route::group(['middleware' => 'admin'], function()
     Route::get('/manage/SeedSignups', 'SignupsController@seed');
     Route::get('/manage/SeedBills', 'SignupsController@seedBills');
 
+    Route::get('/manage/SeedContents', function () {
+       
+    
+    });
+
 
     Route::resource('/manage/change-password', 'ChangePasswordController',['only' => ['index','store']]);
     
