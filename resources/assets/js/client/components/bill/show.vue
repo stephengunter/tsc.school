@@ -1,30 +1,7 @@
 <template>
 <div v-if="signup">
     <div>
-        <div class="columns">
-            <div class="column" >
-                <label class="label label-title">姓名</label>
-                <p v-text="signup.user.profile.fullname"></p>                      
-            </div>
-            <div class="column" >
-                <label class="label label-title">報名日期</label>
-                <p>
-                    {{ signup.date }}
-                </p>                   
-            </div>
-            <div class="column" >
-                <label class="label label-title">網路報名</label>
-                <p>
-                    <i v-if="isTrue(signup.net)" class="fa fa-check-circle" style="color:green"></i>
-                </p>    
-            </div>
-            <div class="column" >
-                <label class="label label-title">狀態</label>
-                <p v-html="$options.filters.signupStatusLabel(signup.status)" >
-                   
-                </p>    
-            </div>
-        </div>  <!-- End row--> 
+        
         <div class="columns">
             <div class="column" >
                 
@@ -76,7 +53,7 @@
 
 <script>
     export default {
-        name: 'ShowSignup', 
+        name: 'ShowBill', 
         props: {
             signup: {
               type: Object,

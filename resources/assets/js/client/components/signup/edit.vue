@@ -2,9 +2,10 @@
     <form v-if="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
 		<div class="field">
 			
-			<signup-create-inputs  :form="form" :identity_options="identity_options" >
+			<signup-edit-inputs  :form="form" :identity_options="identity_options"
+				@remove-detail="onRemoveDetail" >
 			
-			</signup-create-inputs> 
+			</signup-edit-inputs> 
 
 			<submit-buttons :form="form"  :submitting="submitting"
 			@cancel="cancel">
@@ -17,7 +18,7 @@
 </template>
 
 <script>
-import SignupCreateInputs from './create-inputs.vue';
+import SignupEditInputs from './edit-inputs.vue';
 import SubmitButtons from './submit-buttons.vue'
 
 export default {
@@ -33,7 +34,7 @@ export default {
 		},
 	},
 	components: {
-		'signup-create-inputs':SignupCreateInputs,
+		'signup-edit-inputs':SignupEditInputs,
 		'submit-buttons':SubmitButtons
 	},
 	data(){
@@ -45,20 +46,32 @@ export default {
 	},
 	computed:{
 		isCreate(){
-			if(!this.form) return true;
-			if(!this.form.signup.id) return true;
-			return  parseInt(this.form.signup.id) < 1 ;
+		
+			return  this.getId() < 1 ;
 		}
 	},
 	beforeMount() {
 		
 	}, 
 	methods:{
+		getId(){
+			if(!this.form) return 0;
+			if(!this.form.signup) return 0;
+		    if(!this.form.signup.id) return 0;
+			return  parseInt(this.form.signup.id) ;
+		},
 		cancel(){
 			this.$emit('cancel');
 		},
 		init(){
 			this.fetchData();
+		},
+		onRemoveDetail(item){
+			let courseId=item.courseId;
+            let index=this.form.signup.details.findIndex((detail) =>{
+                return detail.courseId==courseId;
+            });
+            this.form.signup.details.splice(index, 1);
 		},
 		onSubmit(){
 			this.submitting=true;
@@ -66,10 +79,10 @@ export default {
 
 			this.form.signup.user= { ...this.form.user };
 
-		
+		   
 			
 			if(this.isCreate) save=Signup.store(this.form); 
-			else  save=Signup.update(this.id,this.form);
+			else  save=Signup.update(this.getId(),this.form);
 
 			save.then(() => {
 					this.submitting=false;

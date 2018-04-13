@@ -132,6 +132,7 @@ class Course extends Model
     public function loadClassTimes()
     {
         foreach($this->classTimes as $classTime){
+            $classTime->weekday;
             $classTime->timeString();
         }
     }

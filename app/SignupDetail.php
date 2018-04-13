@@ -14,12 +14,15 @@ class SignupDetail extends Model
 
     public static function init(Course $course)
 	{
+        $course->fullName();
+        $course->loadClassTimes();
 		return [
           
             'courseId' => $course->id,
 			'tuition' => $course->tuition,
             'cost' => $course->cost,
             
+            'course' => $course
 		];
 	}	
    

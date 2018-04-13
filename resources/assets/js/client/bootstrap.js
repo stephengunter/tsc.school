@@ -49,6 +49,9 @@ window.User=User;
 import Signup from './models/signup';
 window.Signup=Signup;
 
+import Bill from './models/bill';
+window.Bill=Bill;
+
 // import Menus from './models/menus';
 // import Term from './models/term';
 // import Teacher from './models/teacher';

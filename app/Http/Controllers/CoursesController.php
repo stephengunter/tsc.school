@@ -135,6 +135,21 @@ class CoursesController extends Controller
         return  $options;
     }
 
+    function canSignup(Course $course,User $user)
+    {
+        //User報名過的課程記錄
+        $coursesSignupedIds = [];
+        $userSignupDetailRecords = $this->signups->getSignupDetailsByUser($user);
+        
+        $coursesSignupedIds = $userSignupDetailRecords->pluck('courseId')->toArray();
+        
+        if (in_array($selectedCourse->id, $coursesSignupedIds)){
+            return false;
+        }
+
+        return true;
+    }
+
     
 
     public function index()

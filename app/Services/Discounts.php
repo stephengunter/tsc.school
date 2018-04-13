@@ -64,21 +64,19 @@ class Discounts
     public function findBestDiscount(Center $center, Term $term, array $identityIds, bool $lotus, int $courseCount)
     {
         $validDiscounts = [];
-
-        if ($lotus)
-        {
-            $lotusDiscount = $this->getLotusDiscount($center);
-            if ($lotusDiscount && $lotusDiscount->active)
-            {
-                array_push($validDiscounts , $lotusDiscount); //中信蓮花卡優惠
-            }
-        }
-
-            
+       
+        $lotusDiscount = $this->getLotusDiscount($center);
+          
 		//此中心擁有的折扣
         $discountsInCenter = $center->discounts;
         $discountsInCenter = $discountsInCenter->where('active',true)->where('min','<=', $courseCount);
-		foreach ($discountsInCenter as $discountInCenter)
+       
+        if (!$lotus)
+        {
+            $discountsInCenter =$discountsInCenter->where('id','!=',$lotusDiscount->id);
+        }
+        
+        foreach ($discountsInCenter as $discountInCenter)
         {
             //是否需要身分
             $needIdentityIds = $discountInCenter->identities->pluck('id')->toArray();
@@ -95,10 +93,15 @@ class Discounts
             
         }	
 
+        
+
+      
+      
         $validDiscounts = collect($validDiscounts);
 
         //是否在早鳥優惠截止前
         $canBird = $term->canBird(Carbon::today());
+        
         if ($canBird)
         {
             //按照第一階段折扣排序

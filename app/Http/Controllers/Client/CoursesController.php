@@ -8,10 +8,12 @@ use Illuminate\Http\Request;
 use App\Course;
 use App\Center;
 use App\Category;
+use App\User;
 use App\Services\Terms;
 use App\Services\Courses;
 use App\Services\Centers;
 use App\Services\Categories;
+use App\Services\Signups;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -20,11 +22,11 @@ use Illuminate\Support\Facades\Input;
 class CoursesController extends Controller
 {
     
-    public function __construct(Courses $courses, 
+    public function __construct(Courses $courses, Signups $signups,
         Terms $terms,Centers $centers,Categories $categories)
     {
         $this->courses=$courses;
-     
+        $this->signups=$signups;
         $this->terms=$terms;
         $this->centers=$centers;
         $this->categories=$categories;
@@ -118,7 +120,20 @@ class CoursesController extends Controller
     }
 
     
+    function canSignup(Course $course,User $user)
+    {
+        //User報名過的課程記錄
+        $coursesSignupedIds = [];
+        $userSignupDetailRecords = $this->signups->getSignupDetailsByUser($user);
+        
+        $coursesSignupedIds = $userSignupDetailRecords->pluck('courseId')->toArray();
+        
+        if (in_array($course->id, $coursesSignupedIds)){
+            return false;
+        }
 
+        return true;
+    }
 
    
     
@@ -206,9 +221,8 @@ class CoursesController extends Controller
         $categoryOptions = $this->setCategoryOptions($categoryOptions,$course->center,$selectedCategory);
         
 
-        // $course->canEdit = $this->canEdit($course);
-        // $course->canReview =$this->canReview($course);
-        // $course->canDelete = $this->canDelete($course);
+        $course->canSignup = $this->canSignup($course,$this->currentUser());
+      
 
         $model=[
             'title' => $course->center->name . ' - ' . $course->fullName,

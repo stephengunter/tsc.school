@@ -538,6 +538,8 @@ class SignupsController extends Controller
         $signup->canEdit = $this->canEdit($signup);
         $signup->canDelete = $this->canDelete($signup);
 
+        
+
         return response() ->json($signup);
         
     }

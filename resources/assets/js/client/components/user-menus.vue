@@ -9,13 +9,13 @@
         </a>
         <div slot="content" class="menu-list">
            
-            <a v-if="false" href="#" @click.prevent="onLogout">  
-                <i class="fa fa-sign-out fa-fw" aria-hidden="true"></i>
-                登出
+            <a href="/signups" >  
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                報名紀錄
             </a>
         
         
-            <hr v-if="false"  class="dropdown-divider" style="margin: 5px 0;">
+            <hr class="dropdown-divider" style="margin: 5px 0;">
 
             <a href="#" @click.prevent="onLogout">  
                 <i class="fa fa-sign-out fa-fw" aria-hidden="true"></i>

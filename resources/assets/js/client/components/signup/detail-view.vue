@@ -37,7 +37,7 @@
                     <row v-for="(item,index) in signup.details" :key="index"
                       :can_edit="canRemove" :model="item" 
                      
-                      @delete="onDelete">
+                      @remove="onDelete">
                     </row>
                 </tbody>
             
@@ -73,10 +73,8 @@
         },
         data() {
             return {
-               
 
                 signup:null,
-
               
             }
         },
@@ -102,7 +100,7 @@
                 this.signup={
                     ...this.model
                 };
-                this.creating=false;
+               
             },
             onAdd(){
                 this.$emit('add-detail');

@@ -61,6 +61,40 @@ class Signups
         
     }
 
+    public function updateSignup(Signup $signup, array $details)
+    {
+        if(!$signup->tuitions)   abort(500, '報名表課程費用錯誤');
+        
+        DB::transaction(function() use($signup,$details) {
+            
+            $ids= array_map(function($item){
+                if($item['id']) return $item['id'];
+                return 0;
+            },$details);
+
+            SignupDetail::where('signupId',$signup->id)->whereNotIn('id',$ids)->delete();
+
+            
+            
+            $newDetails=array_filter($details,function($item){
+                return !$item['id'];
+            });
+
+            $signup->save();
+            $signup->details()->saveMany($newDetails);
+
+            $signup->bill->update([
+                'amount' => $signup->amount(),
+                'deadLine' => Carbon::today()->addDays(10)
+            ]);
+
+            
+        });
+        
+    }
+
+    
+
     function initBill(Signup $signup)
     {
         $date = Carbon::today();
@@ -152,6 +186,8 @@ class Signups
        
 		return SignupDetail::whereIn('signupId',$recordIds);
     }
+
+    
 
     public function statusOptions()
     {

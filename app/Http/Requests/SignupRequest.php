@@ -61,6 +61,12 @@ class SignupRequest extends FormRequest
         
     }
 
+    public function getSignupDetails()
+    {
+        return $this->getSignupValues()['details'];
+       
+    }
+
     public function getUserValues()
     {
         return $this->get('user');

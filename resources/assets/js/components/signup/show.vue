@@ -52,9 +52,9 @@
         <div class="row" >
             <div  class="col-sm-6">
                 <label class="label-title">折扣</label>
-                <p>
+                <p v-if="hasDiscount">
                     {{ signup.discount }} 
-                    <span v-if="signup.points">
+                    <span>
                         &nbsp; {{ signup.pointsText }}
                     </span>  
                 </p>                      
@@ -105,7 +105,9 @@
             }
         },
         computed:{
-            
+            hasDiscount(){
+                return Signup.hasDiscount(this.signup);
+            },
             hasReviewedBy(){
                 if(!this.signup) return false;
                 if(!this.signup.reviewedBy) return false;

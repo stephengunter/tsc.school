@@ -9,9 +9,14 @@
         <td> {{ model.course.tuition | formatMoney }}  </td>
         <td> {{ model.course.cost | formatMoney }}  </td>
         <td v-if="can_edit" >
-            <button @click.prevent="onRemove" class="btn btn-xs btn-danger">
-                <i class="fa fa-trash"></i> 
+            <button @click.prevent="onRemove" class="button is-small is-danger" >
+                <span class="icon is-small" style="vertical-align:middle;">
+                    <i class="fa fa-trash"></i> 
+                </span>
+                <span>刪除</span>
+                
             </button>
+            
         </td>
     </tr>
 </template>
@@ -39,7 +44,7 @@
             }
         },
         computed:{
-            
+           
            
         },
         beforeMount(){
@@ -50,8 +55,8 @@
                
             },
             onRemove(){
-                
-                this.$emit('delete',this.model);
+              
+                this.$emit('remove',this.model);
             },
                 
         }

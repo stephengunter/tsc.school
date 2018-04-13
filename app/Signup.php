@@ -64,10 +64,29 @@ class Signup extends Model
 		return $this->hasOne(Bill::class,'signupId');
     }
 
+    public function pointsText()
+    {
+        $points=(int)$this->points;
+        if($points==100) return '';
+        if($points==0) return '';
+
+        if($points % 10 == 0){
+            return $points/10 . '折';
+        }
+
+        return $points . '折';
+
+
+    }
+
     public function loadViewModel()
     {
         $this->getDate();
         $this->amount=$this->amount();
+
+        $this->pointsText=$this->pointsText();
+
+
         foreach($this->details as $signupDetail){
             $signupDetail->course->fullName();
         } 

@@ -1,7 +1,7 @@
 <template>
     
     <div id="signup">
-        <div v-if="signup" style="margin:35px;">
+        <div v-if="signup" style="margin:50px;">
             <div class="row text-center" >
                 <h3>慈濟大學社會教育推廣中心課程繳費單</h3>
             </div>

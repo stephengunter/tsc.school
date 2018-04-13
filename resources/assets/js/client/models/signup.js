@@ -201,6 +201,14 @@ class Signup {
       
         return  names.join().replace(',','<br>');
     }
+
+    static hasDiscount(signup)
+    {
+        let points= Helper.tryParseInt(signup.points);
+        if(!points) return false;
+        if(points==100) return false;
+        return true;
+    }
  
     
  }

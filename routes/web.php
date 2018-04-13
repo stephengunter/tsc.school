@@ -40,6 +40,9 @@ Route::group(['middleware' => 'auth'], function()
     Route::get('/user/password/change', '\App\Http\Controllers\Client\UserController@showChangePasswordForm');
     Route::post('/user/password/change', '\App\Http\Controllers\Client\UserController@changePassword');
     Route::resource('/signups', '\App\Http\Controllers\Client\SignupsController');
+    Route::resource('/bills', '\App\Http\Controllers\Client\BillsController');
+
+    
 
 });
 

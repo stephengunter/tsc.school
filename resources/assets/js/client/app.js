@@ -6,7 +6,8 @@ import vSelect from 'vue-select'
 Vue.component('v-select', vSelect);
 
 Vue.component('datetime-picker', require('./packages/components/DateTimePicker'));
-
+Vue.component('check-box', require('../packages/components/Checkbox'));
+Vue.component('check-box-list', require('../packages/components/CheckboxList'));
 
 import VueBarcode from '@xkeshi/vue-barcode';
 Vue.component('barcode', VueBarcode);
@@ -36,6 +37,8 @@ Vue.component('user-profile-view', require('./views/users/profile'));
 
 Vue.component('signup-index-view', require('./views/signups/index'));
 Vue.component('signup-edit-view', require('./views/signups/edit'));
+
+Vue.component('bill-edit-view', require('./views/bills/edit'));
 
 Vue.component('test', require('./views/test'));
 

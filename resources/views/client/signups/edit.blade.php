@@ -28,13 +28,13 @@ new Vue({
     beforeMount() {
         let signup = {!! json_encode($signup) !!};
         let user = {!! json_encode($user) !!};
-        let courseIds = {!! json_encode($courseIds) !!};
+       
       
         let identityIds = {!! json_encode($identityIds) !!};
         let lotus = {!! json_encode($lotus) !!};
 
         this.identityOptions = {!! json_encode($identityOptions) !!};
-
+         
         this.form = new Form({
 							signup:{
 								...signup
@@ -43,9 +43,11 @@ new Vue({
 								...user
 							},
 							lotus:lotus,
-							courseIds:courseIds.slice(0),
-							identityIds:identityIds.slice(0)
+							
+							identityIds:identityIds.map(item=> parseInt(item))
 						});
+
+
                
     },
     mounted(){

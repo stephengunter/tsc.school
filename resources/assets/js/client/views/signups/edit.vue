@@ -7,7 +7,7 @@
         </div>
         <div class="columns" style="padding-top:1em">
             <signup-edit :form="form" :identity_options="identity_options"
-               @cancel="onCancel">
+               @saved="onSaved" @cancel="onCancel">
 
             </signup-edit>
         </div>
@@ -52,8 +52,9 @@
                 window.location='/signups';
             },
             onSaved(signup){
-               
-                this.$emit('saved',signup);    
+              
+                window.location='/signups';
+                
             }
             
             
