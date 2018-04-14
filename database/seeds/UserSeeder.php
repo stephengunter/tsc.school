@@ -92,7 +92,8 @@ class UserSeeder extends Seeder
                 'gender' => ( $i %2 == 0 ),
             ]);
 
-            $user=$this->users->createUser($user,$profile);
+			$user=$this->users->createUser($user,$profile);
+			
             
             $address=new Address([
                 'districtId' => array_rand($districts, 1),

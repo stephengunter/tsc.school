@@ -70,6 +70,11 @@ class User extends Authenticatable
 		return $this->hasOne(Teacher::class,'userId');
     }
 
+    public function volunteer() 
+	{
+		return $this->hasOne(Volunteer::class,'userId');
+    }
+
     public function signups() 
 	{
 		return $this->hasMany('App\Signup','userId');

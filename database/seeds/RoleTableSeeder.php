@@ -14,7 +14,7 @@ class RoleTableSeeder extends Seeder {
 			],
 			[
 				'name' => 'Boss',
-					'title' => '主管',
+				'title' => '主管',
 
 			],
 			[
@@ -29,6 +29,11 @@ class RoleTableSeeder extends Seeder {
 			[
 				'name' => 'Student',
 				'title' => '學生',
+			],
+
+			[
+				'name' => 'Volunteer',
+				'title' => '志工',
 			],
 
 		];

@@ -65,7 +65,9 @@ class Bills
            
             $signup->save();
           
-		});
+        });
+        
+        return $bill;
     }
 
     function initBill(Signup $signup)

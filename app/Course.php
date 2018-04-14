@@ -99,6 +99,10 @@ class Course extends Model
 	{
 		return $this->hasMany('App\ClassTime','courseId');
     }
+    public function lessons() 
+	{
+		return $this->hasMany('App\Lesson','courseId');
+    }
 
     public function students() 
 	{

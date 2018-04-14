@@ -54,13 +54,8 @@
 
 			},
             methods: {
-                onSelected(id,group) {
+                onSelected(id) {
                     this.selected = id;
-                  
-                },
-                beginImport() {
-
-                    this.importing = true;
                 },
                 backToIndex() {
                     this.version += 1;

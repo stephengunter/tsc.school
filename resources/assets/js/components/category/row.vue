@@ -35,7 +35,7 @@
         <td>{{  category.code }}</td>
         <td>{{  category.name }}</td>
         <td>
-            <span v-if="category.top" class="label label-warning"> 置頂 </span>
+            <span v-if="isTop(category)" class="label label-warning"> 置頂 </span>
         </td>
         
         <td v-if="can_order" >
@@ -97,6 +97,9 @@
         methods: {
             init() {
                
+            },
+            isTop(category){
+                return Helper.isTrue(category.top);
             },
             beginEdit() {
                 this.$emit('edit',this.category);

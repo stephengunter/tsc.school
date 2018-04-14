@@ -12,6 +12,7 @@ use App\Address;
 use App\Area;
 use App\City;
 use App\Services\Centers;
+use App\Services\Files;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -20,19 +21,21 @@ use Illuminate\Support\Facades\Input;
 class CentersController extends Controller
 {
     
-    public function __construct(Centers $centers)
+    public function __construct(Centers $centers,Files $files)
     {
         $this->centers=$centers;
-     
+        $this->files=$files;
     }
 
     function canEdit()
     {
-        return $this->currentUserIsDev();
+        if($this->currentUserIsDev()) return true;
+        return $this->currentUser->admin->isHeadCenterAdmin();
     }
     function canImport()
     {
         return $this->currentUserIsDev();
+        return $this->currentUser->admin->isHeadCenterAdmin();
     }
    
     function areaOptions()
@@ -85,6 +88,8 @@ class CentersController extends Controller
                 $westCenter->discounts()->attach($discount->id);
             }
         }
+
+        dd('done');
     }
     
     public function index()
@@ -264,6 +269,34 @@ class CentersController extends Controller
 
         return response() ->json();
 
+       
+    }
+
+    public function upload(Request $form)
+    {
+        if(!$this->canImport()){
+            return $this->unauthorized();
+        }
+
+        $errors=[];
+      
+        if(!$form->hasFile('file')){
+            $errors['msg'] = ['無法取得上傳檔案'];
+        } 
+
+        if($errors) return $this->requestError($errors);
+
+        $type=$form['type'];
+        if(!$type) abort(500);
+
+        $file=Input::file('file');  
+
+       
+
+        $this->files->saveUploadsData($file,$type);
+
+        return response() ->json();
+        
        
     }
 }

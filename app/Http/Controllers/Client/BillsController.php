@@ -4,23 +4,14 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 
-use App\User;
-use App\Profile;
-use App\Role;
-use App\Term;
-use App\Center;
-use App\Course;
 use App\Signup;
-use App\SignupDetail;
+use App\Bill;
+use App\Student;
 
 use App\Services\Signups;
 use App\Services\Bills;
-use App\Services\Users;
-use App\Services\Terms;
-use App\Services\Centers;
-use App\Services\Courses;
-use App\Services\Discounts;
-use App\Http\Requests\SignupRequest;
+use App\Services\Students;
+use App\Http\Requests\BillRequest;
 
 use App\Core\PagedList;
 use App\Core\Helper;
@@ -28,18 +19,14 @@ use DB;
 
 class BillsController extends Controller
 {
-    public function __construct(Signups $signups, Discounts $discounts, Bills $bills,
-     Users $users,Terms $terms,Centers $centers,Courses $courses)        
+    public function __construct(Signups $signups, Bills $bills, Students $students)        
     {
         $this->signups=$signups;
         $this->bills=$bills;
-        $this->discounts=$discounts;
-        $this->users=$users;
-      
-        $this->terms=$terms;
-        $this->centers=$centers;
-        $this->courses=$courses;
+     
+        $this->students=$students;
     }
+
 
 
     public function show($id)
@@ -67,6 +54,22 @@ class BillsController extends Controller
         ];
 
         return view('client.bills.show')->with($model);
+    }
+
+
+    //銀行回傳資料用
+    public function store(BillRequest $request)
+    {
+        $code='';
+        $amount='';
+        $payway='';
+
+        $bill=$this->bills->payBill($code, $amount, $payway);
+
+        $this->students->createStudent($bill->signup->courseId, $bill->signup->userId);
+      
+        return response()->json();
+       
     }
 
    

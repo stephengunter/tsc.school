@@ -20,6 +20,7 @@ use App\Services\Categories;
 use App\Services\Teachers;
 use App\Services\TeacherGroups;
 use App\Services\CourseInfoes;
+use App\Services\Files;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -29,7 +30,7 @@ class CoursesController extends Controller
 {
     
     public function __construct(Courses $courses, Teachers $teachers,TeacherGroups $teacherGroups,
-        Terms $terms,Centers $centers,Categories $categories,CourseInfoes $courseInfoes)
+        Terms $terms,Centers $centers,Categories $categories,CourseInfoes $courseInfoes, Files $files)
     {
         $this->courses=$courses;
         $this->teachers=$teachers;
@@ -38,6 +39,7 @@ class CoursesController extends Controller
         $this->centers=$centers;
         $this->categories=$categories;
         $this->courseInfoes=$courseInfoes;
+        $this->files=$files;
     }
 
     function canEdit($course)
@@ -47,6 +49,19 @@ class CoursesController extends Controller
       
         $centersCanAdmin= $this->centersCanAdmin();
         $intersect = $centersCanAdmin->intersect($course->centers);
+
+        if(count($intersect)) return true;
+        return false;
+
+    }
+
+    function canEditCenter(Center $center)
+    {
+        if($this->currentUserIsDev()) return true;
+        
+      
+        $centersCanAdmin= $this->centersCanAdmin();
+        $intersect = $centersCanAdmin->intersect([$center]);
 
         if(count($intersect)) return true;
         return false;
@@ -587,6 +602,39 @@ class CoursesController extends Controller
 
         return response() ->json();
 
+       
+    }
+
+    public function upload(Request $form)
+    {
+        if(!$this->canImport()){
+            return $this->unauthorized();
+        }
+        
+        $errors=[];
+      
+        if(!$form->hasFile('file')){
+            $errors['msg'] = ['無法取得上傳檔案'];
+        } 
+
+        if($errors) return $this->requestError($errors);
+
+        $type=$form['type'];
+        if(!$type) abort(500);
+
+        $file=Input::file('file');  
+
+        $center = Center::findOrFail($form['center']);  
+
+        $canEdit = $this->canEditCenter($center);
+        if(!$canEdit) return $this->unauthorized();
+
+        $term = Term::findOrFail($form['term']);  
+
+        $this->files->saveUploadsData($file,$type,$center,$term);
+
+        return response() ->json();
+        
        
     }
 }

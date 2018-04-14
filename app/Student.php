@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     protected $fillable = [
-        'status', 'userId', 'courseId' , 
+        'status', 'userId', 'courseId' , 'score',
         'updatedBy'
     ];
 
@@ -26,4 +26,9 @@ class Student extends Model
 		return $this->hasOne('App\Course', 'id' ,'courseId');
     }
 
+    public function  loadViewModel()
+    {
+        $this->course->fullName();
+        $this->user->loadContactInfo();
+    }
 }

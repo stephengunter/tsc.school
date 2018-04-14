@@ -12,7 +12,7 @@ class Teacher extends Model
         'experiences','education','certificate','specialty',
         'job','jobtitle','description','reviewed','reviewedBy',
        
-        'active', 'removed', 'updatedBy', 'joinDate'
+        'active', 'removed', 'updatedBy', 'joinDate','ps'
     
     ];
        

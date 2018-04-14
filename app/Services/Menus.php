@@ -58,11 +58,11 @@ class Menus
                         'path' => '/manage/courses',
                         'active' => $current =='manage/courses'
                     ],
-                    // [
-                    //     'text' => '學員管理',
-                    //     'path' => '/manage/students',
-                    //     'active' => $current=='manage/students'
-                    // ]
+                    [
+                        'text' => '學員管理',
+                        'path' => '/manage/students',
+                        'active' => $current=='manage/students'
+                    ]
                 );
         } 
         if($key=='SignupsAdmin'){

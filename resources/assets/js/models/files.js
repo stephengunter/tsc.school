@@ -8,7 +8,7 @@ class Files {
     }
  
     static source() {
-        return '/files';
+        return '/manage/files';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;
@@ -32,6 +32,10 @@ class Files {
         return this.source() + '/review';
     }
 
+    static downloadUrl(filename){
+        return `${this.source()}/download/${filename}`;
+    }
+
     static show(id) {
         return new Promise((resolve, reject) => {
             let url = this.showUrl(id)
@@ -47,7 +51,7 @@ class Files {
     }
 
     static upload(form){
-        let url = this.source() + '/upload';
+        let url = this.source();
         return new Promise((resolve, reject) => {
             axios.post(url, form)
                 .then(response => {

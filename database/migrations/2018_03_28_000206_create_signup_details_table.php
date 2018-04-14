@@ -16,6 +16,9 @@ class CreateSignupDetailsTable extends Migration
         Schema::create('signupDetails', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('signupId')->unsigned();
+            $table->foreign('signupId')->references('id')->on('signups')->onDelete('cascade');
+
+
             $table->integer('courseId')->unsigned();
 			
             $table->decimal('tuition', 8, 2);  

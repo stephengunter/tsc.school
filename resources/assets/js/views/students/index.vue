@@ -163,7 +163,7 @@
                 this.$emit('create',this.params.course);
             },
             onSelected(id){
-            //    this.$emit('selected',id , this.isGroup);
+                this.$emit('selected',id);
             },
             onTermSelected(item){
                 this.params.term=item.value;

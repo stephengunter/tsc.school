@@ -34,7 +34,7 @@ class CreateTeachersTable extends Migration
             $table->integer('reviewedBy')->unsigned()->nullable();
 			
 			$table->date('joinDate')->nullable();
-
+            $table->string('ps')->nullable();
 			$table->integer('updatedBy')->unsigned()->nullable();
 			
 			$table->timestamps();

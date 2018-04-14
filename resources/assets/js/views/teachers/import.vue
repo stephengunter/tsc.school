@@ -186,7 +186,7 @@
                 form.append('type', this.getFileName());
                 form.append('center', this.center);
 
-                let store=Files.upload(form);
+                let store=Teacher.upload(form);
                 
                 store.then(result => {
                        
@@ -196,7 +196,7 @@
                     })
                     .catch(error => {
                         
-                        let msg =Helper.getErrorMsg(error);
+                        let msg =error.response.data.errors.msg[0];
                         if(msg){
                             this.err_msg=msg;
                             
@@ -204,7 +204,7 @@
                             Helper.BusEmitError(error);
                         }
 
-                        this.loading=false
+                        this.loading=false;
                     })
             },
             onTermSelected(term){
@@ -216,8 +216,8 @@
             },
             onDownload(){
               
-                window.open(`/files/Download/${this.getFileName()}`);
-                
+                let url=Files.downloadUrl(this.getFileName());
+                window.open(url);
             },
             getFileName(){
                 if(this.group)  return 'group_teachers';

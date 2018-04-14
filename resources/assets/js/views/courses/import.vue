@@ -208,7 +208,7 @@
                 form.append('term', this.term);
                 form.append('center', this.center);
 
-                let store=Files.upload(form);
+                let store=Course.upload(form);
                 
                 store.then(result => {
                        
@@ -217,8 +217,8 @@
                         this.$emit('imported');
                     })
                     .catch(error => {
-                        
-                        let msg =Helper.getErrorMsg(error);
+                       
+                        let msg =error.response.data.errors.msg[0];
                         if(msg){
                             this.err_msg=msg;
                             
@@ -226,7 +226,8 @@
                             Helper.BusEmitError(error);
                         }
 
-                        this.loading=false
+                        this.loading=false;
+                       
                     })
             },
             onTermSelected(term){
@@ -237,8 +238,8 @@
                   this.center=center.value;
             },
             onDownload(){
-              
-                window.open(`/files/Download/${this.getFileName()}`);
+                let url=Files.downloadUrl(this.getFileName());
+                window.open(url);
                 
             },
             getFileName(){

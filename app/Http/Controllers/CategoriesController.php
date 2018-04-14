@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CategoryRequest;
 use App\Category;
 use App\Services\Categories;
+use App\Services\Files;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -15,9 +16,10 @@ use Illuminate\Support\Facades\Input;
 class CategoriesController extends Controller
 {
     
-    public function __construct(Categories $categories)
+    public function __construct(Categories $categories,Files $files)
     {
         $this->categories=$categories;
+        $this->files=$files;
      
     }
 
@@ -144,4 +146,34 @@ class CategoriesController extends Controller
 
        
     }
+
+    public function upload(Request $form)
+    {
+        if(!$this->canImport()){
+            return $this->unauthorized();
+        }
+
+        $errors=[];
+      
+        if(!$form->hasFile('file')){
+            $errors['msg'] = ['無法取得上傳檔案'];
+        } 
+
+        if($errors) return $this->requestError($errors);
+
+        $type=$form['type'];
+        if(!$type) abort(500);
+
+        $file=Input::file('file');  
+
+       
+
+        $this->files->saveUploadsData($file,$type);
+
+        return response() ->json();
+        
+       
+    }
+
+
 }

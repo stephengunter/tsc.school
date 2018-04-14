@@ -14,6 +14,7 @@ use App\Role;
 use App\Services\Admins;
 use App\Services\Users;
 use App\Services\Centers;
+use App\Services\Files;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -22,11 +23,12 @@ use Illuminate\Support\Facades\Input;
 class AdminsController extends Controller
 {
     
-    public function __construct(Admins $admins, Users $users,Centers $centers)
+    public function __construct(Admins $admins, Users $users,Centers $centers,Files $files)
     {
         $this->admins=$admins;
         $this->users=$users;
         $this->centers=$centers;
+        $this->files=$files;
     }
 
     function canEdit($admin)
@@ -42,7 +44,18 @@ class AdminsController extends Controller
 
 
     }
+    function canEditCenter(Center $center)
+    {
+        if($this->currentUserIsDev()) return true;
+        
+      
+        $centersCanAdmin= $this->centersCanAdmin();
+        $intersect = $centersCanAdmin->intersect([$center]);
 
+        if(count($intersect)) return true;
+        return false;
+
+    }
     function canDelete($admin)
     {
         return $this->canEdit($admin);
@@ -377,6 +390,39 @@ class AdminsController extends Controller
 
         return response() ->json();
 
+       
+    }
+
+    public function upload(Request $form)
+    {
+        if(!$this->canImport()){
+            return $this->unauthorized();
+        }
+        
+        $errors=[];
+      
+        if(!$form->hasFile('file')){
+            $errors['msg'] = ['無法取得上傳檔案'];
+        } 
+
+        if($errors) return $this->requestError($errors);
+
+        $type=$form['type'];
+        if(!$type) abort(500);
+
+        $file=Input::file('file');  
+
+        $center = Center::findOrFail($form['center']);  
+
+        $canEdit = $this->canEditCenter($center);
+        if(!$canEdit) return $this->unauthorized();
+
+       
+
+        $this->files->saveUploadsData($file,$type,$center);
+
+        return response() ->json();
+        
        
     }
 }

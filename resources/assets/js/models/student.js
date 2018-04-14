@@ -8,7 +8,7 @@ class Student {
     }
  
     static source() {
-        return '/students';
+        return '/manage/students';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;
@@ -137,21 +137,43 @@ class Student {
         })
     }
 
-    static getByUser(user){
+    static getStatusText(status){
+        status=parseInt(status);
        
-        let url = this.source() + `/GetByUser/${user}`;
-
-        return new Promise((resolve, reject) => {
-            axios.get(url)
-                .then(response => {
-                        resolve(response.data);
-                })
-                .catch(error => {
-                        reject(error);
-                })
-
-        })
+        if(status==1) return '正常';
+        if(status==0) return '已退出';
+        
     }
+    static getStatusStyle(status){
+        status=parseInt(status);
+        if(status==0) return 'default';
+        if(status==1) return 'info';
+
+        return ''
+    }
+
+    static statusLabel(status){
+        let text=this.getStatusText(status)
+        let style='label label-' + this.getStatusStyle(status)
+        
+        return `<span class="${style}" > ${text} </span>`
+    }
+
+    // static getByUser(user){
+       
+    //     let url = this.source() + `/GetByUser/${user}`;
+
+    //     return new Promise((resolve, reject) => {
+    //         axios.get(url)
+    //             .then(response => {
+    //                     resolve(response.data);
+    //             })
+    //             .catch(error => {
+    //                     reject(error);
+    //             })
+
+    //     })
+    // }
     
     
  

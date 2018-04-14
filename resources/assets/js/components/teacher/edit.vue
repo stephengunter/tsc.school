@@ -143,15 +143,6 @@ export default {
         setActive(val) {
             this.form.teacher.active = val;
         },
-        setOpenDate(val){
-            this.form.teacher.openDate=val;
-        },
-        setBirdDate(val){
-            this.form.teacher.birdDate=val;
-        },
-        setCloseDate(val){
-            this.form.teacher.closeDate=val;
-        },
 		onSubmit(){
 			this.submitting=true;
 

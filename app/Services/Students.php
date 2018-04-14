@@ -39,7 +39,8 @@ class Students
         $student=Student::create([
             'userId' => $userId,
             'courseId' => $courseId,
-            'status' => 1
+            'status' => 1,
+            'score' => 0
         ]);
 
         $user=User::find($userId);

@@ -57,12 +57,7 @@ class StudentsController extends Controller
         return false;
 
     }
-    function canDelete($student)
-    {
-        if($student->status>0) return false;
-        return $this->canEdit($student);
-
-    }
+   
     function canReview(Center $center)
     {
         if($this->currentUserIsDev()) return true;
@@ -75,26 +70,7 @@ class StudentsController extends Controller
         if(count($intersect)) return true;
         return false;
     }
-    
-
-    public function seed()
-    {
-        if(!$this->currentUserIsDev()) dd('權限不足');
-
-        $bills=\App\Bill::where('payed',true)->get();
-        foreach($bills as $bill){
-            $signup = \App\Signup::find($bill->signupId);
-            foreach ($signup->details as $detail)
-            {
-                $this->students->createStudent($detail->courseId, $signup->userId);
-            }
-        }
-
-          
-    }
-
    
-  
     public function index()
     {
         $request=request();
@@ -143,6 +119,8 @@ class StudentsController extends Controller
             if ($term) $selectedTerm = $this->terms->getById($term);
             else $selectedTerm =  $this->terms->getById($termOptions[0]['value']); 
 
+            
+
             if ($course)
             {
                 $selectedCourse =  $this->courses->getById($course);
@@ -158,15 +136,22 @@ class StudentsController extends Controller
 
         $courseOptions = $this->courses->options($selectedTerm,$selectedCenter);
 
+       
+
         if (!$selectedCourse  && count($courseOptions))
         {
             $selectedCourse = $this->courses->getById($courseOptions[0]['value']);
         }
 
+       
+
         $students = $this->students->getStudentsByCourse($selectedCourse); 
+       
         $students = $students->orderBy('status','desc');
 
         $pageList = new PagedList($students);
+
+       
        
         if($this->isAjaxRequest()){
             $model['model'] = $pageList;
@@ -188,16 +173,56 @@ class StudentsController extends Controller
 
     public function show($id)
     {
+       
         $student = $this->students->getById($id);
         if(!$student) abort(404);
+
+        
 
         $student->loadViewModel();
 
         $student->canEdit = $this->canEdit($student);
-        $student->canDelete = $this->canDelete($student);
 
         return response() ->json($student);
         
+    }
+
+    public function edit($id)
+    {
+        $student = $this->students->getById($id);
+        if(!$student) abort(404);
+
+        if(!$this->canEdit($student)) $this->unauthorized();
+
+       
+      
+        $form=[
+            'student' => $student
+
+        ];
+
+        return response()->json($form);
+       
+        
+    }
+
+    public function update(Request $request, $id)
+    {
+        $student = $this->students->getById($id);
+        if(!$student) abort(404);
+
+        if(!$this->canEdit($student)) $this->unauthorized();
+       
+        $values=$request->student;
+
+        $current_user=$this->currentUser();
+        $values['updatedBy'] = $current_user->id;
+
+        $student->update($values);
+
+       
+
+        return response() ->json();
     }
    
    

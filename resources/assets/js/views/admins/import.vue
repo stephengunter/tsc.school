@@ -157,8 +157,7 @@
                             Helper.BusEmitError(error);
                         }
 
-
-                        this.loading=false
+                        this.loading=false;
                     })
             },
             onCenterSelected(center){
@@ -175,7 +174,7 @@
                 form.append('type', this.getFileName());
                 form.append('center', this.center);
 
-                let store=Files.upload(form);
+                let store=Admin.upload(form);
                 
                 store.then(result => {
                        
@@ -185,7 +184,7 @@
                     })
                     .catch(error => {
                         
-                        let msg =Helper.getErrorMsg(error);
+                        let msg =error.response.data.errors.msg[0];
                         if(msg){
                             this.err_msg=msg;
                             
@@ -193,12 +192,13 @@
                             Helper.BusEmitError(error);
                         }
 
-                        this.loading=false
+                        this.loading=false;
                     })
             },
             onDownload(){
               
-                window.open(`/files/Download/${this.getFileName()}`);
+                let url=Files.downloadUrl(this.getFileName());
+                window.open(url);
                 
             },
             getFileName(){

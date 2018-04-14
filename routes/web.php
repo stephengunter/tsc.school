@@ -30,6 +30,9 @@ Route::get('/faq', '\App\Http\Controllers\Client\FaqController@index');
 Route::resource('/centers', '\App\Http\Controllers\Client\CentersController',['only' => ['index','show']]);
 Route::resource('/courses', '\App\Http\Controllers\Client\CoursesController',['only' => ['index','show']]);
 
+//銀行回傳資料
+Route::post('/bills', '\App\Http\Controllers\Client\BillsController@store');
+
 Route::group(['middleware' => 'auth'], function()
 {
   
@@ -40,8 +43,8 @@ Route::group(['middleware' => 'auth'], function()
     Route::get('/user/password/change', '\App\Http\Controllers\Client\UserController@showChangePasswordForm');
     Route::post('/user/password/change', '\App\Http\Controllers\Client\UserController@changePassword');
     Route::resource('/signups', '\App\Http\Controllers\Client\SignupsController');
-    Route::resource('/bills', '\App\Http\Controllers\Client\BillsController');
-
+  
+    Route::get('/bills/{id}', '\App\Http\Controllers\Client\BillsController@show');
     
 
 });
@@ -80,12 +83,7 @@ Route::group(['middleware' => 'admin'], function()
     //test
     Route::get('/manage/SeedDiscountCenters', 'CentersController@seedDiscountCenters');
     Route::get('/manage/SeedSignups', 'SignupsController@seed');
-    Route::get('/manage/SeedBills', 'SignupsController@seedBills');
-
-    Route::get('/manage/SeedContents', function () {
-       
-    
-    });
+    Route::get('/manage/seedPays', 'BillsController@seedPays');
 
 
     Route::resource('/manage/change-password', 'ChangePasswordController',['only' => ['index','store']]);
@@ -93,13 +91,17 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/users', 'UsersController');
     Route::post('/manage/users/find', 'UsersController@find');
 
+    Route::resource('/manage/files', 'FilesController');
+
     Route::resource('/manage/terms', 'TermsController');
 
     Route::resource('/manage/admins', 'AdminsController');
     Route::post('/manage/admins/import', 'AdminsController@import');
+    Route::post('/manage/admins/upload', 'AdminsController@upload');
 
     Route::resource('/manage/teachers', 'TeachersController');
     Route::post('/manage/teachers/import', 'TeachersController@import');
+    Route::post('/manage/teachers/upload', 'TeachersController@upload');
     Route::post('/manage/teachers/review', 'TeachersController@review');
 
     Route::resource('/manage/teacherGroups', 'TeacherGroupsController');
@@ -112,10 +114,12 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/categories', 'CategoriesController');
     Route::post('/manage/categories/importances', 'CategoriesController@importances');
     Route::post('/manage/categories/import', 'CategoriesController@import');
+    Route::post('/manage/categories/upload', 'CategoriesController@upload');
 
     Route::resource('/manage/centers', 'CentersController');
     Route::post('/manage/centers/importances', 'CentersController@importances');
     Route::post('/manage/centers/import', 'CentersController@import');
+    Route::post('/manage/centers/upload', 'CentersController@upload');
 
    
     // Courses
@@ -123,6 +127,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::get('/manage/courses/{id}/EditInfo', 'CoursesController@editInfo');
     Route::put('/manage/courses/{id}/UpdateInfo', 'CoursesController@updateInfo');
     Route::post('/manage/courses/import', 'CoursesController@import');
+    Route::post('/manage/courses/upload', 'CoursesController@upload');
     Route::post('/manage/courses/review', 'CoursesController@review');
     Route::post('/manage/courses/active', 'CoursesController@active');
 
@@ -142,7 +147,9 @@ Route::group(['middleware' => 'admin'], function()
 
     Route::resource('/manage/notices', 'NoticesController');
 
-
+    Route::resource('/manage/files', 'FilesController'); 
+    Route::get('/manage/files/download/{name}', 'FilesController@download');
+    
     
     Route::resource('/manage/contactInfoes', 'ContactInfoesController');
 

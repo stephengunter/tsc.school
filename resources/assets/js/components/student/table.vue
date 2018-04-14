@@ -10,7 +10,7 @@
 							</check-box>
                         </th>
                         <th style="width:15%">姓名</th>
-                        <th style="width:10%">身分證號</th>
+                        <th style="width:10%">分數</th>
                         <th >Email</th>
                         <th style="width:10%">手機</th>
                         <th style="width:10%"></th>
@@ -26,7 +26,7 @@
                         <td>
                             <a href="#" @click.prevent="onSelected(student.id)" v-text="student.user.profile.fullname"> </a> 
                         </td>
-                        <td>{{  student.user.profile.sid }}</td>
+                        <td>{{  getScore(student) }}</td>
                         <td>{{  student.user.email }}</td>
                         <td>{{  student.user.phone }}</td>
                         <td>
@@ -84,7 +84,11 @@ export default {
         getViewList(){
 			if(this.model) return this.model.viewList;
 			return null;
-		},
+        },
+        getScore(student){
+            if(!student.score) return '';
+            return Helper.formatMoney(student.score);
+        },
         onSelected(id){
            
            this.$emit('selected',id);

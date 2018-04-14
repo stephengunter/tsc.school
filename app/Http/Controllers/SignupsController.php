@@ -149,31 +149,6 @@ class SignupsController extends Controller
           
     }
 
-    public function seedBills()
-    {
-        if(!$this->currentUserIsDev()) dd('權限不足');
-
-        $bills = \App\Bill::all();
-        foreach ($bills as $bill)
-        {
-            $num = rand(0 ,100);
-            if (($num % 2) == 0) continue;
-            $code = $bill->code;
-            $amount = $bill->amount;
-
-            $num = rand(0 ,100);
-            $payway = ($num % 2) == 0 ? 1 : 2;
-
-            $this->bills->payBill($code, $amount, $payway);
-
-            
-        }
-        
-
-        dd('done');
-        
-    }
-
     
    
     public function index()

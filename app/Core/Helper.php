@@ -4,6 +4,53 @@ namespace App\Core;
 use Illuminate\Database\Eloquent\Collection;
 class Helper
 {
+    public static function getMimeTypes($ext)
+    {
+        $type = '';
+
+        switch ($ext)
+        {
+            case 'txt':
+                $type= 'text/plain';
+                break;
+            case 'pdf':
+                $type = 'application/pdf';
+                break;
+            case 'doc':
+                $type = 'application/vnd.ms-word';
+                break;
+            case 'docx':
+                $type = 'application/vnd.ms-word';
+                break;
+            case 'xls':
+                $type = 'application/vnd.ms-excel';
+                break;
+            case 'xlsx':
+                $type = 'application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet';
+                break;
+            case 'png':
+                $type = 'image/png';
+                break;
+            case 'jpeg':
+                $type = 'image/jpeg';
+                break;
+            case 'jpg':
+                $type = 'image/jpeg';
+                break;
+            case 'gif':
+                $type = 'image/gif';
+                break;
+            case 'csv':
+                $type = 'text/csv';
+                break;
+
+        }
+
+        return $type;
+
+
+    }
+
     public static function  str_starts_with($haystack, $needle)
     {
         return strpos($haystack, $needle) === 0;
@@ -12,6 +59,15 @@ class Helper
     {
         return strrpos($haystack, $needle) + strlen($needle) ===
             strlen($haystack);
+    }
+
+    public static function get_file_extension($file_name) {
+        return substr(strrchr($file_name,'.'),1);
+    }
+
+    public static function  removeExtention($filename)
+    {
+        return preg_replace('/\\.[^.\\s]{3,4}$/', '', $filename);
     }
 
 //$start = 'http';

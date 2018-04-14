@@ -143,7 +143,7 @@
 
                 form.append('type', this.getFileName());
 
-                let store=Files.upload(form);
+                let store=Category.upload(form);
                 
                 store.then(() => {
                         Helper.BusEmitOK();
@@ -152,7 +152,7 @@
                     })
                     .catch(error => {
                       
-                        let msg =Helper.getErrorMsg(error);
+                        let msg =error.response.data.errors.msg[0];
                         if(msg){
                             this.err_msg=msg;
                             
@@ -160,13 +160,13 @@
                             Helper.BusEmitError(error);
                         }
 
-                        this.loading=false
+                        this.loading=false;
                     })
             },
             onDownload(){
               
-                window.open(`/files/Download/${this.getFileName()}`);
-                
+                let url=Files.downloadUrl(this.getFileName());
+                window.open(url);
             },
             getFileName(){
                 return 'categories';

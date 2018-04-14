@@ -16,6 +16,7 @@ use App\Services\TeacherGroups;
 use App\Services\Users;
 use App\Services\Centers;
 use App\Services\Courses;
+use App\Services\Files;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -25,13 +26,14 @@ class TeachersController extends Controller
 {
     
     public function __construct(Teachers $teachers, TeacherGroups $teacherGroups ,Users $users,
-        Centers $centers ,Courses $courses)
+        Centers $centers ,Courses $courses,Files $files)
     {
         $this->teachers=$teachers;
         $this->teacherGroups=$teacherGroups;
         $this->users=$users;
         $this->centers=$centers;
         $this->courses=$courses;
+        $this->files=$files;
        
     }
 
@@ -57,6 +59,18 @@ class TeachersController extends Controller
         $intersect = $centersCanAdmin->intersect($teacher->centers);
 
         
+        if(count($intersect)) return true;
+        return false;
+
+    }
+    function canEditCenter(Center $center)
+    {
+        if($this->currentUserIsDev()) return true;
+        
+      
+        $centersCanAdmin= $this->centersCanAdmin();
+        $intersect = $centersCanAdmin->intersect([$center]);
+
         if(count($intersect)) return true;
         return false;
 
@@ -549,4 +563,39 @@ class TeachersController extends Controller
 
        
     }
+
+    public function upload(Request $form)
+    {
+        if(!$this->canImport()){
+            return $this->unauthorized();
+        }
+
+        $errors=[];
+      
+        if(!$form->hasFile('file')){
+            $errors['msg'] = ['無法取得上傳檔案'];
+        } 
+
+        if($errors) return $this->requestError($errors);
+
+        $type=$form['type'];
+        if(!$type) abort(500);
+
+        $file=Input::file('file');  
+
+        $center = Center::findOrFail($form['center']);  
+
+        $canEdit = $this->canEditCenter($center);
+        if(!$canEdit) return $this->unauthorized();
+
+       
+
+        $this->files->saveUploadsData($file,$type,$center);
+
+        return response() ->json();
+        
+       
+    }
+
+
 }

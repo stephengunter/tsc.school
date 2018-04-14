@@ -34,6 +34,11 @@ class Role extends Model
         return 'Student';
     }
 
+    public static function volunteerRoleName()
+    {
+        return 'Volunteer';
+    }
+
     public static function getByName($name)
     {
         return Role::where('name',$name)->first();
