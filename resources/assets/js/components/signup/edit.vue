@@ -241,7 +241,7 @@ export default {
 					}
 				})
 				.catch(error => {
-					this.form.onFail(error.data);
+					Helper.BusEmitError(error,'存檔失敗');
 				})
 			
 		},

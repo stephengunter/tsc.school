@@ -40,5 +40,7 @@ Vue.component('signup-edit-view', require('./views/signups/edit'));
 
 Vue.component('bill-edit-view', require('./views/bills/edit'));
 
+Vue.component('teacher-details', require('./views/teachers/details'));
+
 Vue.component('test', require('./views/test'));
 

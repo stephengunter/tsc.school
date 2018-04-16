@@ -44,6 +44,9 @@ class Files
             case 'admins':
                 $title = '管理員資料';
                 break;
+            case 'volunteers':
+                $title = '志工資料';
+                break;    
 
         }
 
@@ -75,7 +78,7 @@ class Files
                 $name = 'teacher-groups.xlsx';
                 break;
             case 'centers':
-                $name = '開課中心資料';
+                $name = 'centers.xlsx';
                 break;
             case 'categories':
                 $name = 'categories.xlsx';
@@ -83,7 +86,9 @@ class Files
             case 'admins':
                 $name = 'admins.xlsx';
                 break;
-
+           case 'volunteers':
+                $name = 'volunteers.xlsx';
+                break;
         }
 
         return $name;
@@ -104,6 +109,7 @@ class Files
     public function downloadTemplate($name)
     {
         $fileName=$this->getTemplateFileName($name);
+       
        
         if(!$fileName)  abort(404);
         

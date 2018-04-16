@@ -10,7 +10,20 @@
 							</check-box>
                         </th>
                         <th style="width:15%">姓名</th>
-                        <th style="width:10%">分數</th>
+                        <th v-if="edittingScore" style="width:15%">分數
+                            <button @click="onSubmitScores" class="btn btn-success btn-xs">
+                                <span aria-hidden="true" class="glyphicon glyphicon-floppy-disk" ></span>
+                            </button>
+                            <button @click="cancelEditScore" class="btn btn-default btn-xs">
+                                <span aria-hidden="true" class="glyphicon glyphicon-refresh"></span>
+                            </button>
+                        </th>
+                        <th v-else style="width:15%">分數
+                           
+                            <button v-if="can_edit_score" @click.prevent="onEditScore" class="btn btn-primary btn-xs">
+                                <span aria-hidden="true" class="glyphicon glyphicon-pencil"></span>
+                            </button>
+                        </th>
                         <th >Email</th>
                         <th style="width:10%">手機</th>
                         <th style="width:10%"></th>
@@ -26,7 +39,14 @@
                         <td>
                             <a href="#" @click.prevent="onSelected(student.id)" v-text="student.user.profile.fullname"> </a> 
                         </td>
-                        <td>{{  getScore(student) }}</td>
+                        <td v-if="edittingScore">
+                            <input @keydown="clearErrorMsg(student)" type="text" name="student.score" class="form-control" v-model="student.score">
+                            
+                            <small class="text-danger" v-text="getError(student)"></small>
+                        </td>
+                        <td v-else>{{  student.score | formatMoney }}</td>
+                       
+                       
                         <td>{{  student.user.email }}</td>
                         <td>{{  student.user.phone }}</td>
                         <td>
@@ -48,8 +68,12 @@
 </template>
 
 <script>
+import Row from './row.vue'
 export default {
     name:'StudentTable',
+    components: {
+        Row
+    },
     props: {
         model: {
             type: Object,
@@ -59,11 +83,20 @@ export default {
             type: Boolean,
             default: false
         },
+        can_edit_score: {
+            type: Boolean,
+            default: false
+        },
 	},
 	data() {
 		return {
 			checked_ids:[],
-			checkAll: false,
+            checkAll: false,
+            
+            edittingScore:false,
+            hasError:false,
+
+            errors:[]
 		};
 	},
 	computed:{
@@ -84,10 +117,6 @@ export default {
         getViewList(){
 			if(this.model) return this.model.viewList;
 			return null;
-        },
-        getScore(student){
-            if(!student.score) return '';
-            return Helper.formatMoney(student.score);
         },
         onSelected(id){
            
@@ -119,7 +148,73 @@ export default {
 		unCheckAll(){
 			this.checkAll=false;
 			this.checked_ids=[];
-		},
+        },
+        onEditScore(){
+            this.edittingScore=true;
+        },
+        cancelEditScore(){
+            this.edittingScore=false;
+            this.$emit('refresh');
+        },
+        getError(student){
+            let index= this.errors.findIndex((item)=>{
+               return item.id==student.id;
+            });
+            if(index >= 0) return this.errors[index].msg;
+            return '';
+        },
+        clearErrorMsg(student){
+           let id=student.id;
+           let index= this.errors.findIndex((item)=>{
+               return item.id==id;
+           });
+
+
+		   if(index >= 0)  this.errors.splice(index, 1); 
+         
+        },
+        onSubmitScores(){
+           
+            this.errors=[];
+
+            let students=this.getViewList();
+            students.forEach((student)=>{
+                let val=student.score
+                if(isNaN(val)){
+                 
+                   this.errors.push({
+                       id:student.id,
+                       msg:'必須為數字'
+                   });
+                }
+            });
+           
+            
+            if(this.errors.length) return;
+
+            this.updateScores()
+        },
+        updateScores(){
+            let students = this.getViewList().map(item=>{
+                return {
+                            id:item.id,
+                            score:item.score
+                        }
+            })
+
+            
+            let save=Student.updateScores(students)
+            save.then(() => {
+                    Helper.BusEmitOK('資料已存檔');
+                    this.edittingScore=false;
+                    this.$emit('refresh');    
+                })
+                .catch(error => {
+                    Helper.BusEmitError(error,'存檔失敗');
+                    this.edittingScore=false;
+                    this.$emit('refresh');   
+                })
+        },
         
    }
 }

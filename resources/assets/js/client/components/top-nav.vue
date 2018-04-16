@@ -17,11 +17,14 @@
                 <a href="/about" :class="getMenuStyle('about')">
                     <i aria-hidden="true" class="fa fa-info-circle fa-fw"></i>&nbsp; 關於我們
                 </a>
-                <a v-if="false" href="/docs"  :class="getMenuStyle('docs')">
+                <a v-if="false"  href="/docs"  :class="getMenuStyle('docs')">
                     <i aria-hidden="true" class="fa fa-download fa-fw"></i>&nbsp; 文件下載
                 </a>
                 <a href="/faq"  :class="getMenuStyle('faq')">
                     <i aria-hidden="true" class="fa fa-question-circle fa-fw"></i>&nbsp; 常見問題
+                </a>
+                <a v-if="model.teacher" href="/teacher"  :class="getMenuStyle('teacher')">
+                    <i class="fa fa-id-card"></i>&nbsp; 教師專區
                 </a>
             </div>
             <span id="nav-toggle" class="nav-toggle">

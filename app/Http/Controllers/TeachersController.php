@@ -114,20 +114,9 @@ class TeachersController extends Controller
         }else{
             $teacher->centerNames='';
         }
-       
-        
+    
     }
-    function loadRoleNames($teacher)
-    {
-        if(count($teacher->user->roles)){
-          
-            $teacher->user->roleNames=join(',',$teacher->user->roles->pluck('name')->toArray() );
-        }else{
-            $teacher->user->roleNames='';
-        }
-       
-        
-    }
+
     function loadWage($teacher)
     {
         $wage = $teacher->getWage();
@@ -144,6 +133,7 @@ class TeachersController extends Controller
    
     public function index()
     {
+        
         $request=request();
 
         $group=false;
@@ -328,11 +318,6 @@ class TeachersController extends Controller
 
         $errors=$this->validateTeacherInputs($teacherValues);
 
-        $sid=$userValues['profile']['sid'];
-        if(!$sid){
-            $errors['user.profile.sid'] = ['必須填寫身分證號'];
-        }
-
         $centerIds=$request->getCenterIds();
         if(!count($centerIds)){
             $errors['centerIds'] = ['請選擇所屬中心'];
@@ -350,6 +335,7 @@ class TeachersController extends Controller
         
         $userValues=array_except($userValues,['profile']);
         $userId=$request->getUserId();
+    
         $user=null;
         if($userId){
             $user = User::find($userId);
@@ -396,7 +382,7 @@ class TeachersController extends Controller
         $current_user=$this->currentUser();
 
         $this->loadCenterNames($teacher);
-        $this->loadRoleNames($teacher);
+        
 
         $courseIds=$teacher->courses()->pluck('id')->toArray();
         $courses=$this->courses->getByIds($courseIds)->get();

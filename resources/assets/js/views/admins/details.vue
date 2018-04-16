@@ -120,7 +120,10 @@
                 };
 
                 this.admin.user.canEdit=admin.canEdit;
-                this.admin.user.contactInfo.canEdit=admin.canEdit;
+                if(this.admin.user.contactInfo){
+                    this.admin.user.contactInfo.canEdit=admin.canEdit;
+                }
+                
 
                 
                

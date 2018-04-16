@@ -5,6 +5,7 @@
 
 
 <students-index v-show="indexMode" :init_model="model" :terms="terms" :centers="centers" :courses="courses" 
+                :can_edit_scores="canEditScores"
                 :version="version"   v-on:selected="onSelected"  >
              
 </students-index>
@@ -51,7 +52,7 @@
                 this.centers = {!! json_encode($centers) !!} ;
                 this.courses = {!! json_encode($courses) !!} ;
               
-
+                this.canEditScores = {!! json_encode($canEditScores) !!} ;    
 			},
             methods: {
                 onSelected(id) {

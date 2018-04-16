@@ -209,8 +209,9 @@ class AdminsController extends Controller
         $userValues=$request->getUserValues();
         $profileValues= $userValues['profile'];
 
-        
-        $errors=$this->users->validateUserInputs($userValues);
+        $role = $userValues['roles'];
+      
+        $errors=$this->users->validateUserInputs($userValues,$role);
         if($errors) return $this->requestError($errors);
 
         $sid=$userValues['profile']['sid'];

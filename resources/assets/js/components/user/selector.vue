@@ -60,8 +60,8 @@
                 if(this.model) return this.model.viewList;
                 return [];
             },
-            onSelected(id){
-               this.$emit('selected',id);
+            onSelected(id,user){
+               this.$emit('selected',id,user);
             },
             onCheckIdsChanged(ids){
                 this.checkedIds=ids.slice(0);

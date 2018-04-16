@@ -175,7 +175,7 @@ export default {
             return this.can_checked;
         },
         dataCounts(){
-            return 5;
+            
             let viewList=this.getViewList();
             if(!viewList) return 0;
             return viewList.length;

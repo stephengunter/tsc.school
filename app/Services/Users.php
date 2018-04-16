@@ -108,14 +108,18 @@ class Users
 
 	public function findByName($name)
 	{
-		User::where('name',$name)->first();
+		
+		return User::where('name',$name)->first();
 
 	}
 
 	public function findUser($email, $phone)
 	{
 		$email=strtolower($email);
+		
 		$user=$this->findByName($email);
+		
+		
 		if($user) return $user;
 
 		return $this->findByName($phone);
@@ -208,6 +212,15 @@ class Users
 			$needDOB=true;
 			return $this->validateInputs($values, $needFullname,$needSID,$needDOB);
 		}
+		else if($role->name==Role::volunteerRoleName()){
+			
+			$needFullname=true;
+			$needSID=false;
+			$needDOB=true;
+			return $this->validateInputs($values, $needFullname,$needSID,$needDOB);
+		}
+
+
 		$needFullname=true;
 		$needSID=true;
 		$needDOB=true;

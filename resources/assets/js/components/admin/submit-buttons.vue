@@ -14,7 +14,7 @@
                 </button> 
             </div>   
         </div> 
-        <div class="form-group">
+        <div v-else class="form-group">
             <div class="col-md-2">
             </div>  
             <div class="col-md-10">

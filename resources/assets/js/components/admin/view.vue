@@ -24,32 +24,12 @@
         <div class="panel-body">
             <show v-if="readOnly"  :admin="admin" >  
             </show>
-            <edit v-else ref="editComponent"  :id="id" :user="userSelector.user"
-                @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" >                 
+            <edit v-else ref="editComponent"  :id="id" 
+                @saved="onSaved"   @cancel="onEditCanceled">                 
             </edit>
         </div>
         
     </div>
-    <modal :showbtn="false"  :show.sync="userSelector.show"  @closed="userSelector.show=false" 
-        effect="fade" :width="1200">
-		<div slot="modal-header" class="modal-header modal-header-danger">
-            
-			<button id="close-button" type="button" class="close"  @click="userSelector.show=false">
-					x
-			</button>
-			<h3 style="color:white">
-				<i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-				相同資料的使用者已經存在
-			</h3>
-		</div>
-	
-		<div slot="modal-body" class="modal-body">
-			<user-selector v-if="userSelector.show" :model="userSelector.model"
-             @selected="onExistUserSelected">
-            </user-selector>
-		</div>
-    </modal>
-    
 
     <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
       @close="closeConfirm" @confirmed="deleteAdmin">        
@@ -93,15 +73,6 @@
                 readOnly:true,
 
                 admin:null,
-
-
-                userSelector:{
-                    model:null,
-                    show:false,
-                    user:null,
-                    
-                },
-
                 
 
                 deleteConfirm:{
@@ -187,32 +158,7 @@
                 }
                 
             },
-            onExistUser(model){
-                this.userSelector.model={
-                    ...model
-                };
-                this.userSelector.show=true;
-            },
-            onExistUserSelected(id){
-                
-                let getData=User.edit(id);
-                getData.then(model => {
-                   
-                    this.userSelector.user = {
-                        ...model.user
-                    }; 
-
-                    this.$refs.editComponent.init();
-                    
-                })
-                .catch(error=> {
-                    Helper.BusEmitError('無法取得使用者資料,請稍後再試.')
-                })
-
-
-                this.userSelector.show=false;
-                this.userSelector.model=null;
-            },
+            
             onSaved(admin){
                 this.$emit('saved',admin);
                 this.init();

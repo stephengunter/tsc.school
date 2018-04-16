@@ -25,9 +25,7 @@ class Menus {
             case 'terms':
                 html='<i class="fa fa-calendar"></i>';
                 break;
-            case 'volunteers':
-                html = '<i class="fa fa-handshake-o" aria-hidden="true"></i>';
-                break;
+            
             case 'courses':
                 html = '<i class="fa fa-pencil-square-o" aria-hidden="true"></i>';
                 break;    
@@ -70,6 +68,9 @@ class Menus {
             case 'admins':
                 html = '<i class="fa fa-key" aria-hidden="true"></i>';
                 break;
+           case 'volunteers':
+                html = '<i class="fa fa-handshake-o" aria-hidden="true"></i>'
+                break;    
             case 'admissions':
                 html = '<i class="fa fa-list-alt" aria-hidden="true"></i>';
                 break;

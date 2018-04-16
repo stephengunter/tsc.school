@@ -145,7 +145,8 @@
                 return this.signup.canEdit;
             },
             canDelete(){
-                return this.canEdit;
+                if(!this.canEdit) return false;
+                return this.signup.canDelete;
             },
             title(){
                

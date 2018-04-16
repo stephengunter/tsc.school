@@ -48,6 +48,11 @@ class Menus
                         'path' => '/manage/admins',
                         'active' => $current=='manage/admins'
                     ],
+                    [
+                        'text' => '志工管理',
+                        'path' => '/manage/volunteers',
+                        'active' => $current=='manage/volunteers'
+                    ],
                     
                 );
         } 

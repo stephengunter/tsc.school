@@ -58,12 +58,12 @@ class StudentsController extends Controller
 
     }
    
-    function canReview(Center $center)
+    function canEditCourse(Course $course)
     {
         if($this->currentUserIsDev()) return true;
-        if(!$this->currentUser()->isBoss()) return false;
 
         $centersCanAdmin= $this->centersCanAdmin();
+       
         $intersect = $centersCanAdmin->intersect([$course->center]);
 
         
@@ -152,11 +152,12 @@ class StudentsController extends Controller
         $pageList = new PagedList($students);
 
        
-       
+        $canEditScores=$this->canEditCourse($selectedCourse);
+
         if($this->isAjaxRequest()){
             $model['model'] = $pageList;
             $model['courseOptions'] = $courseOptions;
-
+            $model['canEditScores'] = $canEditScores;
             return response() ->json($model);
         }
 
@@ -164,7 +165,7 @@ class StudentsController extends Controller
         $model['list'] = $pageList;
         $model['menus'] = $this->adminMenus('CoursesAdmin');
         $model['courses'] = $courseOptions;
-    
+        $model['canEditScores'] = $canEditScores;
        
         return view('students.index')->with($model);
     }
@@ -211,7 +212,7 @@ class StudentsController extends Controller
         $student = $this->students->getById($id);
         if(!$student) abort(404);
 
-        if(!$this->canEdit($student)) $this->unauthorized();
+        if(!$this->canEdit($student)) return $this->unauthorized();
        
         $values=$request->student;
 
@@ -223,6 +224,34 @@ class StudentsController extends Controller
        
 
         return response() ->json();
+    }
+
+    public function updateScores(Request $form)
+    {
+        $selectedCourse=null;
+        $canEditScores=false;
+
+        $current_user=$this->currentUser();
+
+        $students=$form['students'];
+        
+        foreach($students as $studentScore){
+            $student=Student::findOrFail($studentScore['id']);
+            if(!$selectedCourse){
+                $selectedCourse=Course::findOrFail($student->courseId);
+                $canEditScores=$this->canEditCourse($selectedCourse);
+                if(!$canEditScores)  return $this->unauthorized();
+            } 
+
+            $student->update([
+                'score' => $studentScore['score'],
+                'updatedBy' => $current_user->id
+            ]);
+           
+        }
+       
+
+        return response()->json();
     }
    
    

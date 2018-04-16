@@ -208,10 +208,15 @@ class User {
 
         if(Array.isArray(roles)){
             if(!roles.length) return '';
-           
+            roles=roles.map(item=>{
+                return item.name;
+            })
         }else{
             roles=roles.split(',');
+           
         }
+
+       
         
         let html='';
         roles.forEach((role)=>{
@@ -227,6 +232,7 @@ class User {
         if(role=='Teacher') return '<span class="label label-info" > 教師 </span>';
         if(role=='Student') return '<span class="label label-success" > 學生 </span>';
         if(role=='Dev') return '<span class="label label-default" > 開發者 </span>';
+        if(role=='Volunteer') return '<span class="label label-primary" > 志工 </span>';
         return '';
     }
 

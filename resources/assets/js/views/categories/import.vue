@@ -5,7 +5,7 @@
             <h4 v-html="title"></h4>
             <div>
                 <button  @click="onBack" class="btn btn-default btn-sm" >
-                     <i class="far fa-arrow-alt-circle-left"></i>
+                     <i class="fa fa-arrow-circle-left"></i>
                      返回
                 </button>
             </div>
@@ -69,8 +69,6 @@
                 files: [],
 
                 err_msg:'',
-
-                test:{}
                
             }
         },

@@ -48,7 +48,7 @@
         </div> 
 
         
-        <student-table :model="model" 
+        <student-table :model="model" :can_edit_score="canEditScore" @refresh="fetchData"
             @selected="onSelected" @check-changed="onCheckIdsChanged">
             
         </student-table>
@@ -92,6 +92,10 @@
                 type:Number,
                 default:0
             },
+            can_edit_scores:{
+                type:Boolean,
+                default:false
+            }
         },
         data(){
             return {
@@ -109,7 +113,7 @@
                  
                 },
               
-               
+                canEditScore:false,
 
                 checkedIds:[]
             }
@@ -131,8 +135,10 @@
             this.params.center=this.centers[0].value;
 
             if(this.courses.length) this.params.course=this.courses[0].value;
+
+            this.canEditScore=this.can_edit_scores;
             
-            	
+            this.onDataLoaded();	
            
         },
         computed:{
@@ -192,11 +198,23 @@
                         if(this.courseOptions.length) this.params.course=this.courseOptions[0].value;
                     }
 
+                    this.canEditScore=data.canEditScores;
+                    
+
+                    this.onDataLoaded();
+
                 })
                 .catch(error => {
                     Helper.BusEmitError(error);
                 
                 })
+            },
+            onDataLoaded(){
+                for(let i=0; i< this.model.viewList.length ; i++){
+                    let student=this.model.viewList[i];
+                  
+                    student.score= Helper.formatMoney(student.score);
+                }
             },
             onCheckIdsChanged(ids){
                 this.checkedIds=ids.slice(0);

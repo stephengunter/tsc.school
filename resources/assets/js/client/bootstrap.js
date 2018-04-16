@@ -52,6 +52,12 @@ window.Signup=Signup;
 import Bill from './models/bill';
 window.Bill=Bill;
 
+import Teacher from './models/teacher';
+window.Teacher=Teacher;
+
+import Student from './models/student';
+window.Student=Student;
+
 // import Menus from './models/menus';
 // import Term from './models/term';
 // import Teacher from './models/teacher';

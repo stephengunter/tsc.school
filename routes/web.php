@@ -45,7 +45,13 @@ Route::group(['middleware' => 'auth'], function()
     Route::resource('/signups', '\App\Http\Controllers\Client\SignupsController');
   
     Route::get('/bills/{id}', '\App\Http\Controllers\Client\BillsController@show');
-    
+
+    Route::get('/teacher', '\App\Http\Controllers\Client\TeacherController@show');
+    Route::get('/teacher/edit', '\App\Http\Controllers\Client\TeacherController@edit');
+    Route::put('/teacher', '\App\Http\Controllers\Client\TeacherController@update');
+
+    Route::get('/students', '\App\Http\Controllers\Client\StudentsController@index');
+    Route::post('/students/scores/update', '\App\Http\Controllers\Client\StudentsController@updateScores');
 
 });
 
@@ -104,6 +110,10 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/teachers/upload', 'TeachersController@upload');
     Route::post('/manage/teachers/review', 'TeachersController@review');
 
+    Route::resource('/manage/volunteers', 'VolunteersController');
+    Route::post('/manage/volunteers/import', 'VolunteersController@import');
+    Route::post('/manage/volunteers/upload', 'VolunteersController@upload');
+
     Route::resource('/manage/teacherGroups', 'TeacherGroupsController');
     Route::get('/manage/teacherGroups/{id}/teachers', 'TeacherGroupsController@teachers');
     Route::get('/manage/teacherGroups/{id}/EditTeacher', 'TeacherGroupsController@editTeacher');
@@ -143,7 +153,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/signups', 'SignupsController');
 
     Route::resource('/manage/students', 'StudentsController');
-
+    Route::post('/manage/students/scores/update', 'StudentsController@updateScores');
 
     Route::resource('/manage/notices', 'NoticesController');
 

@@ -20,7 +20,7 @@
                         
                     </tr>
                 </thead>
-                <tbody>
+                <tbody v-if="hasData">
                     <tr v-for="(teacher,index) in getViewList()" :key="index">
                         <td v-if="canCheck">
 							<check-box :value="teacher.userId" :default="beenChecked(teacher.userId)"
@@ -97,6 +97,11 @@ export default {
 		};
 	},
 	computed:{
+        hasData(){
+            let list=this.getViewList();
+            if(!list) return false;
+            return list.length > 0;
+        },
 		canCheck(){
             if(this.can_review) return true;
             return this.can_checked;

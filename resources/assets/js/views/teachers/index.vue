@@ -1,6 +1,6 @@
 <template>
    <div>
-        <div v-if="model" >
+        <div>
             <div class="row">
                 <div class="col-sm-2" style="margin-top: 3px;"> 
                     <h3 v-html="title">
@@ -50,28 +50,28 @@
             </div>
 
             <hr/>
-             
-            <group-table v-if="isGroup" :model="model" @selected="onSelected" >
+            <div v-if="model">
+                <group-table v-if="isGroup" :model="model" @selected="onSelected" >
+                    
+                    <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
+                        <page-controll   :model="model" @page-changed="onPageChanged"
+                            @pagesize-changed="onPageSizeChanged">
+                        </page-controll>
                 
-                <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
-					<page-controll   :model="model" @page-changed="onPageChanged"
-						@pagesize-changed="onPageSizeChanged">
-					</page-controll>
-            
-                </div>
-            </group-table>
+                    </div>
+                </group-table>
 
-            <teacher-table v-else ref="teachersTable"  :model="model" :can_review="canReview && !params.reviewed" :center="center!=null"
-                @selected="onSelected" @check-changed="onCheckIdsChanged">
+                <teacher-table v-else ref="teachersTable"  :model="model" :can_review="canReview && !params.reviewed" :center="center!=null"
+                    @selected="onSelected" @check-changed="onCheckIdsChanged">
 
-                <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
-					<page-controll   :model="model" @page-changed="onPageChanged"
-						@pagesize-changed="onPageSizeChanged">
-					</page-controll>
-            
-                </div>
-            </teacher-table>
-           
+                    <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
+                        <page-controll   :model="model" @page-changed="onPageChanged"
+                            @pagesize-changed="onPageSizeChanged">
+                        </page-controll>
+                
+                    </div>
+                </teacher-table>
+            </div> 
             
 
         </div>
@@ -224,6 +224,7 @@
                 this.fetchData();
             },
             fetchData() {
+                this.model=null;
                 let params={
                     group:this.params.group,
                     center:this.params.center,

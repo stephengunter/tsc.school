@@ -97,6 +97,7 @@ class User extends Authenticatable
     {
         
         $hasRoleNames=$this->roles->pluck('name')->toArray();
+       
         return in_array( $roleName,$hasRoleNames);
     }
 
@@ -110,10 +111,12 @@ class User extends Authenticatable
     }
     public function isStaff()
     {
+
         return $this->hasRole(Role::staffRoleName());
     }
     public function isTeacher()
     {
+      
         return $this->hasRole(Role::teacherRoleName());
     }
     public function isStudent()

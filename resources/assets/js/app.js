@@ -46,6 +46,11 @@ Vue.component('teachers-create', require('./views/teachers/create'));
 Vue.component('teachers-details', require('./views/teachers/details'));
 Vue.component('teachers-import', require('./views/teachers/import'));
 
+Vue.component('volunteers-index', require('./views/volunteers/index'));
+Vue.component('volunteers-create', require('./views/volunteers/create'));
+Vue.component('volunteers-details', require('./views/volunteers/details'));
+Vue.component('volunteers-import', require('./views/volunteers/import'));
+
 Vue.component('admins-index', require('./views/admins/index'));
 Vue.component('admins-create', require('./views/admins/create'));
 Vue.component('admins-details', require('./views/admins/details'));

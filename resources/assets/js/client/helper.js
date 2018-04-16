@@ -91,6 +91,11 @@ class Helper {
 
         return CommonService.numberOptions(min, max, desc)
 	}
+
+	static replaceAll(strVal, oldVal, newVal) {
+        if (!strVal) return ''
+        return strVal.replace(new RegExp(oldVal, 'g'), newVal)
+    }
 	
 	
 }

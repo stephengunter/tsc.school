@@ -120,6 +120,24 @@ class Student {
                     })
         })
     }
+
+    static updateScores(students) {
+        let form = new Form({
+            students: students
+        })
+        return new Promise((resolve, reject) => {
+
+            let url = this.source() + '/scores/update'
+            form.post(url)
+                .then(data => {
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+
+    }
  
  
     static remove(id) {
