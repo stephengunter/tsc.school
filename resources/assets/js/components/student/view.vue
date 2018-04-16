@@ -10,19 +10,28 @@
                     <i class="fa fa-arrow-circle-left"></i>
                     返回
                 </button>
+                <button v-if="student.canTrans" v-show="can_edit" @click.prevent="beginTrans" class="btn btn-warning btn-sm" >
+                    <i class="fa fa-share-square"></i>
+                    轉班
+                </button>
                 <button v-if="student.canEdit" v-show="can_edit" @click.prevent="beginEdit" class="btn btn-primary btn-sm" >
                     <i class="fa fa-edit"></i> 
                     編輯
                 </button>
-               
             </div>
         </div>  
         <div class="panel-body">
             <show v-if="readOnly"  :student="student" >  
             </show>
-            <edit v-else :id="id"
-            @saved="onSaved"   @cancel="onEditCanceled" >                 
-            </edit>
+            <div v-else >
+           
+                <tran-edit v-if="trans" :student_id="this.id"  @saved="onSaved"   @cancel="onEditCanceled" > 
+
+                </tran-edit>
+                <edit  v-else :id="id"
+                    @saved="onSaved"   @cancel="onEditCanceled" >                 
+                </edit>
+            </div>
         </div>
         
     </div>
@@ -31,13 +40,15 @@
 </div>
 </template>
 <script>
-    import Show from './show.vue'
-    import Edit from './edit.vue'
+    import Show from './show.vue';
+    import Edit from './edit.vue';
+    import TranEdit from '../tran/edit.vue';
     export default {
         name:'Student',
         components: {
             Show,
             Edit,
+            'tran-edit':TranEdit
         },
         props: {
             id: {
@@ -65,7 +76,7 @@
             return {
                 icon:Menus.getIcon('students') ,
                 readOnly:true,
-
+                trans:false,
                 student:null,
 
             }
@@ -83,6 +94,7 @@
                 if(this.readOnly) return this.icon + ' ' + text;
                 if(this.creating) return this.icon + ' 新增' + text;
 
+                if(this.trans) return `${this.icon}  學生轉班：${this.student.user.profile.fullname} ${this.student.course.fullName}`
               
                 return `${this.icon}  編輯學生資料：${this.student.user.profile.fullname}`
                 
@@ -108,6 +120,8 @@
                 }else{
                     this.readOnly=false;                    
                 }
+
+                this.trans=false;
             },
             fetchData() {
                 let getData=Student.show(this.id);
@@ -126,12 +140,16 @@
                     Helper.BusEmitError(error)
                 })
             }, 
-             
             onBack(){
                 this.$emit('back');
             },
             beginEdit() {
                 this.readOnly=false;
+                this.trans=false;
+            },
+            beginTrans(){
+                this.readOnly=false;
+                this.trans=true;
             },
             onEditCanceled(){
 

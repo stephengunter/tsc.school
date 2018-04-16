@@ -57,6 +57,13 @@ class StudentsController extends Controller
         return false;
 
     }
+
+    function canTrans($student)
+    {
+        
+        return $this->canEdit($student);
+
+    }
    
     function canEditCourse(Course $course)
     {
@@ -183,6 +190,7 @@ class StudentsController extends Controller
         $student->loadViewModel();
 
         $student->canEdit = $this->canEdit($student);
+        $student->canTrans = $this->canTrans($student);
 
         return response() ->json($student);
         

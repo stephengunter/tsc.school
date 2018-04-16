@@ -29,7 +29,7 @@
                   {{ student.score | formatMoney  }}  
                 </p>                      
             </div>
-            <div v-if="false" class="col-sm-4">
+            <div class="col-sm-8">
                 <label class="label-title">備註</label>
                 <p v-text="student.ps"></p>                      
             </div>

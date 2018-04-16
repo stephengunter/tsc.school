@@ -420,7 +420,9 @@ class CoursesController extends Controller
         $center=$course->center;
        
         $teacherOptions = array_merge($this->teachers->options($center), $this->teacherGroups->options($center));
+        
        
+      
         $form=[
             'course' => $course,
             'teacherIds' =>$teacherIds,

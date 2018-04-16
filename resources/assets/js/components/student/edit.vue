@@ -89,12 +89,6 @@ export default {
 				Helper.BusEmitError(error); 
 			})
         },
-        setActive(val) {
-            this.form.student.active = val;
-        },
-        setCloseDate(val){
-            this.form.student.closeDate=val;
-        },
 		onSubmit(){
 			this.submitting=true;
 

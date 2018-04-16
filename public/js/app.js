@@ -61884,7 +61884,8 @@ new Vue({
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__models_signup__ = __webpack_require__(153);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__models_bill__ = __webpack_require__(154);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__models_student__ = __webpack_require__(155);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__models_files__ = __webpack_require__(156);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__models_tran__ = __webpack_require__(731);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__models_files__ = __webpack_require__(156);
 
 window.Vue = __WEBPACK_IMPORTED_MODULE_0_vue___default.a;
 
@@ -61970,6 +61971,7 @@ window.Form = __WEBPACK_IMPORTED_MODULE_2__utilities_form__["a" /* default */];
 
 
 
+
 window.Auth = __WEBPACK_IMPORTED_MODULE_3__models_auth__["a" /* default */];
 window.Menus = __WEBPACK_IMPORTED_MODULE_4__models_menus__["a" /* default */];
 window.Term = __WEBPACK_IMPORTED_MODULE_5__models_term__["a" /* default */];
@@ -61987,7 +61989,8 @@ window.Process = __WEBPACK_IMPORTED_MODULE_16__models_process__["a" /* default *
 window.Signup = __WEBPACK_IMPORTED_MODULE_17__models_signup__["a" /* default */];
 window.Bill = __WEBPACK_IMPORTED_MODULE_18__models_bill__["a" /* default */];
 window.Student = __WEBPACK_IMPORTED_MODULE_19__models_student__["a" /* default */];
-window.Files = __WEBPACK_IMPORTED_MODULE_20__models_files__["a" /* default */];
+window.Tran = __WEBPACK_IMPORTED_MODULE_20__models_tran__["a" /* default */];
+window.Files = __WEBPACK_IMPORTED_MODULE_21__models_files__["a" /* default */];
 
 window.Bus = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({});
 
@@ -65469,13 +65472,13 @@ var Student = function () {
             status = parseInt(status);
 
             if (status == 1) return '正常';
-            if (status == 0) return '已退出';
+            if (status == -1) return '已退出';
         }
     }, {
         key: 'getStatusStyle',
         value: function getStatusStyle(status) {
             status = parseInt(status);
-            if (status == 0) return 'default';
+            if (status == -1) return 'default';
             if (status == 1) return 'info';
 
             return '';
@@ -99593,6 +99596,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
 
 
 
@@ -99656,6 +99660,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 center: '0',
                 course: '0',
                 status: '0',
+                keyword: '',
                 page: 1,
                 pageSize: 999
             },
@@ -99700,7 +99705,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             this.$emit('create', this.params.course);
         },
         onSelected: function onSelected(id) {
-            this.$emit('selected', id, this.isGroup);
+            this.$emit('selected', id);
         },
         onSearch: function onSearch(keyword) {
 
@@ -99880,10 +99885,12 @@ var render = function() {
               ]
             ),
             _vm._v(" "),
-            _c("div", {
-              staticClass: "col-sm-3",
-              staticStyle: { "margin-top": "3px" }
-            }),
+            _c(
+              "div",
+              { staticClass: "col-sm-3", staticStyle: { "margin-top": "3px" } },
+              [_c("searcher", { on: { search: _vm.onSearch } })],
+              1
+            ),
             _vm._v(" "),
             _c(
               "div",
@@ -100931,8 +100938,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__edit_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__edit_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bill_print__ = __webpack_require__(497);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bill_print___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__bill_print__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__quit_edit_vue__ = __webpack_require__(735);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__quit_edit_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__quit_edit_vue__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -101013,7 +101033,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     components: {
         Show: __WEBPACK_IMPORTED_MODULE_1__show_vue___default.a,
         Edit: __WEBPACK_IMPORTED_MODULE_2__edit_vue___default.a,
-        'bill-print': __WEBPACK_IMPORTED_MODULE_3__bill_print___default.a
+        'bill-print': __WEBPACK_IMPORTED_MODULE_3__bill_print___default.a,
+        'quit-edit': __WEBPACK_IMPORTED_MODULE_4__quit_edit_vue___default.a
     },
     props: {
         id: {
@@ -101045,6 +101066,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         return {
             icon: Menus.getIcon('signups'),
             readOnly: true,
+            quit: false,
 
             signup: null,
 
@@ -101081,10 +101103,16 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             if (!this.canEdit) return false;
             return this.signup.canDelete;
         },
+        canQuit: function canQuit() {
+            if (!this.canEdit) return false;
+            return this.signup.canQuit;
+        },
         title: function title() {
 
             if (this.readOnly) return this.icon + ' 報名資料';
             if (this.creating) return this.icon + ' 新增報名';
+            if (this.quit) return this.icon + '  \u9000\u8CBB';
+
             return this.icon + ' 編輯報名資料';
         }
     },
@@ -101132,8 +101160,16 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         onBack: function onBack() {
             this.$emit('back');
         },
+        beginQuit: function beginQuit() {
+            this.readOnly = false;
+            this.quit = true;
+        },
         beginPrint: function beginPrint() {
             this.$refs.billPrint.print();
+        },
+        onQuitCanceled: function onQuitCanceled() {
+            this.readOnly = true;
+            this.quit = false;
         },
         onEditCanceled: function onEditCanceled() {
             if (this.creating) {
@@ -103435,6 +103471,27 @@ var render = function() {
                   ]
                 ),
                 _vm._v(" "),
+                _vm.canQuit
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-warning btn-sm",
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.beginQuit($event)
+                          }
+                        }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-backward" }),
+                        _vm._v(
+                          "\r\n                    退費\r\n                "
+                        )
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
                 _c(
                   "button",
                   {
@@ -103507,20 +103564,31 @@ var render = function() {
           [
             _vm.readOnly
               ? _c("show", { attrs: { signup: _vm.signup } })
-              : _c("edit", {
-                  ref: "editComponent",
-                  attrs: {
-                    id: _vm.id,
-                    course_id: _vm.course_id,
-                    user: _vm.userSelector.user
-                  },
-                  on: {
-                    saved: _vm.onSaved,
-                    cancel: _vm.onEditCanceled,
-                    "exist-user": _vm.onExistUser,
-                    "user-saved": _vm.loadUser
-                  }
-                })
+              : _c(
+                  "div",
+                  [
+                    _vm.quit
+                      ? _c("quit-edit", {
+                          attrs: { signup_id: this.id },
+                          on: { saved: _vm.onSaved, cancel: _vm.onQuitCanceled }
+                        })
+                      : _c("edit", {
+                          ref: "editComponent",
+                          attrs: {
+                            id: _vm.id,
+                            course_id: _vm.course_id,
+                            user: _vm.userSelector.user
+                          },
+                          on: {
+                            saved: _vm.onSaved,
+                            cancel: _vm.onEditCanceled,
+                            "exist-user": _vm.onExistUser,
+                            "user-saved": _vm.loadUser
+                          }
+                        })
+                  ],
+                  1
+                )
           ],
           1
         )
@@ -105133,6 +105201,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__show_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__show_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__edit_vue__ = __webpack_require__(521);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__edit_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__edit_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tran_edit_vue__ = __webpack_require__(732);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tran_edit_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__tran_edit_vue__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 //
@@ -105167,6 +105237,16 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -105174,7 +105254,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     name: 'Student',
     components: {
         Show: __WEBPACK_IMPORTED_MODULE_0__show_vue___default.a,
-        Edit: __WEBPACK_IMPORTED_MODULE_1__edit_vue___default.a
+        Edit: __WEBPACK_IMPORTED_MODULE_1__edit_vue___default.a,
+        'tran-edit': __WEBPACK_IMPORTED_MODULE_2__tran_edit_vue___default.a
     },
     props: {
         id: {
@@ -105202,7 +105283,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         return {
             icon: Menus.getIcon('students'),
             readOnly: true,
-
+            trans: false,
             student: null
 
         };
@@ -105219,6 +105300,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
             if (this.readOnly) return this.icon + ' ' + text;
             if (this.creating) return this.icon + ' 新增' + text;
+
+            if (this.trans) return this.icon + '  \u5B78\u751F\u8F49\u73ED\uFF1A' + this.student.user.profile.fullname + ' ' + this.student.course.fullName;
 
             return this.icon + '  \u7DE8\u8F2F\u5B78\u751F\u8CC7\u6599\uFF1A' + this.student.user.profile.fullname;
         }
@@ -105243,6 +105326,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             } else {
                 this.readOnly = false;
             }
+
+            this.trans = false;
         },
         fetchData: function fetchData() {
             var _this = this;
@@ -105264,6 +105349,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         beginEdit: function beginEdit() {
             this.readOnly = false;
+            this.trans = false;
+        },
+        beginTrans: function beginTrans() {
+            this.readOnly = false;
+            this.trans = true;
         },
         onEditCanceled: function onEditCanceled() {
 
@@ -105482,13 +105572,11 @@ var render = function() {
               )
             ]),
             _vm._v(" "),
-            false
-              ? _c("div", { staticClass: "col-sm-4" }, [
-                  _c("label", { staticClass: "label-title" }, [_vm._v("備註")]),
-                  _vm._v(" "),
-                  _c("p", { domProps: { textContent: _vm._s(_vm.student.ps) } })
-                ])
-              : _vm._e()
+            _c("div", { staticClass: "col-sm-8" }, [
+              _c("label", { staticClass: "label-title" }, [_vm._v("備註")]),
+              _vm._v(" "),
+              _c("p", { domProps: { textContent: _vm._s(_vm.student.ps) } })
+            ])
           ])
         ])
       ])
@@ -105646,12 +105734,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			}).catch(function (error) {
 				Helper.BusEmitError(error);
 			});
-		},
-		setActive: function setActive(val) {
-			this.form.student.active = val;
-		},
-		setCloseDate: function setCloseDate(val) {
-			this.form.student.closeDate = val;
 		},
 		onSubmit: function onSubmit() {
 			var _this2 = this;
@@ -105881,6 +105963,35 @@ var render = function() {
                   ]
                 ),
                 _vm._v(" "),
+                _vm.student.canTrans
+                  ? _c(
+                      "button",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.can_edit,
+                            expression: "can_edit"
+                          }
+                        ],
+                        staticClass: "btn btn-warning btn-sm",
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.beginTrans($event)
+                          }
+                        }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-share-square" }),
+                        _vm._v(
+                          "\r\n                    轉班\r\n                "
+                        )
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
                 _vm.student.canEdit
                   ? _c(
                       "button",
@@ -105920,10 +106031,21 @@ var render = function() {
         [
           _vm.readOnly
             ? _c("show", { attrs: { student: _vm.student } })
-            : _c("edit", {
-                attrs: { id: _vm.id },
-                on: { saved: _vm.onSaved, cancel: _vm.onEditCanceled }
-              })
+            : _c(
+                "div",
+                [
+                  _vm.trans
+                    ? _c("tran-edit", {
+                        attrs: { student_id: this.id },
+                        on: { saved: _vm.onSaved, cancel: _vm.onEditCanceled }
+                      })
+                    : _c("edit", {
+                        attrs: { id: _vm.id },
+                        on: { saved: _vm.onSaved, cancel: _vm.onEditCanceled }
+                      })
+                ],
+                1
+              )
         ],
         1
       )
@@ -106441,6 +106563,1272 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 533 */,
+/* 534 */,
+/* 535 */,
+/* 536 */,
+/* 537 */,
+/* 538 */,
+/* 539 */,
+/* 540 */,
+/* 541 */,
+/* 542 */,
+/* 543 */,
+/* 544 */,
+/* 545 */,
+/* 546 */,
+/* 547 */,
+/* 548 */,
+/* 549 */,
+/* 550 */,
+/* 551 */,
+/* 552 */,
+/* 553 */,
+/* 554 */,
+/* 555 */,
+/* 556 */,
+/* 557 */,
+/* 558 */,
+/* 559 */,
+/* 560 */,
+/* 561 */,
+/* 562 */,
+/* 563 */,
+/* 564 */,
+/* 565 */,
+/* 566 */,
+/* 567 */,
+/* 568 */,
+/* 569 */,
+/* 570 */,
+/* 571 */,
+/* 572 */,
+/* 573 */,
+/* 574 */,
+/* 575 */,
+/* 576 */,
+/* 577 */,
+/* 578 */,
+/* 579 */,
+/* 580 */,
+/* 581 */,
+/* 582 */,
+/* 583 */,
+/* 584 */,
+/* 585 */,
+/* 586 */,
+/* 587 */,
+/* 588 */,
+/* 589 */,
+/* 590 */,
+/* 591 */,
+/* 592 */,
+/* 593 */,
+/* 594 */,
+/* 595 */,
+/* 596 */,
+/* 597 */,
+/* 598 */,
+/* 599 */,
+/* 600 */,
+/* 601 */,
+/* 602 */,
+/* 603 */,
+/* 604 */,
+/* 605 */,
+/* 606 */,
+/* 607 */,
+/* 608 */,
+/* 609 */,
+/* 610 */,
+/* 611 */,
+/* 612 */,
+/* 613 */,
+/* 614 */,
+/* 615 */,
+/* 616 */,
+/* 617 */,
+/* 618 */,
+/* 619 */,
+/* 620 */,
+/* 621 */,
+/* 622 */,
+/* 623 */,
+/* 624 */,
+/* 625 */,
+/* 626 */,
+/* 627 */,
+/* 628 */,
+/* 629 */,
+/* 630 */,
+/* 631 */,
+/* 632 */,
+/* 633 */,
+/* 634 */,
+/* 635 */,
+/* 636 */,
+/* 637 */,
+/* 638 */,
+/* 639 */,
+/* 640 */,
+/* 641 */,
+/* 642 */,
+/* 643 */,
+/* 644 */,
+/* 645 */,
+/* 646 */,
+/* 647 */,
+/* 648 */,
+/* 649 */,
+/* 650 */,
+/* 651 */,
+/* 652 */,
+/* 653 */,
+/* 654 */,
+/* 655 */,
+/* 656 */,
+/* 657 */,
+/* 658 */,
+/* 659 */,
+/* 660 */,
+/* 661 */,
+/* 662 */,
+/* 663 */,
+/* 664 */,
+/* 665 */,
+/* 666 */,
+/* 667 */,
+/* 668 */,
+/* 669 */,
+/* 670 */,
+/* 671 */,
+/* 672 */,
+/* 673 */,
+/* 674 */,
+/* 675 */,
+/* 676 */,
+/* 677 */,
+/* 678 */,
+/* 679 */,
+/* 680 */,
+/* 681 */,
+/* 682 */,
+/* 683 */,
+/* 684 */,
+/* 685 */,
+/* 686 */,
+/* 687 */,
+/* 688 */,
+/* 689 */,
+/* 690 */,
+/* 691 */,
+/* 692 */,
+/* 693 */,
+/* 694 */,
+/* 695 */,
+/* 696 */,
+/* 697 */,
+/* 698 */,
+/* 699 */,
+/* 700 */,
+/* 701 */,
+/* 702 */,
+/* 703 */,
+/* 704 */,
+/* 705 */,
+/* 706 */,
+/* 707 */,
+/* 708 */,
+/* 709 */,
+/* 710 */,
+/* 711 */,
+/* 712 */,
+/* 713 */,
+/* 714 */,
+/* 715 */,
+/* 716 */,
+/* 717 */,
+/* 718 */,
+/* 719 */,
+/* 720 */,
+/* 721 */,
+/* 722 */,
+/* 723 */,
+/* 724 */,
+/* 725 */,
+/* 726 */,
+/* 727 */,
+/* 728 */,
+/* 729 */,
+/* 730 */,
+/* 731 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Tran = function () {
+    function Tran(data) {
+        _classCallCheck(this, Tran);
+
+        for (var property in data) {
+            this[property] = data[property];
+        }
+    }
+
+    _createClass(Tran, null, [{
+        key: 'source',
+        value: function source() {
+            return '/manage/trans';
+        }
+    }, {
+        key: 'showUrl',
+        value: function showUrl(id) {
+            return this.source() + '/' + id;
+        }
+    }, {
+        key: 'createUrl',
+        value: function createUrl() {
+            return this.source() + '/create';
+        }
+    }, {
+        key: 'storeUrl',
+        value: function storeUrl() {
+            return this.source();
+        }
+    }, {
+        key: 'editUrl',
+        value: function editUrl(id) {
+            return this.source() + '/' + id + '/edit';
+        }
+    }, {
+        key: 'updateUrl',
+        value: function updateUrl(id) {
+            return this.source() + ('/' + id);
+        }
+    }, {
+        key: 'deleteUrl',
+        value: function deleteUrl(id) {
+            return this.source() + ('/' + id);
+        }
+    }, {
+        key: 'show',
+        value: function show(id) {
+            var _this = this;
+
+            return new Promise(function (resolve, reject) {
+                var url = _this.showUrl(id);
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'index',
+        value: function index(params) {
+            var url = this.source();
+            url = Helper.buildQuery(url, params);
+
+            return new Promise(function (resolve, reject) {
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'create',
+        value: function create(params) {
+            var url = this.createUrl();
+            url = Helper.buildQuery(url, params);
+            return new Promise(function (resolve, reject) {
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'store',
+        value: function store(form) {
+            var url = this.storeUrl();
+            var method = 'post';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'edit',
+        value: function edit(id) {
+            var url = this.editUrl(id);
+
+            return new Promise(function (resolve, reject) {
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'update',
+        value: function update(id, form) {
+            var url = this.updateUrl(id);
+            var method = 'put';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'remove',
+        value: function remove(id) {
+            var url = this.deleteUrl(id);
+
+            return new Promise(function (resolve, reject) {
+                axios.delete(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }]);
+
+    return Tran;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (Tran);
+
+/***/ }),
+/* 732 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(733)
+/* template */
+var __vue_template__ = __webpack_require__(734)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\tran\\edit.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-04ea9558", Component.options)
+  } else {
+    hotAPI.reload("data-v-04ea9558", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 733 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	name: 'EditTran',
+	props: {
+		id: {
+			type: Number,
+			default: 0
+		},
+		student_id: {
+			type: Number,
+			default: 0
+		}
+	},
+	data: function data() {
+		return {
+			courseOptions: [],
+
+			isPayOptions: [{
+				text: '應繳',
+				value: true
+			}, {
+				text: '應退',
+				value: false
+			}],
+
+			student: null,
+
+			form: null,
+
+			isPay: true,
+
+			submitting: false
+
+		};
+	},
+
+	computed: {
+		isCreate: function isCreate() {
+			return this.id < 1;
+		}
+	},
+	beforeMount: function beforeMount() {
+		this.init();
+	},
+
+	methods: {
+		cancel: function cancel() {
+			this.$emit('cancel');
+		},
+		init: function init() {
+			this.fetchData();
+		},
+		fetchData: function fetchData() {
+			var _this = this;
+
+			var getData = null;
+			if (this.isCreate) {
+				var params = {
+					student: this.student_id
+				};
+				getData = Tran.create(params);
+			} else {
+				getData = Tran.edit(this.id);
+			}
+
+			getData.then(function (model) {
+				_this.student = _extends({}, model.student);
+				_this.courseOptions = model.courseOptions.slice(0);
+
+				_this.form = new Form({
+					tran: _extends({}, model.tran)
+
+				});
+
+				_this.onDataFetched();
+			}).catch(function (error) {
+				Helper.BusEmitError(error);
+			});
+		},
+		onDataFetched: function onDataFetched() {
+			if (this.isCreate) {
+				var courseId = this.student.courseId;
+				var index = this.courseOptions.findIndex(function (item) {
+					return item.value == courseId;
+				});
+				if (index >= 0) this.courseOptions.splice(index, 1);
+
+				this.form.tran.courseId = this.courseOptions[0].value;
+			}
+		},
+		onCourseSelected: function onCourseSelected(item) {
+			this.form.tran.courseId = item.value;
+		},
+		setIsPay: function setIsPay(val) {
+			this.form.tran.isPay = val;
+		},
+		setDate: function setDate(val) {
+			this.form.tran.date = val;
+		},
+		onSubmit: function onSubmit() {
+			var _this2 = this;
+
+			this.submitting = true;
+
+			var save = null;
+			if (this.isCreate) {
+
+				save = Tran.store(this.form);
+			} else {
+				save = Tran.update(this.id, this.form);
+			}
+
+			save.then(function () {
+				_this2.submitting = false;
+				_this2.$emit('saved');
+				Helper.BusEmitOK('資料已存檔');
+			}).catch(function (error) {
+				_this2.submitting = false;
+				Helper.BusEmitError(error, '存檔失敗');
+			});
+		},
+		clearErrorMsg: function clearErrorMsg(name) {
+			this.form.errors.clear(name);
+		}
+	}
+});
+
+/***/ }),
+/* 734 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.form
+    ? _c(
+        "form",
+        {
+          staticClass: "form",
+          on: {
+            submit: function($event) {
+              $event.preventDefault()
+              return _vm.onSubmit($event)
+            },
+            keydown: function($event) {
+              _vm.clearErrorMsg($event.target.name)
+            }
+          }
+        },
+        [
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-sm-4" }, [
+              _c(
+                "div",
+                { staticClass: "form-group" },
+                [
+                  _c("label", [_vm._v("目標課程")]),
+                  _vm._v(" "),
+                  _c("drop-down", {
+                    attrs: {
+                      items: _vm.courseOptions,
+                      selected: _vm.form.tran.courseId
+                    },
+                    on: { selected: _vm.onCourseSelected }
+                  })
+                ],
+                1
+              )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("應繳/應退")]),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  [
+                    _c("toggle", {
+                      attrs: {
+                        items: _vm.isPayOptions,
+                        default_val: _vm.form.tran.isPay
+                      },
+                      on: { selected: _vm.setIsPay }
+                    })
+                  ],
+                  1
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("金額")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.tran.tuition,
+                      expression: "form.tran.tuition"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "tran.tuition" },
+                  domProps: { value: _vm.form.tran.tuition },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.form.tran, "tuition", $event.target.value)
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm.form.errors.has("tran.tuition")
+                  ? _c("small", {
+                      staticClass: "text-danger",
+                      domProps: {
+                        textContent: _vm._s(_vm.form.errors.get("tran.tuition"))
+                      }
+                    })
+                  : _vm._e()
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("日期")]),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  [
+                    _c("datetime-picker", {
+                      attrs: { date: _vm.form.tran.date, can_clear: false },
+                      on: { selected: _vm.setDate }
+                    })
+                  ],
+                  1
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-8" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("備註")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.tran.ps,
+                      expression: "form.tran.ps"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "tran.ps" },
+                  domProps: { value: _vm.form.tran.ps },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.form.tran, "ps", $event.target.value)
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm.form.errors.has("tran.ps")
+                  ? _c("small", {
+                      staticClass: "text-danger",
+                      domProps: {
+                        textContent: _vm._s(_vm.form.errors.get("tran.ps"))
+                      }
+                    })
+                  : _vm._e()
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _vm._m(0),
+                _vm._v(" \n                         \n\t\t\t\t\t"),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-default",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.cancel($event)
+                      }
+                    }
+                  },
+                  [_vm._v("\n\t\t\t\t\t\t取消\n\t\t\t\t\t")]
+                )
+              ])
+            ])
+          ])
+        ]
+      )
+    : _vm._e()
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      { staticClass: "btn btn-success", attrs: { type: "submit" } },
+      [
+        _c("i", { staticClass: "fa fa-save" }),
+        _vm._v("\n\t\t\t\t\t\t確認存檔\n\t\t\t\t\t")
+      ]
+    )
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-04ea9558", module.exports)
+  }
+}
+
+/***/ }),
+/* 735 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(736)
+/* template */
+var __vue_template__ = __webpack_require__(737)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\quit\\edit.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-ac1662a0", Component.options)
+  } else {
+    hotAPI.reload("data-v-ac1662a0", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 736 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	name: 'EditQuit',
+	props: {
+		id: {
+			type: Number,
+			default: 0
+		},
+		signup_id: {
+			type: Number,
+			default: 0
+		}
+	},
+	data: function data() {
+		return {
+			courseOptions: [],
+
+			isPayOptions: [{
+				text: '應繳',
+				value: true
+			}, {
+				text: '應退',
+				value: false
+			}],
+
+			student: null,
+
+			form: null,
+
+			isPay: true,
+
+			submitting: false
+
+		};
+	},
+
+	computed: {
+		isCreate: function isCreate() {
+			return this.id < 1;
+		}
+	},
+	beforeMount: function beforeMount() {
+		//this.init();
+	},
+
+	methods: {
+		cancel: function cancel() {
+			this.$emit('cancel');
+		},
+		init: function init() {
+			this.fetchData();
+		},
+		fetchData: function fetchData() {
+			var _this = this;
+
+			var getData = null;
+			if (this.isCreate) {
+				var params = {
+					student: this.student_id
+				};
+				getData = Quit.create(params);
+			} else {
+				getData = Quit.edit(this.id);
+			}
+
+			getData.then(function (model) {
+				_this.student = _extends({}, model.student);
+				_this.courseOptions = model.courseOptions.slice(0);
+
+				_this.form = new Form({
+					quit: _extends({}, model.quit)
+
+				});
+
+				_this.onDataFetched();
+			}).catch(function (error) {
+				Helper.BusEmitError(error);
+			});
+		},
+		onDataFetched: function onDataFetched() {
+			if (this.isCreate) {
+				var courseId = this.student.courseId;
+				var index = this.courseOptions.findIndex(function (item) {
+					return item.value == courseId;
+				});
+				if (index >= 0) this.courseOptions.splice(index, 1);
+
+				this.form.quit.courseId = this.courseOptions[0].value;
+			}
+		},
+		onCourseSelected: function onCourseSelected(item) {
+			this.form.quit.courseId = item.value;
+		},
+		setIsPay: function setIsPay(val) {
+			this.form.quit.isPay = val;
+		},
+		setDate: function setDate(val) {
+			this.form.quit.date = val;
+		},
+		onSubmit: function onSubmit() {
+			var _this2 = this;
+
+			this.submitting = true;
+
+			var save = null;
+			if (this.isCreate) {
+
+				save = Quit.store(this.form);
+			} else {
+				save = Quit.update(this.id, this.form);
+			}
+
+			save.then(function () {
+				_this2.submitting = false;
+				_this2.$emit('saved');
+				Helper.BusEmitOK('資料已存檔');
+			}).catch(function (error) {
+				_this2.submitting = false;
+				Helper.BusEmitError(error, '存檔失敗');
+			});
+		},
+		clearErrorMsg: function clearErrorMsg(name) {
+			this.form.errors.clear(name);
+		}
+	}
+});
+
+/***/ }),
+/* 737 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _vm._v("Quit\n    "),
+    false
+      ? _c(
+          "form",
+          {
+            staticClass: "form",
+            on: {
+              submit: function($event) {
+                $event.preventDefault()
+                return _vm.onSubmit($event)
+              },
+              keydown: function($event) {
+                _vm.clearErrorMsg($event.target.name)
+              }
+            }
+          },
+          [
+            _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-sm-4" }, [
+                _c(
+                  "div",
+                  { staticClass: "form-group" },
+                  [
+                    _c("label", [_vm._v("目標課程")]),
+                    _vm._v(" "),
+                    _c("drop-down", {
+                      attrs: {
+                        items: _vm.courseOptions,
+                        selected: _vm.form.quit.courseId
+                      },
+                      on: { selected: _vm.onCourseSelected }
+                    })
+                  ],
+                  1
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-4" }, [
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", [_vm._v("應繳/應退")]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    [
+                      _c("toggle", {
+                        attrs: {
+                          items: _vm.isPayOptions,
+                          default_val: _vm.form.quit.isPay
+                        },
+                        on: { selected: _vm.setIsPay }
+                      })
+                    ],
+                    1
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-4" }, [
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", [_vm._v("金額")]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.form.quit.tuition,
+                        expression: "form.quit.tuition"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text", name: "quit.tuition" },
+                    domProps: { value: _vm.form.quit.tuition },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.form.quit, "tuition", $event.target.value)
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _vm.form.errors.has("quit.tuition")
+                    ? _c("small", {
+                        staticClass: "text-danger",
+                        domProps: {
+                          textContent: _vm._s(
+                            _vm.form.errors.get("quit.tuition")
+                          )
+                        }
+                      })
+                    : _vm._e()
+                ])
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-sm-4" }, [
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", [_vm._v("日期")]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    [
+                      _c("datetime-picker", {
+                        attrs: { date: _vm.form.quit.date, can_clear: false },
+                        on: { selected: _vm.setDate }
+                      })
+                    ],
+                    1
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-8" }, [
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", [_vm._v("備註")]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.form.quit.ps,
+                        expression: "form.quit.ps"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text", name: "quit.ps" },
+                    domProps: { value: _vm.form.quit.ps },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.form.quit, "ps", $event.target.value)
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _vm.form.errors.has("quit.ps")
+                    ? _c("small", {
+                        staticClass: "text-danger",
+                        domProps: {
+                          textContent: _vm._s(_vm.form.errors.get("quit.ps"))
+                        }
+                      })
+                    : _vm._e()
+                ])
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-sm-4" }, [
+                _c("div", { staticClass: "form-group" }, [
+                  _vm._m(0),
+                  _vm._v(" \n                         \n\t\t\t\t\t"),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-default",
+                      attrs: { type: "button" },
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          return _vm.cancel($event)
+                        }
+                      }
+                    },
+                    [_vm._v("\n\t\t\t\t\t\t取消\n\t\t\t\t\t")]
+                  )
+                ])
+              ])
+            ])
+          ]
+        )
+      : _vm._e()
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      { staticClass: "btn btn-success", attrs: { type: "submit" } },
+      [
+        _c("i", { staticClass: "fa fa-save" }),
+        _vm._v("\n\t\t\t\t\t\t確認存檔\n\t\t\t\t\t")
+      ]
+    )
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-ac1662a0", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

@@ -8,7 +8,7 @@ class Student extends Model
 {
     protected $fillable = [
         'status', 'userId', 'courseId' , 'score',
-        'updatedBy'
+        'updatedBy','ps'
     ];
 
     public function getCenter()

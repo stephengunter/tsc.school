@@ -17,7 +17,7 @@
                         @selected="onCenterSelected">
                     </drop-down>
                 </div>
-                 <div v-if="courseOptions.length" class="form-group" style="padding-left:1em;">
+                <div v-if="courseOptions.length" class="form-group" style="padding-left:1em;">
                     <drop-down :items="courseOptions" :selected="params.course"
                         @selected="onCourseSelected">
                     </drop-down>

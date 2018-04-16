@@ -10,6 +10,10 @@
                     <i class="fa fa-arrow-circle-left"></i>
                     返回
                 </button>
+                <button v-if="canQuit" @click.prevent="beginQuit" class="btn btn-warning btn-sm" >
+                    <i class="fa fa-backward" ></i>
+                    退費
+                </button>
                 <button  @click.prevent="beginPrint" class="btn btn-primary btn-sm" >
                     <i class="fa fa-print"></i>
                     列印
@@ -31,9 +35,16 @@
 
             <show v-if="readOnly"  :signup="signup" >  
             </show> 
-            <edit v-else ref="editComponent"  :id="id" :course_id="course_id" :user="userSelector.user"
-                @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" @user-saved="loadUser">                 
-            </edit>
+            <div v-else >
+           
+                <quit-edit v-if="quit" :signup_id="this.id"  @saved="onSaved"   @cancel="onQuitCanceled" > 
+
+                </quit-edit>
+                <edit v-else ref="editComponent"  :id="id" :course_id="course_id" :user="userSelector.user"
+                    @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" @user-saved="loadUser">                 
+                </edit>
+            </div>
+            
         </div>
         
     </div>
@@ -72,13 +83,14 @@
     import Show from './show.vue';
     import Edit from './edit.vue';
     import BillPrint from './bill-print';
-
+    import EditQuit from '../quit/edit.vue'
     export default {
         name:'Signup',
         components: {
             Show,
             Edit,
-            'bill-print':BillPrint
+            'bill-print':BillPrint,
+            'quit-edit':EditQuit
         },
         props: {
             id: {
@@ -110,6 +122,7 @@
             return {
                 icon:Menus.getIcon('signups') ,
                 readOnly:true,
+                quit:false,
 
                 signup:null,
 
@@ -148,10 +161,16 @@
                 if(!this.canEdit) return false;
                 return this.signup.canDelete;
             },
+            canQuit(){
+                if(!this.canEdit) return false;
+                return this.signup.canQuit;
+            },
             title(){
                
                 if(this.readOnly) return this.icon + ' 報名資料';
                 if(this.creating) return this.icon + ' 新增報名';
+                if(this.quit) return `${this.icon}  退費`
+              
                 return this.icon + ' 編輯報名資料';
             },
             
@@ -203,8 +222,16 @@
             onBack(){
                 this.$emit('back');
             },
+            beginQuit(){
+                this.readOnly=false;
+                this.quit=true;
+            },
             beginPrint() {
                 this.$refs.billPrint.print();
+            },
+            onQuitCanceled(){
+                this.readOnly=true;
+                this.quit=false;
             },
             onEditCanceled(){
                 if(this.creating){

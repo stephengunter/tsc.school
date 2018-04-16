@@ -84,6 +84,7 @@ import Process from './models/process';
 import Signup from './models/signup';
 import Bill from './models/bill';
 import Student from './models/student';
+import Tran from './models/tran';
 import Files from './models/files';
 
 window.Auth=Auth;
@@ -103,6 +104,7 @@ window.Process=Process;
 window.Signup=Signup;
 window.Bill=Bill;
 window.Student=Student;
+window.Tran=Tran;
 window.Files=Files;
 
 window.Bus = new Vue({});

@@ -16,7 +16,7 @@ class Students
     public function __construct(Users $users)
     {
         $this->users=$users;
-        $this->with=['user.profile','user.contactInfoes.address.district.city'];
+        $this->with=['user.roles','user.profile','user.contactInfoes.address.district.city'];
     }
     
     public function getById($id)

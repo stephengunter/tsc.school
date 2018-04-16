@@ -46,7 +46,7 @@ class Signup extends Model
 	{
         if(!count($this->details)) return null;
 
-        return $this->details->first();
+        return $this->details->first()->course->center;
     }
     public function getDate()
 	{

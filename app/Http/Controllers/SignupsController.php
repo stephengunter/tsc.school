@@ -63,6 +63,18 @@ class SignupsController extends Controller
         return $this->canEdit($signup);
 
     }
+    function canQuit($signup)
+    {
+        if($signup->status < 1) return false;
+
+        $centersCanAdmin= $this->centersCanAdmin();
+       
+        $intersect = $centersCanAdmin->intersect([$signup->getCenter()]);
+       
+        if(count($intersect)) return true;
+        return false;
+
+    }
     function canReview(Center $center)
     {
         if($this->currentUserIsDev()) return true;
@@ -167,6 +179,7 @@ class SignupsController extends Controller
 
         $status=0;
         if($request->status)  $status=(int)$request->status;
+       
 
         $page=1;
         if($request->page)  $page=(int)$request->page;
@@ -512,8 +525,7 @@ class SignupsController extends Controller
 
         $signup->canEdit = $this->canEdit($signup);
         $signup->canDelete = $this->canDelete($signup);
-
-        
+        $signup->canQuit = $this->canQuit($signup);
 
         return response() ->json($signup);
         

@@ -155,6 +155,8 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/students', 'StudentsController');
     Route::post('/manage/students/scores/update', 'StudentsController@updateScores');
 
+    Route::resource('/manage/trans', 'TransController');
+
     Route::resource('/manage/notices', 'NoticesController');
 
     Route::resource('/manage/files', 'FilesController'); 
