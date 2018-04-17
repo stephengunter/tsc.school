@@ -63,13 +63,28 @@ class Signup extends Model
 	{
 		return $this->hasOne(Bill::class,'signupId');
     }
+    public function quit() 
+	{
+		return $this->hasOne(Quit::class,'signupId');
+    }
+
+    public function hasDiscount()
+    {
+        $points=(int)$this->points;
+        if($points==100) return false;
+        if($points==0) return false;
+
+        return true;
+    }
+
+   
 
     public function pointsText()
     {
-        $points=(int)$this->points;
-        if($points==100) return '';
-        if($points==0) return '';
+        if(!$this->hasDiscount()) return '';
 
+        $points=(int)$this->points;
+       
         if($points % 10 == 0){
             return $points/10 . '折';
         }
@@ -90,6 +105,10 @@ class Signup extends Model
         foreach($this->details as $signupDetail){
             $signupDetail->course->fullName();
         } 
+
+        if($this->quit) $this->quit->loadViewModel();
     }
+
+    
 
 }

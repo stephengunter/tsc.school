@@ -83,6 +83,7 @@ import ClassTime from './models/classTime';
 import Process from './models/process';
 import Signup from './models/signup';
 import Bill from './models/bill';
+import Quit from './models/quit';
 import Student from './models/student';
 import Tran from './models/tran';
 import Files from './models/files';
@@ -103,6 +104,7 @@ window.ClassTime=ClassTime;
 window.Process=Process;
 window.Signup=Signup;
 window.Bill=Bill;
+window.Quit=Quit;
 window.Student=Student;
 window.Tran=Tran;
 window.Files=Files;
@@ -136,6 +138,10 @@ Vue.filter('classTimesHtml', (course)=> {
 
 Vue.filter('signupStatusLabel', (status)=> {
     return Signup.statusLabel(status)
+});
+
+Vue.filter('quitStatusLabel', (status)=> {
+    return Quit.statusLabel(status)
 });
 
 

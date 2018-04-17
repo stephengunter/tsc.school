@@ -21,7 +21,7 @@ class Tran extends Model
 			'tuition' => 0,
 			'ps' => '',
             'isPay' => true,
-            'studenId' => 0,
+            'studentId' => 0,
 			'updatedBy' => ''
 
 		];

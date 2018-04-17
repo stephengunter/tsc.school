@@ -25,7 +25,7 @@ class Signups
             ['value'=> -1 , 'text' => '已取消']
         );
         $this->shopId=config('app.bill.shopId');
-        $this->with=['bill','details.course.center','user.profile'];
+        $this->with=['bill.payway', 'quit.details' ,'details.course.center','user.profile'];
 
     }
    

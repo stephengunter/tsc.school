@@ -444,7 +444,7 @@ class CoursesController extends Controller
        
         $course = $this->courses->getById($id); 
         if(!$course) abort(404);   
-        if(!$this->canEdit($course)) $this->unauthorized();
+        if(!$this->canEdit($course)) return $this->unauthorized();
 
         $courseValues=$request->getValues();
         $teacherIdValues=$request->getTeacherIds();

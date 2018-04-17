@@ -97,7 +97,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/users', 'UsersController');
     Route::post('/manage/users/find', 'UsersController@find');
 
-    Route::resource('/manage/files', 'FilesController');
+    Route::resource('/manage/contactInfoes', 'ContactInfoesController');
 
     Route::resource('/manage/terms', 'TermsController');
 
@@ -162,7 +162,8 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/files', 'FilesController'); 
     Route::get('/manage/files/download/{name}', 'FilesController@download');
     
-    
-    Route::resource('/manage/contactInfoes', 'ContactInfoesController');
+    Route::resource('/manage/quits', 'QuitsController');
+
+   
 
 });

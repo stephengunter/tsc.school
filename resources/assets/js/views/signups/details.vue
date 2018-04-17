@@ -7,29 +7,48 @@
      
     </signup>
 
-    <!-- <div v-if="signup">
+    <div v-if="signup">
         
         <div>
             <ul class="nav nav-tabs">
-                <li :class="{ active: activeIndex==0 }" class="label-title">
-                    <a @click.prevent="activeIndex=0" href="#" >報名資訊</a>
+                <li :class="{ active: activeIndex==0 , 'label-title':true}" >
+                    <a @click.prevent="activeIndex=0" href="#" >列印繳費單</a>
                 </li>
-                
+                <li v-show="payed" :class="{ 'active ': activeIndex==1 , 'label-title':true}">
+                    <a @click.prevent="activeIndex=1" href="#">退費申請</a>
+                </li>
             </ul>
        
            
             <div class="tab-content" style="margin-top:10px">
                 <div class="tab-pane fade active in">
-                    <signup-info v-if="activeIndex==0" :model="signup"
-                     :can_edit="signup.canEdit"
-                     @saved="reloadSignup">
-                    </signup-info>
+                    <div v-show="activeIndex==0"  class="panel panel-default">
+                        <div class="panel-heading">
+                            <div>
+                                <button  @click.prevent="beginPrint" class="btn btn-primary btn-sm" >
+                                    <i class="fa fa-print"></i>
+                                    列印
+                                </button>
+                            </div>
+                        </div>  
+                        <div class="panel-body">
+                            <bill-print  :signup="signup" ref="billPrint"></bill-print>
+
+                        </div>
+                        
+                    </div>
+
+                    <quit-view v-if="activeIndex==1"  :signup="signup"  
+                        @saved="reloadSignup"> 
+
+                    </quit-view>
+                     
                     
                 </div>
                           
             </div>
         </div>
-    </div>  -->
+    </div> 
 
 
     
@@ -37,14 +56,17 @@
 </div>    
 </template>
 <script>
-    
+   
     import SignupComponent from '../../components/signup/view.vue';
+    import BillPrint from '../../components/signup/bill-print.vue'; 
+    import QuitView from '../../components/quit/view.vue'
     
     export default {
         name: 'SignupDetails',
         components: {
             'signup':SignupComponent,
-            
+            'bill-print':BillPrint,
+            'quit-view':QuitView
         },
         props: {
             id: {
@@ -75,7 +97,10 @@
             }
         },
         computed:{
-            
+            payed(){
+               if(!this.signup) return false;
+               return parseInt(this.signup.status)!=0;
+            }
         },
         beforeMount(){
            this.init()
@@ -108,6 +133,9 @@
             },
             onBack(){
                 this.$emit('back');
+            },
+            beginPrint() {
+                this.$refs.billPrint.print();
             },
             
         }

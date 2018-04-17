@@ -9,7 +9,6 @@ use App\Tran;
 use App\Course;
 use App\Services\Users;
 use DB;
-use Excel;
 
 class Trans 
 {
@@ -28,7 +27,7 @@ class Trans
 
     public function createTran(Tran $tran,Student $student)
     {
-        $ps=$tran->date . '轉班加入此課程';
+       
         $tran= DB::transaction(function() use($tran,$student) {
             $tran->save();
             $student->update([

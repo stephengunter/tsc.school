@@ -8,6 +8,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call(WeekdaySeeder::class);
+        $this->call(PaywaySeeder::class);
         $this->call(RoleTableSeeder::class);
         $this->call(AreaSeeder::class);
 		$this->call(CityDistrictSeeder::class);

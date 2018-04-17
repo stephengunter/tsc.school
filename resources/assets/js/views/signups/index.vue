@@ -31,8 +31,7 @@
                 
             </div>
             <div class="col-sm-3" style="margin-top: 3px;"> 
-                <searcher @search="onSearch">
-                </searcher>
+               
             </div>
             <div class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
                 <a v-show="hasCourse" @click.prevent="onCreate" href="#" class="btn btn-primary">
@@ -136,7 +135,7 @@
                     center:'0',
                     course:'0',
                     status:'0',
-                    keyword:'',
+                    
                     page:1,
                     pageSize:999
                 },
@@ -186,11 +185,6 @@
             onSelected(id){
                this.$emit('selected',id);
             },
-            onSearch(keyword){
-               
-				this.params.keyword=keyword;
-				this.fetchData();
-			},
             onPageChanged(page){
 				this.params.page=page;
 				this.fetchData();

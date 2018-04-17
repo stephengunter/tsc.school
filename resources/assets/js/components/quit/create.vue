@@ -5,6 +5,7 @@
         </quit-details>
         <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
             <quit-inputs :form="form" :payway_options="paywayOptions"></quit-inputs>
+              
             <submit-buttons :form="form" :submitting="submitting" :error_text="errorText"></submit-buttons>
         </form>
     </div>
@@ -15,7 +16,7 @@ import QuitDetails from './details.vue';
 import QuitInputs from './inputs.vue';
 import SubmitButtons from './submit-buttons.vue';
 export default {
-    name:'EditQuit',
+    name:'CreateQuit',
     props: {
         signup:{
             type: Object,
@@ -27,8 +28,8 @@ export default {
         },
 	},
     components: {
-		'quit-details':QuitDetails,
-		'quit-inputs':QuitInputs,
+        'quit-details':QuitDetails,
+        'quit-inputs':QuitInputs,
         'submit-buttons':SubmitButtons
     },
     data(){
@@ -88,12 +89,6 @@ export default {
         beginEditRow(item){
             this.errorText='';
             this.edittingId = item.signupDetailId;
-        },
-		setDate(val){
-			this.form.quit.date=val;
-        },
-        onPaywaySelected(item){
-            this.form.quit.paywayId=item.value;
         },
 		onSubmit(){
             this.submitting=true;

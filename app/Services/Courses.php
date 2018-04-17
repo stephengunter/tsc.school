@@ -15,14 +15,17 @@ use App\ContactInfo;
 use App\Address;
 use App\District;
 use App\Services\Users;
+use App\Services\Teachers;
 use DB;
 use Excel;
 use App\Core\Helper;
 
 class Courses 
 {
-    public function __construct()
+    public function __construct(Users $users, Teachers $teachers)
     {
+        $this->users=$users;
+        $this->teachers=$teachers;
         $this->with=['teacherGroup','term','center','classTimes.weekday'];
     }
     public function getAll(bool $includStudents = false)
@@ -190,7 +193,7 @@ class Courses
             $termNumber=(int)trim($row['term']);
 
             $categoryId=(int)trim($row['categories']);
-            $teacherIds= trim($row['teachers']);  
+            $teacherSIDs= trim($row['teachers']);  
             $teacherGroupId= trim($row['group']);
            
 
@@ -263,8 +266,13 @@ class Courses
                 }
             }
 
-            if($teacherIds) $teacherIds= explode(',', $teacherIds);  
-            else $teacherIds=[];
+            $teacherIds=[];
+            if($teacherSIDs){
+                $teacherSIDs = explode(',', $teacherSIDs);  
+                $teachers=$this->teachers->getBySIDs($teacherSIDs);
+                $teacherIds=$teachers->pluck('userId')->toArray();
+            } 
+            
            
 
             $teacherGroup=null;

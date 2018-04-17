@@ -10,7 +10,7 @@ class Bill extends Model
 
     protected $fillable = [
         'code', 'amount', 'deadLine' , 
-        'payed' ,'payway','updatedBy'
+        'payed' ,'payDate','paywayId','updatedBy'
     ];
 
     public static function init()
@@ -20,7 +20,7 @@ class Bill extends Model
             'amount' => 0,
             'deadLine' => '',
             'payed' => 0,
-            'payway' => 0,
+            'paywayId' => '',
         ];
         
     }
@@ -28,5 +28,11 @@ class Bill extends Model
     public function signup()
     {
 		return $this->belongsTo('App\Signup','signupId');
-	}
+    }
+
+    public function payway() 
+	{
+		return $this->hasOne('App\Payway', 'id' ,'paywayId');
+    }
+    
 }

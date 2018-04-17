@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TranRequest extends FormRequest
+class QuitRequest extends FormRequest
 {
   
     public function authorize()
@@ -14,7 +14,7 @@ class TranRequest extends FormRequest
 
     public function getId()
     {
-        $values = $this->get('tran');
+        $values = $this->get('quit');
        
         $id=0;        
         if(array_key_exists ( 'id' ,$values)){
@@ -22,35 +22,30 @@ class TranRequest extends FormRequest
         }  
         return $id;
     }
-    public function getStudentId()
-    {
-        return $this->getTranValues()['studentId'];
-    }
+    
 
     public function rules()
     {
         return [
-            'tran.tuition' => 'required|numeric'
+           
         ];
         
     }
     public function messages()
     {
         return [
-            'tran.tuition.required' => '請填寫金額',
-            'tran.tuition.numeric' => '必須是數字'
             
         ];
     }
 
-    public function getTranValues()
+    public function getQuitValues()
     {
-        return $this->get('tran');
+        return $this->get('quit');
         
     }
-    public function isPay()
+    public function getQuitDetailValues()
     {
-        return $this->getTranValues()['isPay'];
+        return $this->get('details');
         
     }
 }

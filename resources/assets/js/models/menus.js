@@ -53,8 +53,8 @@ class Menus {
             case 'tuitions':
                 html = '<i class="fa fa-money" aria-hidden="true"></i>';
                 break;
-            case 'refunds':
-                html = '<i class="fa fa-arrow-circle-left" aria-hidden="true"></i>';
+            case 'quits':
+                html = '<i class="fa fa-backward" aria-hidden="true"></i>';
                 break;
             case 'mainsettings':
                 html = '<i class="fa fa-cogs" aria-hidden="true"></i>';

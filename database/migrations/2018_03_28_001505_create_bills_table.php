@@ -22,8 +22,9 @@ class CreateBillsTable extends Migration
             $table->decimal('amount', 8, 2);
             $table->date('deadLine');
 
+            $table->dateTime('payDate')->nullable();
             $table->boolean('payed');
-            $table->integer('payway');
+            $table->integer('paywayId')->unsigned()->nullable();
 			
 
 			$table->integer('updatedBy')->unsigned()->nullable();

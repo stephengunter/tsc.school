@@ -22,6 +22,10 @@ class Users
 	public function getById($id)
     {   
         return User::with($this->with)->find($id);
+	}
+	public function getByIds(array $ids)
+    {   
+        return User::with($this->with)->whereIn('id',$ids);
     }
 	
 	public function fetchUsers(Role $role = null, $keyword = '')
@@ -157,6 +161,18 @@ class Users
         if(!$profile) return null;
 
         return User::find($profile->userId);
+	}
+
+	public function getBySIDs(array $sids)
+	{
+		$sids=array_map(function($sid){
+			return strtoupper($sid);
+		}, $sids);
+		
+		$userIds=Profile::whereIn('sid',$sids)->pluck('userId')->toArray();
+		
+		return $this->getByIds($userIds);
+       
 	}
 	
 	public function addRole(User $user ,string $roleName)

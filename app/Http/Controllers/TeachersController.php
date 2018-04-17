@@ -283,7 +283,7 @@ class TeachersController extends Controller
       
     }
 
-    public function validateTeacherInputs($values)
+    function validateTeacherInputs($values)
     {
         $errors=[];
 

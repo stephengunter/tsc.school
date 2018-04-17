@@ -10,14 +10,6 @@
                     <i class="fa fa-arrow-circle-left"></i>
                     返回
                 </button>
-                <button v-if="canQuit" @click.prevent="beginQuit" class="btn btn-warning btn-sm" >
-                    <i class="fa fa-backward" ></i>
-                    退費
-                </button>
-                <button  @click.prevent="beginPrint" class="btn btn-primary btn-sm" >
-                    <i class="fa fa-print"></i>
-                    列印
-                </button>
                 <button v-if="canDelete" @click.prevent="beginDelete" class="btn btn-danger btn-sm" >
                     <i class="fa fa-trash"></i> 
                     刪除
@@ -35,22 +27,14 @@
 
             <show v-if="readOnly"  :signup="signup" >  
             </show> 
-            <div v-else >
-           
-                <quit-edit v-if="quit" :signup_id="this.id"  @saved="onSaved"   @cancel="onQuitCanceled" > 
-
-                </quit-edit>
-                <edit v-else ref="editComponent"  :id="id" :course_id="course_id" :user="userSelector.user"
+            <edit v-else ref="editComponent"  :id="id" :course_id="course_id" :user="userSelector.user"
                     @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" @user-saved="loadUser">                 
-                </edit>
-            </div>
+            </edit>
             
         </div>
         
     </div>
-    
-    <bill-print v-if="signup" v-show="!isPayed(signup)" :signup="signup" ref="billPrint"></bill-print>
-
+   
     <modal :showbtn="false"  :show.sync="userSelector.show"  @closed="userSelector.show=false" 
         effect="fade" :width="1200">
 		<div slot="modal-header" class="modal-header modal-header-danger">
@@ -78,19 +62,17 @@
 </div>
 </template>
 <script>
-    import html2Canvas from 'html2Canvas';
+   
 
     import Show from './show.vue';
     import Edit from './edit.vue';
-    import BillPrint from './bill-print';
-    import EditQuit from '../quit/edit.vue'
+   
     export default {
         name:'Signup',
         components: {
             Show,
-            Edit,
-            'bill-print':BillPrint,
-            'quit-edit':EditQuit
+            Edit
+           
         },
         props: {
             id: {
@@ -122,7 +104,6 @@
             return {
                 icon:Menus.getIcon('signups') ,
                 readOnly:true,
-                quit:false,
 
                 signup:null,
 
@@ -161,16 +142,12 @@
                 if(!this.canEdit) return false;
                 return this.signup.canDelete;
             },
-            canQuit(){
-                if(!this.canEdit) return false;
-                return this.signup.canQuit;
-            },
+           
             title(){
                
                 if(this.readOnly) return this.icon + ' 報名資料';
                 if(this.creating) return this.icon + ' 新增報名';
-                if(this.quit) return `${this.icon}  退費`
-              
+               
                 return this.icon + ' 編輯報名資料';
             },
             
@@ -200,7 +177,7 @@
                 }; 
             },
             fetchData() {
-                
+              
                 let getData=Signup.show(this.id);
                
                 getData.then(signup => {
@@ -221,17 +198,6 @@
             },
             onBack(){
                 this.$emit('back');
-            },
-            beginQuit(){
-                this.readOnly=false;
-                this.quit=true;
-            },
-            beginPrint() {
-                this.$refs.billPrint.print();
-            },
-            onQuitCanceled(){
-                this.readOnly=true;
-                this.quit=false;
             },
             onEditCanceled(){
                 if(this.creating){

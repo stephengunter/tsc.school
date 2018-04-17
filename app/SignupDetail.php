@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Course;
+use App\Student;
 
 class SignupDetail extends Model
 {
@@ -43,4 +44,21 @@ class SignupDetail extends Model
         $this->total=$total;
         return $total;
     }
+
+    public function actualTuition() 
+	{
+        if(!$this->signup->hasDiscount()) return $this->tuition;
+
+        $points=(int)$this->signup->points;
+
+        return $this->tuition * $points /100 ;
+    }
+
+    public function getStudent()
+    {
+        return Student::where('userId',$this->signup->userId)
+                ->where('courseId',$this->courseId)->first();
+    }
+
+
 }

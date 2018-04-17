@@ -9,6 +9,7 @@ use App\Profile;
 use App\Course;
 use App\Signup;
 use App\Bill;
+use App\Payway;
 use App\SignupDetail;
 use App\Services\Users;
 use DB;
@@ -25,7 +26,7 @@ class Bills
             ['value'=> -1 , 'text' => '已取消']
         );
         $this->shopId=config('app.bill.shopId');
-        $this->with=['signup'];
+        $this->with=['signup','payway'];
 
     }
    
@@ -47,14 +48,26 @@ class Bills
     {
         return $this->getAll()->where('code',$code)->first();
     }
+
+    public function paywayOptions()
+    {
+        $payways=Payway::all();
+        $options = $payways->map(function ($payway) {
+            return $payway->toOption();
+        })->all();
+
+       
+        return $options;
+    }
         
-    public function payBill($code, $amount, $payway)
+    public function payBill($code, $amount, $paywayId)
     {
         $bill = $this->getBillByCode($code);
         if ($bill->amount != $amount) abort(500);
 
         $bill->payed=true;
-        $bill->payway=$payway;
+        $bill->payDate=Carbon::now();
+        $bill->paywayId=$paywayId;
        
 
         DB::transaction(function() use($bill) {
@@ -80,7 +93,7 @@ class Bills
             'code' => $code,
             'amount' => $amount,
             'payed' => false,
-            'payway' => 0,
+           
             'deadLine' => $date->addDays(10)
         ]);
         

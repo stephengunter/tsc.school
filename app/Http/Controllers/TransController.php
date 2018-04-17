@@ -71,7 +71,7 @@ class TransController extends Controller
 
       
         $tran=Tran::init();
-        $tran['studenId']=$selectedStudent->id;
+        $tran['studentId']=$selectedStudent->id;
 
         $form=[
             'student' => $selectedStudent,
@@ -87,11 +87,11 @@ class TransController extends Controller
     public function store(TranRequest $request)
     {
        
-        $studenId=$request->getStudentId();
+        $studentId=$request->getStudentId();
         $isPay=$request->isPay();
         $tranValues=$request->getTranValues();
 
-        $student=$this->students->getById($studenId);
+        $student=$this->students->getById($studentId);
         
         if(!$this->canEdit($student)) return $this->unauthorized();
 

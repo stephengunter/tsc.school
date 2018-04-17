@@ -12,17 +12,25 @@
                     {{ signup.date }}
                 </p>                   
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <label class="label-title">網路報名</label>
                 <p>
                     <i v-if="isTrue(signup.net)" class="fa fa-check-circle" style="color:green"></i>
                 </p>    
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <label class="label-title">狀態</label>
                 <p v-html="$options.filters.signupStatusLabel(signup.status)" >
-                   
-                </p>    
+                    {{  signup.status | signupStatusLabel }}
+                </p>   
+               
+            </div>
+            <div class="col-sm-2">
+                <label class="label-title">付款方式</label>
+              
+                <p  v-html="getPayRecord(signup)">
+
+                </p>
             </div>
         </div>  <!-- End row--> 
         <div class="row">
@@ -120,6 +128,14 @@
             },
             isTrue(val){
                 return Helper.isTrue(val);
+            },
+            getPayRecord(signup){
+                let html='';
+                if(signup.bill.payway) {
+                    html += signup.bill.payway.name;
+                    html += `<small>( ${signup.bill.payDate})</small>`;
+                }
+                return html;
             }
             
         }
