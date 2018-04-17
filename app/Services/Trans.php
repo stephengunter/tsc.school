@@ -32,14 +32,12 @@ class Trans
             $tran->save();
             $student->update([
                 'status' => -1, 
-                'ps' => $tran->date . '轉班退出此課程' 
             
             ]);
             Student::create([
                 'status' => 1,
                 'userId' => $student->userId,
                 'courseId' => $tran->courseId,
-                'ps' => $tran->date . '轉班加入此課程' 
             ]);
            
             return $tran;

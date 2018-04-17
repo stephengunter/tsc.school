@@ -1,11 +1,14 @@
 <template>
-    <div>
-        <quit-details :quit_details="quitDetails" :percents_options="percents_options"  :editting_id="edittingId"
+    <div v-if="form">
+        <quit-details :quit_details="form.details" :percents_options="percents_options"  :editting_id="edittingId"
            @cancel-edit="edittingId=0" @edit="beginEditRow">
         </quit-details>
         <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
             <quit-inputs :form="form" :payway_options="paywayOptions"></quit-inputs>
-            <submit-buttons :form="form" :submitting="submitting" :error_text="errorText"></submit-buttons>
+            <submit-buttons :form="form" :submitting="submitting" :error_text="errorText"
+                @cancel="cancel">
+
+            </submit-buttons>
         </form>
     </div>
 </template>
@@ -17,9 +20,9 @@ import SubmitButtons from './submit-buttons.vue';
 export default {
     name:'EditQuit',
     props: {
-        signup:{
-            type: Object,
-            default: null
+        id:{
+            type: Number,
+            default: 0
         },
         percents_options:{
             type: Array,
@@ -38,8 +41,6 @@ export default {
 			form:null,
 
             edittingId:0,
-
-            quitDetails:[],
             
             submitting:false,
 
@@ -55,25 +56,16 @@ export default {
 	},
     methods:{
 		init(){
-			this.quitDetails=this.signup.details.map(item=>{
-                return {
-                    'course':item.course,
-                    'signupDetailId':item.id,
-                    'percents' : '',
-                    'tuition' : '',
-                    'ps' : ''
-                }
-            });
 
-            let fetchData=Quit.create();
+            let fetchData=Quit.edit(this.id);
             fetchData.then(data => {
                     this.form = new Form({
                         quit:{
                             ...data.quit
                         },
-                        details:[]
+                        details:data.quit.details.slice(0)
                     })
-                    this.form.quit.paywayId=this.signup.bill.paywayId;
+                    
 					this.paywayOptions=data.paywayOptions.slice(0);
 				})
 				.catch(error => {
@@ -87,7 +79,7 @@ export default {
         },
         beginEditRow(item){
             this.errorText='';
-            this.edittingId = item.signupDetailId;
+            this.edittingId = parseInt(item.signupDetailId);
         },
 		setDate(val){
 			this.form.quit.date=val;
@@ -96,25 +88,30 @@ export default {
             this.form.quit.paywayId=item.value;
         },
 		onSubmit(){
+            this.errorText='';
             this.submitting=true;
 
-            let validDetails=this.quitDetails.filter(item=>{
-                return  Helper.tryParseInt(item.percents) > 0;
+
+            let validDetails=0;
+            this.form.details.forEach(item=>{
+                if(Helper.tryParseInt(item.percents) > 0) validDetails+=1;
             })
 
-            if(!validDetails.length){
+           
+
+            if(validDetails<1){
                 this.errorText='您沒有填寫任何一條退費比例';
                 this.submitting=false;
                 return;
             }
 
-            this.form.details=validDetails.slice(0);
+          
             this.submitQuit();
             
 			
         },
         submitQuit(){
-            let save= Quit.store(this.form);
+            let save= Quit.update(this.id,this.form);
 			save.then(() => {
 					this.submitting=false;
                     this.$emit('saved');

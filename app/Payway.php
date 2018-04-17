@@ -26,8 +26,16 @@ class Payway extends Model
 
     public function  needAccount()
     {
-        
-        return $this->name=='匯款';
+        return $this->need_account;
+    }
+
+    public function  getFee($amount)
+    {
+        if($this->fee_percents){
+            return round($amount * $this->fee /100);
+        }else{
+            return $this->fee;
+        }
     }
 
 }

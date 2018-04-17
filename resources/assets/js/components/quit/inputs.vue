@@ -10,13 +10,7 @@
                     </div>
                 </div>
             </div>  
-            <div class="col-sm-4">
-                <div class="form-group">                           
-                    <label>手續費</label>
-                    <input type="text" name="quit.fee" class="form-control" v-model="form.quit.fee">
-                    <small class="text-danger" v-if="form.errors.has('quit.fee')" v-text="form.errors.get('quit.fee')"></small>
-                </div>
-            </div>  
+            
             <div class="col-sm-4">
                 <div class="form-group">                           
                     <label>退款方式</label>
@@ -25,8 +19,7 @@
                     </drop-down>
                 </div>
             </div>  
-        </div>
-        <div class="row">
+
             <div class="col-sm-4">
                 <div class="form-group">                           
                     <label>銀行帳號</label>
@@ -34,7 +27,8 @@
                     <small class="text-danger" v-if="form.errors.has('quit.account')" v-text="form.errors.get('quit.account')"></small>
                 </div>
             </div>  
-        </div>    
+        </div>
+         
            
     </div>
 </template>

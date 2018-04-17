@@ -49,17 +49,7 @@ class Bills
         return $this->getAll()->where('code',$code)->first();
     }
 
-    public function paywayOptions()
-    {
-        $payways=Payway::all();
-        $options = $payways->map(function ($payway) {
-            return $payway->toOption();
-        })->all();
-
-       
-        return $options;
-    }
-        
+    
     public function payBill($code, $amount, $paywayId)
     {
         $bill = $this->getBillByCode($code);

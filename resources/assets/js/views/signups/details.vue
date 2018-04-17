@@ -39,7 +39,7 @@
                     </div>
 
                     <quit-view v-if="activeIndex==1"  :signup="signup"  
-                        @saved="reloadSignup"> 
+                        @saved="reloadSignup" @deleted="reloadSignup"> 
 
                     </quit-view>
                      

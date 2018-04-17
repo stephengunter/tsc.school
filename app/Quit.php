@@ -66,7 +66,10 @@ class Quit extends Model
 
 	}
 	
-	
+	public function hasDone()
+	{
+		return $this->status > 0;
+	}
 	
 	public function loadViewModel()
     {

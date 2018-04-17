@@ -14,16 +14,21 @@
                     <i class="fa fa-edit"></i> 
                     編輯
                 </button>
+
+                <button v-if="canDelete" @click.prevent="beginDelete" class="btn btn-danger btn-sm" >
+                    <i class="fa fa-trash"></i> 
+                    刪除
+                </button>
             </div>
         </div>  
         <div class="panel-body">
             <show :quit="signup.quit" :percents_options="percentsOptions" v-if="readOnly"  :signup="signup" >  
             </show>
             <div  v-else>
-                <create :percents_options="percentsOptions" v-if="creating" :signup="signup"
+                <create v-if="creating"  :percents_options="percentsOptions" :signup="signup"
                     @saved="onSaved"   @cancel="onEditCanceled" >                 
                 </create>
-                <edit :percents_options="percentsOptions" v-else :id="quitId" :signup_id="signup.id"
+                <edit  v-else :id="signup.id" :percents_options="percentsOptions" 
                     @saved="onSaved"   @cancel="onEditCanceled" >                 
                 </edit>
             </div>
@@ -32,7 +37,9 @@
         
     </div>
    
-   
+    <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
+      @close="closeConfirm" @confirmed="deleteSignup">        
+    </delete-confirm>
 </div>
 </template>
 <script>
@@ -75,7 +82,13 @@
                 readOnly:true,
                
                 percentsOptions:Quit.percentsOptions(),
+                
+                deleteConfirm:{
+                    id:0,
+                    show:false,
+                    msg:'',
 
+                }
             }
         },
         computed:{
@@ -89,7 +102,11 @@
             canEdit(){
                 if(!this.can_edit) return false;
                 if(!this.signup.quit)  return false;
+                if( Helper.isTrue(this.signup.quit.reviewed))  return false;
                 return true;
+            },
+            canDelete(){
+                return this.canEdit;
             },
             quitId(){
                 if(!this.signup) return 0;
@@ -130,6 +147,30 @@
             },
             onEditCanceled(){
                 this.readOnly=true;
+            },
+            beginDelete(){
+               
+                let id=this.quitId;
+                this.deleteConfirm.msg='確定要刪除這筆退費申請嗎?';
+                this.deleteConfirm.id=id;
+                this.deleteConfirm.show=true;     
+            },
+            closeConfirm(){
+                this.deleteConfirm.show=false;
+            },
+            deleteSignup(){
+                this.closeConfirm();
+                
+                let id = this.deleteConfirm.id ;
+                let remove= Quit.remove(id);
+                remove.then(() => {
+                    Helper.BusEmitOK('刪除成功');
+                    this.$emit('deleted');
+                })
+                .catch(error => {
+                    Helper.BusEmitError(error,'刪除失敗');
+                    this.closeConfirm();
+                })
             },
             onSaved(){
                 this.$emit('saved');

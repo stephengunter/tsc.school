@@ -6,7 +6,9 @@
         <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
             <quit-inputs :form="form" :payway_options="paywayOptions"></quit-inputs>
               
-            <submit-buttons :form="form" :submitting="submitting" :error_text="errorText"></submit-buttons>
+            <submit-buttons :form="form" :submitting="submitting" :error_text="errorText"
+             @cancel="cancel">
+            </submit-buttons>
         </form>
     </div>
 </template>
@@ -74,7 +76,12 @@ export default {
                         },
                         details:[]
                     })
-                    this.form.quit.paywayId=this.signup.bill.paywayId;
+                    let paywayExist=data.paywayOptions.find(item=>{
+                        return Helper.tryParseInt(item.value)==Helper.tryParseInt(this.signup.bill.paywayId);
+                    })
+                    if(paywayExist) this.form.quit.paywayId=this.signup.bill.paywayId;
+                    else this.form.quit.paywayId=data.paywayOptions[0].value;
+                    
 					this.paywayOptions=data.paywayOptions.slice(0);
 				})
 				.catch(error => {

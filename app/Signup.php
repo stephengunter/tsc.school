@@ -94,6 +94,13 @@ class Signup extends Model
 
     }
 
+    public function hasCanceled()
+    {
+        return $this->status < 1;
+    }
+
+  
+
     public function loadViewModel()
     {
         $this->getDate();
