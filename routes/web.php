@@ -165,6 +165,7 @@ Route::group(['middleware' => 'admin'], function()
     
     Route::resource('/manage/quits', 'QuitsController');
     Route::post('/manage/quits/review', 'QuitsController@review');
+    Route::post('/manage/quits/updatePS', 'QuitsController@updatePS');
    
 
 });

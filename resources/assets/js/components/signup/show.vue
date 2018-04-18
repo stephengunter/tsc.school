@@ -74,7 +74,18 @@
                 </p>                   
             </div>
             
-        </div>  <!-- End row-->         
+        </div>  <!-- End row-->      
+         <div class="row" >
+            <div  class="col-sm-12">
+                <label class="label-title">備註</label>
+                <p>
+                    {{ signup.ps }} 
+                </p>            
+            </div>
+           
+            
+        </div>  <!-- End row-->      
+
     </div>
     
     

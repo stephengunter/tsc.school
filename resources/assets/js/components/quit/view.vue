@@ -27,7 +27,7 @@
         </div>  
         <div class="panel-body">
             <show :quit="signup.quit" :user="signup.user"  v-if="readOnly"  :signup="signup"
-               @edit-review="onEditReview" >  
+               @edit-review="onEditReview"  @edit-ps="onEditPS" >  
             </show>
             <div v-else>
                 <create v-if="creating"  :signup="signup"
@@ -44,6 +44,9 @@
     <review-editor :showing="reviewEditor.show" :reviewed="reviewEditor.reviewed"
       @close="reviewEditor.show=false" @save="updateReview">
     </review-editor>
+    <ps-editor :showing="psEditor.show" :text="psEditor.text"
+      @close="psEditor.show=false" @save="updatePS">
+    </ps-editor>
     <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
       @close="closeConfirm" @confirmed="deleteSignup">        
     </delete-confirm>
@@ -94,6 +97,12 @@
                     show:false,
                     id:0,
                     reviewed:false,
+                },
+
+                psEditor:{
+                    show:false,
+                    id:0,
+                    text:'',
                 },
 
                 deleteConfirm:{
@@ -186,6 +195,30 @@
 				})
 				.catch(error => {
                     this.reviewEditor.show=false;
+					Helper.BusEmitError(error,'存檔失敗');
+				})
+            },
+            onEditPS(){
+                this.psEditor.id=this.quitId;
+                this.psEditor.text=this.signup.quit.ps;
+                this.psEditor.show=true;
+            },
+            updatePS(ps){
+               
+                let form=new Form({
+                     id:this.psEditor.id,
+                     ps:ps
+                });
+
+                let save=Quit.updatePS(form);
+				save.then(() => {
+                    this.psEditor.show=false;
+                    Helper.BusEmitOK('資料已存檔');
+                    this.$emit('saved');
+                    
+				})
+				.catch(error => {
+                    this.psEditor.show=false;
 					Helper.BusEmitError(error,'存檔失敗');
 				})
             },

@@ -8,9 +8,10 @@ class Signup extends Model
 {
     public static $snakeAttributes = false;
 	
-    protected $fillable = [  'userId', 'net', 'points', 'discount' ,
-                             'tuitions', 'costs', 'status',
-                             'updatedBy', 'removed'
+    protected $fillable = [  
+                            'userId', 'net', 'points', 'discount' ,
+                            'tuitions', 'costs', 'status',
+                            'updatedBy', 'removed','ps'
                           ];
                           
                          
@@ -24,7 +25,8 @@ class Signup extends Model
 			'tuitions' => 0,
 			'costs' => 0,
 			'discount' => '',
-			'status' => 0
+            'status' => 0,
+            'ps' => ''
 
 		];
 	}	

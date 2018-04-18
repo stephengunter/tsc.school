@@ -82,7 +82,13 @@
                     
                 </div>    
             </div>  <!-- End Row -->
-             
+            <div class="row" >
+                <div  class="col-sm-12">
+                    <label class="label-title">備註</label>
+                    <p v-text="course.ps"></p>                      
+                </div>
+                
+            </div>  <!-- End row-->  
         </div>   
     </div>
 

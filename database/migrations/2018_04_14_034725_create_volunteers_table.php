@@ -18,7 +18,7 @@ class CreateVolunteersTable extends Migration
             $table->boolean('removed')->default(false);
             $table->date('joinDate')->nullable();
 			$table->integer('updatedBy')->unsigned()->nullable();
-
+            $table->string('ps')->nullable();    
             $table->timestamps();
         });
     }

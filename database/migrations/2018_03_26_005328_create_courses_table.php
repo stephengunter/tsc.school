@@ -56,6 +56,9 @@ class CreateCoursesTable extends Migration
             
             $table->integer('updatedBy')->unsigned()->nullable();
             $table->integer('reviewedBy')->unsigned()->nullable();
+
+            $table->string('ps')->nullable(); 
+
 			$table->timestamps();
         });
     }

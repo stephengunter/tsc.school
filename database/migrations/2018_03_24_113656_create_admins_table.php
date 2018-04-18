@@ -23,6 +23,7 @@ class CreateAdminsTable extends Migration
             $table->boolean('active')->default(true);
             $table->boolean('removed')->default(false);
             $table->integer('updatedBy')->unsigned()->nullable();
+            $table->string('ps')->nullable();
             $table->timestamps();
         });
     }

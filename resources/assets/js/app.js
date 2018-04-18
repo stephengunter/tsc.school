@@ -20,7 +20,8 @@ Vue.component('check-box-list', require('./packages/components/CheckboxList'));
 
 Vue.component('page-controll', require('./components/page-controll'));
 Vue.component('admin-card', require('./components/admin-card'));
-Vue.component('review-editor', require('./components/review-editor'))
+Vue.component('review-editor', require('./components/review-editor'));
+Vue.component('ps-editor', require('./components/ps-editor'));
 Vue.component('searcher', require('./components/searcher'));
 Vue.component('user-selector', require('./components/user/selector'));
 

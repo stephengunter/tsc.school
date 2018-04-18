@@ -27,7 +27,17 @@
         </div>
        
     </div> <!--  row   -->
-    
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">                           
+                <label>備註</label>
+                <input type="text" name="admin.ps" class="form-control" v-model="form.admin.ps"  >
+
+                
+            </div>
+        </div>
+       
+    </div> <!--  row   -->
     
 </div>  
 </template>

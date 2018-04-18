@@ -36,6 +36,8 @@ class Teacher extends Model
 
 			'active' => 1,
             'removed' => 0,
+
+            'ps' => '',
             
             'wage' => 0,
             'account' => ''

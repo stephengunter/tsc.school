@@ -133,7 +133,16 @@
                 </div> 
                 
             </div>      <!-- End Row   --> 
-            
+            <div  class="row">
+                <div class="col-sm-12">
+                    <div  class="form-group">  
+                        <label>備註</label>
+                        <input type="text" name="course.ps" class="form-control" v-model="form.course.ps"  >
+                    </div>
+                </div> 
+                
+                
+            </div>      <!-- End Row   --> 
             
                
         </div>

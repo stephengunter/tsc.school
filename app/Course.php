@@ -21,7 +21,7 @@ class Course extends Model
         'tuition', 'cost' , 'materials','discount',
         'net' , 'openDate' , 'closeDate',
         'reviewed', 'active',       
-        'removed' , 'updatedBy'  
+        'removed' , 'updatedBy' , 'ps'
                             
     ];
 
@@ -48,7 +48,7 @@ class Course extends Model
             'hours' => $hours,
             'beginDate'=> $begin_date,
             'endDate'=> $end_date,
-       
+            'ps' => '',
            
             'net'=> 1 ,
             'active'=> 1 ,

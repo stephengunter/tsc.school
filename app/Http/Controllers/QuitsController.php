@@ -46,13 +46,8 @@ class QuitsController extends Controller
         if($quit->reviewed) return false;
         if($quit->hasDone()) return false;
 
-        $centersCanAdmin= $this->centersCanAdmin();
-       
-        $intersect = $centersCanAdmin->intersect([$quit->getCenter()]);
-
-        if(count($intersect)) return true;
-        return false;
-
+        return $this->canAdminCenter($quit->getCenter());
+      
     }
 
     function canQuits(Signup $signup)
@@ -60,12 +55,9 @@ class QuitsController extends Controller
         if($signup->status < 1) return false;
         if($signup->quit) return false;
 
-        $centersCanAdmin= $this->centersCanAdmin();
+        return $this->canAdminCenter($signup->getCenter());
+
        
-        $intersect = $centersCanAdmin->intersect([$signup->getCenter()]);
-       
-        if(count($intersect)) return true;
-        return false;
 
     }
 
@@ -421,21 +413,52 @@ class QuitsController extends Controller
 
     public function review(Request $form)
     {
+
         $reviewedBy=$this->currentUserId();
         
         $quits=  $form['quits'];
 
         if(count($quits) > 1){
             $quitIds=array_pluck($quits, 'id');
+
+            $quit = $this->quits->getById($quitIds[0]); 
+            if(!$this->canReview($quit)) return $this->unauthorized();
+
             $this->quits->reviewOK($quitIds, $reviewedBy);
+
         }else{
             
             $id=$quits[0]['id'];
+
+            $quit = $this->quits->getById($id); 
+            if(!$this->canReview($quit)) return $this->unauthorized();
          
             $reviewed=Helper::isTrue($quits[0]['reviewed']);
 
             $this->quits->updateReview($id,$reviewed ,$reviewedBy);
         }
+        
+
+        return response() ->json();
+
+
+    }
+
+    public function updatePS(Request $form)
+    {
+        $id=$form['id'];
+        $ps=$form['ps'];
+
+        $quit = $this->quits->getById($id);   
+        if(!$quit) abort(404);   
+
+        if(!$this->canAdminCenter($quit->getCenter())) return $this->unauthorized();
+        
+        
+        $quit->update([
+             'ps' => $ps,
+             'updatedBy' => $this->currentUserId()
+        ]);
         
 
         return response() ->json();

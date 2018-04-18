@@ -10,7 +10,7 @@ class TeacherGroup extends Model
 	
 	protected $fillable = [ 
         'centerId','name','description',
-        'removed','active','updatedBy'
+        'removed','active','updatedBy','ps'
     
     ];
        
@@ -22,7 +22,9 @@ class TeacherGroup extends Model
             'description' =>'',
 
 			'active' => 1,
-            'removed' => 0,
+			'removed' => 0,
+			
+			'ps' => ''
 
 		];
 	}  

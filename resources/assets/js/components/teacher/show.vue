@@ -26,6 +26,12 @@
                 <p v-html="teacher.description"></p>                     
             </div>
         </div>  <!-- End row--> 
+        <div class="row" >
+            <div  class="col-sm-12">
+                <label class="label-title">備註</label>
+                <p v-text="teacher.ps"></p>                     
+            </div>
+        </div>  <!-- End row--> 
     </div>
     <div v-else class="show-data">
         <div class="row" >
@@ -84,6 +90,13 @@
                 <label class="label-title">銀行帳號</label> 
                  <p>{{ teacher.account  }}</p>        
             </div>
+        </div>  
+        <div class="row">
+            <div class="col-sm-8">
+                <label class="label-title">備註</label>
+                <p>{{ teacher.ps }}</p>           
+            </div>
+            
         </div>   
     </div>
 

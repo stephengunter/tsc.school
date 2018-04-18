@@ -70,7 +70,13 @@
             </div>
             <div class="col-sm-9">
                 <label class="label-title">備註</label>
-                <p v-text="quit.ps"></p>                      
+                <p>
+                    {{ quit.ps }}
+                    &nbsp;
+                    <button class="btn btn-primary btn-xs" @click.prevent="editPS">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                </p>                      
             </div>
             
         </div>   <!-- End row-->
@@ -137,6 +143,10 @@
             editReview(){
                
                 this.$emit('edit-review')
+            },
+            editPS(){
+               
+                this.$emit('edit-ps')
             }
             
         }

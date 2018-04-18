@@ -12,7 +12,6 @@
                         <th style="width:10%">姓名</th>
                         <th style="width:20%">Email</th>
                         <th style="width:10%">手機</th>
-                        <th style="width:20%">地址</th>
                         
                         <th style="width:10%">專長</th>
                         <th style="width:10%" v-if="!center">所屬中心</th>
@@ -36,11 +35,7 @@
                        
                         <td>{{  teacher.user.email }}</td>
                         <td>{{  teacher.user.phone }}</td>
-                        <td>
-                            <span v-if="hasAddress(teacher)">
-                                {{  teacher.user.contactInfo.address.fullText }}
-                            </span>
-                        </td>
+                        
 
 
                         <td>{{  teacher.specialty }}</td>
@@ -156,6 +151,7 @@ export default {
 				
 		},
 		onCheckAll(){
+          
 			this.checkAll=true;
 			
 			let teacherList = this.getViewList();
@@ -166,6 +162,7 @@ export default {
 			});
 		},
 		unCheckAll(){
+            
 			this.checkAll=false;
 			this.checked_ids=[];
 		},

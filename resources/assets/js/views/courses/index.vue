@@ -37,14 +37,14 @@
             
             <div v-if="showReviewBtn" class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
 
-                <a v-if="canReview" @click.prevent="onReviewOk" href="#" class="btn btn-success">
+                <a v-if="canReview" @click.prevent="onReviewOk" :disabled="!canSubmitReview"  href="#" class="btn btn-success">
                     <i class="fa fa-check-circle"></i>
                     審核通過
                 </a>
                 
             </div>
             <div v-else class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
-                    <a @click.prevent="beginImport" href="#" class="btn btn-warning pull-right">
+                <a v-if="showImportBtn"  @click.prevent="beginImport" href="#" class="btn btn-warning pull-right">
                     <i class="fa fa-upload"></i>
                     匯入
                 </a>
@@ -152,12 +152,17 @@
             this.canReview=this.can_review;	
         },
         computed:{
-            showReviewBtn(){
-               return this.checkedIds.length > 0;
-            },
+           
             showImportBtn(){
-                if(!this.can_import) return false;
-                return !this.canReview;
+                return this.can_import;
+            },
+            showReviewBtn(){
+                if(this.params.reviewed) return false;
+                if(!this.center) return false;
+                return true;
+            },
+            canSubmitReview(){
+                return this.checkedIds.length > 0;
             }
            
         }, 

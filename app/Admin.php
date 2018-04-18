@@ -8,13 +8,14 @@ class Admin extends Model
 {
     protected $primaryKey = 'userId';
 
-    protected $fillable = [ 'active', 'removed', 'updatedBy'];
+    protected $fillable = [ 'active', 'removed', 'updatedBy','ps'];
        
     public static function init()
 	{
 		return [
 			'active' => 1,
-			'removed' => 0,
+            'removed' => 0,
+            'ps' => ''
 
 		];
 	}  

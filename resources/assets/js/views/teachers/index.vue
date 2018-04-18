@@ -30,14 +30,15 @@
                 </div>
                 
                 <div v-if="showReviewBtn" class="col-sm-2 pull-right" align="right" style="margin-top: 20px;">
-
-                    <a v-if="canReview" @click.prevent="onReviewOk" href="#" class="btn btn-success">
+                    
+                    <a v-if="canReview" v-show="!isGroup" :disabled="!canSubmitReview"  @click.prevent="onReviewOk" href="#" class="btn btn-success">
                         <i class="fa fa-check-circle"></i>
                         審核通過
                     </a>
                     
                 </div>
                 <div v-else class="col-sm-2 pull-right" align="right" style="margin-top: 20px;">
+                   
                     <a  @click.prevent="onCreate" href="#" class="btn btn-primary">
                         <i class="fa fa-plus-circle"></i> 新增
                     </a>
@@ -162,6 +163,12 @@
                 return this.params.group;
             },
             showReviewBtn(){
+                if(this.params.reviewed) return false;
+                if(this.isGroup) return false;
+                if(!this.center) return false;
+                return true;
+            },
+            canSubmitReview(){
                 return this.checkedIds.length > 0;
             }
            
@@ -251,6 +258,7 @@
                 })
             },
             onCheckIdsChanged(ids){
+               
                 this.checkedIds=ids.slice(0);
             },
             onReviewOk(){
@@ -272,7 +280,7 @@
 				save.then(() => {
                     Helper.BusEmitOK('資料已存檔');
                     this.fetchData();
-                    
+                    this.checkedIds=[];
                     this.$refs.teachersTable.unCheckAll();
 				})
 				.catch(error => {

@@ -136,6 +136,20 @@ class Quit {
                 })
         })
     }
+
+    static updatePS(form){
+        let url = this.source() + '/updatePS';
+        let method = 'post';
+        return new Promise((resolve, reject) => {
+            form.submit(method, url)
+                .then(data => {
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    }
  
     static remove(id) {
         let url = this.deleteUrl(id);

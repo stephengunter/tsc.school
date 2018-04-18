@@ -28,6 +28,7 @@
             </div>
         </div>
     </div> <!--  row   -->
+   
     <div class="row">
         <div class="col-sm-12">
             <div class="form-group">                           
@@ -35,6 +36,14 @@
                 <textarea rows="5"  class="form-control" name="teacher.description"  v-model="form.teacher.description">
                 </textarea>
                 <small class="text-danger" v-if="form.errors.has('teacher.description')" v-text="form.errors.get('teacher.description')"></small>
+            </div>
+        </div>
+    </div> <!--  row   -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">                           
+                <label>備註</label>
+                <input type="text" name="teacher.ps" class="form-control" v-model="form.teacher.ps"  >
             </div>
         </div>
        
@@ -111,25 +120,34 @@
         </div>
 
     </div>  <!-- end row-->
-    <div v-if="!group" class="row">
-			<div class="col-sm-4">
-				<div class="form-group">                           
-					<label>鐘點費</label>
-					<input type="text" name="teacher.wage" class="form-control" v-model="form.teacher.wage"  >
-					<small class="text-danger" v-if="form.errors.has('teacher.wage')" v-text="form.errors.get('teacher.wage')"></small>
-				</div>
-			</div>
-			<div class="col-sm-4">
-				<div class="form-group">                           
-					<label>銀行帳號</label>
-					<input type="text" name="teacher.account" class="form-control" v-model="form.teacher.account"  >
-					<small class="text-danger" v-if="form.errors.has('teacher.account')" v-text="form.errors.get('teacher.account')"></small>
-				</div>
-			</div>
-			<div class="col-sm-4">
-				
-			</div>
-    	</div> 
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">                           
+                <label>鐘點費</label>
+                <input type="text" name="teacher.wage" class="form-control" v-model="form.teacher.wage"  >
+                <small class="text-danger" v-if="form.errors.has('teacher.wage')" v-text="form.errors.get('teacher.wage')"></small>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">                           
+                <label>銀行帳號</label>
+                <input type="text" name="teacher.account" class="form-control" v-model="form.teacher.account"  >
+                <small class="text-danger" v-if="form.errors.has('teacher.account')" v-text="form.errors.get('teacher.account')"></small>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            
+        </div>
+    </div> 
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">                           
+                <label>備註</label>
+                <input type="text" name="teacher.ps" class="form-control" v-model="form.teacher.ps"  >
+            </div>
+        </div>
+       
+    </div> <!--  row   -->
 </div>  
 
 </template>

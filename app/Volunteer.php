@@ -9,7 +9,7 @@ class Volunteer extends Model
     protected $primaryKey = 'userId';
     
     protected $fillable = [  'active', 'removed', 
-        'joinDate', 'updatedBy'
+        'joinDate', 'updatedBy','ps'
     ];
 
     public static function init()
@@ -18,7 +18,8 @@ class Volunteer extends Model
 			'active' => 0,
 			'removed' => 0,
 			'joinDate' => '',
-			'updatedBy' => '',
+            'updatedBy' => '',
+            'ps' => ''
 
 		];
 	}	
