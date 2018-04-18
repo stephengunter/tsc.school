@@ -59,6 +59,7 @@ Vue.component('admins-import', require('./views/admins/import'));
 
 Vue.component('courses-index', require('./views/courses/index'));
 Vue.component('courses-details', require('./views/courses/details'));
+Vue.component('courses-create', require('./views/courses/create'));
 Vue.component('courses-import', require('./views/courses/import'));
 
 Vue.component('users-index', require('./views/users/index'));

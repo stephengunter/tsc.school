@@ -74,7 +74,7 @@ class TeacherGroup extends Model
 
     public function  toOption()
     {
-        return [ 'text' => $this->name ,  'value' => $this->Id , 'group' => true ];
+        return [ 'text' => $this->name ,  'value' => $this->id , 'group' => true ];
     }
 
 

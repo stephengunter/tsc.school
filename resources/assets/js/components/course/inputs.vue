@@ -52,9 +52,9 @@
             </div>  <!-- End Row   --> 
             
             <div class="row">
-                <div v-if="!isCreate" class="col-sm-4">
+                <div class="col-sm-4">
                     <div class="form-group">  
-                        <label>課程編號</label>
+                        <label>流水號</label>
                         <input type="text" name="course.number" class="form-control" v-model="form.course.number"  >
                         <small class="text-danger" v-if="form.errors.has('course.number')" v-text="form.errors.get('course.number')"></small>
                     </div>
@@ -187,6 +187,7 @@
         },
         computed:{
             isCreate(){
+                if(!this.form.course.id) return true;
                 return parseInt(this.form.course.id) < 1;
             }
             

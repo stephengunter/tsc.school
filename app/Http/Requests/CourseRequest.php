@@ -28,7 +28,7 @@ class CourseRequest extends FormRequest
 
         return [
             'course.name' => 'required|max:255',
-            'course.number' => 'required|max:255',
+            'course.number' => 'required|numeric',
             'course.beginDate' => 'required',
             'course.endDate' => 'required',
           
@@ -38,7 +38,8 @@ class CourseRequest extends FormRequest
     {
         return [
             'course.name.required' => '請填寫名稱',
-            'course.number.required' => '請填寫編號',
+            'course.number.required' => '請填寫流水號',
+            'course.number.numeric' => '流水號必須是數字',
             'course.beginDate.required' => '請填寫開始日期',
             'course.endDate.required' => '請填寫結束日期',
             

@@ -11,7 +11,7 @@
 <courses-details v-if="selected" :id="selected"  :weekdays="weekdays"  
                   v-on:back="backToIndex" v-on:course-deleted="backToIndex">
 </courses-details>
-<courses-create v-if="creating" v-on:cancel="backToIndex">
+<courses-create v-if="creating" v-on:cancel="backToIndex" v-on:saved="onCreated">
 </courses-create>
 
 <courses-import v-if="importing" :can_import="can_import" :terms="terms" :centers="centers"
@@ -83,6 +83,10 @@
                 beginImport() {
 
                     this.importing = true;
+                },
+                onCreated(course){
+                    this.creating = false;
+                    this.selected = course.id;
                 },
                 backToIndex() {
                     this.version += 1;

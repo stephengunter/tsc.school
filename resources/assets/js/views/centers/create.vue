@@ -129,12 +129,6 @@ export default {
 
             cities:[],
             districts:[],
-			//categoryOptions:[],
-
-			//topOptions:Post.topOptions(),
-
-			//reviewedOptions:Post.reviewedOptions(),
-
 			
 
             form:null,

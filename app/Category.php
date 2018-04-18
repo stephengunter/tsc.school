@@ -31,4 +31,9 @@ class Category extends Model
         return $this->belongsToMany(Course::class,'category_course','category_id','course_id');
 	}
 
+	public function  toOption()
+    {
+        return [ 'text' => $this->name ,  'value' => $this->id ];
+    }
+
 }

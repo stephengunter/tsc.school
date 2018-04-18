@@ -44,7 +44,11 @@
                 
             </div>
             <div v-else class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
-                <a v-if="showImportBtn"  @click.prevent="beginImport" href="#" class="btn btn-warning pull-right">
+                <a @click.prevent="beginCreate" href="#" class="btn btn-primary">
+                    <i class="fa fa-plus"></i>
+                    新增
+                </a>
+                <a v-if="showImportBtn"  @click.prevent="beginImport" href="#" class="btn btn-warning">
                     <i class="fa fa-upload"></i>
                     匯入
                 </a>
@@ -170,6 +174,9 @@
             getList(){
                 if(this.model) return this.model.viewList;
                 return [];
+            },
+            beginCreate(){
+                this.$emit('create');
             },
             beginImport(){
                 this.$emit('import');

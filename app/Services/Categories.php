@@ -77,11 +77,22 @@ class Categories
     public function options($withEmpty=true)
     {
         $categories= $this->fetchCategories()->get();
-        $options = $categories->map(function ($item) {
-            return [ 'text' => $item->name ,  'value' => $item->id ];
+        $options = $categories->map(function ($category) {
+            return $category->toOption();
         })->all();
 
         if($withEmpty) array_unshift($options, ['text' => '所有分類' , 'value' =>'0']);
+        
+        return $options;
+    }
+
+    public function forEditCourseOptions()
+    {
+        $categories= $this->fetchCategories()->where('top',false)->get();
+        $options = $categories->map(function ($category) {
+            return $category->toOption();
+        })->all();
+
         
         return $options;
     }

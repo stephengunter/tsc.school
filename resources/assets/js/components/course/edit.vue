@@ -8,7 +8,7 @@
 		
 		
 		<div v-if="submitting"  class="row">
-			<div class="col-sm-3">
+			<div v-if="id"  class="col-sm-3">
             </div>
 			<div class="col-sm-4">
 				<div class="form-group">                           
@@ -20,7 +20,7 @@
 			</div>
     	</div>
 		<div v-else class="row">
-			<div class="col-sm-3">
+			<div v-if="id" class="col-sm-3">
             </div>
 			<div class="col-sm-4">
 				<div class="form-group">   
@@ -106,19 +106,6 @@ export default {
 				this.termOptions=model.termOptions.slice(0);
 				this.categoryOptions=model.categoryOptions.slice(0);
 				this.teacherOptions=model.teacherOptions.slice(0);
-
-				// if(this.group){
-				// 	this.centerOptions=model.centerOptions.slice(0);
-				// }else{
-				// 	if(model.centerOptions){
-				// 		this.centerOptions=model.centerOptions.slice(0);
-						
-				// 		this.form.centerIds=model.centerIds.map((id)=>{
-				// 			return id.toString();
-				// 		});
-				// 	}
-				// }
-
 				
 				
 			})
@@ -147,9 +134,10 @@ export default {
            	else  save = Course.store(this.form); 
           
 
-			save.then(() => {
+			save.then((course) => {
 					this.submitting=false;
-                    this.$emit('saved');
+					if(this.id)  this.$emit('saved');
+					else  this.$emit('saved',course);
 					Helper.BusEmitOK('資料已存檔');
 				})
 				.catch(error => {
