@@ -70,9 +70,12 @@ class Quit extends Model
 	{
 		return $this->status > 0;
 	}
+
+	
 	
 	public function loadViewModel()
     {
+		
 		$this->payway;
 		
         $this->amount=$this->amount();

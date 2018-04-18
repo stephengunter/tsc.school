@@ -1,6 +1,6 @@
 <template>
     <div>
-        <quit-details :quit_details="quitDetails" :percents_options="percents_options"  :editting_id="edittingId"
+        <quit-details :quit_details="quitDetails" :percents_options="percentsOptions"  :editting_id="edittingId"
            @cancel-edit="edittingId=0" @edit="beginEditRow">
         </quit-details>
         <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
@@ -23,11 +23,7 @@ export default {
         signup:{
             type: Object,
             default: null
-        },
-        percents_options:{
-            type: Array,
-            default: null
-        },
+        }
 	},
     components: {
         'quit-details':QuitDetails,
@@ -38,6 +34,7 @@ export default {
 		return {
 			
             paywayOptions:[],
+            percentsOptions:[],
 			form:null,
 
             edittingId:0,
@@ -62,12 +59,12 @@ export default {
                 return {
                     'course':item.course,
                     'signupDetailId':item.id,
-                    'percents' : '',
+                    'percents' : 0,
                     'tuition' : '',
                     'ps' : ''
                 }
             });
-
+           
             let fetchData=Quit.create();
             fetchData.then(data => {
                     this.form = new Form({
@@ -82,7 +79,9 @@ export default {
                     if(paywayExist) this.form.quit.paywayId=this.signup.bill.paywayId;
                     else this.form.quit.paywayId=data.paywayOptions[0].value;
                     
-					this.paywayOptions=data.paywayOptions.slice(0);
+                    this.paywayOptions=data.paywayOptions.slice(0);
+                    
+                    this.percentsOptions=data.percentsOptions.slice(0);
 				})
 				.catch(error => {
 					

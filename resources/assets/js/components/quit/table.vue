@@ -12,47 +12,50 @@
                         </th>
                         
                         <th style="width:10%">姓名</th>
-                        <th style="width:10%">報名日期</th>
-                        <th style="width:8%">網路報名</th>
+                        <th style="width:10%">申請日期</th>
+                        <th>明細</th>
+                        <th style="width:10%">退還學費</th>
+                        <th style="width:10%">手續費</th>
+                        <th style="width:10%">退款方式</th>
+                        <th style="width:10%">應退金額</th>
                         <th style="width:10%">狀態</th>
-                        <th>報名課程</th>
-                        <th style="width:25%">折扣</th>
-                        <th style="width:10%">應繳金額</th>
                     </tr>
                     
                 </thead>
                 <tbody>
-                    <tr v-for="(signup,index) in getViewList()" :key="index">
+                    <tr v-for="(quit,index) in getViewList()" :key="index">
                         <td v-if="canCheck">
-							<check-box :value="signup.id" :default="beenChecked(signup.id)"
+							<check-box :value="quit.signupId" :default="beenChecked(quit.signupId)"
 								@selected="onChecked" @unselected="unChecked">
 							</check-box>
                         </td>
                       
                         <td> 
-                            <a  href="#" @click.prevent="onSelected(signup.id)" v-text="signup.user.profile.fullname"> </a> 
+                            <a  href="#" @click.prevent="onSelected(quit.signupId)" v-text="quit.signup.user.profile.fullname"> </a> 
                          
                         </td>
                         <td> 
-                            {{ signup.date }} 
+                            {{ quit.date }} 
+                        </td>
+                        <td v-html="getDetails(quit)">
+                          
                         </td>
                         <td>
-                            <i v-if="isTrue(signup.net)" class="fa fa-check-circle" style="color:green"></i>
-                        </td>
-                        <td v-html="$options.filters.signupStatusLabel(signup.status)" ></td>
-                        <td v-html="courseNames(signup)">
-
+                             {{ quit.tuitions | formatMoney }}    
                         </td>
                         <td>
-                             {{ signup.discount }} 
-                            <span v-if="signup.points">
-                               &nbsp; {{ signup.pointsText }}
-                            </span>  
-
+                             {{ quit.fee | formatMoney }}    
                         </td>
                         <td>
-                             {{ signup.amount | formatMoney }} 
+                             {{ quit.payway.name }} 
                         </td>
+                        <td>
+                             {{ quit.amount | formatMoney }} 
+                        </td>
+                        
+                        <td v-html="getStatusLabels(quit)" ></td>
+                      
+                       
                        
                     </tr>
                     
@@ -70,13 +73,13 @@
 
 <script>
 export default {
-    name:'SignupTable',
+    name:'QuitTable',
     props: {
         model: {
             type: Object,
             default: null
         },
-        signups:{
+        quits:{
             type: Array,
             default: null
         },
@@ -120,7 +123,7 @@ export default {
             return this.can_checked;
         },
         dataCounts(){
-          
+           
             let viewList=this.getViewList();
             if(!viewList) return 0;
             return viewList.length;
@@ -135,8 +138,21 @@ export default {
     methods:{
         getViewList(){
 			if(this.model) return this.model.viewList;
-			return this.signups;
-		},
+			return this.quits;
+        },
+        getDetails(quit){
+          
+            let html='';
+            quit.details.forEach(item=>{
+                html += Quit.detailSummary(item) + '<br>'
+            })
+            return html;
+        },
+        getStatusLabels(quit){
+            let reviewedLabel=Helper.reviewedLabel(quit.reviewed);
+            let statusLabel=Quit.statusLabel(quit.status);
+            return reviewedLabel + '&nbsp;' +  statusLabel;
+        },
         onSelected(id){
             
            this.$emit('selected',id);
@@ -157,19 +173,19 @@ export default {
 		onCheckAll(){
 			this.checkAll=true;
 			
-			let signupList = this.getViewList();
-			if(!signupList)  return false;
+			let quitList = this.getViewList();
+			if(!quitList)  return false;
 
-			signupList.forEach( signup => {
-				this.onChecked(signup.id)
+			quitList.forEach( quit => {
+				this.onChecked(quit.signupId)
 			});
 		},
 		unCheckAll(){
 			this.checkAll=false;
 			this.checked_ids=[];
         },
-        courseNames(signup){
-            return  Signup.courseNames(signup);
+        courseNames(quit){
+            return  Quit.courseNames(quit);
         },
         isTrue(val){
             return Helper.isTrue(val);

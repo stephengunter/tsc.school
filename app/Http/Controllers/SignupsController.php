@@ -49,12 +49,8 @@ class SignupsController extends Controller
     {
         if($this->currentUserIsDev()) return true;
 
-        $centersCanAdmin= $this->centersCanAdmin();
-       
-        $intersect = $centersCanAdmin->intersect([$signup->getCenter()]);
+        return $this->canAdminCenter($signup->getCenter());
 
-        if(count($intersect)) return true;
-        return false;
 
     }
     function canDelete($signup)
@@ -67,25 +63,15 @@ class SignupsController extends Controller
     {
         if($signup->status < 1) return false;
 
-        $centersCanAdmin= $this->centersCanAdmin();
-       
-        $intersect = $centersCanAdmin->intersect([$signup->getCenter()]);
-       
-        if(count($intersect)) return true;
-        return false;
+        return $this->canEdit($signup);
 
     }
-    function canReview(Center $center)
+    function canReviewCenter(Center $center)
     {
         if($this->currentUserIsDev()) return true;
         if(!$this->currentUser()->isBoss()) return false;
 
-        $centersCanAdmin= $this->centersCanAdmin();
-        $intersect = $centersCanAdmin->intersect([$course->center]);
-
-        
-        if(count($intersect)) return true;
-        return false;
+        return $this->canAdminCenter($center);
     }
 
     public function seed()
@@ -571,8 +557,8 @@ class SignupsController extends Controller
 
         if(!$selectedTerm) abort(404);
         if(!$selectedCenter) abort(404);
-
-        $model['canReview'] = $this->canReview($selectedCenter);
+        
+        $model['canReview'] = $this->canReviewCenter($selectedCenter);
 
         $courses=$this->courses->fetchCourses( $selectedTerm->id ,$selectedCenter);
         $courses=$courses->where('active',$active);

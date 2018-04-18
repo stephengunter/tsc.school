@@ -31,7 +31,9 @@ class Payway extends Model
 
     public function  getFee($amount)
     {
+        
         if($this->fee_percents){
+          
             return round($amount * $this->fee /100);
         }else{
             return $this->fee;

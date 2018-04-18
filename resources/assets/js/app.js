@@ -68,10 +68,11 @@ Vue.component('signups-report', require('./views/signups/report'));
 Vue.component('signups-details', require('./views/signups/details'));
 Vue.component('signups-create', require('./views/signups/create'));
 
+Vue.component('quits-index', require('./views/quits/index'));
+Vue.component('quits-details', require('./views/quits/details'));
+
 Vue.component('students-index', require('./views/students/index'));
 Vue.component('students-details', require('./views/students/details'));
-
-Vue.component('discounts-index', require('./views/discounts/index'));
 
 
 

@@ -55,6 +55,17 @@ class Controller extends BaseController
         return $admin->centersCanAdmin();
     }
 
+    protected function canAdminCenter(Center $center)
+    {
+        if($this->currentUserIsDev()) return true;
+
+        $centersCanAdmin= $this->centersCanAdmin();
+        $intersect = $centersCanAdmin->intersect([$center]);
+
+        if(count($intersect)) return true;
+        return false;
+    }
+
     protected function isAjaxRequest()
     {
         return request()->ajax();

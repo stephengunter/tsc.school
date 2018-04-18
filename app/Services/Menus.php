@@ -81,7 +81,12 @@ class Menus
                         'text' => '報名統計',
                         'path' => '/manage/signups/report',
                         'active' => $current=='manage/signups/report'
-                    ]
+                    ],
+                    [
+                        'text' => '退費管理',
+                        'path' => '/manage/quits',
+                        'active' => $current =='manage/quits'
+                    ],
                 );
         } 
         if($key=='HomePageAdmin'){

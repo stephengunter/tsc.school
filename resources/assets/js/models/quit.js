@@ -28,7 +28,9 @@ class Quit {
     static deleteUrl(id){
         return this.source() + `/${id}`;
     }
-   
+    static reviewUrl(id) {
+        return this.source() + '/review';
+    }
 
     static show(id) {
         return new Promise((resolve, reject) => {
@@ -121,7 +123,19 @@ class Quit {
         })
     }
 
-    
+    static review(form){
+        let url = this.reviewUrl();
+        let method = 'post';
+        return new Promise((resolve, reject) => {
+            form.submit(method, url)
+                .then(data => {
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    }
  
     static remove(id) {
         let url = this.deleteUrl(id);
@@ -150,7 +164,7 @@ class Quit {
     static getStatusText(status){
         status=parseInt(status);
         if(status==0) return '未完成';
-        if(status==1) return '已完成';
+        if(status==1) return '已結案';
       
             return '';
     }
@@ -167,12 +181,14 @@ class Quit {
         let text=this.getStatusText(status)
         let style='label label-' + this.getStatusStyle(status)
         
-        return `<span class="${style}" > ${text} </span>`
+        return `<span class="${style}" >${text}</span>`
     }
 
-    
-    
-    
+    static detailSummary(detail){
+        let courseName=detail.course.fullName;
+        let tuition=Helper.formatMoney(detail.tuition);
+        return `${courseName} ${tuition} (${detail.percentsText})`
+    }
  
     
  }

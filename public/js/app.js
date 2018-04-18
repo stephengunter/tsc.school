@@ -61987,10 +61987,11 @@ Vue.component('signups-report', __webpack_require__(472));
 Vue.component('signups-details', __webpack_require__(478));
 Vue.component('signups-create', __webpack_require__(525));
 
+Vue.component('quits-index', __webpack_require__(757));
+Vue.component('quits-details', __webpack_require__(763));
+
 Vue.component('students-index', __webpack_require__(528));
 Vue.component('students-details', __webpack_require__(537));
-
-Vue.component('discounts-index', __webpack_require__(552));
 
 
 new Vue({
@@ -65514,6 +65515,11 @@ var Quit = function () {
             return this.source() + ('/' + id);
         }
     }, {
+        key: 'reviewUrl',
+        value: function reviewUrl(id) {
+            return this.source() + '/review';
+        }
+    }, {
         key: 'show',
         value: function show(id) {
             var _this = this;
@@ -65594,6 +65600,19 @@ var Quit = function () {
             });
         }
     }, {
+        key: 'review',
+        value: function review(form) {
+            var url = this.reviewUrl();
+            var method = 'post';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
         key: 'remove',
         value: function remove(id) {
             var url = this.deleteUrl(id);
@@ -65616,7 +65635,7 @@ var Quit = function () {
         value: function getStatusText(status) {
             status = parseInt(status);
             if (status == 0) return '未完成';
-            if (status == 1) return '已完成';
+            if (status == 1) return '已結案';
 
             return '';
         }
@@ -65635,7 +65654,14 @@ var Quit = function () {
             var text = this.getStatusText(status);
             var style = 'label label-' + this.getStatusStyle(status);
 
-            return '<span class="' + style + '" > ' + text + ' </span>';
+            return '<span class="' + style + '" >' + text + '</span>';
+        }
+    }, {
+        key: 'detailSummary',
+        value: function detailSummary(detail) {
+            var courseName = detail.course.fullName;
+            var tuition = Helper.formatMoney(detail.tuition);
+            return courseName + ' ' + tuition + ' (' + detail.percentsText + ')';
         }
     }]);
 
@@ -99356,7 +99382,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return this.can_checked;
         },
         dataCounts: function dataCounts() {
-            return 5;
+
             var viewList = this.getViewList();
             if (!viewList) return 0;
             return viewList.length;
@@ -104250,6 +104276,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -104289,7 +104322,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             icon: Menus.getIcon('quits'),
             readOnly: true,
 
-            percentsOptions: Quit.percentsOptions(),
+            reviewEditor: {
+                show: false,
+                id: 0,
+                reviewed: false
+            },
 
             deleteConfirm: {
                 id: 0,
@@ -104354,6 +104391,33 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         onEditCanceled: function onEditCanceled() {
             this.readOnly = true;
         },
+        onEditReview: function onEditReview() {
+            this.reviewEditor.id = this.quitId;
+            this.reviewEditor.reviewed = Helper.isTrue(this.signup.quit.reviewed);
+            this.reviewEditor.show = true;
+        },
+        updateReview: function updateReview(reviewed) {
+            var _this = this;
+
+            var quits = [{
+                id: this.reviewEditor.id,
+                reviewed: reviewed
+            }];
+
+            var form = new Form({
+                quits: quits
+            });
+
+            var save = Quit.review(form);
+            save.then(function () {
+                _this.reviewEditor.show = false;
+                Helper.BusEmitOK('資料已存檔');
+                _this.$emit('saved');
+            }).catch(function (error) {
+                _this.reviewEditor.show = false;
+                Helper.BusEmitError(error, '存檔失敗');
+            });
+        },
         beginDelete: function beginDelete() {
 
             var id = this.quitId;
@@ -104365,7 +104429,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.deleteConfirm.show = false;
         },
         deleteSignup: function deleteSignup() {
-            var _this = this;
+            var _this2 = this;
 
             this.closeConfirm();
 
@@ -104373,14 +104437,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var remove = Quit.remove(id);
             remove.then(function () {
                 Helper.BusEmitOK('刪除成功');
-                _this.$emit('deleted');
+                _this2.$emit('deleted');
             }).catch(function (error) {
                 Helper.BusEmitError(error, '刪除失敗');
-                _this.closeConfirm();
+                _this2.closeConfirm();
             });
         },
         onSaved: function onSaved() {
+            this.readOnly = true;
             this.$emit('saved');
+        },
+        onBack: function onBack() {
+            this.$emit('back');
         }
     }
 });
@@ -104471,10 +104539,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         signup: {
             type: Object,
             default: null
-        },
-        percents_options: {
-            type: Array,
-            default: null
         }
     },
     components: {
@@ -104486,6 +104550,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         return {
 
             paywayOptions: [],
+            percentsOptions: [],
             form: null,
 
             edittingId: 0,
@@ -104512,7 +104577,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 return {
                     'course': item.course,
                     'signupDetailId': item.id,
-                    'percents': '',
+                    'percents': 0,
                     'tuition': '',
                     'ps': ''
                 };
@@ -104530,6 +104595,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 if (paywayExist) _this.form.quit.paywayId = _this.signup.bill.paywayId;else _this.form.quit.paywayId = data.paywayOptions[0].value;
 
                 _this.paywayOptions = data.paywayOptions.slice(0);
+
+                _this.percentsOptions = data.percentsOptions.slice(0);
             }).catch(function (error) {
 
                 Helper.BusEmitError(error);
@@ -105367,7 +105434,7 @@ var render = function() {
       _c("quit-details", {
         attrs: {
           quit_details: _vm.quitDetails,
-          percents_options: _vm.percents_options,
+          percents_options: _vm.percentsOptions,
           editting_id: _vm.edittingId
         },
         on: {
@@ -105552,12 +105619,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'ShowQuit',
     props: {
         quit: {
+            type: Object,
+            default: null
+        },
+        user: {
             type: Object,
             default: null
         },
@@ -105585,6 +105668,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         hasScore: function hasScore() {
             if (!this.quit) return false;
             return Helper.tryParseInt(this.quit.score) > 0;
+        },
+        fullname: function fullname() {
+            if (this.user) return this.user.profile.fullname;
+            if (this.quit.signup) return this.quit.signup.user.profile.fullname;
+            return '';
         }
     },
     methods: {
@@ -105593,6 +105681,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return Quit.statusLabel(this.quit.status);
         },
         editReview: function editReview() {
+
             this.$emit('edit-review');
         }
     }
@@ -105612,7 +105701,13 @@ var render = function() {
         [
           _c("div", { staticClass: "show-data" }, [
             _c("div", { staticClass: "row" }, [
-              _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "col-sm-3" }, [
+                _c("label", { staticClass: "label-title" }, [_vm._v("姓名")]),
+                _vm._v(" "),
+                _c("p", { domProps: { innerHTML: _vm._s(_vm.fullname) } })
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-3" }, [
                 _c("label", { staticClass: "label-title" }, [
                   _vm._v("應退金額")
                 ]),
@@ -105626,7 +105721,7 @@ var render = function() {
                 ])
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "col-sm-3" }, [
                 _c("label", { staticClass: "label-title" }, [
                   _vm._v("資料審核")
                 ]),
@@ -105656,7 +105751,7 @@ var render = function() {
                 ])
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "col-sm-3" }, [
                 _c("label", { staticClass: "label-title" }, [_vm._v("狀態")]),
                 _vm._v(" "),
                 _c("p", {
@@ -105676,7 +105771,7 @@ var render = function() {
           _vm._v(" "),
           _c("div", { staticClass: "show-data" }, [
             _c("div", { staticClass: "row" }, [
-              _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "col-sm-3" }, [
                 _c("label", { staticClass: "label-title" }, [
                   _vm._v("申請日期")
                 ]),
@@ -105684,7 +105779,21 @@ var render = function() {
                 _c("p", { domProps: { textContent: _vm._s(_vm.quit.date) } })
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "col-sm-3" }, [
+                _c("label", { staticClass: "label-title" }, [
+                  _vm._v("退還學費")
+                ]),
+                _vm._v(" "),
+                _c("p", [
+                  _vm._v(
+                    "\r\n                     " +
+                      _vm._s(_vm._f("formatMoney")(_vm.quit.tuitions)) +
+                      "\r\n                "
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-3" }, [
                 _c("label", { staticClass: "label-title" }, [_vm._v("手續費")]),
                 _vm._v(" "),
                 _c("p", [
@@ -105696,7 +105805,7 @@ var render = function() {
                 ])
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "col-sm-3" }, [
                 _c("label", { staticClass: "label-title" }, [
                   _vm._v("退款方式")
                 ]),
@@ -105712,7 +105821,7 @@ var render = function() {
             ]),
             _vm._v(" "),
             _c("div", { staticClass: "row" }, [
-              _c("div", { staticClass: "col-sm-4" }, [
+              _c("div", { staticClass: "col-sm-3" }, [
                 _c("label", { staticClass: "label-title" }, [
                   _vm._v("銀行帳號")
                 ]),
@@ -105726,7 +105835,7 @@ var render = function() {
                 ])
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-sm-8" }, [
+              _c("div", { staticClass: "col-sm-9" }, [
                 _c("label", { staticClass: "label-title" }, [_vm._v("備註")]),
                 _vm._v(" "),
                 _c("p", { domProps: { textContent: _vm._s(_vm.quit.ps) } })
@@ -105849,6 +105958,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         return {
 
             paywayOptions: [],
+            percentsOptions: [],
             form: null,
 
             edittingId: 0,
@@ -105877,6 +105987,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 });
 
                 _this.paywayOptions = data.paywayOptions.slice(0);
+                _this.percentsOptions = data.percentsOptions.slice(0);
             }).catch(function (error) {
 
                 Helper.BusEmitError(error);
@@ -105946,7 +106057,7 @@ var render = function() {
           _c("quit-details", {
             attrs: {
               quit_details: _vm.form.details,
-              percents_options: _vm.percents_options,
+              percents_options: _vm.percentsOptions,
               editting_id: _vm.edittingId
             },
             on: {
@@ -106023,6 +106134,31 @@ var render = function() {
           _vm._v(" "),
           _vm.readOnly
             ? _c("div", [
+                _c(
+                  "button",
+                  {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: _vm.can_back,
+                        expression: "can_back"
+                      }
+                    ],
+                    staticClass: "btn btn-default btn-sm",
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.onBack($event)
+                      }
+                    }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-arrow-circle-left" }),
+                    _vm._v("\r\n                    返回\r\n                ")
+                  ]
+                ),
+                _vm._v(" "),
                 _vm.canCreate
                   ? _c(
                       "button",
@@ -106090,26 +106226,21 @@ var render = function() {
               ? _c("show", {
                   attrs: {
                     quit: _vm.signup.quit,
-                    percents_options: _vm.percentsOptions,
+                    user: _vm.signup.user,
                     signup: _vm.signup
-                  }
+                  },
+                  on: { "edit-review": _vm.onEditReview }
                 })
               : _c(
                   "div",
                   [
                     _vm.creating
                       ? _c("create", {
-                          attrs: {
-                            percents_options: _vm.percentsOptions,
-                            signup: _vm.signup
-                          },
+                          attrs: { signup: _vm.signup },
                           on: { saved: _vm.onSaved, cancel: _vm.onEditCanceled }
                         })
                       : _c("edit", {
-                          attrs: {
-                            id: _vm.signup.id,
-                            percents_options: _vm.percentsOptions
-                          },
+                          attrs: { id: _vm.signup.id },
                           on: { saved: _vm.onSaved, cancel: _vm.onEditCanceled }
                         })
                   ],
@@ -106119,6 +106250,19 @@ var render = function() {
           1
         )
       ]),
+      _vm._v(" "),
+      _c("review-editor", {
+        attrs: {
+          showing: _vm.reviewEditor.show,
+          reviewed: _vm.reviewEditor.reviewed
+        },
+        on: {
+          close: function($event) {
+            _vm.reviewEditor.show = false
+          },
+          save: _vm.updateReview
+        }
+      }),
       _vm._v(" "),
       _c("delete-confirm", {
         attrs: {
@@ -106291,7 +106435,7 @@ var render = function() {
                       _vm._v(" "),
                       _vm.activeIndex == 1
                         ? _c("quit-view", {
-                            attrs: { signup: _vm.signup },
+                            attrs: { signup: _vm.signup, can_back: false },
                             on: {
                               saved: _vm.reloadSignup,
                               deleted: _vm.reloadSignup
@@ -109232,129 +109376,9 @@ if (false) {
 }
 
 /***/ }),
-/* 552 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(0)
-/* script */
-var __vue_script__ = __webpack_require__(553)
-/* template */
-var __vue_template__ = __webpack_require__(554)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources\\assets\\js\\views\\discounts\\index.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-61a3ee6b", Component.options)
-  } else {
-    hotAPI.reload("data-v-61a3ee6b", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 553 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_html2Canvas__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_html2Canvas___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_html2Canvas__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    name: 'DiscountIndexView',
-    methods: {
-        test: function test() {
-            __WEBPACK_IMPORTED_MODULE_0_html2Canvas___default()(document.querySelector("#capture")).then(function (canvas) {
-                Signup.print(canvas);
-            });
-        }
-    }
-
-});
-
-/***/ }),
-/* 554 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "pdf-wrap", attrs: { id: "pdfWrap" } }, [
-    _c("button", { on: { click: _vm.test } }, [_vm._v("PDF")]),
-    _vm._v(" "),
-    _c("div", { staticClass: "pdf-dom", attrs: { id: "pdfDom" } }),
-    _vm._v(" "),
-    _vm._m(0)
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      {
-        staticStyle: { padding: "10px", background: "#f5da55" },
-        attrs: { id: "capture" }
-      },
-      [_c("h4", { staticStyle: { color: "#000" } }, [_vm._v("Hello world!")])]
-    )
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-61a3ee6b", module.exports)
-  }
-}
-
-/***/ }),
+/* 552 */,
+/* 553 */,
+/* 554 */,
 /* 555 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -109598,6 +109622,1300 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 559 */,
+/* 560 */,
+/* 561 */,
+/* 562 */,
+/* 563 */,
+/* 564 */,
+/* 565 */,
+/* 566 */,
+/* 567 */,
+/* 568 */,
+/* 569 */,
+/* 570 */,
+/* 571 */,
+/* 572 */,
+/* 573 */,
+/* 574 */,
+/* 575 */,
+/* 576 */,
+/* 577 */,
+/* 578 */,
+/* 579 */,
+/* 580 */,
+/* 581 */,
+/* 582 */,
+/* 583 */,
+/* 584 */,
+/* 585 */,
+/* 586 */,
+/* 587 */,
+/* 588 */,
+/* 589 */,
+/* 590 */,
+/* 591 */,
+/* 592 */,
+/* 593 */,
+/* 594 */,
+/* 595 */,
+/* 596 */,
+/* 597 */,
+/* 598 */,
+/* 599 */,
+/* 600 */,
+/* 601 */,
+/* 602 */,
+/* 603 */,
+/* 604 */,
+/* 605 */,
+/* 606 */,
+/* 607 */,
+/* 608 */,
+/* 609 */,
+/* 610 */,
+/* 611 */,
+/* 612 */,
+/* 613 */,
+/* 614 */,
+/* 615 */,
+/* 616 */,
+/* 617 */,
+/* 618 */,
+/* 619 */,
+/* 620 */,
+/* 621 */,
+/* 622 */,
+/* 623 */,
+/* 624 */,
+/* 625 */,
+/* 626 */,
+/* 627 */,
+/* 628 */,
+/* 629 */,
+/* 630 */,
+/* 631 */,
+/* 632 */,
+/* 633 */,
+/* 634 */,
+/* 635 */,
+/* 636 */,
+/* 637 */,
+/* 638 */,
+/* 639 */,
+/* 640 */,
+/* 641 */,
+/* 642 */,
+/* 643 */,
+/* 644 */,
+/* 645 */,
+/* 646 */,
+/* 647 */,
+/* 648 */,
+/* 649 */,
+/* 650 */,
+/* 651 */,
+/* 652 */,
+/* 653 */,
+/* 654 */,
+/* 655 */,
+/* 656 */,
+/* 657 */,
+/* 658 */,
+/* 659 */,
+/* 660 */,
+/* 661 */,
+/* 662 */,
+/* 663 */,
+/* 664 */,
+/* 665 */,
+/* 666 */,
+/* 667 */,
+/* 668 */,
+/* 669 */,
+/* 670 */,
+/* 671 */,
+/* 672 */,
+/* 673 */,
+/* 674 */,
+/* 675 */,
+/* 676 */,
+/* 677 */,
+/* 678 */,
+/* 679 */,
+/* 680 */,
+/* 681 */,
+/* 682 */,
+/* 683 */,
+/* 684 */,
+/* 685 */,
+/* 686 */,
+/* 687 */,
+/* 688 */,
+/* 689 */,
+/* 690 */,
+/* 691 */,
+/* 692 */,
+/* 693 */,
+/* 694 */,
+/* 695 */,
+/* 696 */,
+/* 697 */,
+/* 698 */,
+/* 699 */,
+/* 700 */,
+/* 701 */,
+/* 702 */,
+/* 703 */,
+/* 704 */,
+/* 705 */,
+/* 706 */,
+/* 707 */,
+/* 708 */,
+/* 709 */,
+/* 710 */,
+/* 711 */,
+/* 712 */,
+/* 713 */,
+/* 714 */,
+/* 715 */,
+/* 716 */,
+/* 717 */,
+/* 718 */,
+/* 719 */,
+/* 720 */,
+/* 721 */,
+/* 722 */,
+/* 723 */,
+/* 724 */,
+/* 725 */,
+/* 726 */,
+/* 727 */,
+/* 728 */,
+/* 729 */,
+/* 730 */,
+/* 731 */,
+/* 732 */,
+/* 733 */,
+/* 734 */,
+/* 735 */,
+/* 736 */,
+/* 737 */,
+/* 738 */,
+/* 739 */,
+/* 740 */,
+/* 741 */,
+/* 742 */,
+/* 743 */,
+/* 744 */,
+/* 745 */,
+/* 746 */,
+/* 747 */,
+/* 748 */,
+/* 749 */,
+/* 750 */,
+/* 751 */,
+/* 752 */,
+/* 753 */,
+/* 754 */,
+/* 755 */,
+/* 756 */,
+/* 757 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(758)
+/* template */
+var __vue_template__ = __webpack_require__(762)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\views\\quits\\index.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-2fe7ea1d", Component.options)
+  } else {
+    hotAPI.reload("data-v-2fe7ea1d", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 758 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_quit_table__ = __webpack_require__(759);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_quit_table___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_quit_table__);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'QuitIndexView',
+    components: {
+        'quit-table': __WEBPACK_IMPORTED_MODULE_0__components_quit_table___default.a
+    },
+    props: {
+        init_model: {
+            type: Object,
+            default: null
+        },
+        summary_model: {
+            type: Object,
+            default: null
+        },
+        can_review: {
+            type: Boolean,
+            default: false
+        },
+        centers: {
+            type: Array,
+            default: null
+        },
+        statuses: {
+            type: Array,
+            default: null
+        },
+        payways: {
+            type: Array,
+            default: null
+        },
+        version: {
+            type: Number,
+            default: 0
+        }
+    },
+    data: function data() {
+        return {
+            title: '退費管理',
+
+            model: null,
+
+            summary: null,
+
+            params: {
+
+                center: '0',
+                status: '0',
+                payway: '0',
+                reviewed: false,
+
+                page: 1,
+                pageSize: 10
+            },
+
+            canReview: false,
+            reviewedOptions: Helper.reviewedOptions(),
+
+            checkedIds: []
+        };
+    },
+
+    watch: {
+        'version': 'fetchData'
+    },
+    beforeMount: function beforeMount() {
+        if (this.init_model) {
+            this.model = _extends({}, this.init_model);
+            this.summary = _extends({}, this.summary_model);
+
+            this.params.page = this.init_model.pageNumber;
+            this.params.pageSize = this.init_model.pageSize;
+        }
+
+        this.params.center = this.centers[0].value;
+
+        this.canReview = this.can_review;
+    },
+
+    computed: {
+        showReviewBtn: function showReviewBtn() {
+            return !this.params.reviewed;
+        },
+        canSubmitReview: function canSubmitReview() {
+            return this.checkedIds.length > 0;
+        }
+    },
+    methods: {
+        getList: function getList() {
+            if (this.model) return this.model.viewList;
+            return [];
+        },
+        onReviewedSelected: function onReviewedSelected(item) {
+            this.params.reviewed = item.value;
+            this.fetchData();
+        },
+        onPageChanged: function onPageChanged(page) {
+            this.params.page = page;
+            this.fetchData();
+        },
+        onPageSizeChanged: function onPageSizeChanged() {
+
+            this.params.pageSize = this.model.pageSize;
+            this.fetchData();
+        },
+        onCenterSelected: function onCenterSelected(item) {
+            this.params.center = item.value;
+            this.fetchData();
+        },
+        onPaywaySelected: function onPaywaySelected(item) {
+            this.params.payway = item.value;
+            this.fetchData();
+        },
+        setStatus: function setStatus(item) {
+            this.params.status = item.value;
+            this.fetchData();
+        },
+        setReviewed: function setReviewed(val) {
+            this.params.reviewed = val;
+            this.fetchData();
+        },
+        fetchData: function fetchData() {
+            var _this = this;
+
+            var getData = Quit.index(this.params);
+
+            getData.then(function (model) {
+
+                _this.model = _extends({}, model.model);
+                _this.canReview = model.canReview;
+            }).catch(function (error) {
+                Helper.BusEmitError(error);
+            });
+        },
+        onSelected: function onSelected(id) {
+            this.$emit('selected', id);
+        },
+        onCheckIdsChanged: function onCheckIdsChanged(ids) {
+            this.checkedIds = ids.slice(0);
+        },
+        onReviewOk: function onReviewOk() {
+            var _this2 = this;
+
+            if (!this.checkedIds.length) return;
+
+            var quits = this.checkedIds.map(function (item) {
+                return {
+                    id: item,
+                    reviewed: true
+                };
+            });
+
+            var form = new Form({
+                quits: quits
+            });
+
+            var save = Quit.review(form);
+            save.then(function () {
+                Helper.BusEmitOK('資料已存檔');
+                _this2.fetchData();
+                _this2.$refs.quitTable.unCheckAll();
+            }).catch(function (error) {
+                Helper.BusEmitError(error, '存檔失敗');
+            });
+        }
+    }
+});
+
+/***/ }),
+/* 759 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(760)
+/* template */
+var __vue_template__ = __webpack_require__(761)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\quit\\table.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-e01013d0", Component.options)
+  } else {
+    hotAPI.reload("data-v-e01013d0", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 760 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'QuitTable',
+    props: {
+        model: {
+            type: Object,
+            default: null
+        },
+        quits: {
+            type: Array,
+            default: null
+        },
+        can_review: {
+            type: Boolean,
+            default: false
+        },
+        can_select: {
+            type: Boolean,
+            default: true
+        },
+        can_checked: {
+            type: Boolean,
+            default: false
+        },
+        center: {
+            type: Boolean,
+            default: false
+        },
+        show_teachers: {
+            type: Boolean,
+            default: true
+        },
+        show_categories: {
+            type: Boolean,
+            default: true
+        }
+    },
+    data: function data() {
+        return {
+            activeIndex: 0,
+            checked_ids: [],
+            checkAll: false
+
+        };
+    },
+
+    computed: {
+        canCheck: function canCheck() {
+
+            if (this.can_review) return true;
+            return this.can_checked;
+        },
+        dataCounts: function dataCounts() {
+
+            var viewList = this.getViewList();
+            if (!viewList) return 0;
+            return viewList.length;
+        }
+    },
+    watch: {
+        checked_ids: function checked_ids() {
+            this.$emit('check-changed', this.checked_ids);
+        }
+    },
+    methods: {
+        getViewList: function getViewList() {
+            if (this.model) return this.model.viewList;
+            return this.quits;
+        },
+        getDetails: function getDetails(quit) {
+
+            var html = '';
+            quit.details.forEach(function (item) {
+                html += Quit.detailSummary(item) + '<br>';
+            });
+            return html;
+        },
+        getStatusLabels: function getStatusLabels(quit) {
+            var reviewedLabel = Helper.reviewedLabel(quit.reviewed);
+            var statusLabel = Quit.statusLabel(quit.status);
+            return reviewedLabel + '&nbsp;' + statusLabel;
+        },
+        onSelected: function onSelected(id) {
+
+            this.$emit('selected', id);
+        },
+        beenChecked: function beenChecked(id) {
+            return this.checked_ids.includes(id);
+        },
+        onChecked: function onChecked(id) {
+
+            if (!this.beenChecked(id)) this.checked_ids.push(id);
+        },
+        unChecked: function unChecked(id) {
+
+            var index = this.checked_ids.indexOf(id);
+            if (index >= 0) this.checked_ids.splice(index, 1);
+        },
+        onCheckAll: function onCheckAll() {
+            var _this = this;
+
+            this.checkAll = true;
+
+            var quitList = this.getViewList();
+            if (!quitList) return false;
+
+            quitList.forEach(function (quit) {
+                _this.onChecked(quit.signupId);
+            });
+        },
+        unCheckAll: function unCheckAll() {
+            this.checkAll = false;
+            this.checked_ids = [];
+        },
+        courseNames: function courseNames(quit) {
+            return Quit.courseNames(quit);
+        },
+        isTrue: function isTrue(val) {
+            return Helper.isTrue(val);
+        }
+    }
+});
+
+/***/ }),
+/* 761 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "panel panel-default" },
+    [
+      _c("div", { staticClass: "panel-body" }, [
+        _c("table", { staticClass: "table table-striped" }, [
+          _c("thead", [
+            _c("tr", [
+              _vm.canCheck
+                ? _c(
+                    "th",
+                    { staticStyle: { width: "3%" } },
+                    [
+                      _c("check-box", {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.dataCounts,
+                            expression: "dataCounts"
+                          }
+                        ],
+                        attrs: { value: 0, default: _vm.checkAll },
+                        on: {
+                          selected: _vm.onCheckAll,
+                          unselected: _vm.unCheckAll
+                        }
+                      })
+                    ],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("姓名")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("申請日期")]),
+              _vm._v(" "),
+              _c("th", [_vm._v("明細")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("退還學費")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("手續費")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("退款方式")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("應退金額")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("狀態")])
+            ])
+          ]),
+          _vm._v(" "),
+          _c(
+            "tbody",
+            _vm._l(_vm.getViewList(), function(quit, index) {
+              return _c("tr", { key: index }, [
+                _vm.canCheck
+                  ? _c(
+                      "td",
+                      [
+                        _c("check-box", {
+                          attrs: {
+                            value: quit.signupId,
+                            default: _vm.beenChecked(quit.signupId)
+                          },
+                          on: {
+                            selected: _vm.onChecked,
+                            unselected: _vm.unChecked
+                          }
+                        })
+                      ],
+                      1
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("td", [
+                  _c("a", {
+                    attrs: { href: "#" },
+                    domProps: {
+                      textContent: _vm._s(quit.signup.user.profile.fullname)
+                    },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        _vm.onSelected(quit.signupId)
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    " \n                            " +
+                      _vm._s(quit.date) +
+                      " \n                        "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", {
+                  domProps: { innerHTML: _vm._s(_vm.getDetails(quit)) }
+                }),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                             " +
+                      _vm._s(_vm._f("formatMoney")(quit.tuitions)) +
+                      "    \n                        "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                             " +
+                      _vm._s(_vm._f("formatMoney")(quit.fee)) +
+                      "    \n                        "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                             " +
+                      _vm._s(quit.payway.name) +
+                      " \n                        "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                             " +
+                      _vm._s(_vm._f("formatMoney")(quit.amount)) +
+                      " \n                        "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", {
+                  domProps: { innerHTML: _vm._s(_vm.getStatusLabels(quit)) }
+                })
+              ])
+            })
+          )
+        ])
+      ]),
+      _vm._v(" "),
+      _vm._t("table-footer")
+    ],
+    2
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-e01013d0", module.exports)
+  }
+}
+
+/***/ }),
+/* 762 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.model
+    ? _c(
+        "div",
+        [
+          _c("div", { staticClass: "row" }, [
+            _c(
+              "div",
+              { staticClass: "col-sm-2", staticStyle: { "margin-top": "3px" } },
+              [_c("h3", { domProps: { innerHTML: _vm._s(_vm.title) } })]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "col-sm-6 form-inline",
+                staticStyle: { "margin-top": "20px" }
+              },
+              [
+                _c(
+                  "div",
+                  { staticClass: "form-group" },
+                  [
+                    _c("drop-down", {
+                      attrs: {
+                        items: _vm.centers,
+                        selected: _vm.params.center
+                      },
+                      on: { selected: _vm.onCenterSelected }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "1em" }
+                  },
+                  [
+                    _c("drop-down", {
+                      attrs: {
+                        items: _vm.payways,
+                        selected: _vm.params.payway
+                      },
+                      on: { selected: _vm.onPaywaySelected }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "1em" }
+                  },
+                  [
+                    _c("toggle", {
+                      attrs: {
+                        items: _vm.reviewedOptions,
+                        default_val: _vm.params.reviewed
+                      },
+                      on: { selected: _vm.setReviewed }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "1em" }
+                  },
+                  [
+                    _c("drop-down", {
+                      attrs: {
+                        items: _vm.statuses,
+                        selected: _vm.params.status
+                      },
+                      on: { selected: _vm.setStatus }
+                    })
+                  ],
+                  1
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "col-sm-4 pull-right",
+                staticStyle: { "margin-top": "20px" },
+                attrs: { align: "right" }
+              },
+              [
+                _vm.canReview
+                  ? _c(
+                      "a",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.showReviewBtn,
+                            expression: "showReviewBtn"
+                          }
+                        ],
+                        staticClass: "btn btn-success",
+                        attrs: { disabled: !_vm.canSubmitReview, href: "#" },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.onReviewOk($event)
+                          }
+                        }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-check-circle" }),
+                        _vm._v("\n                審核通過\n            ")
+                      ]
+                    )
+                  : _vm._e()
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c("hr"),
+          _vm._v(" "),
+          _c(
+            "quit-table",
+            {
+              ref: "quitTable",
+              attrs: { model: _vm.model, can_review: _vm.canReview },
+              on: {
+                selected: _vm.onSelected,
+                "check-changed": _vm.onCheckIdsChanged
+              }
+            },
+            [
+              _c(
+                "div",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.model.totalItems > 0,
+                      expression: "model.totalItems > 0"
+                    }
+                  ],
+                  staticClass: "panel-footer pagination-footer",
+                  attrs: { slot: "table-footer" },
+                  slot: "table-footer"
+                },
+                [
+                  _c("page-controll", {
+                    attrs: { model: _vm.model },
+                    on: {
+                      "page-changed": _vm.onPageChanged,
+                      "pagesize-changed": _vm.onPageSizeChanged
+                    }
+                  })
+                ],
+                1
+              )
+            ]
+          )
+        ],
+        1
+      )
+    : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-2fe7ea1d", module.exports)
+  }
+}
+
+/***/ }),
+/* 763 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(764)
+/* template */
+var __vue_template__ = __webpack_require__(765)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\views\\quits\\details.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-4b505acd", Component.options)
+  } else {
+    hotAPI.reload("data-v-4b505acd", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 764 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_quit_view_vue__ = __webpack_require__(503);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_quit_view_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_quit_view_vue__);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'QuitDetails',
+    components: {
+        'quit-view': __WEBPACK_IMPORTED_MODULE_0__components_quit_view_vue___default.a
+    },
+    props: {
+        id: {
+            type: Number,
+            default: 0
+        },
+        can_back: {
+            type: Boolean,
+            default: true
+        },
+        version: {
+            type: Number,
+            default: 0
+        }
+    },
+    data: function data() {
+        return {
+            signup: null,
+
+            quitSettings: {
+                can_edit: true,
+                can_back: true
+
+            },
+
+            activeIndex: 0
+        };
+    },
+
+    computed: {
+        quit: function quit() {
+            if (!this.signup) return null;
+            return this.signup.quit;
+        },
+        payed: function payed() {
+            if (!this.quit) return false;
+            return parseInt(this.quit.status) != 0;
+        }
+    },
+    beforeMount: function beforeMount() {
+        this.init();
+    },
+
+    watch: {
+        'id': 'init'
+    },
+    methods: {
+        init: function init() {
+            this.fetchData();
+        },
+        fetchData: function fetchData() {
+            var _this = this;
+
+            var getData = Quit.show(this.id);
+
+            getData.then(function (signup) {
+
+                _this.signup = _extends({}, signup);
+            }).catch(function (error) {
+                Helper.BusEmitError(error);
+            });
+        },
+        onQuitSaved: function onQuitSaved() {
+            this.fetchData();
+        },
+        onQuitDeleted: function onQuitDeleted() {
+            this.$emit('back');
+        },
+        onBack: function onBack() {
+            this.$emit('back');
+        }
+    }
+
+});
+
+/***/ }),
+/* 765 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.signup
+    ? _c(
+        "div",
+        [
+          _c("quit-view", {
+            ref: "quitView",
+            attrs: {
+              signup: _vm.signup,
+              can_edit: _vm.quitSettings.can_edit,
+              can_back: _vm.quitSettings.can_back
+            },
+            on: {
+              back: _vm.onBack,
+              saved: _vm.onQuitSaved,
+              deleted: _vm.onQuitDeleted
+            }
+          })
+        ],
+        1
+      )
+    : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-4b505acd", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

@@ -6,6 +6,10 @@
                <h4 v-html="title"></h4>
             </span> 
             <div v-if="readOnly">
+                <button v-show="can_back"  @click.prevent="onBack" class="btn btn-default btn-sm" >
+                    <i class="fa fa-arrow-circle-left"></i>
+                    返回
+                </button>
                 <button v-if="canCreate" @click="beginCreate" class="btn btn-primary btn-sm" >
                     <i class="fa fa-plus"></i> 新增
                 </button>
@@ -22,13 +26,14 @@
             </div>
         </div>  
         <div class="panel-body">
-            <show :quit="signup.quit" :percents_options="percentsOptions" v-if="readOnly"  :signup="signup" >  
+            <show :quit="signup.quit" :user="signup.user"  v-if="readOnly"  :signup="signup"
+               @edit-review="onEditReview" >  
             </show>
-            <div  v-else>
-                <create v-if="creating"  :percents_options="percentsOptions" :signup="signup"
+            <div v-else>
+                <create v-if="creating"  :signup="signup"
                     @saved="onSaved"   @cancel="onEditCanceled" >                 
                 </create>
-                <edit  v-else :id="signup.id" :percents_options="percentsOptions" 
+                <edit  v-else :id="signup.id"  
                     @saved="onSaved"   @cancel="onEditCanceled" >                 
                 </edit>
             </div>
@@ -36,7 +41,9 @@
         </div>
         
     </div>
-   
+    <review-editor :showing="reviewEditor.show" :reviewed="reviewEditor.reviewed"
+      @close="reviewEditor.show=false" @save="updateReview">
+    </review-editor>
     <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
       @close="closeConfirm" @confirmed="deleteSignup">        
     </delete-confirm>
@@ -81,8 +88,14 @@
                 icon:Menus.getIcon('quits') ,
                 readOnly:true,
                
-                percentsOptions:Quit.percentsOptions(),
                 
+
+                reviewEditor:{
+                    show:false,
+                    id:0,
+                    reviewed:false,
+                },
+
                 deleteConfirm:{
                     id:0,
                     show:false,
@@ -148,6 +161,34 @@
             onEditCanceled(){
                 this.readOnly=true;
             },
+            onEditReview(){
+                this.reviewEditor.id=this.quitId;
+                this.reviewEditor.reviewed=Helper.isTrue(this.signup.quit.reviewed);
+                this.reviewEditor.show=true;
+            },
+            updateReview(reviewed){
+                
+                let quits= [{
+                    id:this.reviewEditor.id,
+                    reviewed:reviewed
+                }];
+
+                let form=new Form({
+                    quits:quits
+                });
+
+                let save=Quit.review(form);
+				save.then(() => {
+                    this.reviewEditor.show=false;
+                    Helper.BusEmitOK('資料已存檔');
+                    this.$emit('saved');
+                    
+				})
+				.catch(error => {
+                    this.reviewEditor.show=false;
+					Helper.BusEmitError(error,'存檔失敗');
+				})
+            },
             beginDelete(){
                
                 let id=this.quitId;
@@ -173,8 +214,12 @@
                 })
             },
             onSaved(){
+                this.readOnly=true;
                 this.$emit('saved');
             },  
+            onBack(){
+                this.$emit('back');
+            }
 
             
         }

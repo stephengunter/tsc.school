@@ -1,6 +1,6 @@
 <template>
     <div v-if="form">
-        <quit-details :quit_details="form.details" :percents_options="percents_options"  :editting_id="edittingId"
+        <quit-details :quit_details="form.details" :percents_options="percentsOptions"  :editting_id="edittingId"
            @cancel-edit="edittingId=0" @edit="beginEditRow">
         </quit-details>
         <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
@@ -38,6 +38,7 @@ export default {
 		return {
 			
             paywayOptions:[],
+            percentsOptions:[],
 			form:null,
 
             edittingId:0,
@@ -66,7 +67,8 @@ export default {
                         details:data.quit.details.slice(0)
                     })
                     
-					this.paywayOptions=data.paywayOptions.slice(0);
+                    this.paywayOptions=data.paywayOptions.slice(0);
+                    this.percentsOptions=data.percentsOptions.slice(0);
 				})
 				.catch(error => {
 					

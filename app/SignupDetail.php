@@ -47,6 +47,7 @@ class SignupDetail extends Model
 
     public function actualTuition() 
 	{
+       
         if(!$this->signup->hasDiscount()) return $this->tuition;
 
         $points=(int)$this->signup->points;

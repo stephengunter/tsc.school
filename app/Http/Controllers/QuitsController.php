@@ -17,7 +17,7 @@ use App\SignupDetail;
 
 use App\Services\Courses;
 use App\Services\Signups;
-use App\Services\Students;
+use App\Services\Centers;
 use App\Services\Quits;
 use App\Services\Bills;
 use App\Services\Payways;
@@ -30,12 +30,12 @@ use Illuminate\Support\Facades\Input;
 class QuitsController extends Controller
 {
     
-    public function __construct(Bills $bills,Quits $quits,Payways $payways,
-                Students $students,Courses $courses,Signups $signups)             
+    public function __construct(Centers $centers,Bills $bills,Quits $quits,Payways $payways,
+                Courses $courses,Signups $signups)             
     {
+        $this->centers=$centers;
         $this->quits=$quits;
         $this->bills=$bills;
-        $this->students=$students;
         $this->courses=$courses;
         $this->signups=$signups;
         $this->payways=$payways;
@@ -71,16 +71,17 @@ class QuitsController extends Controller
 
     function canReview(Quit $quit)
     {
+
+        return $this->canReviewCenter($quit->getCenter());
+
+    }
+
+    function canReviewCenter(Center $center)
+    {
         if($this->currentUserIsDev()) return true;
         if(!$this->currentUser()->isBoss()) return false;
 
-        $centersCanAdmin= $this->centersCanAdmin();
-        $intersect = $centersCanAdmin->intersect([$quit->center]);
-
-        
-        if(count($intersect)) return true;
-        return false;
-
+        return $this->canAdminCenter($center);
     }
    
     function canDelete(Quit $quit)
@@ -89,16 +90,191 @@ class QuitsController extends Controller
         if($quit->reviewed) return false;
         return $this->canEdit($quit);
     }
-    
+
+    function backPaywayOptions()
+    {
+        $back=true;
+        return $this->payways->paywayOptions($back);
+    }
+
+    public function seedQuits()
+    {
+        if(!$this->currentUserIsDev()) dd('權限不足');
+
+        $percentsOptions=$this->quits->percentsOptions();
+        $paywayOptions=$this->backPaywayOptions();
+        
+
+        $signups = Signup::where('status',1)->get();
+        foreach ($signups as $signup)
+        {
+            $num = rand(0 ,100);
+            if (($num % 3) != 0) continue;
+            
+            
+
+            $quitDetails=[];
+            foreach($signup->details as $signupDetail){
+                $percents=(int)$percentsOptions[array_rand($percentsOptions)]['value']; 
+                if(!$percents) continue;
+
+                $actualTuition=$signupDetail->actualTuition();
+                $tuition=round($actualTuition * $percents /100);
+               
+                $quitDetail=new QuitDetail([
+                    'signupDetailId' => $signupDetail->id,
+                    'percents' => $percents,
+                    'tuition' => $tuition,
+                ]);
+               
+                array_push($quitDetails,$quitDetail);
+            }
+
+            $quitValues=Quit::init();
+
+            $paywayId = $paywayOptions[array_rand($paywayOptions)]['value'];
+            $payway=Payway::findOrFail($paywayId);
+            if($payway->needAccount()){
+                $quitValues['account'] = '01345679' . rand(100,100000);
+            }
+
+            $quitValues['paywayId']=$paywayId;
+
+            $quit=new Quit($quitValues);
+
+            $quit=$this->quits->createQuit($signup, $quit,$quitDetails);
+           
+        }
+        
+
+        dd('done');
+        
+    }
+
+
+    public function index()
+    {
+        $request=request();
+
+        $center=0;
+        if($request->center)  $center=(int)$request->center;
+
+        $status=0;
+        if($request->status)  $status=(int)$request->status;
+
+        $payway=0;
+        if($request->payway)  $payway=(int)$request->payway;
+
+        $reviewed=false;
+        if($request->reviewed)  $reviewed=Helper::isTrue($request->reviewed);
+       
+
+        $page=1;
+        if($request->page)  $page=(int)$request->page;
+
+        $pageSize=10;
+        if($request->pageSize)  $pageSize=(int)$request->pageSize;
+
+       
+        if($this->isAjaxRequest()){
+            return $this->fetchQuits($center, $payway ,$status , $reviewed , $page , $pageSize);
+        }
+
+        
+        $centerOptions = $this->centers->options();
+        $selectedCenter = null;
+        if ($center)
+        {
+            $selectedCenter = Center::find($center);
+            if (!$selectedCenter) abort(404);
+        }
+        else
+        {
+            $selectedCenter = Center::find($centerOptions[0]['value']); 
+        } 
+
+        $selectedPayway=null;
+        if($payway)   $selectedPayway = Payway::find($payway);
+        
+        
+        
+        $quits = $this->quits->fetchQuitsByCenter($selectedCenter);
+        
+        if($selectedPayway) $quits = $quits->where('paywayId' , $payway);
+
+        $quits = $quits->where('status' , $status)->where('reviewed' , $reviewed);
+
+        $pageList =$this->getPageList($quits,$page,$pageSize);
+
+        $paywayOptions=$this->backPaywayOptions();
+        array_unshift($paywayOptions, ['text' => '所有退款方式' , 'value' =>'0']);
+
+        $model=[
+            'title' => '退費管理',
+            'menus' => $this->adminMenus('SignupsAdmin'),
+
+            
+            'centers' => $centerOptions,               
+            'statuses' => $this->quits->statusOptions(),
+            'payways' => $paywayOptions,
+
+            'canReview' => $this->canReviewCenter($selectedCenter),
+           
+            'list' => $pageList
+        ];
+
+        return view('quits.index')->with($model);
+           
+    }
+
+    function getPageList($quits,$page,$pageSize)
+    {
+       
+        $pageList = new PagedList($quits,$page,$pageSize);
+        
+        foreach($pageList->viewList as $quit){
+            $quit->loadViewModel();
+        }  
+
+        return $pageList;
+    }
+
+    //Ajax
+    function fetchQuits(int $center, int $payway ,int $status ,bool $reviewed, int $page , int $pageSize)
+    {
+        $selectedCenter = Center::find($center);
+        if (!$selectedCenter) abort(404);
+
+        $selectedPayway=null;
+        if($payway)   $selectedPayway = Payway::find($payway);
+      
+      
+        $quits = $this->quits->fetchQuitsByCenter($selectedCenter);
+
+        if($selectedPayway) $quits = $quits->where('paywayId' , $payway);
+
+        $quits = $quits->where('status' , $status)->where('reviewed' , $reviewed);
+
+        $pageList =$this->getPageList($quits,$page,$pageSize);
+
+        $model=[
+            'model' => $pageList,
+            'canReview' => $this->canReviewCenter($selectedCenter)
+        ];
+
+        return response() ->json($model);
+
+        
+    }
+
     public function create()
     {
         $quit=Quit::init();
-        $back=true;
-        $paywayOptions=$this->payways->paywayOptions($back);
-
+        $percentsOptions=$this->quits->percentsOptions();
         $form=[
             'quit' => $quit,
-            'paywayOptions' => $paywayOptions
+            'paywayOptions' => $this->backPaywayOptions(),
+            'percentsOptions' => $percentsOptions
         ];
 
         return response() ->json($form);
@@ -137,8 +313,10 @@ class QuitsController extends Controller
             $percents=(int)$detail['percents'];
             $signupDetail=SignupDetail::findOrFail($detail['signupDetailId']);
             $actualTuition=$signupDetail->actualTuition();
-            $tuition=round($actualTuition * $percents /100);
 
+            
+            $tuition=round($actualTuition * $percents /100);
+           
             $quitDetail=new QuitDetail([
                 'signupDetailId' => $signupDetail->id,
                 'percents' => $percents,
@@ -162,6 +340,21 @@ class QuitsController extends Controller
        
     }
 
+    public function show($id)
+    {
+        $quit = Quit::findOrFail($id);
+        $signup=Signup::findOrFail($id);
+
+        $signup->user->profile;
+        $signup->quit->loadViewModel();
+
+        $signup->quit->canEdit = $this->canEdit($quit);
+        $signup->quit->canDelete = $this->canDelete($quit);
+
+        return response() ->json($signup);
+        
+    }
+
     public function edit($id)
     {
         $quit = $this->quits->getById($id);   
@@ -172,12 +365,13 @@ class QuitsController extends Controller
             $detail->loadViewModel();
         }
 
-        $back=true;
-        $paywayOptions=$this->payways->paywayOptions($back);
+        $percentsOptions=$this->quits->percentsOptions();
+      
 
         $form=[
             'quit' => $quit,
-            'paywayOptions' => $paywayOptions
+            'paywayOptions' => $this->backPaywayOptions(),
+            'percentsOptions' => $percentsOptions
         ];
 
         return response()->json($form);
@@ -223,6 +417,30 @@ class QuitsController extends Controller
         $this->quits->updateQuit($quit,$quitValues,$detailsValues);
 
         return response()->json();
+    }
+
+    public function review(Request $form)
+    {
+        $reviewedBy=$this->currentUserId();
+        
+        $quits=  $form['quits'];
+
+        if(count($quits) > 1){
+            $quitIds=array_pluck($quits, 'id');
+            $this->quits->reviewOK($quitIds, $reviewedBy);
+        }else{
+            
+            $id=$quits[0]['id'];
+         
+            $reviewed=Helper::isTrue($quits[0]['reviewed']);
+
+            $this->quits->updateReview($id,$reviewed ,$reviewedBy);
+        }
+        
+
+        return response() ->json();
+
+
     }
 
     public function destroy($id) 

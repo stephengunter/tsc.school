@@ -90,6 +90,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::get('/manage/SeedDiscountCenters', 'CentersController@seedDiscountCenters');
     Route::get('/manage/SeedSignups', 'SignupsController@seed');
     Route::get('/manage/seedPays', 'BillsController@seedPays');
+    Route::get('/manage/seedQuits', 'QuitsController@seedQuits');
 
 
     Route::resource('/manage/change-password', 'ChangePasswordController',['only' => ['index','store']]);
@@ -163,7 +164,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::get('/manage/files/download/{name}', 'FilesController@download');
     
     Route::resource('/manage/quits', 'QuitsController');
-
+    Route::post('/manage/quits/review', 'QuitsController@review');
    
 
 });
