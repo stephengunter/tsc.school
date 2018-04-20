@@ -4,22 +4,8 @@ Auth::routes();
 
 Route::get('/test', function () {
    
-    $model=[
-        'title' => '',
-        'topMenus' => [
-            'current' => '',
-            'user' => \App\User::find(54),
-            'teacher' => false,
-            'students' => false
-        ],
-        'user' => \App\User::find(54),
+   dd( hash('sha256', 'abc') );
 
-       
-    ];
-
-    
-
-    return view('client.signups.edit')->with($model);
 });
 
 //client routes
@@ -33,6 +19,8 @@ Route::resource('/courses', '\App\Http\Controllers\Client\CoursesController',['o
 //銀行回傳資料
 Route::post('/bills', '\App\Http\Controllers\Client\BillsController@store');
 
+Route::post('/bills', array('middleware' => 'cors', 'uses' => '\App\Http\Controllers\Client\BillsController@store'));
+
 Route::group(['middleware' => 'auth'], function()
 {
   
@@ -45,6 +33,8 @@ Route::group(['middleware' => 'auth'], function()
     Route::resource('/signups', '\App\Http\Controllers\Client\SignupsController');
   
     Route::get('/bills/{id}', '\App\Http\Controllers\Client\BillsController@show');
+    Route::get('/bills/{id}/print', '\App\Http\Controllers\Client\BillsController@print');
+    Route::get('/bills/{id}/credit', '\App\Http\Controllers\Client\BillsController@credit');
 
     Route::get('/teacher', '\App\Http\Controllers\Client\TeacherController@show');
     Route::get('/teacher/edit', '\App\Http\Controllers\Client\TeacherController@edit');
@@ -152,6 +142,8 @@ Route::group(['middleware' => 'admin'], function()
     //Signups
     Route::get('/manage/signups/report', 'SignupsController@report');
     Route::resource('/manage/signups', 'SignupsController');
+
+    Route::get('/manage/bills/{id}/print', 'BillsController@print');
 
     Route::resource('/manage/students', 'StudentsController');
     Route::post('/manage/students/scores/update', 'StudentsController@updateScores');

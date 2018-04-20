@@ -1,9 +1,10 @@
 <template>
     
     <div id="signup">
-        <div v-if="signup" style="margin:50px;">
+        <div style="margin:50px;">
             <div class="row text-center" >
-                <h3>慈濟大學社會教育推廣中心課程繳費單</h3>
+                <h3 v-if="payed">慈濟大學社會教育推廣中心課程繳費收據</h3>
+                <h3 v-else>慈濟大學社會教育推廣中心課程繳費單</h3>
             </div>
             <div class="row">
                 <div class="col-sm-4" >
@@ -18,15 +19,15 @@
                      {{ signup.date }}
                     </h3> 
                 </div>
-                <div class="col-sm-4 text-right">
-                    <h3>
+                <div class="col-sm-4 text-right">  
+                    <h3 v-if="!payed">
                     繳款期限：
                        {{ signup.bill.deadLine }}
                     </h3>     
                 </div>
             </div>
             <div class="row">
-                <div class="panel panel-default" style="height:600px">
+                <div class="panel panel-default" style="height:450px">
                     <div class="panel-heading">
                         <h4>報名課程</h4>
                     </div>   
@@ -55,11 +56,13 @@
 
                         <div class="row">
                             <div class="col-sm-8" >
-                                <label class="label-title">折扣：</label>
-                                {{ signup.discount }} 
-                                <span v-if="signup.points">
-                                            &nbsp; {{ signup.pointsText }}
-                                        </span>  
+                                <p v-if="hasDiscount">
+                                    <label class="label-title">折扣：</label>
+                                    {{ signup.discount }} 
+                                    <span v-if="signup.points">
+                                      &nbsp; {{ signup.pointsText }}
+                                    </span>  
+                                </p>        
                             </div>
                             <div class="col-sm-4">
                                 <label class="label-title">應繳金額：</label>
@@ -70,13 +73,12 @@
                     </div>
                 </div>
             </div> <!--  End Row   -->
-            <div class="row">
-                <div class="col-sm-6" >
-                    <barcode :value="signup.bill.code" :options="options"></barcode>
+            <div  v-if="signup.bill.sevenCodes" class="row">
+                <div class="col-sm-12">
+                    <barcode v-for="(item,index) in sevenCodes" :key="index" :value="item" :options="options"></barcode>
+                   
                 </div>
-                <div class="col-sm-6">
-                    
-                </div>
+               
             </div>
             <div class="row">
                 <div class="col-sm-12 text-right" >
@@ -100,12 +102,25 @@
         },
         data() {
             return {
-               options:{
-                   
+                
+                options:{
                     height: 50,
-               }
+                }
             }
         },
+        computed:{
+            payed(){
+               if(!this.signup) return false;
+               return Helper.isTrue(this.signup.bill.payed);
+            },
+            hasDiscount(){
+                return Signup.hasDiscount(this.signup);
+            },
+            sevenCodes(){
+                if(!this.signup.bill.sevenCodes) return [];
+                return this.signup.bill.sevenCodes.split(',');
+            }
+        }, 
         beforeMount() {
            
         }, 

@@ -10,7 +10,7 @@ class Bill {
     }
  
     static source() {
-        return '/bills';
+        return '/manage/bills';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;
@@ -120,6 +120,21 @@ class Bill {
                     .catch(error => {
                         reject(error);
                     })
+        })
+    }
+
+    static initPrint(id){
+        let url =`${this.source()}/${id}/print`;
+
+        return new Promise((resolve, reject) => {
+            axios.get(url)
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+
         })
     }
 

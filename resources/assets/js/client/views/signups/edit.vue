@@ -6,6 +6,7 @@
             </h2>
         </div>
         <div class="columns" style="padding-top:1em">
+            
             <signup-edit :form="form" :identity_options="identity_options"
                @saved="onSaved" @cancel="onCancel">
 
@@ -19,10 +20,12 @@
 
 <script>
     import SignupEdit from '../../components/signup/edit.vue';
+    import ShowSignup from '../../components/signup/show.vue';
     export default{
         name:'SignupEditView',
         components: {
-            'signup-edit':SignupEdit        
+            'show-signup':ShowSignup,
+            'signup-edit':SignupEdit                
         },
         props: {
             form: {

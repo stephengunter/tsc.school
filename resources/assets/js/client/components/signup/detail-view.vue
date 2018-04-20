@@ -83,6 +83,7 @@
             canRemove(){
                 if(!this.can_edit) return false;
                 if(!this.signup) return false;
+                if(!this.signup.canEdit) return false;
                 return  this.signup.details.length > 1;
 
             },

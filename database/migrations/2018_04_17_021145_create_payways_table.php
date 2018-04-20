@@ -15,6 +15,7 @@ class CreatePaywaysTable extends Migration
     {
         Schema::create('payways', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('code')->nullable(); 
             $table->string('name');
             $table->boolean('need_account')->default(false);
             $table->boolean('pay')->default(true);   

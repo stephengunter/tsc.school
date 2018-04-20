@@ -9,16 +9,18 @@ class Bill extends Model
     protected $primaryKey = 'signupId';
 
     protected $fillable = [
-        'code', 'amount', 'deadLine' , 
-        'payed' ,'payDate','paywayId','updatedBy'
+        'amount',
+        'code',  'deadLine' , 'serial', 'sevenCodes',
+        'payed' ,'payDate','paywayId',
+        'updatedBy'
     ];
 
     public static function init()
 	{
 		return [
-			'code' => '',
+			
             'amount' => 0,
-            'deadLine' => '',
+    
             'payed' => 0,
             'paywayId' => '',
         ];
@@ -34,5 +36,7 @@ class Bill extends Model
 	{
 		return $this->hasOne('App\Payway', 'id' ,'paywayId');
     }
+
+    
     
 }

@@ -2,6 +2,7 @@
 
 namespace App\Core;
 use Illuminate\Database\Eloquent\Collection;
+
 class Helper
 {
     public static function getMimeTypes($ext)
@@ -114,6 +115,32 @@ class Helper
             return substr($val,0,2) . ':' . substr($val,2,2);
         }
 
+    }
+
+    public static function getMonthDayString(int $month, int $day)
+    {
+        $monthString= $month < 10 ? '0' . strval($month) : strval($month);
+       
+        $dayString= $day < 10 ? '0' . strval($day) : strval($day);
+      
+        return $monthString . $dayString;
+
+    }
+
+    public static function intToStringLength( $val,int $length,bool $zeroAtFront=true)
+    {
+        $str=strval((int)$val);
+        if($zeroAtFront){
+            while (strlen($str) < $length) {
+                $str='0' . $str;
+            }
+        }else{
+            while (strlen($str) < $length) {
+                $str= $str . '0';
+            }
+        }
+       
+        return $str;
     }
 
     public static function buildQuery($url ,array $params)

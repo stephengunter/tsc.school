@@ -89,6 +89,15 @@ class Menus
                     ],
                 );
         } 
+        if($key=='Reports'){
+            return array(
+                    [
+                        'text' => '公告管理',
+                        'path' => '/manage/notices',
+                        'active' => $current =='manage/notices'
+                    ],
+                );
+        } 
         if($key=='HomePageAdmin'){
             return array(
                     [

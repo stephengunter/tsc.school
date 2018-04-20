@@ -28,7 +28,13 @@ return [
      ),
      
     'bill' => array(
-        'shopId' => '95170'
+        'shopId' => '92914',  //商店代碼 for 虛擬帳號, 便利商店
+        'sevenCode' => '235', //超商代碼
+    ),
+
+    'credit' => array(
+        'shopId' => '8089024730',  
+        'mackey' => 'IVIPUZ2FTROXRQUAVGBD9QTT8YKT7LZZ', 
     ),
 
     /*

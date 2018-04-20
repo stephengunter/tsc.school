@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Payway extends Model
 {
     protected $fillable = [
-      'name'
+        'name'
     ];
 
     public function bills() 
@@ -23,6 +23,8 @@ class Payway extends Model
         return [ 'text' => $this->name ,  'value' => $this->id ];
         
     }
+
+    
 
     public function  needAccount()
     {

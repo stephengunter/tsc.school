@@ -17,6 +17,7 @@ class PaywaySeeder extends Seeder {
 			],
 			[
 				'name' => '信用卡(現場)',
+				'code' => 'credit',
 				'need_account' => false,
 				'pay' => true,
 				'back' => true,
@@ -26,6 +27,7 @@ class PaywaySeeder extends Seeder {
 			],
 			[
 				'name' => '信用卡(網路)',
+				'code' => 'credit_net',
 				'need_account' => false,
 				'pay' => true,
 				'back' => true,
@@ -35,6 +37,7 @@ class PaywaySeeder extends Seeder {
 			],
 			[
 				'name' => '便利商店',
+				'code' => 'seven',
 				'need_account' => true,
 				'pay' => true,
 				'back' => false,
@@ -42,6 +45,7 @@ class PaywaySeeder extends Seeder {
 			],
 			[
 				'name' => '匯款',
+				'code' => 'account',
 				'need_account' => true,
 				'pay' => true,
 				'back' => true,

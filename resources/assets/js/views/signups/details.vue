@@ -12,7 +12,8 @@
         <div>
             <ul class="nav nav-tabs">
                 <li :class="{ active: activeIndex==0 , 'label-title':true}" >
-                    <a @click.prevent="activeIndex=0" href="#" >列印繳費單</a>
+                    <a v-if="payed" @click.prevent="activeIndex=0" href="#" >列印收據</a>
+                    <a v-else @click.prevent="activeIndex=0" href="#" >列印繳費單</a>
                 </li>
                 <li v-show="payed" :class="{ 'active ': activeIndex==1 , 'label-title':true}">
                     <a @click.prevent="activeIndex=1" href="#">退費申請</a>
@@ -91,6 +92,8 @@
                     can_back:true,
                  
                 },
+
+                needPrint:false,
                
                 
                 activeIndex:0,
@@ -99,7 +102,7 @@
         computed:{
             payed(){
                if(!this.signup) return false;
-               return parseInt(this.signup.status)!=0;
+               return Helper.isTrue(this.signup.bill.payed);
             }
         },
         beforeMount(){
@@ -114,9 +117,19 @@
                 
             },
             onSignupLoaded(signup){
+                
                 this.signup={
                     ...signup
                 };
+
+                if(this.needPrint){
+                   
+                   setTimeout(()=>{ 
+                        this.$refs.billPrint.print();
+                        this.needPrint=false;
+                   }, 1000);
+
+                }
                 
             },
             reloadSignup(){
@@ -135,7 +148,23 @@
                 this.$emit('back');
             },
             beginPrint() {
-                this.$refs.billPrint.print();
+                if(this.payed){
+                    this.$refs.billPrint.print();
+                    return;
+                } 
+                else{
+                   
+                    let initPrint=Bill.initPrint(this.signup.id);
+                    initPrint.then(() => {
+                        this.needPrint=true;
+                        this.reloadSignup();
+                    })
+                    .catch(error=> {
+                        
+                        Helper.BusEmitError(error)
+                    })
+                }
+                
             },
             
         }

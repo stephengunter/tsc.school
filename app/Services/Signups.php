@@ -10,14 +10,14 @@ use App\Course;
 use App\Signup;
 use App\Bill;
 use App\SignupDetail;
-use App\Services\Users;
+use App\Services\Bills;
 use DB;
 use Carbon\Carbon;
 use App\Core\Helper;
 
 class Signups 
 {
-    public function __construct()
+    public function __construct(Bills $bills)
     {
         $this->statuses=array(
             ['value'=> 0 , 'text' => '待繳費'],
@@ -26,6 +26,8 @@ class Signups
         );
         $this->shopId=config('app.bill.shopId');
         $this->with=['bill.payway', 'quit.details' ,'details.course.center','user.profile'];
+
+        $this->bills=$bills;
 
     }
    
@@ -47,7 +49,7 @@ class Signups
     {
         if(!$signup->tuitions)   abort(500, '報名表課程費用錯誤');
         $signup->status=0;
-        $bill=$this->initBill($signup);
+        $bill=$this->bills->initBill($signup);
       
         $signup=DB::transaction(function() use($signup,$details,$bill) {
             $signup->save();
@@ -92,30 +94,7 @@ class Signups
         });
         
     }
-
     
-
-    function initBill(Signup $signup)
-    {
-        $date = Carbon::today();
-        $amount=$signup->amount();
-        $code=$this->initBillCode($date, $amount);
-
-        return new Bill([
-            'code' => $code,
-            'amount' => $amount,
-            'payed' => false,
-            'payway' => 0,
-            'deadLine' => $date->addDays(10)
-        ]);
-        
-    }
-
-    function initBillCode($date, $amount)
-    {
-        $value = rand(10,100*100*100*100);
-        return $this->shopId . $value;
-    }
 
     public function deleteSignup(Signup $signup,$updatedBy)
     {

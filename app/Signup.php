@@ -101,6 +101,11 @@ class Signup extends Model
         return $this->status < 1;
     }
 
+    public function hasPayed()
+    {
+        return $this->bill->payed;
+    }
+    
   
 
     public function loadViewModel()

@@ -151,7 +151,6 @@ class SignupsController extends Controller
    
     public function index()
     {
-       
         $request=request();
 
         $term=0;
@@ -513,7 +512,7 @@ class SignupsController extends Controller
         $signup->canDelete = $this->canDelete($signup);
         $signup->canQuit = $this->canQuit($signup);
 
-        return response() ->json($signup);
+        return response()->json($signup);
         
     }
    

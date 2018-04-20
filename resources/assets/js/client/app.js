@@ -37,8 +37,10 @@ Vue.component('user-profile-view', require('./views/users/profile'));
 
 Vue.component('signup-index-view', require('./views/signups/index'));
 Vue.component('signup-edit-view', require('./views/signups/edit'));
+Vue.component('signup-show-view', require('./views/signups/show'));
 
 Vue.component('bill-edit-view', require('./views/bills/edit'));
+Vue.component('bill-print-view', require('./views/bills/print'));
 
 Vue.component('teacher-details', require('./views/teachers/details'));
 

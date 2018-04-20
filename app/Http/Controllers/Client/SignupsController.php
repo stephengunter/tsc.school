@@ -80,31 +80,37 @@ class SignupsController extends Controller
         $user=$this->currentUser();
 
         $signups = $this->signups->fetchSignupsByUser($user)
-                                ->orderBy('created_at','desc');
-                               
-        $unPayedSignups=$signups->where('status',0)->get();
-        $PayedSignups=$signups->where('status',1)->get();
-        $canceledSignups=$signups->where('status',-1)->get();
+                                ->orderBy('created_at','desc')
+                                ->get();
+                              
+        if(count($signups)){
+            $unPayedSignups=$signups->where('status',0);
+           
+            $payedSignups=$signups->where('status',1);
 
-        $signupRecords=Helper::mergeCollections($unPayedSignups,$PayedSignups);
-        $signupRecords=Helper::mergeCollections($signupRecords,$canceledSignups);
-        
+            $canceledSignups=$signups->where('status',-1);
+            
+            $signups=Helper::mergeCollections($unPayedSignups,$payedSignups);
+            $signups=Helper::mergeCollections($signups,$canceledSignups);
+        }                     
+       
+     
       
 
-        foreach($signupRecords as $signup){
+        foreach($signups as $signup){
             $signup->loadViewModel();
             $signup->canDelete=$this->canDelete($signup);
             $signup->canPay=$this->canPay($signup);
         }
 
         if($this->isAjaxRequest()){
-            return response()->json($signupRecords);
+            return response()->json($signups);
         }
         
         $model=[
             'title' => '',
             'topMenus' => $this->clientMenus(),
-            'signups' => $signupRecords
+            'signups' => $signups
         ];
 
         return view('client.signups.index')->with($model);
@@ -269,6 +275,19 @@ class SignupsController extends Controller
         $signup->canDelete = $this->canDelete($signup);
 
         $selectedCourse=$signup->details->first()->course;
+
+        if(!$signup->canEdit){
+            $model=[
+                'title' => '報名紀錄 - ' .  $selectedCourse->fullName(),
+                'topMenus' => $this->clientMenus(),
+    
+                'signup' => $signup
+            ];
+
+            return view('client.signups.show')->with($model);
+        }
+
+        
 
         $identityIds=$user->identities()->pluck('identity_id')->toArray();
         
