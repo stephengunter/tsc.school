@@ -5,7 +5,7 @@
 
 
 <quits-index v-show="indexMode" :init_model="model"  :centers="centers"  :statuses="statuses" :payways="payways"
-    :can_review="can_review" :version="version"
+    :can_review="can_review" :can_finish="can_finish" :version="version"
     v-on:selected="onSelected" >
 </quits-index>
 <quits-details v-if="selected" :id="selected"
@@ -34,6 +34,7 @@
                     payways:[],
 
                     can_review: false,
+                    can_finish: false,
                    
                     selected: 0,
 
@@ -58,7 +59,7 @@
                 this.payways = {!! json_encode($payways) !!} ;
 
                 this.can_review = Helper.isTrue('{!! $canReview !!}');  
-               
+                this.can_finish = Helper.isTrue('{!! $canFinish !!}');  
 
 			},
             methods: {

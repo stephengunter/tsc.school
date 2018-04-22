@@ -1,0 +1,243 @@
+@startuml
+
+class User {
+  int id
+
+  string name
+  string email
+  string password
+  string phone
+  int updatedBy
+
+  
+}
+class Signup報名 {
+    int id
+
+    int userId
+    bool net網路報名
+    decimal tuitions學費
+    decimal costs材料費
+    int points折數百分比
+    string discount折扣名稱
+    int status狀態
+    string ps
+    int updatedBy
+
+
+    .. 狀態 ..
+    未繳費0
+    已繳費1
+    已取消-1
+}
+
+class SignupDetail報名明細 {
+    int id
+
+    int signupId
+    int courseId
+    decimal tuition學費
+    decimal cost材料費
+    int updatedBy
+}
+
+class Course課程{
+    int id
+
+    int termId
+    int centerId
+    int teacherGroupId
+    int categoryId
+    string name
+    string level程度
+    string number
+    bool net網路報名
+    date beginDate開始日期
+    date endDate結束日期
+    int weeks週數
+    int hours時數
+    decimal tuition學費
+    decimal cost材料費
+    string materials材料
+    string description簡介
+    string target招生對象
+    string caution注意事項 
+    date openDate報名起始日
+    date closeDate報名截止日
+    int limit人數上限
+    int min人數下限
+    bool discount可折扣
+    int importance重要性
+    bool reviewed
+    int reviewedBy
+    bool active
+    bool removed
+    string ps
+    int updatedBy
+}
+
+class Student {
+    int id
+
+    int courseId
+    int userId
+    int status狀態
+    decimal score分數
+    string ps
+    int updatedBy
+    
+}
+
+class Bill帳單 {
+    int signupId
+
+    decimal amount金額
+    int serial當天的序號
+    string code訂單編號
+    string sevenCodes超商條碼
+    date deadLine代收截止日
+    bool payed已付清
+    date payDate繳費日期
+    int paywayId繳費方式
+    int updatedBy
+
+    .. 狀態 ..
+    未完成0
+    已完成1
+
+
+}
+
+class Quit退費 {
+    int signupId
+
+    date date申請日期
+    decimal tuitions應退學費
+    decimal fee手續費
+    int paywayId支付方式
+    string account銀行帳號
+    int status狀態
+    bool reviewed
+    int reviewedBy
+    string ps
+    int updatedBy
+
+
+}
+
+class QuitDetail退費明細 {
+    int id
+
+    int signupId
+    int signupDetailIdId
+    int percents退費比例
+    int tuition應退學費
+    string ps
+    int updatedBy
+
+
+}
+
+class Payway支付方式 {
+    int id
+
+    string name名稱
+    string code代碼
+    bool need_account需要帳號
+    bool pay繳費
+    bool back退費
+    int paywayId支付方式
+    string account銀行帳號
+    decimal fee手續費
+    bool fee_percents手續費採百分比計算
+
+
+}
+
+class Discount折扣 {
+    int id
+
+    string name名稱
+    string code代碼
+    int min最低課程數要求
+    int pointOne第一階段折扣百分比
+    int pointTwo第二階段折扣百分比
+    bool prove須要證明
+    bool active
+    bool removed
+    string ps
+
+
+}
+
+class Identity身分 {
+    int id
+
+    string name名稱
+    string code代碼
+    bool member慈濟會員
+    bool removed
+    string ps
+
+
+}
+
+class Center開課中心 {
+    int id
+
+    bool head總部
+    bool oversea海外
+    int areaId區域id
+    string name
+    string code代碼
+    string courseTel課程洽詢電話
+    int importance重要性
+    bool active
+    bool removed
+    int updatedBy
+}
+
+Signup報名 -up-> "1" User 
+User -down-> "many" Signup報名
+
+Signup報名 -right-> "many" SignupDetail報名明細
+SignupDetail報名明細 -left-> "1" Signup報名
+
+
+SignupDetail報名明細 -right-> "1" Course課程
+
+User -right-> "many" Student
+Student -left-> "1" User
+
+Student -down-> "1" Course課程
+Course課程 -up-> "many" Student
+
+Signup報名 -left-> "1" Bill帳單 
+Bill帳單 -right->"1" Signup報名
+
+Signup報名 -down-> "1 or 0" Quit退費
+Quit退費 -up->"1" Signup報名
+
+
+Quit退費 -left->"1" Payway支付方式
+Payway支付方式 -right-> "many" Quit退費
+
+Quit退費 -right-> "many" QuitDetail退費明細
+QuitDetail退費明細 -left-> "1" Quit退費
+
+Bill帳單 -down->"1" Payway支付方式
+Payway支付方式 -up-> "many" Bill帳單
+
+Center開課中心 -right->"many" Discount折扣
+Discount折扣 -left-> "many" Center開課中心
+
+Identity身分 -left->"many" Discount折扣
+Discount折扣 -> "many" Identity身分
+
+Identity身分 -right->"many" User
+User -> "many" Identity身分
+
+
+
+
+@enduml    

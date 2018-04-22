@@ -31,6 +31,9 @@ class Quit {
     static reviewUrl(id) {
         return this.source() + '/review';
     }
+    static finishUrl(id) {
+        return this.source() + '/finish';
+    }
 
     static show(id) {
         return new Promise((resolve, reject) => {
@@ -125,6 +128,21 @@ class Quit {
 
     static review(form){
         let url = this.reviewUrl();
+        let method = 'post';
+        return new Promise((resolve, reject) => {
+            form.submit(method, url)
+                .then(data => {
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    }
+
+
+    static finish(form){
+        let url = this.finishUrl();
         let method = 'post';
         return new Promise((resolve, reject) => {
             form.submit(method, url)

@@ -1,0 +1,184 @@
+@startuml
+
+class Term學期 {
+    int id
+
+    int year學年度
+    int order順序
+    int number
+    string name
+    date openDate報名起始日
+    date birdDate早鳥截止日
+    date closeDate開課決定日
+    bool active
+    bool removed
+    int updatedBy
+}
+
+
+class Center開課中心 {
+    int id
+
+    bool head總部
+    bool oversea海外
+    int areaId區域id
+    string name
+    string code代碼
+    string courseTel課程洽詢電話
+    int importance重要性
+    bool active
+    bool removed
+    int updatedBy
+}
+
+class Area區域{
+    int id
+
+    string name
+    string code代碼
+    int parent父區域
+
+}
+
+class Course課程{
+    int id
+
+    int termId
+    int centerId
+    int teacherGroupId
+    int categoryId
+    string name
+    string level程度
+    string number
+    bool net網路報名
+    date beginDate開始日期
+    date endDate結束日期
+    int weeks週數
+    int hours時數
+    decimal tuition學費
+    decimal cost材料費
+    string materials材料
+    string description簡介
+    string target招生對象
+    string caution注意事項 
+    date openDate報名起始日
+    date closeDate報名截止日
+    int limit人數上限
+    int min人數下限
+    bool discount可折扣
+    int importance重要性
+    bool reviewed
+    int reviewedBy
+    bool active
+    bool removed
+    string ps
+    int updatedBy
+}
+
+class ClassTime上課時間 {
+    int id
+
+    int courseId
+    int weekdayId
+    int on上課時間
+    int off下課時間
+    string location教室
+    int updatedBy
+}
+
+class Weekday星期幾 {
+    int id
+
+    string name
+    string title
+    int val
+}
+
+class Process課程大綱 {
+    int id
+
+    int courseId
+    int order順序
+    string title標題
+    string content內容
+    string materials教材
+}
+
+class Category課程分類{
+    int id
+
+    string name
+    string code代碼
+    bool top置頂
+    string icon小圖樣式
+    int importance重要性
+    bool active
+    bool removed
+    int updatedBy
+}
+
+class TeacherGroup教師群組{
+    int id
+
+    int centerId
+    string name
+    string description簡介
+    bool active
+    bool removed
+    int updatedBy
+}
+
+class Teacher {
+    int userId
+
+    string experiences經歷
+    string education最高學歷
+    string certificate證書號
+    string specialty專長
+    string job現職
+    string jobtitle職稱
+    string description簡介
+    date joinDate加入日期
+    bool reviewed
+    int reviewedBy
+    bool active
+    bool removed
+    string ps
+    int updatedBy
+}
+
+
+Center開課中心 -right-> "1 or 0" Area區域 
+Area區域 -> "many" Center開課中心
+
+Center開課中心 -down-> "many" Course課程 
+Course課程  -up-> "1" Center開課中心 
+
+Center開課中心 -down-> "many" Teacher 
+Teacher  -up-> "many" Center開課中心 
+
+Term學期 -down-> "many" Course課程 
+Course課程  -up-> "1" Term學期 
+
+Course課程 -right-> "many" Category課程分類 
+Category課程分類 -> "many" Course課程
+
+Course課程 -down-> "many" ClassTime上課時間 
+ClassTime上課時間 -up-> "1" Course課程
+
+ClassTime上課時間 -> "1" Weekday星期幾
+
+Course課程 -down-> "many" Process課程大綱 
+Process課程大綱 -up-> "1" Course課程
+
+Center開課中心 -down-> "many" TeacherGroup教師群組 
+TeacherGroup教師群組 -> "1" Center開課中心
+
+Course課程 -left-> "many" Teacher 
+Teacher -right-> "many" Course課程
+
+Teacher -left-> "many" TeacherGroup教師群組
+TeacherGroup教師群組 -> "many" Teacher
+
+
+@enduml

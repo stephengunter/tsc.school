@@ -38,7 +38,10 @@
                     <i class="fa fa-check-circle"></i>
                     審核通過
                 </a>
-                
+                <a v-if="canFinish" v-show="showFinishBtn" :disabled="!canSubmitFinish" @click.prevent="onFinishOk" href="#" class="btn btn-primary">
+                    <i class="fa fa-check-circle"></i>
+                    結案
+                </a>
             </div>
         </div>
             
@@ -86,6 +89,10 @@
                 type:Boolean,
                 default:false
             },
+            can_finish:{
+                type:Boolean,
+                default:false
+            },
             centers:{
                 type:Array,
                 default:null
@@ -125,6 +132,7 @@
                 canReview:false,
                 reviewedOptions:Helper.reviewedOptions(),
                 
+                canFinish:false,
                
                 checkedIds:[]
             }
@@ -144,15 +152,24 @@
            
             this.params.center=this.centers[0].value;
             	
-            this.canReview=this.can_review;	 	
+            this.canReview=this.can_review;	 
+            this.canFinish=this.can_finish;	 		
         },
         computed:{
-           
             showReviewBtn(){
+                if(parseInt(this.params.status)) return false;
                 return !this.params.reviewed;
               
             },
             canSubmitReview(){
+                return this.checkedIds.length > 0;
+            },
+            showFinishBtn(){
+                if(this.showReviewBtn) return false;
+                return !parseInt(this.params.status);
+              
+            },
+            canSubmitFinish(){
                 return this.checkedIds.length > 0;
             }
         }, 
@@ -227,6 +244,31 @@
                 });
 
                 let save=Quit.review(form);
+				save.then(() => {
+                    Helper.BusEmitOK('資料已存檔');
+                    this.fetchData();
+                    this.$refs.quitTable.unCheckAll();
+				})
+				.catch(error => {
+					Helper.BusEmitError(error,'存檔失敗');
+				})
+            },
+            onFinishOk(){
+                
+                if(!this.checkedIds.length) return;
+
+                let quits= this.checkedIds.map((item)=>{
+                   return {
+                       id:item,
+                       finish:true
+                   };
+                })
+
+                let form=new Form({
+                    quits:quits
+                });
+
+                let save=Quit.finish(form);
 				save.then(() => {
                     Helper.BusEmitOK('資料已存檔');
                     this.fetchData();

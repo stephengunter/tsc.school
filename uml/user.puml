@@ -1,0 +1,126 @@
+@startuml
+
+class User {
+  int id
+
+  string name
+  string email
+  string password
+  string phone
+  int updatedBy
+
+  
+}
+
+class Profile {
+   int userId
+
+   string sid
+   string fullname
+   date dob
+   bool gender
+   int updatedBy
+}
+
+class ContactInfo {
+   int id
+
+   int userId
+   int centerId
+   string tel
+   string fax
+   int importance
+   int updatedBy
+}
+
+class Role {
+    int id
+
+    string name
+    string title
+
+    .. 角色名稱 ..
+    Dev 開發者
+    Boss 主管
+    Staff 職員
+    Teacher 教師
+    Student 學生
+    Volunteer 志工
+}
+
+class Teacher {
+    int userId
+
+    string experiences經歷
+    string education最高學歷
+    string certificate證書號
+    string specialty專長
+    string job現職
+    string jobtitle職稱
+    string description簡介
+    date joinDate加入日期
+    bool reviewed
+    int reviewedBy
+    bool active
+    bool removed
+    string ps
+    int updatedBy
+}
+
+class Admin {
+    int userId
+
+    bool active
+    bool removed
+    string ps
+    int updatedBy
+}
+
+class Volunteer {
+    int userId
+
+    date joinDate加入日期
+    bool active
+    bool removed
+    string ps
+    int updatedBy
+}
+
+class Wage鐘點費 {
+    int id
+
+    int userId
+    string bank銀行名稱
+    string branch分行
+    string owner戶名
+    string account帳號
+    decimal money金額
+    int updatedBy
+}
+
+
+User -left-> "1" Profile 
+Profile -> "1" User 
+
+
+User -right-> "many" ContactInfo
+ContactInfo -> "1" User
+
+
+
+User -up-> "many" Role
+Role --> "many" User
+
+User -down-> "1 or 0" Teacher 
+Teacher -up-> "1" User 
+
+User -down-> "1 or 0" Admin 
+Admin -up-> "1" User 
+
+User -down-> "1 or 0" Volunteer 
+Volunteer -up-> "1" User 
+
+User -down->"many" Wage鐘點費
+Wage鐘點費 -up-> "1" User 
+
+@enduml

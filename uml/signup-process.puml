@@ -1,0 +1,16 @@
+@startuml
+:課程線上報名;
+if (課程名額已滿?) then (yes)
+   stop
+else (no)
+    if (課程已經開始?) then (yes)
+       stop
+    else (no)
+       :開始線上報名;
+    
+    endif
+  
+endif
+stop
+
+@enduml

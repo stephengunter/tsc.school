@@ -166,6 +166,35 @@ class Quits
         } 
     }
 
+    public function finishOK(array $ids,  $updatedBy)
+    {
+        $quits=$this->getByIds($ids)->get();
+        foreach($quits as $quit){
+            if(!$quit->reviewed) abort(500);
+            $quit->status=1;
+            $quit->updatedBy=$updatedBy;
+            $quit->save();
+        } 
+    }
+
+    public function  updateFinish($id, bool $finish, $updatedBy)
+    {
+        $quit=Quit::findOrFail($id);
+
+        if($finish){
+            $quit->status=1;
+            if(!$quit->reviewed) abort(500);
+           
+        }else{
+            $quit->status=0;
+        }
+        
+        $quit->updatedBy=$updatedBy;
+        
+
+        $quit->save();
+    }
+
     public function  updateReview($id,bool $reviewed,int $reviewedBy)
     {
         $quit=Quit::findOrFail($id);

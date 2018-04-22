@@ -57,14 +57,18 @@ class QuitsController extends Controller
 
         return $this->canAdminCenter($signup->getCenter());
 
-       
-
     }
 
     function canReview(Quit $quit)
     {
 
         return $this->canReviewCenter($quit->getCenter());
+
+    }
+
+    function canFinish(Quit $quit)
+    {
+        return $this->canAdminCenter($quit->getCenter());
 
     }
 
@@ -211,7 +215,7 @@ class QuitsController extends Controller
             'payways' => $paywayOptions,
 
             'canReview' => $this->canReviewCenter($selectedCenter),
-           
+            'canFinish' => $this->canAdminCenter($selectedCenter),
             'list' => $pageList
         ];
 
@@ -436,6 +440,38 @@ class QuitsController extends Controller
             $reviewed=Helper::isTrue($quits[0]['reviewed']);
 
             $this->quits->updateReview($id,$reviewed ,$reviewedBy);
+        }
+        
+
+        return response() ->json();
+
+
+    }
+
+    public function finish(Request $form)
+    {
+        $updatedBy=$this->currentUserId();
+        
+        $quits=  $form['quits'];
+
+        if(count($quits) > 1){
+            $quitIds=array_pluck($quits, 'id');
+
+            $quit = $this->quits->getById($quitIds[0]); 
+            if(!$this->canFinish($quit)) return $this->unauthorized();
+           
+            $this->quits->finishOK($quitIds, $updatedBy);
+
+        }else{
+            
+            $id=$quits[0]['id'];
+
+            $quit = $this->quits->getById($id); 
+            if(!$this->canFinish($quit)) return $this->unauthorized();
+         
+            $finish=Helper::isTrue($quits[0]['finish']);
+
+            $this->quits->updateFinish($id, $finish ,$updatedBy);
         }
         
 
