@@ -29,7 +29,7 @@ return [
      
     'bill' => array(
         'shopId' => '92914',  //商店代碼 for 虛擬帳號, 便利商店
-        'sevenCode' => '235', //超商代碼
+        'sevenCode' => ['6G8','6UH'], //超商代碼 2萬以下,2萬以上  
     ),
 
     'credit' => array(

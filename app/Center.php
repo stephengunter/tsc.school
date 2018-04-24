@@ -9,7 +9,7 @@ class Center extends Model
 {
 	public static $snakeAttributes = false;
 	
-	protected $fillable = [  'head', 'oversea', 'areaId','importance',
+	protected $fillable = [  'head', 'east','oversea', 'areaId','importance',
 							 'name','code', 'courseTel','rule',
 							 'active','removed', 'updatedBy'
 						  ];
@@ -18,6 +18,7 @@ class Center extends Model
 	{
 		return [
 			'head' => 0,
+			'east' => 0,
 			'oversea' => 0,
 			'areaId' => 0,
 			'name' => '',

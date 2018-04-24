@@ -123,6 +123,7 @@ class Bills
 
     public function createBillCode(Signup $signup)
     {
+       
         $bill=$signup->bill;
         $this->setBillCode($bill);
     }

@@ -6,7 +6,7 @@
                 <h3 v-html="title">
                 </h3>
             </div>
-            <div class="col-sm-6 form-inline" style="margin-top: 20px;">
+            <div class="col-sm-7 form-inline" style="margin-top: 20px;">
                 <div class="form-group" style="padding-left:1em;">
                     <drop-down :items="terms" :selected="params.term"
                         @selected="onTermSelected">
@@ -27,10 +27,14 @@
                         @selected="setStatus">
                     </drop-down>
                 </div>
-                
+                <div v-show="payed" class="form-group" style="padding-left:1em;">
+                    <drop-down :items="payways" :selected="params.payway"
+                        @selected="setPayway">
+                    </drop-down>
+                </div>
                 
             </div>
-            <div class="col-sm-3" style="margin-top: 3px;"> 
+            <div v-if="false" class="col-sm-3" style="margin-top: 3px;"> 
                
             </div>
             <div class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
@@ -52,7 +56,7 @@
         </div>  
 
         
-        <signup-table :model="model" :can_review="canReview" 
+        <signup-table :model="model" :can_review="canReview" :payed="payed"
             @selected="onSelected" @check-changed="onCheckIdsChanged">
             <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
                 <page-controll   :model="model" @page-changed="onPageChanged"
@@ -113,6 +117,10 @@
                 type:Array,
                 default:null
             },
+            payways:{
+                type:Array,
+                default:null
+            },
             version:{
                 type:Number,
                 default:0
@@ -135,6 +143,7 @@
                     center:'0',
                     course:'0',
                     status:'0',
+                    payway:'0',
                     
                     page:1,
                     pageSize:999
@@ -171,6 +180,9 @@
             showReviewBtn(){
                return this.checkedIds.length > 0;
             },
+            payed(){
+               return  Helper.tryParseInt(this.params.status) != 0;     
+            }
             
            
         }, 
@@ -208,6 +220,10 @@
                 this.params.status = item.value;
                 this.fetchData();
             },
+            setPayway(item){
+                this.params.payway = item.value;
+                this.fetchData();
+            },
             onCourseSelected(item){
                 this.params.course = item.value;
                 this.fetchData();
@@ -217,7 +233,7 @@
                 this.fetchData();
             },
             fetchData() {
-                
+                if(!this.payed) this.params.payway='0';
                 let getData = Signup.index(this.params);
 
                 getData.then(model => {

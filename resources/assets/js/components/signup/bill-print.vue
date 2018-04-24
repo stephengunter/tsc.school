@@ -3,8 +3,8 @@
     <div id="signup">
         <div style="margin:50px;">
             <div class="row text-center" >
-                <h3 v-if="payed">慈濟大學社會教育推廣中心課程繳費收據</h3>
-                <h3 v-else>慈濟大學社會教育推廣中心課程繳費單</h3>
+                <h3 v-if="payed">{{ title }}</h3>
+                <h3 v-else>{{ title }}</h3>
             </div>
             <div class="row">
                 <div class="col-sm-4" >
@@ -21,13 +21,13 @@
                 </div>
                 <div class="col-sm-4 text-right">  
                     <h3 v-if="!payed">
-                    繳款期限：
+                    繳費期限：
                        {{ signup.bill.deadLine }}
                     </h3>     
                 </div>
             </div>
             <div class="row">
-                <div class="panel panel-default" style="height:450px">
+                <div class="panel panel-default" style="height:850px">
                     <div class="panel-heading">
                         <h4>報名課程</h4>
                     </div>   
@@ -73,12 +73,48 @@
                     </div>
                 </div>
             </div> <!--  End Row   -->
-            <div  v-if="signup.bill.sevenCodes" class="row">
-                <div class="col-sm-12">
-                    <barcode v-for="(item,index) in sevenCodes" :key="index" :value="item" :options="options"></barcode>
+
+            <hr style="border:1px dashed #000; height:1px">
+
+
+            <div  v-if="signup.bill.sevenCodes" v-show="!payed" class="row">
+                <div class="col-sm-6">
+                    
+                    <h4>超商專用條碼</h4>
+                    <p>
+                        <barcode  key="1" :value="sevenCodes[0]" :options="options"></barcode>
+                    </p>
+
+                    <p>
+                        <barcode  key="2" :value="sevenCodes[1]" :options="options"></barcode>
+                    </p>
+                     <p>
+                        <barcode  key="3" :value="sevenCodes[2]" :options="options"></barcode>
+                    </p>
                    
                 </div>
-               
+                <div class="col-sm-6">
+                    <h4>{{ title }}</h4>
+                    <table style="width:90%" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width:50%">繳費期限</th>
+                                <th>應繳金額</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    {{ signup.date }}
+                                </td>
+                                <td>
+                                    {{ signup.bill.amount | formatMoney }} 
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                   
+                </div>
             </div>
             <div class="row">
                 <div class="col-sm-12 text-right" >
@@ -109,6 +145,10 @@
             }
         },
         computed:{
+            title(){
+                if(this.payed) return '慈濟大學社會教育推廣中心課程繳費收據';
+                return '慈濟大學社會教育推廣中心課程繳費單';
+            },
             payed(){
                if(!this.signup) return false;
                return Helper.isTrue(this.signup.bill.payed);

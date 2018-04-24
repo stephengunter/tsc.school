@@ -67606,14 +67606,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	name: 'DropDown',
-	props: ['items', 'selected'],
+	props: ['items', 'selected', 'btn_style'],
 	beforeMount: function beforeMount() {
 		this.init();
 	},
 	data: function data() {
 		return {
 			selectedItem: null,
-			otherItems: []
+			otherItems: [],
+			btnStyle: ''
 		};
 	},
 
@@ -67631,6 +67632,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			this.otherItems = this.items.filter(function (item) {
 				return item.value != _this.selected;
 			});
+
+			if (this.btn_style) this.btnStyle = 'btn btn-' + this.btn_style + ' dropdown-toggle';else this.btnStyle = 'btn btn-default dropdown-toggle';
 		},
 		onSelectedChanged: function onSelectedChanged(item) {
 			this.$emit('selected', item);
@@ -67656,7 +67659,7 @@ var render = function() {
           _c(
             "button",
             {
-              staticClass: "btn btn-default dropdown-toggle",
+              class: _vm.btnStyle,
               attrs: {
                 type: "button",
                 "data-toggle": "dropdown",
@@ -69032,7 +69035,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    name: 'ReviewEditor',
+    name: 'PSEditor',
     props: {
         showing: {
             type: Boolean,
@@ -69050,10 +69053,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
     beforeMount: function beforeMount() {
-        this.ps = this.text;
+        this.init();
     },
 
     methods: {
+        init: function init(val) {
+            this.ps = val;
+        },
         onClose: function onClose() {
             this.$emit('close');
         },
@@ -70410,6 +70416,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -70728,6 +70742,42 @@ var render = function() {
                     attrs: {
                       title: _vm.getKey(3),
                       items: _vm.getItems(3),
+                      badges: _vm.badges
+                    }
+                  })
+                ],
+                1
+              )
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "row" }, [
+          _vm.systemsCount > 4
+            ? _c(
+                "div",
+                { staticClass: "col-md-6" },
+                [
+                  _c("menu-item", {
+                    attrs: {
+                      title: _vm.getKey(4),
+                      items: _vm.getItems(4),
+                      badges: _vm.badges
+                    }
+                  })
+                ],
+                1
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.systemsCount > 5
+            ? _c(
+                "div",
+                { staticClass: "col-md-6" },
+                [
+                  _c("menu-item", {
+                    attrs: {
+                      title: _vm.getKey(5),
+                      items: _vm.getItems(5),
                       badges: _vm.badges
                     }
                   })
@@ -80047,6 +80097,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'ShowTeacher',
@@ -80223,6 +80277,14 @@ var render = function() {
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "row" }, [
+                _c("div", { staticClass: "col-sm-4" }, [
+                  _c("label", { staticClass: "label-title" }, [_vm._v("職稱")]),
+                  _vm._v(" "),
+                  _c("p", {
+                    domProps: { textContent: _vm._s(_vm.teacher.jobtitle) }
+                  })
+                ]),
+                _vm._v(" "),
                 _c("div", { staticClass: "col-sm-4" }, [
                   _c("label", { staticClass: "label-title" }, [_vm._v("專長")]),
                   _vm._v(" "),
@@ -81957,16 +82019,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'TeacherInputs',
@@ -82228,6 +82280,45 @@ var render = function() {
         _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-sm-4" }, [
             _c("div", { staticClass: "form-group" }, [
+              _c("label", [_vm._v("職稱")]),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.form.teacher.jobtitle,
+                    expression: "form.teacher.jobtitle"
+                  }
+                ],
+                staticClass: "form-control",
+                attrs: { type: "text", name: "teacher.jobtitle" },
+                domProps: { value: _vm.form.teacher.jobtitle },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.$set(_vm.form.teacher, "jobtitle", $event.target.value)
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _vm.form.errors.has("teacher.jobtitle")
+                ? _c("small", {
+                    staticClass: "text-danger",
+                    domProps: {
+                      textContent: _vm._s(
+                        _vm.form.errors.get("teacher.jobtitle")
+                      )
+                    }
+                  })
+                : _vm._e()
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-sm-4" }, [
+            _c("div", { staticClass: "form-group" }, [
               _c("label", [_vm._v("專長")]),
               _vm._v(" "),
               _c("input", {
@@ -82304,94 +82395,6 @@ var render = function() {
             ])
           ])
         ]),
-        _vm._v(" "),
-        false
-          ? _c("div", { staticClass: "row" }, [
-              _c("div", { staticClass: "col-sm-4" }, [
-                _c("div", { staticClass: "form-group" }, [
-                  _c("label", [_vm._v("現職")]),
-                  _vm._v(" "),
-                  _c("input", {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.form.teacher.job,
-                        expression: "form.teacher.job"
-                      }
-                    ],
-                    staticClass: "form-control",
-                    attrs: { type: "text", name: "teacher.job" },
-                    domProps: { value: _vm.form.teacher.job },
-                    on: {
-                      input: function($event) {
-                        if ($event.target.composing) {
-                          return
-                        }
-                        _vm.$set(_vm.form.teacher, "job", $event.target.value)
-                      }
-                    }
-                  }),
-                  _vm._v(" "),
-                  _vm.form.errors.has("teacher.job")
-                    ? _c("small", {
-                        staticClass: "text-danger",
-                        domProps: {
-                          textContent: _vm._s(
-                            _vm.form.errors.get("teacher.job")
-                          )
-                        }
-                      })
-                    : _vm._e()
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-4" }, [
-                _c("div", { staticClass: "form-group" }, [
-                  _c("label", [_vm._v("職稱")]),
-                  _vm._v(" "),
-                  _c("input", {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.form.teacher.jobtitle,
-                        expression: "form.teacher.jobtitle"
-                      }
-                    ],
-                    staticClass: "form-control",
-                    attrs: { type: "text", name: "teacher.jobtitle" },
-                    domProps: { value: _vm.form.teacher.jobtitle },
-                    on: {
-                      input: function($event) {
-                        if ($event.target.composing) {
-                          return
-                        }
-                        _vm.$set(
-                          _vm.form.teacher,
-                          "jobtitle",
-                          $event.target.value
-                        )
-                      }
-                    }
-                  }),
-                  _vm._v(" "),
-                  _vm.form.errors.has("teacher.jobtitle")
-                    ? _c("small", {
-                        staticClass: "text-danger",
-                        domProps: {
-                          textContent: _vm._s(
-                            _vm.form.errors.get("teacher.jobtitle")
-                          )
-                        }
-                      })
-                    : _vm._e()
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-4" })
-            ])
-          : _vm._e(),
         _vm._v(" "),
         _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-sm-4" }, [
@@ -93364,9 +93367,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
-//
-//
-//
 
 
 
@@ -93426,7 +93426,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
             center: null,
 
-            checkedIds: []
+            checkedIds: [],
+
+            action: 'none'
         };
     },
 
@@ -93455,6 +93457,33 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         canSubmitReview: function canSubmitReview() {
             return this.checkedIds.length > 0;
+        },
+        showReportsBtn: function showReportsBtn() {
+            var term = Helper.tryParseInt(this.params.term);
+            var center = Helper.tryParseInt(this.params.center);
+            return term > 0 && center > 0;
+        },
+        actions: function actions() {
+            var actions = [{
+                value: 'none', text: '執行'
+            }];
+            actions.push({
+                value: 'create', text: '新增'
+            });
+
+            if (this.showImportBtn) {
+                actions.push({
+                    value: 'import', text: '匯入'
+                });
+            }
+
+            if (this.showReportsBtn) {
+                actions.push({
+                    value: 'reports', text: '匯出報表'
+                });
+            }
+
+            return actions;
         }
     },
     methods: {
@@ -93513,6 +93542,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 this.params.center = '0';
             }
         },
+        onActionSelected: function onActionSelected(item) {
+            var action = item.value;
+            if (action == 'create') this.beginCreate();else if (action == 'import') this.beginImport();else if (action == 'reports') this.exportReports();
+        },
         setReviewed: function setReviewed(val) {
             this.params.reviewed = val;
             this.fetchData();
@@ -93558,6 +93591,15 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             }).catch(function (error) {
                 Helper.BusEmitError(error, '存檔失敗');
             });
+        },
+        exportReports: function exportReports() {
+            var url = '/manage/reports/courses';
+            var params = {
+                term: this.params.term,
+                center: this.params.center
+            };
+            url = Helper.buildQuery(url, params);
+            window.open(url);
         }
     }
 });
@@ -93710,44 +93752,16 @@ var render = function() {
                     attrs: { align: "right" }
                   },
                   [
-                    _c(
-                      "a",
-                      {
-                        staticClass: "btn btn-primary",
-                        attrs: { href: "#" },
-                        on: {
-                          click: function($event) {
-                            $event.preventDefault()
-                            return _vm.beginCreate($event)
-                          }
-                        }
+                    _c("drop-down", {
+                      attrs: {
+                        items: _vm.actions,
+                        selected: _vm.action,
+                        btn_style: "primary"
                       },
-                      [
-                        _c("i", { staticClass: "fa fa-plus" }),
-                        _vm._v("\n                新增\n            ")
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _vm.showImportBtn
-                      ? _c(
-                          "a",
-                          {
-                            staticClass: "btn btn-warning",
-                            attrs: { href: "#" },
-                            on: {
-                              click: function($event) {
-                                $event.preventDefault()
-                                return _vm.beginImport($event)
-                              }
-                            }
-                          },
-                          [
-                            _c("i", { staticClass: "fa fa-upload" }),
-                            _vm._v("\n                匯入\n            ")
-                          ]
-                        )
-                      : _vm._e()
-                  ]
+                      on: { selected: _vm.onActionSelected }
+                    })
+                  ],
+                  1
                 )
           ]),
           _vm._v(" "),
@@ -100076,6 +100090,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'SignupTable',
@@ -100097,6 +100116,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             default: true
         },
         can_checked: {
+            type: Boolean,
+            default: false
+        },
+        payed: {
             type: Boolean,
             default: false
         },
@@ -100239,7 +100262,13 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "25%" } }, [_vm._v("折扣")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("應繳金額")])
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("應繳金額")]),
+              _vm._v(" "),
+              _vm.payed
+                ? _c("th", { staticStyle: { width: "10%" } }, [
+                    _vm._v("繳費方式")
+                  ])
+                : _vm._e()
             ])
           ]),
           _vm._v(" "),
@@ -100333,7 +100362,21 @@ var render = function() {
                       _vm._s(_vm._f("formatMoney")(signup.amount)) +
                       " \n                        "
                   )
-                ])
+                ]),
+                _vm._v(" "),
+                _vm.payed
+                  ? _c("td", [
+                      signup.bill.payway
+                        ? _c("span", [
+                            _vm._v(
+                              "\n                            " +
+                                _vm._s(signup.bill.payway.name) +
+                                " \n                           "
+                            )
+                          ])
+                        : _vm._e()
+                    ])
+                  : _vm._e()
               ])
             })
           )
@@ -100861,6 +100904,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -100902,6 +100949,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             type: Array,
             default: null
         },
+        payways: {
+            type: Array,
+            default: null
+        },
         version: {
             type: Number,
             default: 0
@@ -100924,6 +100975,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 center: '0',
                 course: '0',
                 status: '0',
+                payway: '0',
 
                 page: 1,
                 pageSize: 999
@@ -100958,6 +101010,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         showReviewBtn: function showReviewBtn() {
             return this.checkedIds.length > 0;
+        },
+        payed: function payed() {
+            return Helper.tryParseInt(this.params.status) != 0;
         }
     },
     methods: {
@@ -100994,6 +101049,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             this.params.status = item.value;
             this.fetchData();
         },
+        setPayway: function setPayway(item) {
+            this.params.payway = item.value;
+            this.fetchData();
+        },
         onCourseSelected: function onCourseSelected(item) {
             this.params.course = item.value;
             this.fetchData();
@@ -101005,6 +101064,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         fetchData: function fetchData() {
             var _this = this;
 
+            if (!this.payed) this.params.payway = '0';
             var getData = Signup.index(this.params);
 
             getData.then(function (model) {
@@ -101069,7 +101129,7 @@ var render = function() {
             _c(
               "div",
               {
-                staticClass: "col-sm-6 form-inline",
+                staticClass: "col-sm-7 form-inline",
                 staticStyle: { "margin-top": "20px" }
               },
               [
@@ -101140,14 +101200,42 @@ var render = function() {
                     })
                   ],
                   1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: _vm.payed,
+                        expression: "payed"
+                      }
+                    ],
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "1em" }
+                  },
+                  [
+                    _c("drop-down", {
+                      attrs: {
+                        items: _vm.payways,
+                        selected: _vm.params.payway
+                      },
+                      on: { selected: _vm.setPayway }
+                    })
+                  ],
+                  1
                 )
               ]
             ),
             _vm._v(" "),
-            _c("div", {
-              staticClass: "col-sm-3",
-              staticStyle: { "margin-top": "3px" }
-            }),
+            false
+              ? _c("div", {
+                  staticClass: "col-sm-3",
+                  staticStyle: { "margin-top": "3px" }
+                })
+              : _vm._e(),
             _vm._v(" "),
             _c(
               "div",
@@ -101216,7 +101304,11 @@ var render = function() {
           _c(
             "signup-table",
             {
-              attrs: { model: _vm.model, can_review: _vm.canReview },
+              attrs: {
+                model: _vm.model,
+                can_review: _vm.canReview,
+                payed: _vm.payed
+              },
               on: {
                 selected: _vm.onSelected,
                 "check-changed": _vm.onCheckIdsChanged
@@ -104741,6 +104833,42 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -104761,6 +104889,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
     computed: {
+        title: function title() {
+            if (this.payed) return '慈濟大學社會教育推廣中心課程繳費收據';
+            return '慈濟大學社會教育推廣中心課程繳費單';
+        },
         payed: function payed() {
             if (!this.signup) return false;
             return Helper.isTrue(this.signup.bill.payed);
@@ -104797,8 +104929,8 @@ var render = function() {
     _c("div", { staticStyle: { margin: "50px" } }, [
       _c("div", { staticClass: "row text-center" }, [
         _vm.payed
-          ? _c("h3", [_vm._v("慈濟大學社會教育推廣中心課程繳費收據")])
-          : _c("h3", [_vm._v("慈濟大學社會教育推廣中心課程繳費單")])
+          ? _c("h3", [_vm._v(_vm._s(_vm.title))])
+          : _c("h3", [_vm._v(_vm._s(_vm.title))])
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "row" }, [
@@ -104826,7 +104958,7 @@ var render = function() {
           !_vm.payed
             ? _c("h3", [
                 _vm._v(
-                  "\n                繳款期限：\n                   " +
+                  "\n                繳費期限：\n                   " +
                     _vm._s(_vm.signup.bill.deadLine) +
                     "\n                "
                 )
@@ -104840,7 +104972,7 @@ var render = function() {
           "div",
           {
             staticClass: "panel panel-default",
-            staticStyle: { height: "450px" }
+            staticStyle: { height: "850px" }
           },
           [
             _vm._m(0),
@@ -104918,22 +105050,101 @@ var render = function() {
         )
       ]),
       _vm._v(" "),
+      _c("hr", { staticStyle: { border: "1px dashed #000", height: "1px" } }),
+      _vm._v(" "),
       _vm.signup.bill.sevenCodes
-        ? _c("div", { staticClass: "row" }, [
-            _c(
-              "div",
-              { staticClass: "col-sm-12" },
-              _vm._l(_vm.sevenCodes, function(item, index) {
-                return _c("barcode", {
-                  key: index,
-                  attrs: { value: item, options: _vm.options }
-                })
-              })
-            )
-          ])
+        ? _c(
+            "div",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value: !_vm.payed,
+                  expression: "!payed"
+                }
+              ],
+              staticClass: "row"
+            },
+            [
+              _c("div", { staticClass: "col-sm-6" }, [
+                _c("h4", [_vm._v("超商專用條碼")]),
+                _vm._v(" "),
+                _c(
+                  "p",
+                  [
+                    _c("barcode", {
+                      key: "1",
+                      attrs: { value: _vm.sevenCodes[0], options: _vm.options }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "p",
+                  [
+                    _c("barcode", {
+                      key: "2",
+                      attrs: { value: _vm.sevenCodes[1], options: _vm.options }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "p",
+                  [
+                    _c("barcode", {
+                      key: "3",
+                      attrs: { value: _vm.sevenCodes[2], options: _vm.options }
+                    })
+                  ],
+                  1
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-6" }, [
+                _c("h4", [_vm._v(_vm._s(_vm.title))]),
+                _vm._v(" "),
+                _c(
+                  "table",
+                  {
+                    staticClass: "table table-bordered",
+                    staticStyle: { width: "90%" }
+                  },
+                  [
+                    _vm._m(2),
+                    _vm._v(" "),
+                    _c("tbody", [
+                      _c("tr", [
+                        _c("td", [
+                          _vm._v(
+                            "\n                                " +
+                              _vm._s(_vm.signup.date) +
+                              "\n                            "
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v(
+                            "\n                                " +
+                              _vm._s(
+                                _vm._f("formatMoney")(_vm.signup.bill.amount)
+                              ) +
+                              " \n                            "
+                          )
+                        ])
+                      ])
+                    ])
+                  ]
+                )
+              ])
+            ]
+          )
         : _vm._e(),
       _vm._v(" "),
-      _vm._m(2)
+      _vm._m(3)
     ])
   ])
 }
@@ -104959,6 +105170,18 @@ var staticRenderFns = [
         _c("th", [_vm._v("課程費用")]),
         _vm._v(" "),
         _c("th", [_vm._v("教材費用")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", [
+        _c("th", { staticStyle: { width: "50%" } }, [_vm._v("繳費期限")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("應繳金額")])
       ])
     ])
   },
@@ -105192,8 +105415,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         },
         onEditPS: function onEditPS() {
+
             this.psEditor.id = this.quitId;
             this.psEditor.text = this.signup.quit.ps;
+
+            this.$refs.psEditor.init(this.signup.quit.ps);
+
             this.psEditor.show = true;
         },
         updatePS: function updatePS(ps) {
@@ -107133,6 +107360,7 @@ var render = function() {
       }),
       _vm._v(" "),
       _c("ps-editor", {
+        ref: "psEditor",
         attrs: { showing: _vm.psEditor.show, text: _vm.psEditor.text },
         on: {
           close: function($event) {

@@ -44,7 +44,7 @@
     <review-editor :showing="reviewEditor.show" :reviewed="reviewEditor.reviewed"
       @close="reviewEditor.show=false" @save="updateReview">
     </review-editor>
-    <ps-editor :showing="psEditor.show" :text="psEditor.text"
+    <ps-editor ref="psEditor"  :showing="psEditor.show" :text="psEditor.text"
       @close="psEditor.show=false" @save="updatePS">
     </ps-editor>
     <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
@@ -199,8 +199,12 @@
 				})
             },
             onEditPS(){
+               
                 this.psEditor.id=this.quitId;
                 this.psEditor.text=this.signup.quit.ps;
+               
+                this.$refs.psEditor.init(this.signup.quit.ps);
+
                 this.psEditor.show=true;
             },
             updatePS(ps){

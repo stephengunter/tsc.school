@@ -8,6 +8,7 @@ use App\Course;
 use App\Term;
 use App\Center;
 use App\Services\Courses;
+use App\Services\Categories;
 use App\Core\Helper;
 
 use Excel;
@@ -23,10 +24,10 @@ class CourseListReports
     private $width=[
        12,28,33,33,12,23,12,12
     ];
-    public function __construct(Courses $courses)                                          
+    public function __construct(Courses $courses,Categories $categories)                                          
     {
-         $this->courses=$courses;
-
+        $this->courses=$courses;
+        $this->categories=$categories;
 	}
 
     private function getColWidth()
@@ -117,8 +118,8 @@ class CourseListReports
     private function classTimes($course)
     {
         $text='';
-        $classTimes=$course->getClasstimes();
-        foreach ($classTimes as $classtime) {
+      
+        foreach ($course->classTimes as $classtime) {
              $text .=  $classtime->fullText() .Chr(10);    
 
         }
@@ -128,17 +129,15 @@ class CourseListReports
     {
         $text='';
         
-        $teachers=$course->teachers;
-        foreach ($teachers as $teacher) {
-            $text .=  $teacher->getName() .Chr(10); 
-            $experiences=$teacher->experiencesArray();
-            for($i = 0; $i < count($experiences); ++$i) {
-                if($experiences[$i]){
-                    $text .= ' ● ' .$experiences[$i] .Chr(10);
-                }
-            }
-          
-            $text .= Chr(10) . $teacher->description;
+        $allTeachers= $course->allTeachers();
+        
+        foreach ($allTeachers as $teacher) {
+            $text .=  $teacher->getName(); 
+
+            $summary= $teacher->getSummary();
+            if($summary)  $text .= '  (' . $teacher->getSummary() . ')';
+
+            $text .= Chr(10); 
         }
         return $text;
     }
@@ -147,14 +146,14 @@ class CourseListReports
     {
         $data=array(
             $course->number,
-            $course->name,
+            $course->fullName(),
             $this->teachers($course),
             $course->description,
-            $course->begin_date .  Chr(10) . '至'.  Chr(10) . $course->end_date,
+            $course->beginDate .  Chr(10) . '至'.  Chr(10) . $course->endDate,
             $this->classTimes($course),
             $course->hours,
-            $course->tuition,
-            // $course->open_date  .  Chr(10) . '至'.  Chr(10) . $course->close_date ,
+            $course->tuition
+           
         );
 
         $sheet->setHeight($current_row, 360);
@@ -179,77 +178,25 @@ class CourseListReports
         $this->setFullBorder($sheet,$current_row);
     }
 
-    private function getCourseList($termId,$centerId)
-    {
-        $courseList=$this->courses->getAll();
-        
-        $courseList=$courseList->where('term_id',$termId)
-                                ->where('center_id',$centerId)
-                                ->where('reviewed',true); 
+  
 
-         return $courseList;
+    function getCategories($courses)
+    {
+        $categoryIds = array_unique($courses->pluck('categoryId')->toArray());
+      
+        return $this->categories->getByIds($categoryIds)->get();
     }
 
-    public function index()
+    public function export(Term $term , Center $center,$courses)
     {
-        if(!request()->ajax()){
-            $menus=$this->menus($this->key);            
-            return view('reports.courses')
-                    ->with(['menus' => $menus]);
-        }  
-
-        $request = request();
-        $termId=(int)$request->term; 
-        $centerId=(int)$request->center;
-
-        $courseList=$this->getCourseList($termId,$centerId)
-                         ->with(['center','categories','teachers','classTimes'])
-                         ->get();
-        foreach ($courseList as $course) {
-            $course->populateViewData();
-            
-        }
-
-        return response() ->json(['courseList' => $courseList  ]);
-
         
-    }
-
-    public function store(Request $request)
-    {
-        $termId=$request['term'];
-        $centerId=$request['center'];
-        $courseList=$this->getCourseList($termId,$centerId)->get();
-        
-
-        if(!count($courseList)) dd('查無資料');
-
-        $term=$courseList[0]->term;
-        $center=$courseList[0]->center;
+        $categories=$this->getCategories($courses);
        
-        $categoryCollection = collect([]);
-        foreach ($courseList as $course) {
-            $category=$course->defaultCategory();
-            if($category){
-                $exist=$categoryCollection->first(function ($item) use ($category) {
-                return $item->id == $category->id;
-                });
-                if($exist){
-                    $exist->courseList->push($course);
-                }else{
-                    $category->courseList=collect([$course]);
-                    $categoryCollection->push($category);
-                }
-            }
-
-        }
-
-       
-        $title=config('app.name').' '. $term->year . ' 學年度第 ' . $term->order .' 學期 '.$center->name;
-        Excel::create($title.'課程清單', function($excel) use ($categoryCollection,$title){
+        $title=config('app.company.fullname').' '. $term->year . ' 學年度第 ' . $term->order .' 學期 '.$center->name;
+        Excel::create($title.'課程清單', function($excel) use ($courses,$categories,$title){
             
-            $excel->sheet('課程清單', function($sheet) use ($categoryCollection,$title){
-               
+            $excel->sheet('課程清單', function($sheet) use ($courses,$categories,$title){
+                
                 $colWidth=$this->getColWidth();               
                 $sheet->setWidth($colWidth);
                
@@ -262,19 +209,22 @@ class CourseListReports
                 $current_row +=1;
 
                 $data=array(
-                    '課程審核清冊'
+                    '課程清冊'
                 );
                 $this->setTitle($sheet, $current_row, $data);
                 $current_row +=1;
 
-                foreach ($categoryCollection as $category) {
+                foreach ($categories as $category) {
                     $this->setCategory($sheet,$current_row,$category);
                     $current_row +=1;
 
                     $this->setTableHead($sheet,$current_row);
                     $current_row +=1;
-
-                    foreach ($category->courseList as $course) {
+                    
+                   
+                    $categoryCourses=$courses->where('categoryId',$category->id);
+                   
+                    foreach ($categoryCourses as $course) {
                         $this->setCourse($sheet,$current_row,$course);
                         $current_row +=1;
                     }

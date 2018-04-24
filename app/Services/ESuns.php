@@ -53,6 +53,12 @@ class ESuns
         dd($body);
         return $body;
     }
+
+    function getSevenCode($amount)
+    {
+        if($amount<20000) return $this->sevenCode[0];
+        return $this->sevenCode[1];
+    }
     
     public function initBillCode(Carbon $deadlineDate, $amount,$serial)
     {
@@ -102,11 +108,13 @@ class ESuns
 
     function initSevenCodes(Carbon $deadline, $code, $amount)
     {
+        
         $year=Helper::toTaipeiYear($deadline->year);
         $year=substr(strval($year), -2); 
         $monthDay=Helper::getMonthDayString($deadline->month, $deadline->day);
+
       
-        $first= $year . $monthDay . $this->sevenCode;
+        $first= $year . $monthDay . $this->getSevenCode($amount);
        
         $zeroAtFront=false;
         $second=Helper::intToStringLength($code, 16,$zeroAtFront);
@@ -116,10 +124,48 @@ class ESuns
         $checkOne=$this->countSevenFirstCheckCode($first,$second,$third);  //第一位檢查碼
         $checkTwo=$this->countSevenSecondCheckCode($first,$second,$third);  //第二位檢查碼
 
-        $third= $monthDay . $checkOne . $checkTwo . Helper::intToStringLength($amount, 9);
         
+        $third= $monthDay . $checkOne . $checkTwo . Helper::intToStringLength($amount, 9);
+       
         return [$first,$second,$third]; 
 
+    }
+
+    function getNumber($val)
+    {
+        $codes=array(
+            'A' => 1,
+            'B' => 2,
+            'C' => 3,
+            'D' => 4,
+            'E' => 5,
+            'F' => 6,
+            'G' => 7,
+            'H' => 8,
+            'I' => 9,
+
+            'J' => 1,
+            'K' => 2,
+            'L' => 3,
+            'M' => 4,
+            'N' => 5,
+            'O' => 6,
+            'P' => 7,
+            'Q' => 8,
+            'R' => 9,
+
+            
+            'S' => 2,
+            'T' => 3,
+            'U' => 4,
+            'V' => 5,
+            'W' => 6,
+            'X' => 7,
+            'Y' => 8,
+            'Z' => 9,
+        );
+        if(array_key_exists($val,$codes)) return $codes[$val];
+        return (int)$val;
     }
 
     function countSevenFirstCheckCode($first,$second,$third)
@@ -128,7 +174,8 @@ class ESuns
         $arr=str_split($first);
         for($i = 1; $i <= count($arr); ++$i) {
             if(($i % 2) != 0){
-               $sum+= (int)$arr[$i-1];    
+              
+               $sum+=$this->getNumber($arr[$i-1]);    
             }         
         }
 
@@ -159,7 +206,7 @@ class ESuns
         $arr=str_split($first);
         for($i = 1; $i <= count($arr); ++$i) {
             if(($i % 2) == 0){
-               $sum+= (int)$arr[$i-1];    
+                $sum+=$this->getNumber($arr[$i-1]);    
             }         
         }
 

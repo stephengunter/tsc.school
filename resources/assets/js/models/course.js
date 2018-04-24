@@ -34,7 +34,6 @@ class Course {
     static activeUrl(id) {
         return this.source() + '/active';
     }
-
     static show(id) {
         return new Promise((resolve, reject) => {
             let url = this.showUrl(id)
@@ -214,6 +213,8 @@ class Course {
                 })
         })
     }
+
+    
 
     static active(form){
         let url = this.activeUrl();

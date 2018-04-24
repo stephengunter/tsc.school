@@ -4,7 +4,7 @@
      
 		</slot> 
 			
-		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		<button type="button" :class="btnStyle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 			{{ selectedItem.text }}
 		</button>
 		<div class="dropdown-menu">
@@ -21,7 +21,7 @@
 <script>
 export default {
    name:'DropDown',
-   props: ['items','selected'],
+   props: ['items','selected','btn_style'],
 	beforeMount() {
 		this.init();
 	},
@@ -29,25 +29,29 @@ export default {
 		return {
 			selectedItem:null,
 			otherItems:[],
+			btnStyle:''
 		}
 	},
 	watch: {
 		'selected':'init',
 		'items':'init'
 	},
-   methods:{
+    methods:{
 		init(){
 			this.selectedItem=this.items.find((item)=>{
 				return item.value==this.selected;
 			});
 			this.otherItems=this.items.filter((item)=>{
 				return item.value!=this.selected;
-			})
+			});
+
+			if(this.btn_style) this.btnStyle= `btn btn-${this.btn_style} dropdown-toggle`;
+			else this.btnStyle= 'btn btn-default dropdown-toggle';
 		},
-      onSelectedChanged(item){
-         this.$emit('selected',item);
-      },
+		onSelectedChanged(item){
+			this.$emit('selected',item);
+		},
       
-   }
+    }
 }
 </script>

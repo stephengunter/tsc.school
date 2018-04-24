@@ -476,6 +476,7 @@ class CoursesController extends Controller
         $courses =  $form['courses'];
         $active=$courses[0]['active'];
         $courseIds=array_column($courses, 'id');
+        
        
         $this->courses->setActives($courseIds,$active,$reviewedBy);
         return response() ->json();

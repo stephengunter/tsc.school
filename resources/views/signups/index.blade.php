@@ -5,7 +5,7 @@
 
 
 <signups-index v-show="indexMode" :init_model="model" :summary_model="summary" :terms="terms" :centers="centers" :courses="courses" :statuses="statuses"
-               :version="version"
+               :payways="payways" :version="version"
                v-on:selected="onSelected" v-on:create="onCreate" >
 </signups-index>
 <signups-details v-if="selected" :id="selected"
@@ -36,6 +36,7 @@
                     courses: [],
 
                     statuses:[],
+                    payways:[],
 
                     courseId:0,
 
@@ -62,6 +63,7 @@
                 this.centers = {!! json_encode($centers) !!} ;
                 this.courses = {!! json_encode($courses) !!} ;
                 this.statuses = {!! json_encode($statuses) !!} ;
+                this.payways = {!! json_encode($payways) !!} ;
               
               
 

@@ -125,6 +125,18 @@ class Course extends Model
         return $serial;
     }
 
+    public function allTeachers()
+    {
+       
+        $allTeachers= [];  
+        foreach ($this->teachers as $teacher) {
+            array_push($allTeachers, $teacher);
+        }
+
+        if($this->teacherGroup)  array_push($allTeachers, $this->teacherGroup);
+        return $allTeachers;
+    }
+
     public function fullName()
     {
         $fullname=$this->name;
@@ -136,8 +148,8 @@ class Course extends Model
     public function loadClassTimes()
     {
         foreach($this->classTimes as $classTime){
-            $classTime->weekday;
-            $classTime->timeString();
+            $classTime->fullText=
+            $classTime->fullText();
         }
     }
 

@@ -20,12 +20,15 @@ use DB;
 use Excel;
 use App\Core\Helper;
 
+use App\Events\CourseShutDown;
+
 class Courses 
 {
     public function __construct(Users $users, Teachers $teachers)
     {
         $this->users=$users;
         $this->teachers=$teachers;
+      
         $this->with=['teacherGroup','term','center','classTimes.weekday'];
     }
     public function getAll(bool $includStudents = false)
@@ -96,10 +99,12 @@ class Courses
             $course->reviewedBy=$reviewedBy;
             $course->updatedBy=$reviewedBy;
             $course->save();
+            
+            if(!$active) event(new CourseShutDown($course));
         } 
 
     }
-
+    
 
     public function deleteCourse(Course $course,$updatedBy)
     {
@@ -156,6 +161,8 @@ class Courses
     {
         return $this->getAll()->where('number',$number)->first();
     }
+
+    
 
     public function  options(Term $term, Center $center,bool $withEmpty=false)
     {

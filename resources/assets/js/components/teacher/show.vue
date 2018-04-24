@@ -60,6 +60,10 @@
         
         <div  class="row">
             <div class="col-sm-4">
+                <label class="label-title">職稱</label>
+                <p v-text="teacher.jobtitle"></p>                      
+            </div>
+            <div class="col-sm-4">
                 <label class="label-title">專長</label>
                 <p v-text="teacher.specialty"></p>                      
             </div>

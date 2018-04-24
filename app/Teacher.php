@@ -81,6 +81,16 @@ class Teacher extends Model
         $this->user->removeRole(Role::teacherRoleName());
     }
 
+    public function getName()
+    {
+        return $this->user->profile->fullname;
+    }
+
+    public function getSummary()
+    {
+        return $this->jobtitle;
+    }
+
     public function getWage()
     {
         $wage= $this->user->wages->first();

@@ -92,9 +92,9 @@ class Menus
         if($key=='Reports'){
             return array(
                     [
-                        'text' => '公告管理',
-                        'path' => '/manage/notices',
-                        'active' => $current =='manage/notices'
+                        'text' => '課程清單',
+                        'path' => '/manage/reports/courses',
+                        'active' => $current =='manage/reports/courses'
                     ],
                 );
         } 

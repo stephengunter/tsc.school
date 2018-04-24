@@ -16,7 +16,7 @@
 </template>
 <script>
     export default {
-        name:'ReviewEditor',
+        name:'PSEditor',
         props: {
             showing:{
                 type: Boolean,
@@ -34,9 +34,13 @@
             }
         },
         beforeMount() {
-            this.ps = this.text;
+            this.init();
+           
         },
         methods: {
+            init(val){
+                this.ps = val;
+            },
             onClose(){
                 this.$emit('close');
             },

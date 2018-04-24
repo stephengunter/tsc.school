@@ -16,6 +16,7 @@ class CreateCentersTable extends Migration
         Schema::create('centers', function (Blueprint $table) {
             $table->increments('id');
             $table->boolean('head')->default(false);
+            $table->boolean('east')->default(false);
             $table->boolean('oversea')->default(false);
             $table->integer('areaId')->unsigned()->nullable();
 

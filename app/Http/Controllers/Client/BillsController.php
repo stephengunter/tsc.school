@@ -11,22 +11,26 @@ use App\Student;
 
 use App\Services\Signups;
 use App\Services\Bills;
+use App\Services\Payways;
 
 use App\Services\ESuns;
 use App\Services\Students;
 use App\Http\Requests\BillRequest;
+use App\BankPost;
 
 use App\Core\PagedList;
 use App\Core\Helper;
+use Carbon\Carbon;
 use DB;
 
 class BillsController extends Controller
 {
-    public function __construct(Signups $signups, ESuns $ESuns,Bills $bills, Students $students)        
+    public function __construct(Signups $signups, ESuns $ESuns,Bills $bills, Students $students, Payways $payways)        
     {
         $this->signups=$signups;
         $this->ESuns=$ESuns;
         $this->bills=$bills;
+        $this->payways=$payways;
         $this->students=$students;
     }
 
@@ -103,18 +107,32 @@ class BillsController extends Controller
     //銀行回傳資料用
     public function store(Request $request)
     {
-       
-        return response()->json($request->toArray());
+        $data=explode(',', $request['Data']);
 
-        // $code='';
-        // $amount='';
-        // $payway='';
+        $date=new Carbon($data[0]);  //20151110
+        $from=$data[1];   //銀行 統一超商 ... 
+        $serial= $data[2];  //序號
+        $code= $data[3];  //虛擬帳號
+        $amount= $data[4];  //金額
+        $payAt=new Carbon($data[5]);  //20151105132510
+        $text=$data[6];  
 
-        // $bill=$this->bills->payBill($code, $amount, $payway);
+        $payway=$this->payways->getByText($from);
 
-        // $this->students->createStudent($bill->signup->courseId, $bill->signup->userId);
-      
-        // return response()->json();
+        //$this->bills->payBill($payway, $code, $amount);
+
+        BankPost::create([
+            'date' => $date,
+            'from' => $from,
+            'serial' => $serial,
+            'code' => $code,
+            'amount' => $amount,
+            'payAt' => $payAt,
+            'text' => $text,
+        ]);
+
+        return response()->json();
+
        
     }
 

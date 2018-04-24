@@ -8,7 +8,7 @@
             </div>
             <div class="col-sm-6 form-inline" style="margin-top: 20px;">
                 <div class="form-group" style="padding-left:1em;">
-                    <drop-down :items="terms" :selected="params.term" 
+                    <drop-down :items="terms" :selected="params.term"
                         @selected="onTermSelected">
                     </drop-down>
                 </div>
@@ -44,11 +44,14 @@
                 
             </div>
             <div v-else class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
-               
-                <drop-down :items="actions" :selected="action" btn_style="primary"
-                    @selected="onActionSelected">
-                </drop-down>
-                
+                <a @click.prevent="beginCreate" href="#" class="btn btn-primary">
+                    <i class="fa fa-plus"></i>
+                    新增
+                </a>
+                <a v-if="showImportBtn"  @click.prevent="beginImport" href="#" class="btn btn-warning">
+                    <i class="fa fa-upload"></i>
+                    匯入
+                </a>
             </div>
         </div>
 
@@ -136,9 +139,7 @@
                 
                 center:null,
 
-                checkedIds:[],
-
-                action:'none'
+                checkedIds:[]
             }
         },
         watch: {
@@ -166,37 +167,7 @@
             },
             canSubmitReview(){
                 return this.checkedIds.length > 0;
-            },
-            showReportsBtn(){
-                let term= Helper.tryParseInt(this.params.term);
-                let center= Helper.tryParseInt(this.params.center);
-                return term > 0 && center > 0 ;
-            },
-            actions(){
-                let actions=[{
-                    value:'none' , text:'執行'
-                }];
-                actions.push({
-                    value:'create' , text:'新增'
-                });
-
-                if(this.showImportBtn){
-                    actions.push({
-                      value:'import' , text:'匯入'
-                   });
-                }
-
-                if(this.showReportsBtn){
-                    actions.push({
-                      value:'reports' , text:'匯出報表'
-                    });
-                }
-
-               
-
-                return actions;
             }
-            
            
         }, 
         methods:{
@@ -256,14 +227,6 @@
                 }
                
             },
-            onActionSelected(item){
-                let action=item.value;
-                if(action=='create') this.beginCreate();
-                else if(action=='import') this.beginImport();
-                else if(action=='reports') this.exportReports();
-
-               
-            },
             setReviewed(val) {
                 this.params.reviewed = val;
                 this.fetchData();
@@ -312,16 +275,6 @@
 					Helper.BusEmitError(error,'存檔失敗');
 				})
             },
-            exportReports(){
-                let url = '/manage/reports/courses';
-                let params={
-                    term:this.params.term,
-                    center:this.params.center
-                }
-                url=Helper.buildQuery(url, params);
-                window.open(url);
-
-            }
             
         }
     }

@@ -15,6 +15,7 @@ use App\Center;
 use App\Course;
 use App\Signup;
 use App\SignupDetail;
+use App\Payway;
 
 use App\Services\Signups;
 use App\Services\Bills;
@@ -23,6 +24,7 @@ use App\Services\Terms;
 use App\Services\Centers;
 use App\Services\Courses;
 use App\Services\Discounts;
+use App\Services\Payways;
 
 use App\Core\PagedList;
 use Carbon\Carbon;
@@ -33,7 +35,7 @@ class SignupsController extends Controller
 {
     
     public function __construct(Signups $signups, Discounts $discounts, Bills $bills,
-     Users $users,Terms $terms,Centers $centers,Courses $courses)        
+        Payways $payways,Users $users,Terms $terms,Centers $centers,Courses $courses)        
     {
         $this->signups=$signups;
         $this->bills=$bills;
@@ -43,6 +45,8 @@ class SignupsController extends Controller
         $this->terms=$terms;
         $this->centers=$centers;
         $this->courses=$courses;
+
+        $this->payways=$payways;
     }
 
     function canEdit($signup)
@@ -164,6 +168,13 @@ class SignupsController extends Controller
 
         $status=0;
         if($request->status)  $status=(int)$request->status;
+
+        $payway=0;
+        if($request->payway)  $payway=(int)$request->payway;
+
+        $selectedPayway=null;
+        if($payway)   $selectedPayway = Payway::find($payway);
+        
        
 
         $page=1;
@@ -174,7 +185,7 @@ class SignupsController extends Controller
 
        
         if($this->isAjaxRequest()){
-            return $this->fetchSignups($term, $center, $course,  $status , $page , $pageSize);
+            return $this->fetchSignups($term, $center, $course,  $status , $payway ,$page , $pageSize);
         }
 
         $termOptions = $this->terms->options();
@@ -229,6 +240,14 @@ class SignupsController extends Controller
 
         $signups = $this->signups->fetchSignups($selectedTerm, $selectedCenter, $selectedCourse);
         $signups = $signups->where('status' , $status);
+        
+        if($selectedPayway){
+            $signups = $signups->whereHas('bill', function($q) use($selectedPayway){
+                $q->where('paywayId', $selectedPayway->id);
+            });
+        } 
+
+       
        
         $summary=$this->signups->getSignupSummary($selectedTerm, $selectedCenter, $selectedCourse);
 
@@ -236,6 +255,10 @@ class SignupsController extends Controller
 
 
         $courseOptions=$this->courses->options($selectedTerm,$selectedCenter,true);
+
+        $paywayOptions=$this->payways->paywayOptions();
+        array_unshift($paywayOptions, ['text' => '所有繳費方式' , 'value' =>'0']);
+
 
         $model=[
             'title' => '報名管理',
@@ -245,6 +268,7 @@ class SignupsController extends Controller
             'centers' => $centerOptions,
             'courses' => $courseOptions,                
             'statuses' => $this->signups->statusOptions(),
+            'payways' => $paywayOptions,
 
             'summary' => $summary,
             'list' => $pageList
@@ -266,7 +290,7 @@ class SignupsController extends Controller
     }
 
     //Ajax
-    function fetchSignups(int $term = 0, int $center = 0, int $course = 0, int $status = 0, int $page=1 ,int $pageSize=999)
+    function fetchSignups(int $term = 0, int $center = 0, int $course = 0, int $status = 0,int $payway = 0, int $page=1 ,int $pageSize=999)
     {
        
         $selectedCenter = null;
@@ -312,6 +336,15 @@ class SignupsController extends Controller
 
         $signups = $this->signups->fetchSignups($selectedTerm, $selectedCenter, $selectedCourse);
         $signups = $signups->where('status' , $status);
+
+        $selectedPayway=null;
+        if($payway)   $selectedPayway = Payway::find($payway);
+
+        if($selectedPayway){
+            $signups = $signups->whereHas('bill', function($q) use($selectedPayway){
+                $q->where('paywayId', $selectedPayway->id);
+            });
+        } 
 
         $summary=$this->signups->getSignupSummary($selectedTerm, $selectedCenter, $selectedCourse);
         

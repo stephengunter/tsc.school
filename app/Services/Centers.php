@@ -14,6 +14,7 @@ class Centers
 {
     public function __construct()
     {
+        
         $this->with=['area','contactInfoes.address.district.city'];
     }
 
@@ -24,6 +25,17 @@ class Centers
     public function getById($id)
     {
         return $this->getAll()->where('id',$id)->first();
+    }
+
+    public function getEastCenters()
+    {
+        return $this->getAll()->where('oversea',false)->where('east',true);
+        
+    }
+
+    public function getWestCenters()
+    {
+        return $this->getAll()->where('oversea',false)->where('east',false);
     }
     
 
@@ -172,6 +184,8 @@ class Centers
 
             }
 
+            $east=(int)trim($row['east']) > 0 ? true:false;
+
             $importance=(int)trim($row['importance']);
             $course_tel=trim($row['course_tel']);
 
@@ -185,6 +199,7 @@ class Centers
             $center=new Center([
                 'name' => $name,
                 'code' => $code,
+                'east' => $east,
                 'oversea' => $oversea,
                 'courseTel' => $course_tel,
                 'importance' => $importance,

@@ -11,12 +11,16 @@ use App\Quit;
 use App\QuitDetail;
 use App\Course;
 use App\Payway;
+use App\Services\Payways;
 use DB;
+use Carbon\Carbon;
 
 class Quits 
 {
-    public function __construct()
+    public function __construct(Payways $payways)
     {
+        $this->payways=$payways;
+
         $this->statuses=array(
             ['value'=> 0 , 'text' => '未完成'],
             ['value'=> 1 , 'text' => '已結案']
@@ -65,9 +69,66 @@ class Quits
 
     }
 
+    public function createQuitsByCourse(Course $course)
+    {
+        //為每個學生產生全額退費
+        $studentsInCourse=Student::where('courseId',$course->id);
+        $studntUserIds= $studentsInCourse->pluck('userId')->toArray();
+        
+        $signups=Signup::whereIn('userId',$studntUserIds)->get();
+       
+        foreach($signups as $signup){
+            if($signup->quit) continue;  //之前已經退費
+
+            $signupDetail=$signup->details()->where('courseId',$course->id)->first();
+            $actualTuition=$signupDetail->actualTuition();
+
+            $quitDetail=new QuitDetail([
+                'signupDetailId' => $signupDetail->id,
+                'percents' => 100 ,   //全額退
+                'tuition' => $actualTuition,
+            ]);
+
+            $payway=$this->payways->initQuitPaywayBySignup($signup);
+            $date=Carbon::today()->toDateString();    
+            $quit=new Quit([
+                'date' =>$date,
+                'tuitions' => $actualTuition,
+                'fee' => 0, // 手續費
+                'paywayId' => $payway->id,
+                'ps' =>  $date . '課程停開'
+            ]);
+
+            DB::transaction(function() use($signup,$quit,$quitDetail) {
+            
+                $signup->quit()->save($quit);
+            
+                $quit=Quit::find($signup->id);
+            
+                $quit->details()->save($quitDetail);
+               
+                $signup->update([
+                    'status' => -1
+                ]);
+    
+               
+                
+                
+            });
+            
+        }
+        foreach($studentsInCourse->get() as $student){
+            $student->update([
+                'status' => -1, 
+            
+            ]);
+        }
+        
+    }
+
     public function createQuit(Signup $signup,Quit $quit, array $quitDetails)
     {
-        $quit= DB::transaction(function() use($signup,$quit,$quitDetails) {
+        $quit = DB::transaction(function() use($signup,$quit,$quitDetails) {
             
             $tuitions = 0;
             foreach($quitDetails as $quitDetail) {

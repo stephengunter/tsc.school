@@ -18,6 +18,7 @@
                         <th>報名課程</th>
                         <th style="width:25%">折扣</th>
                         <th style="width:10%">應繳金額</th>
+                        <th v-if="payed" style="width:10%">繳費方式</th>
                     </tr>
                     
                 </thead>
@@ -53,7 +54,11 @@
                         <td>
                              {{ signup.amount | formatMoney }} 
                         </td>
-                       
+                        <td v-if="payed" >
+                            <span v-if="signup.bill.payway" >
+                            {{ signup.bill.payway.name }} 
+                           </span>
+                        </td>
                     </tr>
                     
                 </tbody>
@@ -89,6 +94,10 @@ export default {
             default: true
         },
         can_checked:{
+            type: Boolean,
+            default: false
+        },
+        payed:{
             type: Boolean,
             default: false
         },

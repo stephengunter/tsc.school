@@ -193,7 +193,7 @@ class Teachers
 
             $education=trim($row['education']);
             $specialty=trim($row['specialty']);
-            $job=trim($row['job']);
+            $jobtitle=trim($row['jobtitle']);
             $description=trim($row['description']);
 
             $experiences='';               
@@ -269,7 +269,7 @@ class Teachers
                 'specialty' => $specialty,
                 'description' => $description,
                 'experiences' => $experiences,
-                'job' => $job,
+                'jobtitle' => $jobtitle,
                 'updatedBy' => $updatedBy,
                 'removed' => false
             ];

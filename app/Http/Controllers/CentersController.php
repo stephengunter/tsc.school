@@ -62,17 +62,22 @@ class CentersController extends Controller
     {
        
         if(!$this->currentUserIsDev()) return;
-        $eastCenter = Center::where('removed',false)->where('head',true)->first();
-       
+
+        $eastCenters = $this->centers->getEastCenters()->get();
+        
         $eastDiscountCodes=[
             "new" , "multi" , "member" , "lotus", "over65", "poor", "religion"
         ];
-        foreach($eastDiscountCodes as $eastDiscountCode){
+        foreach($eastCenters as $eastCenter){
            
-            $discount=\App\Discount::where('code' , $eastDiscountCode)->first();
+            foreach($eastDiscountCodes as $eastDiscountCode){
            
-            $eastCenter->discounts()->attach($discount->id);
+                $discount=\App\Discount::where('code' , $eastDiscountCode)->first();
+                
+                $eastCenter->discounts()->attach($discount->id);
+            }
         }
+        
 
 
         $westDiscountCodes = [
@@ -80,7 +85,7 @@ class CentersController extends Controller
         ];
 
 
-        $westCenters =Center::where('removed',false)->where('head',false)->where('oversea',false)->get(); 
+        $westCenters =$this->centers->getWestCenters()->get();
         foreach ($westCenters as  $westCenter)
         {
             foreach($westDiscountCodes as $westDiscountCode){

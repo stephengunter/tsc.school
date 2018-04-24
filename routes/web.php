@@ -3,8 +3,9 @@
 Auth::routes();
 
 Route::get('/test', function () {
+    $string='OK 便利商店';
+    dd(strtolower(preg_replace('/\s+/', '', $string)));
    
-   dd( hash('sha256', 'abc') );
 
 });
 
@@ -159,6 +160,8 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/quits/review', 'QuitsController@review');
     Route::post('/manage/quits/finish', 'QuitsController@finish');
     Route::post('/manage/quits/updatePS', 'QuitsController@updatePS');
+
+    Route::get('/manage/reports/courses', 'ReportsController@courses');
    
 
 });

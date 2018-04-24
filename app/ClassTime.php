@@ -42,4 +42,10 @@ class ClassTime extends Model
 		$this->timeString=$timeString;
 		return $timeString;
 	}
+
+	public function fullText()
+	{
+		$this->fullText= $this->weekday->title . ' ' . $this->timeString();
+		return $this->fullText;
+	}
 }

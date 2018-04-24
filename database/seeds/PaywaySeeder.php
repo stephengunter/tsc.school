@@ -10,6 +10,7 @@ class PaywaySeeder extends Seeder {
 		$payways = [
 			[
 				'name' => '現金',
+				'code' => 'cash',
 				'need_account' => true,
 				'pay' => true,
 				'back' => false,

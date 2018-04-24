@@ -64,6 +64,13 @@
     <div class="row">
         <div class="col-sm-4">
             <div class="form-group">                           
+                <label>職稱</label>
+                <input type="text" name="teacher.jobtitle" class="form-control" v-model="form.teacher.jobtitle"  >
+                <small class="text-danger" v-if="form.errors.has('teacher.jobtitle')" v-text="form.errors.get('teacher.jobtitle')"></small>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">                           
                 <label>專長</label>
                 <input type="text" name="teacher.specialty" class="form-control" v-model="form.teacher.specialty"  >
                 <small class="text-danger" v-if="form.errors.has('teacher.specialty')" v-text="form.errors.get('teacher.specialty')"></small>
@@ -76,26 +83,9 @@
                 <small class="text-danger" v-if="form.errors.has('teacher.education')" v-text="form.errors.get('teacher.education')"></small>
             </div>
         </div>
+        
     </div> <!--  row   -->
-    <div v-if="false" class="row">
-        <div class="col-sm-4">
-            <div class="form-group">                           
-                <label>現職</label>
-                <input type="text" name="teacher.job" class="form-control" v-model="form.teacher.job"  >
-                <small class="text-danger" v-if="form.errors.has('teacher.job')" v-text="form.errors.get('teacher.job')"></small>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="form-group">                           
-                <label>職稱</label>
-                <input type="text" name="teacher.jobtitle" class="form-control" v-model="form.teacher.jobtitle"  >
-                <small class="text-danger" v-if="form.errors.has('teacher.jobtitle')" v-text="form.errors.get('teacher.jobtitle')"></small>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            
-        </div>
-    </div> <!--  row   -->
+    
     <div class="row">
         <div class="col-sm-4">
             <div class="form-group">

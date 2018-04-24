@@ -45,6 +45,11 @@ class TeacherGroup extends Model
 	{
 		return $this->hasMany('App\Course','teacherGroupId');
 	}
+
+	public function getName()
+    {
+        return $this->name;
+    }
 	
 	public function getTeacherNames()
 	{
@@ -60,6 +65,11 @@ class TeacherGroup extends Model
 		
 	}
 
+	public function getSummary()
+    {
+        return '';
+    }
+
 	public function addTeachers(array $teacherIds)
 	{
 		$this->teachers()->attach($teacherIds);
@@ -70,6 +80,8 @@ class TeacherGroup extends Model
 		
 		$this->teachers()->detach($teacherIds);
 	}
+
+	
 
 
     public function  toOption()
