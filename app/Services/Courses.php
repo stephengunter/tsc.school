@@ -91,18 +91,52 @@ class Courses
         $course->save();
     }
 
+    //多筆課程狀態變動
     public function setActives(array $ids, $active, $reviewedBy)
     {
         $courses=Course::where('removed',false)->whereIn('id',$ids)->get();
         foreach($courses as $course){
-            $course->active=$active;
+            if($course->hasStarted()) continue;
+            if(!$active){
+                $percents=100;
+                $this->shutDownCourse($course, $percents , $reviewedBy);
+            }else{
+           
+                $course->active=$active;
+                $course->reviewedBy=$reviewedBy;
+                $course->updatedBy=$reviewedBy;
+                $course->save();
+            }
+            
+
+        } 
+
+    }
+    //單筆課程狀態重新開啟課程
+    public function setActive(Course $course, $active ,$reviewedBy, $percents=0)
+    {
+        if(!$active){
+            if(!$percents) abort(500);
+            else{
+                $this->shutDownCourse( $course, $percents,$reviewedBy);
+            }
+        }else{
+            $course->active= $active;
             $course->reviewedBy=$reviewedBy;
             $course->updatedBy=$reviewedBy;
             $course->save();
-            
-            if(!$active) event(new CourseShutDown($course));
-        } 
+        }  
 
+    }
+
+    public function  shutDownCourse(Course $course, $percents,$reviewedBy )
+    {
+        $course->active= false;
+        $course->reviewedBy=$reviewedBy;
+        $course->updatedBy=$reviewedBy;
+        $course->save();
+
+        event(new CourseShutDown($course,$percents));
     }
     
 

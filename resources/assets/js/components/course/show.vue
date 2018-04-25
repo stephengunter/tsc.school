@@ -64,8 +64,14 @@
             <div class="row">
                 <div class="col-sm-4">
                     <label class="label-title">狀態</label>
-                    <p v-html="$options.filters.courseActiveLabel(course.active)">                       
-                    </p>
+                    
+                    <p>
+                        <span v-html="$options.filters.courseActiveLabel(course.active)"></span>
+                        &nbsp;
+                        <button class="btn btn-primary btn-xs" @click.prevent="editActive">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    </p> 
                 </div>  
                 <div  class="col-sm-4">
                     <label class="label-title">資料審核</label>
@@ -138,7 +144,10 @@
         methods: { 
             editReview(){
                 this.$emit('edit-review')
-            }
+            },
+            editActive(){
+                this.$emit('edit-active')
+            },
             
         }
     }

@@ -8,7 +8,7 @@
                :can_review="can_review" :can_import="can_import" :version="version"
                 v-on:selected="onSelected" v-on:create="onCreate" v-on:import="beginImport">
 </courses-index>
-<courses-details v-if="selected" :id="selected"  :weekdays="weekdays"  
+<courses-details v-if="selected" :id="selected"  :weekdays="weekdays"  :percents_options="percents_options"
                   v-on:back="backToIndex" v-on:course-deleted="backToIndex">
 </courses-details>
 <courses-create v-if="creating" v-on:cancel="backToIndex" v-on:saved="onCreated">
@@ -41,6 +41,8 @@
                     categories: [],
                     weekdays:[],
 
+                    percents_options:[],
+
                     creating:false,
                     selected: 0,
 
@@ -70,8 +72,9 @@
                 
                 this.can_review = Helper.isTrue('{!! $canReview !!}');  
                 this.can_import = Helper.isTrue('{!! $canImport !!}'); 
-              
-
+                
+                this.percents_options = {!! json_encode($percentsOptions) !!} ;  
+                
 			},
             methods: {
                 onCreate() {

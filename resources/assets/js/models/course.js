@@ -31,8 +31,11 @@ class Course {
     static reviewUrl(id) {
         return this.source() + '/review';
     }
-    static activeUrl(id) {
+    static activeUrl() {
         return this.source() + '/active';
+    }
+    static shutdownUrl(id){
+        return `${this.source()}/${id}/shutdown`;
     }
     static show(id) {
         return new Promise((resolve, reject) => {
@@ -219,6 +222,20 @@ class Course {
     static active(form){
         let url = this.activeUrl();
         let method = 'post';
+        return new Promise((resolve, reject) => {
+            form.submit(method, url)
+                .then(data => {
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    }
+
+    static shutdown(form,id){
+        let url = this.shutdownUrl(id);
+        let method = 'put';
         return new Promise((resolve, reject) => {
             form.submit(method, url)
                 .then(data => {

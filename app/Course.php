@@ -163,6 +163,11 @@ class Course extends Model
         return $this->students()->where('status' , 1);
     }
 
+    public function hasStarted()
+    {
+        return Carbon::today()->gte(new Carbon($this->beginDate));
+    }
+
 
 
     

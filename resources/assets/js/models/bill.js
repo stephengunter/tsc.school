@@ -15,12 +15,7 @@ class Bill {
     static showUrl(id){
         return `${this.source()}/${id}`;
     }
-    static createUrl() {
-        return this.source() + '/create';
-    }
-    static storeUrl() {
-        return this.source();
-    }
+    
     static editUrl(id) {
         return `${this.source()}/${id}/edit`;
     }
@@ -29,6 +24,14 @@ class Bill {
     }
     static deleteUrl(id){
         return this.source() + `/${id}`;
+    }
+
+    static payUrl(id) {
+        return `${this.source()}/${id}/pay`;
+    }
+
+    static unpayUrl(id) {
+        return `${this.source()}/${id}/unpay`;
     }
 
     static show(id) {
@@ -63,36 +66,7 @@ class Bill {
         })
     }
      
-    static create(course) {
-        let url = this.createUrl();
-        url += `?course=${course}`;
- 
-        return new Promise((resolve, reject) => {
-            axios.get(url)
-                .then(response => {
-                        resolve(response.data);
-                })
-                .catch(error => {
-                        reject(error);
-                })
- 
-        })
-    }
-     
-    static store(form){
-        let url = this.storeUrl();
-        let method = 'post';
-        return new Promise((resolve, reject) => {
-            form.submit(method, url)
-                    .then(data => {
-                        resolve(data);
-                    })
-                    .catch(error => {
-                        reject(error);
-                    })
-        })
-    }
- 
+    
     static edit(id) {
         let url = this.editUrl(id);
 
@@ -116,6 +90,34 @@ class Bill {
             form.submit(method, url)
                     .then(data => {
                         resolve(data);
+                    })
+                    .catch(error => {
+                        reject(error);
+                    })
+        })
+    }
+
+    static pay(id,form){
+        let url = this.payUrl(id);
+        let method = 'put';
+        return new Promise((resolve, reject) => {
+            form.submit(method, url)
+                    .then(data => {
+                        resolve(data);
+                    })
+                    .catch(error => {
+                        reject(error);
+                    })
+        })
+    }
+
+    static unpay(id){
+        let url = this.unpayUrl(id);
+        let method = 'put';
+        return new Promise((resolve, reject) => {
+            axios.put(url)
+                    .then(response => {
+                        resolve(response.data);
                     })
                     .catch(error => {
                         reject(error);

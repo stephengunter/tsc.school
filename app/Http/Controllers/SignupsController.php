@@ -54,9 +54,14 @@ class SignupsController extends Controller
         if($this->currentUserIsDev()) return true;
 
         return $this->canAdminCenter($signup->getCenter());
-
-
     }
+    function canEditCenter($center)
+    {
+        if($this->currentUserIsDev()) return true;
+
+        return $this->canAdminCenter($center);
+    }
+
     function canDelete($signup)
     {
         if($signup->status>0) return false;
@@ -259,6 +264,11 @@ class SignupsController extends Controller
         $paywayOptions=$this->payways->paywayOptions();
         array_unshift($paywayOptions, ['text' => '所有繳費方式' , 'value' =>'0']);
 
+        $counterPayways=$this->payways->counterPayways();
+        $counterPaywayOptions=$counterPayways->map(function ($payway) {
+            return $payway->toOption();
+        })->all();
+
 
         $model=[
             'title' => '報名管理',
@@ -268,7 +278,9 @@ class SignupsController extends Controller
             'centers' => $centerOptions,
             'courses' => $courseOptions,                
             'statuses' => $this->signups->statusOptions(),
+            
             'payways' => $paywayOptions,
+            'counterPayways' => $counterPaywayOptions,
 
             'summary' => $summary,
             'list' => $pageList
@@ -548,6 +560,30 @@ class SignupsController extends Controller
         return response()->json($signup);
         
     }
+
+    public function updatePS(Request $form)
+    {
+        $id=$form['id'];
+        $ps=$form['ps'];
+
+        $signup = $this->signups->getById($id);   
+        if(!$signup) abort(404);   
+
+        $canEdit=$this->canEditCenter($signup->getCenter());
+
+        if(!$canEdit) return $this->unauthorized();
+        
+        
+        $signup->update([
+             'ps' => $ps,
+             'updatedBy' => $this->currentUserId()
+        ]);
+        
+
+        return response() ->json();
+
+
+    }
    
     public function report()
     {
@@ -629,7 +665,7 @@ class SignupsController extends Controller
     public function destroy($id) 
     {
         $signup = Signup::findOrFail($id);
-        if(!$this->canDelete($signup)) $this->unauthorized();
+        if(!$this->canDelete($signup)) return $this->unauthorized();
 
         $this->signups->deleteSignup($signup, $this->currentUserId());
        

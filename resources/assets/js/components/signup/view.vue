@@ -10,6 +10,10 @@
                     <i class="fa fa-arrow-circle-left"></i>
                     返回
                 </button>
+                <button v-if="canPay" @click.prevent="beginPay" class="btn btn-success btn-sm" >
+                    <i class="fa fa-check"></i> 
+                    繳費
+                </button>
                 <button v-if="canDelete" @click.prevent="beginDelete" class="btn btn-danger btn-sm" >
                     <i class="fa fa-trash"></i> 
                     刪除
@@ -25,7 +29,7 @@
         </div>  
         <div class="panel-body">
 
-            <show v-if="readOnly"  :signup="signup" >  
+            <show v-if="readOnly"  :signup="signup" @edit-ps="onEditPS" @unPay="beginUnpay">  
             </show> 
             <edit v-else ref="editComponent"  :id="id" :course_id="course_id" :user="userSelector.user"
                     @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" @user-saved="loadUser">                 
@@ -55,9 +59,20 @@
 		</div>
     </modal>
     
+    <pay-editor ref="payEditor" :showing="payEditorSettings.showing" :signup="signup" :payways="payways"
+      @close="payEditorSettings.showing=false" @saved="onPaySaved">        
+    </pay-editor>
 
-    <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
+    <ps-editor ref="psEditor"  :showing="psEditor.show" :text="psEditor.text"
+      @close="psEditor.show=false" @save="updatePS">
+    </ps-editor>
+
+    <delete-confirm  :showing="deleteConfirm.show" :message="deleteConfirm.msg"
       @close="closeConfirm" @confirmed="deleteSignup">        
+    </delete-confirm>
+
+    <delete-confirm  :showing="unpayConfirm.show" :message="unpayConfirm.msg"
+      @close="closeUnpayConfirm" @confirmed="unpaySignup">        
     </delete-confirm>
 </div>
 </template>
@@ -66,12 +81,14 @@
 
     import Show from './show.vue';
     import Edit from './edit.vue';
+    import PayEditor from './pay-editor.vue';
    
     export default {
         name:'Signup',
         components: {
             Show,
-            Edit
+            Edit,
+            'pay-editor':PayEditor
            
         },
         props: {
@@ -82,6 +99,10 @@
             course_id: {
               type: Number,
               default: 0
+            },
+            payways: {
+              type: Array,
+              default: null
             },
             can_edit:{
                type: Boolean,
@@ -115,9 +136,26 @@
                     
                 },
 
-               
+                payEditorSettings:{
+                  
+                    showing:false,
+                    
+                },
+
+                psEditor:{
+                    show:false,
+                    id:0,
+                    text:'',
+                },
 
                 deleteConfirm:{
+                    id:0,
+                    show:false,
+                    msg:'',
+
+                },
+
+                unpayConfirm:{
                     id:0,
                     show:false,
                     msg:'',
@@ -137,6 +175,15 @@
                 if(!this.signup) return false;
                 
                 return this.signup.canEdit;
+            },
+            payed(){
+                if(!this.signup) return false;
+                return Signup.hasPayed(this.signup);
+            },
+            canPay(){
+                if(!this.can_edit) return false;
+                if(this.payed) return false;
+                return true;
             },
             canDelete(){
                 if(!this.canEdit) return false;
@@ -169,8 +216,17 @@
                     this.readOnly=false;                    
                 }
                 
+                this.payEditorSettings={
+                    showing:false
+                };
 
                 this.deleteConfirm={
+                    id:0,
+                    show:false,
+                    msg:''
+                }; 
+
+                this.unpayConfirm={
                     id:0,
                     show:false,
                     msg:''
@@ -236,10 +292,44 @@
                     Helper.BusEmitError('無法取得使用者資料,請稍後再試.');
                 })
             },
+            onEditPS(){
+               
+                this.psEditor.id=this.signup.id;
+                this.psEditor.text=this.signup.ps;
+               
+                this.$refs.psEditor.init(this.signup.ps);
+
+                this.psEditor.show=true;
+            },
+            updatePS(ps){
+               
+                let form=new Form({
+                     id:this.psEditor.id,
+                     ps:ps
+                });
+
+                let save=Signup.updatePS(form);
+				save.then(() => {
+                    this.psEditor.show=false;
+                    Helper.BusEmitOK('資料已存檔');
+                    this.init();
+				})
+				.catch(error => {
+                    this.psEditor.show=false;
+					Helper.BusEmitError(error,'存檔失敗');
+				})
+            },
             onSaved(signup){
                 if(this.creating)this.$emit('saved',signup);
                 else  this.init();
+            },
+            onPaySaved(){
+                this.init();
             },  
+            beginPay(){
+                this.$refs.payEditor.init(this.signup.bill);
+                this.payEditorSettings.showing=true;
+            },
             beginDelete(){
                 
                 let name=this.signup.user.profile.fullname;
@@ -251,6 +341,16 @@
             closeConfirm(){
                 this.deleteConfirm.show=false;
             },
+            beginUnpay(){
+                
+                let id=this.signup.id;
+                this.unpayConfirm.msg='確定要將狀態改為未繳費嗎?';
+                this.unpayConfirm.id=id;
+                this.unpayConfirm.show=true;       
+            },
+            closeUnpayConfirm(){
+                this.unpayConfirm.show=false;
+            },
             deleteSignup(){
                 this.closeConfirm();
                 
@@ -259,6 +359,20 @@
                 remove.then(() => {
                     Helper.BusEmitOK('刪除成功');
                     this.$emit('deleted');
+                })
+                .catch(error => {
+                    Helper.BusEmitError(error,'刪除失敗');
+                    this.closeConfirm();
+                })
+            },
+            unpaySignup(){
+
+                let id = this.unpayConfirm.id ;
+                let save= Bill.unpay(id);
+                save.then(() => {
+                    Helper.BusEmitOK('資料已存檔');
+                    this.init();
+                    this.unpayConfirm.show=false;       
                 })
                 .catch(error => {
                     Helper.BusEmitError(error,'刪除失敗');

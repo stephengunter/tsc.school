@@ -30,10 +30,27 @@ class Students
                                         ->where('userId',$userId)->first();
     }
 
+    public function removeStudent($courseId, $userId)
+    {
+        
+        $student = $this->findStudent($courseId, $userId);
+        
+        $student->delete();
+        
+        $userStudentRecored=Student::where('userId',$userId)->first();
+        if(!$userStudentRecored){
+            $user=User::find($userId);
+            $user->removeRole(Role::studentRoleName());
+        }
+
+        return $student;
+    }
+
     public function createStudent($courseId, $userId)
     {
-      
+        
         $exist = $this->findStudent($courseId, $userId);
+       
         if ($exist) abort(500);   //重複
         
         $student=Student::create([
@@ -42,11 +59,11 @@ class Students
             'status' => 1,
             'score' => 0
         ]);
+        
 
         $user=User::find($userId);
+        
         $user->addRole(Role::studentRoleName());
-
-    
 
         return $student;
     }

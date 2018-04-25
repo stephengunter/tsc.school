@@ -69,7 +69,7 @@ class Quits
 
     }
 
-    public function createQuitsByCourse(Course $course)
+    public function createQuitsByCourse(Course $course, $percents)
     {
         //為每個學生產生全額退費
         $studentsInCourse=Student::where('courseId',$course->id);
@@ -83,17 +83,19 @@ class Quits
             $signupDetail=$signup->details()->where('courseId',$course->id)->first();
             $actualTuition=$signupDetail->actualTuition();
 
+            $tuition=round($actualTuition * $percents /100);
+
             $quitDetail=new QuitDetail([
                 'signupDetailId' => $signupDetail->id,
-                'percents' => 100 ,   //全額退
-                'tuition' => $actualTuition,
+                'percents' => $percent ,   
+                'tuition' => $tuition,
             ]);
 
             $payway=$this->payways->initQuitPaywayBySignup($signup);
             $date=Carbon::today()->toDateString();    
             $quit=new Quit([
                 'date' =>$date,
-                'tuitions' => $actualTuition,
+                'tuitions' => $tuition,
                 'fee' => 0, // 手續費
                 'paywayId' => $payway->id,
                 'ps' =>  $date . '課程停開'

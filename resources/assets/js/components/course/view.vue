@@ -22,7 +22,7 @@
             </div>
         </div>  
         <div class="panel-body">
-            <show v-if="readOnly"  :course="course" @edit-review="onEditReview">  
+            <show v-if="readOnly"  :course="course" @edit-review="onEditReview" @edit-active="onEditActive">  
             </show>
             <edit v-else :id="id" :group="group"
             @saved="onSaved"   @cancel="onEditCanceled" >                 
@@ -30,22 +30,27 @@
         </div>
         
     </div>
-    <review-editor :showing="reviewEditor.show" :reviewed="reviewEditor.reviewed"
+    <review-editor :showing="reviewEditor.show" :reviewed="reviewEditor.reviewed" 
       @close="reviewEditor.show=false" @save="updateReview">
     </review-editor>
+    <active-editor :showing="activeEditor.show" :default_val="activeEditor.active" :percents_options="percents_options"
+      @close="activeEditor.show=false" @active="activeCourse" @shut-down="onShutDown">
+    </active-editor>
     <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
-      @close="closeConfirm" @confirmed="deleteCourse">        
+      @close="closeConfirm" @confirmed="onConfirmed">        
     </delete-confirm>
 </div>
 </template>
 <script>
     import Show from './show.vue';
     import Edit from './edit.vue';
+    import ActiveEditor from './active-editor.vue';
     export default {
         name:'Course',
         components: {
             Show,
             Edit,
+            'active-editor':ActiveEditor
         },
         props: {
             id: {
@@ -55,6 +60,10 @@
             group:{
                type: Boolean,
                default: false
+            },
+            percents_options:{
+               type: Array,
+               default: null
             }, 
             can_edit:{
                type: Boolean,
@@ -81,9 +90,19 @@
                 course:null,
 
                 reviewEditor:{
+                  
                     show:false,
                     id:0,
                     reviewed:false,
+                },
+
+                activeEditor:{
+                  
+                    show:false,
+                    id:0,
+                    active:false,
+
+                    form:null
                 },
 
                 deleteConfirm:{
@@ -92,6 +111,7 @@
                     msg:'',
 
                 }
+
             }
         },
         computed:{
@@ -131,8 +151,23 @@
                 this.deleteConfirm={
                     id:0,
                     show:false,
-                    msg:''
+                    msg:'',
+                    type:'delete'
                 }; 
+
+                this.activeEditor={
+                  
+                    show:false,
+                    id:0,
+                    active:false,
+                };
+
+                this.reviewEditor={
+                  
+                    show:false,
+                    id:0,
+                    reviewed:false,
+                };
             },
             fetchData() {
                
@@ -162,6 +197,7 @@
                 this.init();
             },
             onEditReview(){
+               
                 this.reviewEditor.id=this.course.id;
                 this.reviewEditor.reviewed=Helper.isTrue(this.course.reviewed);
                 this.reviewEditor.show=true;
@@ -180,22 +216,89 @@
                 let save=Course.review(form);
 				save.then(() => {
                     Helper.BusEmitOK('資料已存檔');
-                    this.fetchData();
-                    this.reviewEditor.show=false;
+                    this.init();
+                   
 				})
 				.catch(error => {
 					Helper.BusEmitError(error,'存檔失敗');
 				})
             },
-            onSaved(){
+            onEditActive(){
+                this.activeEditor.id=this.course.id;
+                this.activeEditor.active=Helper.isTrue(this.course.active);
+                this.activeEditor.show=true;
+            },
+            
+            onShutDown(form){
+                this.activeEditor.form=form;
+                this.confirmShutdown();              
+            },
+            activeCourse(){
                 
+                let courses= [{
+                    id:this.activeEditor.id,
+                    active:true
+                }];
+
+                let form=new Form({
+                    courses:courses
+                });
+
+                let save = Course.active(form);
+				save.then(() => {
+                    Helper.BusEmitOK('資料已存檔');
+                     this.init();
+				})
+				.catch(error => {
+					Helper.BusEmitError(error,'存檔失敗');
+				})
+                
+            },
+            confirmShutdown(){
+                let percents= parseInt(this.activeEditor.form.percents);
+                let msg='';
+                if(percents==100)  msg ='全額退費';
+                else{
+                    let option=this.percents_options.find(item=>{
+                        return item.value == this.activeEditor.form.percents;
+                    })
+                    msg=option.text + '退費';
+                }
+                
+                
+                
+                let id=this.course.id;
+                this.deleteConfirm.type='shutdown';
+                this.deleteConfirm.msg='確定要停開此課程並' + msg  + '嗎?';
+                this.deleteConfirm.id=id;
+                this.deleteConfirm.show=true;
+            },
+            onConfirmed(){
+                if(this.deleteConfirm.type=='shutdown') this.shutdownCourse();
+                else this.deleteCourse();
+            },
+            shutdownCourse(){
+
+                let form=this.activeEditor.form;
+                let id=this.course.id;
+                let save = Course.shutdown(form,id);
+				save.then(() => {
+                    Helper.BusEmitOK('資料已存檔');
+                    this.init();
+				})
+				.catch(error => {
+					Helper.BusEmitError(error,'存檔失敗');
+				})
+                
+            },
+            onSaved(){
                 this.init();
             },  
             beginDelete(){
                 
                 let name=  this.course.fullName;
                 let id=this.course.id;
- 
+                this.deleteConfirm.type='delete';
                 this.deleteConfirm.msg='確定要刪除課程 ' + name + ' 嗎?';
                 this.deleteConfirm.id=id;
                 this.deleteConfirm.show=true;

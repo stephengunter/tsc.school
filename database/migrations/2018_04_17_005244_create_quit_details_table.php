@@ -23,6 +23,7 @@ class CreateQuitDetailsTable extends Migration
             $table->integer('percents')->unsigned();
             $table->decimal('tuition', 8, 2)->default(0); 
 
+           
             $table->string('ps')->nullable();
             $table->integer('updatedBy')->unsigned()->nullable();
             $table->timestamps();

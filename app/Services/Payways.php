@@ -23,6 +23,15 @@ class Payways
         return $options;
     }
 
+    //現場專用付款方式
+    public function counterPayways()
+    {
+        $codes=['cash','credit'];
+
+        return Payway::whereIn('code',$codes)->get();
+
+    }
+
     public function initQuitPaywayBySignup($signup)
     {
         $sourcePayway = $signup->bill->payway;

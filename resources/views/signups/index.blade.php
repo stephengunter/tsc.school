@@ -8,7 +8,7 @@
                :payways="payways" :version="version"
                v-on:selected="onSelected" v-on:create="onCreate" >
 </signups-index>
-<signups-details v-if="selected" :id="selected"
+<signups-details v-if="selected" :id="selected" :payways="counter_payways" 
                  v-on:back="backToIndex" v-on:signup-deleted="backToIndex">
 </signups-details>
 <signups-create v-if="creating" :course="courseId" v-on:cancel="backToIndex" v-on:saved="onCreated">
@@ -38,6 +38,8 @@
                     statuses:[],
                     payways:[],
 
+                    counter_payways:[],
+
                     courseId:0,
 
                     creating:false,
@@ -65,7 +67,7 @@
                 this.statuses = {!! json_encode($statuses) !!} ;
                 this.payways = {!! json_encode($payways) !!} ;
               
-              
+                this.counter_payways = {!! json_encode($counterPayways) !!} ;
 
 			},
             methods: {

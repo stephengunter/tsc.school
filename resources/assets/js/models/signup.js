@@ -125,22 +125,19 @@ class Signup {
         })
     }
 
- 
-    static update(id,form){
-        let url = this.updateUrl(id);
-        let method = 'put';
+    static updatePS(form){
+        let url = this.source() + '/updatePS';
+        let method = 'post';
         return new Promise((resolve, reject) => {
             form.submit(method, url)
-                    .then(data => {
-                        resolve(data);
-                    })
-                    .catch(error => {
-                        reject(error);
-                    })
+                .then(data => {
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
         })
     }
-
-    
  
     static remove(id) {
         let url = this.deleteUrl(id);

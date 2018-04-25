@@ -21,6 +21,7 @@ use App\Services\Teachers;
 use App\Services\TeacherGroups;
 use App\Services\CourseInfoes;
 use App\Services\Files;
+use App\Services\Quits;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -30,7 +31,7 @@ class CoursesController extends Controller
 {
     
     public function __construct(Courses $courses, Teachers $teachers,TeacherGroups $teacherGroups,
-        Terms $terms,Centers $centers,Categories $categories,CourseInfoes $courseInfoes, Files $files)
+        Terms $terms,Centers $centers,Categories $categories,CourseInfoes $courseInfoes, Files $files, Quits $quits)
     {
         $this->courses=$courses;
         $this->teachers=$teachers;
@@ -40,12 +41,12 @@ class CoursesController extends Controller
         $this->categories=$categories;
         $this->courseInfoes=$courseInfoes;
         $this->files=$files;
+        $this->quits=$quits;
     }
 
     function canEdit(Course $course)
     {
         return $this->canEditCenter($course->center);
-       
 
     }
 
@@ -216,6 +217,10 @@ class CoursesController extends Controller
         $centerOptions=$this->centers->centerOptions();
         $categoryOptions = $this->categories->options();
 
+        $percentsOptions=$this->quits->percentsOptions(false);
+        array_unshift($percentsOptions, ['text' => '全額退費' , 'value' => 100 ]);
+        
+
         $model=[
             'title' => '課程管理',
             'menus' => $this->adminMenus('CoursesAdmin'),
@@ -226,6 +231,8 @@ class CoursesController extends Controller
             'weekdays' => $this->courseInfoes->weekdayOptions(),
             'canReview' => $canReview,
             'canImport' => $this->canImport(),
+
+            'percentsOptions'=> $percentsOptions,
             'list' =>  $pageList
         ];
 
@@ -471,15 +478,38 @@ class CoursesController extends Controller
     }
     public function active(Request $form)
     {
+        //批次停開/恢復開課
         $reviewedBy=$this->currentUserId();
 
-        $courses =  $form['courses'];
+        $courses = $form['courses'];
         $active=$courses[0]['active'];
-        $courseIds=array_column($courses, 'id');
         
+        $courseIds=array_column($courses, 'id');
+
+        $course = $this->courses->getById($courseIds[0]); 
+        if(!$this->canReview($course)) return $this->unauthorized();
        
-        $this->courses->setActives($courseIds,$active,$reviewedBy);
-        return response() ->json();
+
+        if(count($courseIds) > 1){
+            $this->courses->setActives($courseIds,$active,$reviewedBy);
+        }else{
+            $this->courses->setActive($course , $active , $reviewedBy);
+        }
+
+        return response()->json();
+    }
+
+    public function shutdown(Request $form,$id)
+    {
+        $course = $this->courses->getById($id); 
+        if(!$this->canReview($course)) return $this->unauthorized();
+
+        $reviewedBy=$this->currentUserId();
+        $percents=(int)$form['percents'];
+        $active=false;
+        
+        $this->courses->shutDownCourse($course , $percents ,$reviewedBy);
+
     }
 
 

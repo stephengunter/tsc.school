@@ -10,16 +10,14 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class CourseShutDown
+class SignupPayed
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $course;
-    public $percent;
-    public function __construct($course,$percent)
+    public $signup;
+    public function __construct($signup)
     {
-        $this->course=$course;
-        $this->percent=$percent;
+        $this->signup=$signup;
     }
 
     /**

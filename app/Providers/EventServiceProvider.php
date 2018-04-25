@@ -16,6 +16,12 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\CourseShutDown' => [
             'App\Listeners\CreateQuitsByCourse',  //產生全額退費
         ],
+        'App\Events\SignupPayed' => [
+            'App\Listeners\CreateStudentsBySignup',  //產生學員
+        ],
+        'App\Events\SignupUnPayed' => [
+            'App\Listeners\RemoveStudentsBySignup',  //刪除學員
+        ],
     ];
 
     /**

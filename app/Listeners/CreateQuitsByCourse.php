@@ -28,6 +28,6 @@ class CreateQuitsByCourse
      */
     public function handle(CourseShutDown $event)
     {
-        $this->quits->createQuitsByCourse($event->course);
+        $this->quits->createQuitsByCourse($event->course, $event->percent);
     }
 }

@@ -8,6 +8,7 @@
                 <h3> 更新審核狀態 </h3>
             </div>
         <div slot="modal-body" class="modal-body">
+           
             <toggle :items="reviewedOptions"   :default_val="reviewed" @selected=onSelected></toggle>
         </div>
     </modal>
@@ -17,6 +18,7 @@
     export default {
         name:'ReviewEditor',
         props: {
+           
             showing:{
                 type: Boolean,
                 default: true
@@ -24,7 +26,7 @@
             reviewed:{
                 type: Boolean,
                 default: false
-            },  
+            } 
             
         },
         data() {
@@ -33,7 +35,16 @@
                 selectedValue:false
             }
         },
+        watch: {
+            'active':'init',
+	    },
+        beforeMount() {
+           this.init(this.reviewed);
+        },
         methods: {
+            init(reviewed){
+                this.selectedValue=reviewed;
+            },
             onClose(){
                 this.$emit('close');
             },

@@ -15,6 +15,8 @@ use App\Services\ESuns;
 use DB;
 use Carbon\Carbon;
 use App\Core\Helper;
+use App\Events\SignupPayed;
+use App\Events\SignupUnPayed;
 
 class Bills 
 {
@@ -44,6 +46,27 @@ class Bills
         return $this->getAll()->where('code',$code)->first();
     }
 
+    public function unPayBill($id)
+    {
+        $bill=$this->getById($id);
+
+        $bill->payed=false;
+        $bill->payDate=null;
+        $bill->paywayId=null;
+
+        DB::transaction(function() use($bill) {
+            $bill->save();
+
+            $signup=$bill->signup;
+            $signup->status = 0;
+           
+            $signup->save();
+          
+        });
+
+        event(new SignupUnPayed($bill->signup));
+    }
+
    
     public function payBill(Payway $payway, $code, $amount)
     {
@@ -64,12 +87,15 @@ class Bills
             $signup->save();
           
         });
+       
+        event(new SignupPayed($bill->signup));
         
         return $bill;
     }
     
     public function payBillById(int $id, Payway $payway, $amount)
     {
+        
         $bill = $this->getById($id);
         if ($bill->amount != $amount) abort(500);
 
@@ -87,6 +113,8 @@ class Bills
             $signup->save();
           
         });
+
+        event(new SignupPayed($bill->signup));
         
         return $bill;
     }

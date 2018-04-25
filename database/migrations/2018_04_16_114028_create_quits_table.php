@@ -30,6 +30,8 @@ class CreateQuitsTable extends Migration
             $table->boolean('reviewed')->default(false);
             $table->integer('reviewedBy')->unsigned()->nullable();
             
+            $table->boolean('auto');  //系統自動產生的
+            
             $table->string('ps')->nullable();
             $table->integer('updatedBy')->unsigned()->nullable();
             $table->timestamps();

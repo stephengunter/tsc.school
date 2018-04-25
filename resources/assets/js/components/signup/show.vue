@@ -20,14 +20,17 @@
             </div>
             <div class="col-sm-2">
                 <label class="label-title">狀態</label>
+                <button v-if="payed" class="btn btn-primary btn-xs" @click.prevent="unPay">
+                    <i class="fa fa-edit"></i>
+                </button>
                 <p v-html="$options.filters.signupStatusLabel(signup.status)" >
                     {{  signup.status | signupStatusLabel }}
-                </p>   
+                </p> 
                
             </div>
             <div class="col-sm-2">
                 <label class="label-title">付款方式</label>
-              
+                 
                 <p  v-html="getPayRecord(signup)">
 
                 </p>
@@ -78,9 +81,14 @@
          <div class="row" >
             <div  class="col-sm-12">
                 <label class="label-title">備註</label>
+                     
                 <p>
-                    {{ signup.ps }} 
-                </p>            
+                    {{ signup.ps }}
+                    &nbsp;
+                    <button class="btn btn-primary btn-xs" @click.prevent="editPS">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                </p>        
             </div>
            
             
@@ -124,6 +132,9 @@
             }
         },
         computed:{
+            payed(){
+               return Signup.hasPayed(this.signup);
+            },
             hasDiscount(){
                 return Signup.hasDiscount(this.signup);
             },
@@ -147,7 +158,13 @@
                     html += `<small>( ${signup.bill.payDate})</small>`;
                 }
                 return html;
-            }
+            },
+            editPS(){
+                this.$emit('edit-ps')
+            },
+            unPay(){
+                this.$emit('unPay')
+            },
             
         }
     }

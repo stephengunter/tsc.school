@@ -26,7 +26,8 @@
             </div>
             <div  class="col-sm-3">
                 <label class="label-title">狀態</label>
-                <p v-html="$options.filters.quitStatusLabel(quit.status)"></p>                      
+                <p v-html="$options.filters.quitStatusLabel(quit.status)"></p>    
+                                 
             </div>
         </div>  <!-- End row--> 
         

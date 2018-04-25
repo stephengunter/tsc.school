@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 use App\Signup;
 use App\Bill;
 use App\Student;
+use App\Payway;
 
 use App\Services\Signups;
 use App\Services\Bills;
@@ -60,13 +62,7 @@ class BillsController extends Controller
                 $amount=$bill->amount;
                 $this->bills->payBillById($signup->id,$payway,$amount);
             } 
-
-           
-          
-            foreach($signup->details as $detail){
-                $this->students->createStudent($detail->courseId, $signup->userId);
-          
-            }
+            
 
            
         }
@@ -74,6 +70,46 @@ class BillsController extends Controller
 
         dd('done');
         
+    }
+
+    function canEdit($signup)
+    {
+        if($this->currentUserIsDev()) return true;
+
+        return $this->canAdminCenter($signup->getCenter());
+
+
+    }
+
+    //處理現場繳費
+    public function pay(Request $form,$id)
+    {
+        $signup = $this->signups->getById($id);
+        if(!$this->canEdit($signup)) return $this->unauthorized();
+
+        if($signup->hasPayed()) abort(500);
+        
+        $paywayId= $form['paywayId'];
+        $payway=Payway::findOrFail($paywayId);
+
+        $amount = $signup->bill->amount;
+        $this->bills->payBillById($id,$payway,$amount);
+
+        return response()->json();
+    }
+
+    //現場繳費->變成沒繳費
+    public function unpay($id)
+    {
+        
+        $signup = $this->signups->getById($id);
+        if(!$this->canEdit($signup)) return $this->unauthorized();
+
+        if(!$signup->hasPayed()) abort(500);
+
+        $this->bills->unPayBill($id);
+
+        return response()->json();
     }
 
     public function print($id)

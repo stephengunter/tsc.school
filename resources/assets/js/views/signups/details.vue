@@ -1,6 +1,6 @@
 <template>
 <div>
-    <signup :id="id" ref="signupView" 
+    <signup :id="id" ref="signupView" :payways="payways"
      :can_edit="signupSettings.can_edit" :can_back="signupSettings.can_back"  
       @loaded="onSignupLoaded"   @back="onBack" @saved="onSignupSaved"  
       @deleted="onSignupDeleted" >
@@ -73,6 +73,10 @@
             id: {
               type: Number,
               default: 0
+            },
+            payways: {
+              type: Array,
+              default: null
             },
             can_back: {
               type: Boolean,

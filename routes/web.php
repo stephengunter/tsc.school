@@ -3,8 +3,7 @@
 Auth::routes();
 
 Route::get('/test', function () {
-    $string='OK 便利商店';
-    dd(strtolower(preg_replace('/\s+/', '', $string)));
+   
    
 
 });
@@ -132,6 +131,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/courses/upload', 'CoursesController@upload');
     Route::post('/manage/courses/review', 'CoursesController@review');
     Route::post('/manage/courses/active', 'CoursesController@active');
+    Route::put('/manage/courses/{id}/shutdown', 'CoursesController@shutdown');
 
     Route::resource('/manage/ClassTimes', 'ClassTimesController');
     Route::post('/manage/ClassTimes/import', 'ClassTimesController@import');
@@ -143,8 +143,11 @@ Route::group(['middleware' => 'admin'], function()
     //Signups
     Route::get('/manage/signups/report', 'SignupsController@report');
     Route::resource('/manage/signups', 'SignupsController');
+    Route::post('/manage/signups/updatePS', 'SignupsController@updatePS');
 
     Route::get('/manage/bills/{id}/print', 'BillsController@print');
+    Route::put('/manage/bills/{id}/pay', 'BillsController@pay');
+    Route::put('/manage/bills/{id}/unpay', 'BillsController@unpay');
 
     Route::resource('/manage/students', 'StudentsController');
     Route::post('/manage/students/scores/update', 'StudentsController@updateScores');
