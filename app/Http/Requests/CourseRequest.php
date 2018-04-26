@@ -58,5 +58,11 @@ class CourseRequest extends FormRequest
         return $values;
     }
 
+    public function getVolunteerIds()
+    {
+        $values=$this->get('volunteerIds');
+        return $values;
+    }
+
   
 }

@@ -45,25 +45,29 @@ class Courses
         return $this->getAll()->whereIn('id',$ids);
     }    
 
-    public function createCourse(Course $course,Array $categoryIds,Array $teacherIds=[])
+    public function createCourse(Course $course,Array $categoryIds,Array $teacherIds=[],Array $volunteerIds=[])
     {
         $course->categoryId=$categoryIds[0];
         $course->save();
         $course->categories()->attach($categoryIds);
 
         if(count($teacherIds)) $course->teachers()->attach($teacherIds);
+        if(count($volunteerIds)) $course->volunteers()->attach($volunteerIds);
 
         return $course;
         
     }
 
-    public function  updateCourse(Course $course ,Array $categoryIds,Array $teacherIds=[])
+    public function  updateCourse(Course $course ,Array $categoryIds,Array $teacherIds=[],Array $volunteerIds=[])
     {
         $course->save();
         $course->categories()->sync($categoryIds);
 
         if(count($teacherIds)) $course->teachers()->sync($teacherIds);
         else $course->teachers()->delete();
+
+        if(count($volunteerIds)) $course->volunteers()->sync($volunteerIds);
+        else $course->volunteers()->delete();
     }
 
     public function reviewOK(array $ids, $reviewedBy)
@@ -236,7 +240,8 @@ class Courses
             $categoryId=(int)trim($row['categories']);
             $teacherSIDs= trim($row['teachers']);  
             $teacherGroupId= trim($row['group']);
-           
+
+            $volunteerSIDs= trim($row['volunteers']);
 
             $begin_date=trim($row['begin_date']);
             $end_date=trim($row['end_date']);
@@ -313,6 +318,13 @@ class Courses
                 $teachers=$this->teachers->getBySIDs($teacherSIDs);
                 $teacherIds=$teachers->pluck('userId')->toArray();
             } 
+
+            $volunteerIds=[];
+            if($volunteerSIDs){
+                $volunteerSIDs = explode(',', $volunteerSIDs);  
+                $volunteers=$this->volunteers->getBySIDs($volunteerSIDs);
+                $volunteerIds=$volunteers->pluck('userId')->toArray();
+            } 
             
            
 
@@ -365,7 +377,7 @@ class Courses
 
             if($teacherGroup) $course->teacherGroupId=$teacherGroup->id;
 
-            $course=$this->createCourse($course,[$categoryId],$teacherIds);
+            $course=$this->createCourse($course,[$categoryId],$teacherIds,$volunteerIds);
 
             
             

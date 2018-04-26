@@ -89,6 +89,11 @@ class Course extends Model
     {
         return $this->belongsToMany(Teacher::class,'course_teacher','course_id','teacher_id');
     }
+
+    public function volunteers()
+    {
+        return $this->belongsToMany('App\Volunteer','course_volunteer','course_id','volunteer_id');
+    }
     
     public function categories()
     {
@@ -148,8 +153,7 @@ class Course extends Model
     public function loadClassTimes()
     {
         foreach($this->classTimes as $classTime){
-            $classTime->fullText=
-            $classTime->fullText();
+            $classTime->fullText=$classTime->fullText();            
         }
     }
 
@@ -166,6 +170,30 @@ class Course extends Model
     public function hasStarted()
     {
         return Carbon::today()->gte(new Carbon($this->beginDate));
+    }
+
+    public function hasEnded()
+    {
+        return Carbon::today()->gt(new Carbon($this->endDate));
+    }
+
+    public function canSignup($net=true)
+    {
+        if($this->removed) return false;   
+        if(!$this->reviewed) return false;   
+        if(!$this->active) return false;    
+
+        if($net){
+            if($this->hasStarted()) return false;
+            if(count($this->activeStudent()) >= $this->limit ) return false;
+            return true;
+        }
+
+        if($this->hasEnded()) return false;
+
+        return true;
+
+        
     }
 
 

@@ -19,6 +19,7 @@ use App\Services\Centers;
 use App\Services\Categories;
 use App\Services\Teachers;
 use App\Services\TeacherGroups;
+use App\Services\Volunteers;
 use App\Services\CourseInfoes;
 use App\Services\Files;
 use App\Services\Quits;
@@ -30,12 +31,13 @@ use Illuminate\Support\Facades\Input;
 class CoursesController extends Controller
 {
     
-    public function __construct(Courses $courses, Teachers $teachers,TeacherGroups $teacherGroups,
+    public function __construct(Courses $courses, Teachers $teachers,TeacherGroups $teacherGroups, Volunteers $volunteers,
         Terms $terms,Centers $centers,Categories $categories,CourseInfoes $courseInfoes, Files $files, Quits $quits)
     {
         $this->courses=$courses;
         $this->teachers=$teachers;
         $this->teacherGroups=$teacherGroups;
+        $this->volunteers=$volunteers;
         $this->terms=$terms;
         $this->centers=$centers;
         $this->categories=$categories;
@@ -100,6 +102,17 @@ class CoursesController extends Controller
 
     }
 
+    function setVolunteers($course)
+    {
+        $volunteers=$course->volunteers;
+       
+        if(count($volunteers)){
+            $names=join(',',$volunteers->pluck('user.profile.fullname')->toArray());
+            $course->volunteerNames=$names;
+        }
+
+    }
+
     function setCategories($course)
     {
         $categories=$course->categories;
@@ -123,7 +136,20 @@ class CoursesController extends Controller
         }
 
         return  $options;
-    }
+    }  
+
+    function getVolunteerIds(Course $course)
+    {
+        $options =[];
+        $volunteers=$course->volunteers;
+        if(count($volunteers)){
+            $options = $volunteers->map(function ($item) {
+                return $item->toOption();
+            })->all();
+        }
+
+        return  $options;
+    }  
 
     function canSignup(Course $course,User $user)
     {
@@ -252,7 +278,7 @@ class CoursesController extends Controller
         $centerId=$centerOptions[0]['value'];
         $course=Course::init($termId,$centerId);
        
-        $teacherIds=[];
+      
 
        
         $categoryOptions = $this->categories->forEditCourseOptions();
@@ -262,12 +288,15 @@ class CoursesController extends Controller
        
         $teacherOptions = array_merge($this->teachers->options($center), $this->teacherGroups->options($center));
         
-       
+        $volunteerOptions = $this->volunteers->options();
+        
       
         $form=[
             'course' => $course,
-            'teacherIds' =>$teacherIds,
+            'teacherIds' =>[],
+            'volunteerIds' =>[],
             'teacherOptions' => $teacherOptions,
+            'volunteerOptions' => $volunteerOptions,
             'termOptions' => $termOptions,
             'centerOptions' => $centerOptions,
             'categoryOptions' => $categoryOptions
@@ -299,6 +328,7 @@ class CoursesController extends Controller
     {
         $courseValues=$request->getValues();
         $teacherIdValues=$request->getTeacherIds();
+        $volunteerIdValues=$request->getVolunteerIds();
        
         $centerId=$courseValues['centerId'];
         $center=$this->centers->getById($centerId);
@@ -334,12 +364,17 @@ class CoursesController extends Controller
             }
         }
 
+        $volunteerIds = [];
+        foreach($volunteerIdValues as $item){
+            array_push($volunteerIds,$item['value']);
+        }
+
        
 
         $courseValues['updatedBy']=$this->currentUserId();
         $course=new Course($courseValues);
 
-        $course=$this->courses->createCourse($course,[$category->id], $teacherIds);
+        $course=$this->courses->createCourse($course,[$category->id], $teacherIds,$volunteerIds);
 
        
 
@@ -354,6 +389,7 @@ class CoursesController extends Controller
         $course->fullName();
         $course->loadClassTimes();
         $this->setTeachers($course);
+        $this->setVolunteers($course);
         $this->setCategories($course);
 
         $course->processes;
@@ -377,6 +413,7 @@ class CoursesController extends Controller
         $this->setCategories($course);
        
         $teacherIds=$this->getTeacherIds($course);
+        $volunteerIds=$this->getVolunteerIds($course);
 
         $centersCanAdmin= $this->centersCanAdmin();
         $centerOptions = $centersCanAdmin->map(function ($item) {
@@ -416,6 +453,7 @@ class CoursesController extends Controller
 
         $courseValues=$request->getValues();
         $teacherIdValues=$request->getTeacherIds();
+        $volunteerIdValues=$request->getVolunteerIds();
        
         $errors=$this->validateCourseInputs($courseValues,$teacherIdValues);
         
@@ -445,10 +483,15 @@ class CoursesController extends Controller
             }
         }
 
+        $volunteerIds = [];
+        foreach($volunteerIdValues as $item){
+            array_push($volunteerIds,$item['value']);
+        }
+
         $courseValues['updatedBy']=$this->currentUserId();
         $course->fill($courseValues);
 
-        $this->courses->updateCourse($course,[$category->id], $teacherIds);
+        $this->courses->updateCourse($course,[$category->id], $teacherIds,$volunteerIds);
 
         return response() ->json();
     }

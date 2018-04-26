@@ -76,7 +76,8 @@ class Volunteers
     public function  options()
     {
        
-        $volunteers=$this->$this->getAll()->get();
+        $volunteers=$this->getAll()->get();
+       
         return $volunteers->map(function ($volunteer) {
             return $volunteer->toOption();
         })->all();

@@ -117,8 +117,7 @@
         },
         methods:{
             init(){
-                
-                
+               
             },
             onSignupLoaded(signup){
                 

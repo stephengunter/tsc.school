@@ -43,7 +43,13 @@
             </div>
             
         </div>
-
+        <div class="form-group">
+            <label class="col-md-2 control-label">職稱</label>
+            <div class="col-md-4">
+                <input type="text" name="teacher.jobtitle" class="form-control" v-model="form.teacher.jobtitle"  >
+                <small class="text-danger" v-if="form.errors.has('teacher.jobtitle')" v-text="form.errors.get('teacher.jobtitle')"></small>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-md-2 control-label">專長</label>
             <div class="col-md-4">
@@ -56,18 +62,7 @@
                 <small class="text-danger" v-if="form.errors.has('teacher.education')" v-text="form.errors.get('teacher.education')"></small>
             </div>
         </div>
-        <div v-if="false"  class="form-group">
-            <label class="col-md-2 control-label">現職</label>
-            <div class="col-md-4">
-                <input type="text" name="teacher.jobtitle" class="form-control" v-model="form.teacher.jobtitle"  >
-                <small class="text-danger" v-if="form.errors.has('teacher.jobtitle')" v-text="form.errors.get('teacher.jobtitle')"></small>
-            </div>
-            <label class="col-md-2 control-label">職稱</label>
-            <div class="col-md-4">
-                <input type="text" name="teacher.jobtitle" class="form-control" v-model="form.teacher.jobtitle"  >
-                <small class="text-danger" v-if="form.errors.has('teacher.jobtitle')" v-text="form.errors.get('teacher.jobtitle')"></small>
-            </div>
-        </div>
+        
         <div  class="form-group">
             <label class="col-md-2 control-label">經歷</label>
             <div class="col-md-4">

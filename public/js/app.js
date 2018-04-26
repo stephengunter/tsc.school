@@ -80883,11 +80883,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -81475,6 +81470,51 @@ var render = function() {
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
                   _c("label", { staticClass: "col-md-2 control-label" }, [
+                    _vm._v("職稱")
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-md-4" }, [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form.teacher.jobtitle,
+                          expression: "form.teacher.jobtitle"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: { type: "text", name: "teacher.jobtitle" },
+                      domProps: { value: _vm.form.teacher.jobtitle },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.form.teacher,
+                            "jobtitle",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _vm.form.errors.has("teacher.jobtitle")
+                      ? _c("small", {
+                          staticClass: "text-danger",
+                          domProps: {
+                            textContent: _vm._s(
+                              _vm.form.errors.get("teacher.jobtitle")
+                            )
+                          }
+                        })
+                      : _vm._e()
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { staticClass: "col-md-2 control-label" }, [
                     _vm._v("專長")
                   ]),
                   _vm._v(" "),
@@ -81560,96 +81600,6 @@ var render = function() {
                       : _vm._e()
                   ])
                 ]),
-                _vm._v(" "),
-                false
-                  ? _c("div", { staticClass: "form-group" }, [
-                      _c("label", { staticClass: "col-md-2 control-label" }, [
-                        _vm._v("現職")
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "col-md-4" }, [
-                        _c("input", {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: _vm.form.teacher.jobtitle,
-                              expression: "form.teacher.jobtitle"
-                            }
-                          ],
-                          staticClass: "form-control",
-                          attrs: { type: "text", name: "teacher.jobtitle" },
-                          domProps: { value: _vm.form.teacher.jobtitle },
-                          on: {
-                            input: function($event) {
-                              if ($event.target.composing) {
-                                return
-                              }
-                              _vm.$set(
-                                _vm.form.teacher,
-                                "jobtitle",
-                                $event.target.value
-                              )
-                            }
-                          }
-                        }),
-                        _vm._v(" "),
-                        _vm.form.errors.has("teacher.jobtitle")
-                          ? _c("small", {
-                              staticClass: "text-danger",
-                              domProps: {
-                                textContent: _vm._s(
-                                  _vm.form.errors.get("teacher.jobtitle")
-                                )
-                              }
-                            })
-                          : _vm._e()
-                      ]),
-                      _vm._v(" "),
-                      _c("label", { staticClass: "col-md-2 control-label" }, [
-                        _vm._v("職稱")
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "col-md-4" }, [
-                        _c("input", {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: _vm.form.teacher.jobtitle,
-                              expression: "form.teacher.jobtitle"
-                            }
-                          ],
-                          staticClass: "form-control",
-                          attrs: { type: "text", name: "teacher.jobtitle" },
-                          domProps: { value: _vm.form.teacher.jobtitle },
-                          on: {
-                            input: function($event) {
-                              if ($event.target.composing) {
-                                return
-                              }
-                              _vm.$set(
-                                _vm.form.teacher,
-                                "jobtitle",
-                                $event.target.value
-                              )
-                            }
-                          }
-                        }),
-                        _vm._v(" "),
-                        _vm.form.errors.has("teacher.jobtitle")
-                          ? _c("small", {
-                              staticClass: "text-danger",
-                              domProps: {
-                                textContent: _vm._s(
-                                  _vm.form.errors.get("teacher.jobtitle")
-                                )
-                              }
-                            })
-                          : _vm._e()
-                      ])
-                    ])
-                  : _vm._e(),
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
                   _c("label", { staticClass: "col-md-2 control-label" }, [
@@ -94904,6 +94854,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			termOptions: [],
 			categoryOptions: [],
 			teacherOptions: [],
+			volunteerOptions: [],
 
 			form: null,
 
@@ -94937,13 +94888,15 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 				_this.form = new Form({
 					course: _extends({}, model.course),
-					teacherIds: model.teacherIds.slice(0)
+					teacherIds: model.teacherIds.slice(0),
+					volunteerIds: model.volunteerIds.slice(0)
 				});
 
 				_this.centerOptions = model.centerOptions.slice(0);
 				_this.termOptions = model.termOptions.slice(0);
 				_this.categoryOptions = model.categoryOptions.slice(0);
 				_this.teacherOptions = model.teacherOptions.slice(0);
+				_this.volunteerOptions = model.volunteerOptions.slice(0);
 			}).catch(function (error) {
 				Helper.BusEmitError(error);
 			});
@@ -95191,6 +95144,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'CourseInputs',
@@ -95212,6 +95171,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             default: null
         },
         teachers: {
+            type: Array,
+            default: null
+        },
+        volunteers: {
             type: Array,
             default: null
         }
@@ -95240,6 +95203,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         onTeacherChanged: function onTeacherChanged(val) {
             if (val.length) this.clearErrorMsg('teacherIds');
         },
+        onVolunteerChanged: function onVolunteerChanged(val) {},
         onCenterSelected: function onCenterSelected(center) {
             this.form.Course.centerId = center.value;
         },
@@ -95447,7 +95411,7 @@ var render = function() {
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "col-sm-4" }, [
+          _c("div", { staticClass: "col-sm-3" }, [
             _c("div", { staticClass: "form-group" }, [
               _c("label", [_vm._v("流水號")]),
               _vm._v(" "),
@@ -95534,7 +95498,7 @@ var render = function() {
             ])
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "col-sm-4" }, [
+          _c("div", { staticClass: "col-sm-3" }, [
             _c(
               "div",
               { staticClass: "form-group" },
@@ -95571,7 +95535,36 @@ var render = function() {
             )
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "col-sm-4" })
+          _c("div", { staticClass: "col-sm-3" }, [
+            _c(
+              "div",
+              { staticClass: "form-group" },
+              [
+                _c("label", [_vm._v("教育志工")]),
+                _vm._v(" "),
+                _c(
+                  "v-select",
+                  {
+                    attrs: {
+                      value: _vm.form.volunteerIds,
+                      multiple: "",
+                      options: _vm.volunteers,
+                      onChange: _vm.onVolunteerChanged,
+                      label: "text"
+                    },
+                    on: {
+                      "update:value": function($event) {
+                        _vm.$set(_vm.form, "volunteerIds", $event)
+                      }
+                    }
+                  },
+                  [_vm._t("no-options", [_vm._v("-----")])],
+                  2
+                )
+              ],
+              1
+            )
+          ])
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "row" }, [
@@ -95852,7 +95845,8 @@ var render = function() {
               centers: _vm.centerOptions,
               terms: _vm.termOptions,
               categories: _vm.categoryOptions,
-              teachers: _vm.teacherOptions
+              teachers: _vm.teacherOptions,
+              volunteers: _vm.volunteerOptions
             }
           }),
           _vm._v(" "),

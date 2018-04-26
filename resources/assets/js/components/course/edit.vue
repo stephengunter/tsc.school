@@ -3,7 +3,7 @@
     <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
         
 		<course-inputs :form="form" :centers="centerOptions" :terms="termOptions" 
-			:categories="categoryOptions" :teachers="teacherOptions">
+			:categories="categoryOptions" :teachers="teacherOptions"  :volunteers="volunteerOptions">
 		</course-inputs>
 		
 		
@@ -64,6 +64,7 @@ export default {
 			termOptions:[],
 			categoryOptions:[],
 			teacherOptions:[],
+			volunteerOptions:[],
 
             form:null,
             
@@ -99,14 +100,15 @@ export default {
 					course:{
 						...model.course
 					},
-					teacherIds:model.teacherIds.slice(0)
+					teacherIds:model.teacherIds.slice(0),
+					volunteerIds:model.volunteerIds.slice(0)
 				});
 
 				this.centerOptions=model.centerOptions.slice(0);
 				this.termOptions=model.termOptions.slice(0);
 				this.categoryOptions=model.categoryOptions.slice(0);
 				this.teacherOptions=model.teacherOptions.slice(0);
-				
+				this.volunteerOptions=model.volunteerOptions.slice(0);
 				
 			})
 			.catch(error=> {

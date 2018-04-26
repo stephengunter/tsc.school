@@ -52,7 +52,7 @@
             </div>  <!-- End Row   --> 
             
             <div class="row">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="form-group">  
                         <label>流水號</label>
                         <input type="text" name="course.number" class="form-control" v-model="form.course.number"  >
@@ -67,7 +67,7 @@
                         </select>
                     </div>
                 </div>  
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div  class="form-group">  
                         <label>教師</label>
                         <v-select :value.sync="form.teacherIds" multiple  :options="teachers" :onChange="onTeacherChanged" label="text">
@@ -77,8 +77,14 @@
                     </div>
                                             
                 </div> 
-                <div class="col-sm-4">
-                    
+                <div class="col-sm-3">
+                    <div  class="form-group">  
+                        <label>教育志工</label>
+                        <v-select :value.sync="form.volunteerIds" multiple  :options="volunteers" :onChange="onVolunteerChanged" label="text">
+                            <slot name="no-options">-----</slot>
+                        </v-select>
+                       
+                    </div>
                     
                 </div>    
             </div>  <!-- End Row   --> 
@@ -177,6 +183,10 @@
                 type: Array,
                 default: null
             },
+            volunteers:{
+                type: Array,
+                default: null
+            },
         },
         data() {
             return {
@@ -204,6 +214,9 @@
             },
             onTeacherChanged(val){
                 if(val.length) this.clearErrorMsg('teacherIds');
+            },
+            onVolunteerChanged(val){
+               
             },
             onCenterSelected(center){
                this.form.Course.centerId=center.value;

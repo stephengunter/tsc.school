@@ -3,7 +3,8 @@
 Auth::routes();
 
 Route::get('/test', function () {
-   
+   $course = \App\Course::first();
+   dd($course->canSignup());
    
 
 });

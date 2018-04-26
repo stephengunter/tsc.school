@@ -22,7 +22,12 @@ class Volunteer extends Model
             'ps' => ''
 
 		];
-	}	
+    }	
+    
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class,'course_volunteer','volunteer_id','course_id');
+    }
 	
 	public function user()
     {
@@ -41,6 +46,6 @@ class Volunteer extends Model
 	
 	public function  toOption()
     {
-        return [ 'text' => $this->user->profile->fullname ,  'value' => $this->userId , 'group' => false ];
+        return [ 'text' => $this->user->profile->fullname ,  'value' => $this->userId  ];
     }
 }
