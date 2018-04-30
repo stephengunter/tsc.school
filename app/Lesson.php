@@ -3,12 +3,18 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Role;
+use Carbon\Carbon;
+use App\Core\Helper;
 
 class Lesson extends Model
 {
+	public static $snakeAttributes = false;
+	
     protected $fillable = [  'courseId', 'status', 
         'date','title', 'content','materials',
-        'on','off', 'classroom', 'ps' , 'updatedBy'
+		'on','off', 'classroom', 'ps' , 'updatedBy',
+		'reviewed','reviewedBy',
     ];
 
     public static function init($year)
@@ -33,5 +39,44 @@ class Lesson extends Model
     public function members() 
 	{
 		return $this->hasMany('App\LessonMember','lessonId');
-    }
+	}
+
+	public function getTeacherIds()
+	{
+		return $this->members()->where('role',Role::teacherRoleName())
+									->pluck('userId')->toArray();
+
+	}
+	
+	public function getVolunteerIds()
+	{
+		return $this->members()->where('role',Role::volunteerRoleName())
+									->pluck('userId')->toArray();
+
+	}
+
+	public function getStudentIds()
+	{
+		return $this->members()->where('role',Role::studentRoleName())
+									->pluck('userId')->toArray();
+
+	}
+
+	public function getHours()
+	{
+		$on=new \Carbon\Carbon('2018-1-31 ' . Helper::toTimeString($this->on));
+		$off=new \Carbon\Carbon('2018-1-31 ' . Helper::toTimeString($this->off));
+
+		$minutes = $off->diffInMinutes($on);
+		return $minutes/60;
+	}
+	
+	public function loadViewModel()
+    {
+		$this->hours=$this->getHours();
+		$this->course->fullName();
+        $this->studentCount=$this->members()->where('role',Role::studentRoleName())->count();
+	}
+	
+
 }

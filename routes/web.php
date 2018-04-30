@@ -4,10 +4,12 @@ Auth::routes();
 
 Route::get('/test', function () {
    
+
+    
     
 });
 
-Route::get('/test', 'LessonsController@test');
+//Route::get('/test', 'LessonsController@test');
 
 
 
@@ -172,6 +174,8 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/quits/updatePS', 'QuitsController@updatePS');
 
     Route::get('/manage/reports/courses', 'ReportsController@courses');
+
+    Route::resource('/manage/lessons', 'LessonsController');
    
 
 });

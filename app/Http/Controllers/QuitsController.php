@@ -106,8 +106,6 @@ class QuitsController extends Controller
         {
             $num = rand(0 ,100);
             if (($num % 3) != 0) continue;
-            
-            
 
             $quitDetails=[];
             foreach($signup->details as $signupDetail){
@@ -125,6 +123,8 @@ class QuitsController extends Controller
                
                 array_push($quitDetails,$quitDetail);
             }
+
+            if(!count($quitDetails)) continue;
 
             $quitValues=Quit::init();
 

@@ -167,6 +167,22 @@ class Course extends Model
         return $this->students()->where('status' , 1);
     }
 
+    public function isValid()
+    {
+        if(!$this->reviewed) return false;
+        if(!$this->active) return false;
+        return true;
+    }
+
+    //進行中
+    public function isProcessing()
+    {
+        if(!$this->isValid()) return false;
+        if(!$this->hasStarted()) return false;
+        if($this->hasEnded()) return false;
+        return true;
+    }
+
     public function hasStarted()
     {
         return Carbon::today()->gte(new Carbon($this->beginDate));

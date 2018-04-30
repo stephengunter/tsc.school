@@ -182,6 +182,17 @@ class Courses
         return  $courses;
     }
 
+    public function  getStartedCourses(Term $term)
+    {
+        $courses=$this->getAll()->where('termId',$term->id)->get();
+        $courses = $courses->filter(function ($course) {
+            return $course->isProcessing();
+        })->all();
+        
+        return $courses;
+                        
+    }
+
     public function  getByNumber($number)
     {
         return Course::where('number', $number)->first();

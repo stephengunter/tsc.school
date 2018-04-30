@@ -34,6 +34,7 @@ class BillsController extends Controller
         $this->students=$students;
     }
 
+   
 
 
     public function show($id)
@@ -116,6 +117,7 @@ class BillsController extends Controller
         $amount= $data[4];  //金額
         $payAt=new Carbon($data[5]);  //20151105132510
         $text=$data[6];  
+
 
         $payway=$this->payways->getByText($from);
 

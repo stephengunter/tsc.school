@@ -12,21 +12,35 @@ use App\Payway;
 
 use App\Services\Signups;
 use App\Services\Bills;
+use App\Services\ESuns;
 use App\Services\Students;
 use App\Http\Requests\BillRequest;
 
 use App\Core\PagedList;
 use App\Core\Helper;
+use Carbon\Carbon;
 use DB;
 
 class BillsController extends Controller
 {
-    public function __construct(Signups $signups, Bills $bills, Students $students)        
+    public function __construct(Signups $signups, Bills $bills, ESuns $ESuns, Students $students)        
     {
         $this->signups=$signups;
         $this->bills=$bills;
-     
+        $this->ESuns=$ESuns;
         $this->students=$students;
+    }
+    public function test()
+    {
+        $signup=Signup::find(4);
+        $this->bills->createBillCode($signup);
+       
+
+        $deadlineDate=new Carbon('2018/5/10');
+        $amount = 3400;
+        $serial=1;
+        dd($this->ESuns->initBillCode($deadlineDate, $amount,$serial));
+       
     }
 
     public function seedPays()
@@ -54,6 +68,7 @@ class BillsController extends Controller
                 $bill=$this->bills->getById($signup->id);
                 $code=$bill->code;
                 $amount=$bill->amount;
+                
                 $this->bills->payBill($payway, $code, $amount);
 
             }else{

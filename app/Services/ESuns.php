@@ -56,7 +56,7 @@ class ESuns
 
     function getSevenCode($amount)
     {
-        if($amount<20000) return $this->sevenCode[0];
+        if($amount<=20000) return $this->sevenCode[0];
         return $this->sevenCode[1];
     }
     

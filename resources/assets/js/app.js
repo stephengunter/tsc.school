@@ -78,6 +78,8 @@ Vue.component('quits-details', require('./views/quits/details'));
 Vue.component('students-index', require('./views/students/index'));
 Vue.component('students-details', require('./views/students/details'));
 
+Vue.component('lessons-index', require('./views/lessons/index'));
+
 
 
 import Footer from './components/footer'

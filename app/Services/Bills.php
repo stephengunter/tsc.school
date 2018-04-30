@@ -72,7 +72,9 @@ class Bills
     {
         $bill = $this->getBillByCode($code);
       
-        if ($bill->amount != $amount) abort(500);
+        if ($bill->amount != $amount) {
+            abort(500);
+        }
         
 
         $bill->payed=true;
@@ -187,7 +189,7 @@ class Bills
             }            
         }
 
-        $code = $this->ESuns->initBillCode($deadLineDate, $bill->amount, $serial);
+        $code = $this->ESuns->initBillCode($deadLineDate, $bill->amount, $bill->$serial);
         $sevenCodes=$this->ESuns->initSevenCodes($deadLineDate, $code,$bill->amount);
 
 

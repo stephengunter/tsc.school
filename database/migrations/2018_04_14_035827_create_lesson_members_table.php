@@ -16,8 +16,8 @@ class CreateLessonMembersTable extends Migration
         Schema::create('lessonMembers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('lessonId')->unsigned();
-            $table->foreign('lessonId')->references('id')->on('lessons')
-                                                            ->onDelete('cascade');
+            $table->foreign('lessonId')->references('id')->on('lessons')->onDelete('cascade');
+                                                            
 
             $table->integer('userId')->unsigned();
             $table->foreign('userId')->references('id')->on('users');

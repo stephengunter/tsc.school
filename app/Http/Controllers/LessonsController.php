@@ -8,34 +8,71 @@ use Illuminate\Http\Request;
 use App\Course;
 use App\Center;
 use App\Lesson;
+use App\Weekday;
+use App\Services\Users;
+use App\Services\Terms;
+use App\Services\Centers;
+use App\Services\Teachers;
+use App\Services\Volunteers;
 use App\Services\Courses;
 use App\Services\Lessons;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
 use Illuminate\Support\Facades\Input;
+use Exception;
 
 class LessonsController extends Controller
 {
     
-    public function __construct(Courses $courses,Lessons $lessons)
+    public function __construct(Terms $terms,Centers $centers,Courses $courses,Lessons $lessons,
+    Users $users,Teachers $teachers, Volunteers $volunteers)
     {
+        $this->terms=$terms;
+        $this->centers=$centers;
         $this->courses=$courses;
         $this->lessons=$lessons;
+        $this->users=$users;
+        $this->teachers=$teachers;
+        $this->volunteers=$volunteers;
       
     }
 
     public function test()
     {
-        
-        $course=Course::first();
-        $classTime=$course->classTimes()->first();
-       
+        $term=$this->terms->getActiveTerm();
+        if(!$term) return;
+
+        $courses=$this->courses->getStartedCourses($term);
+
         $date=Carbon::today();
+        $weekday=Weekday::where('val',$date->dayOfWeek)->first();
+
+        foreach($courses as $course){
+            $classTime=$course->classTimes->where('weekdayId',$weekday->id)->first();
+            if($classTime){
+                $this->lessons->createLessonFromCourse($course,$classTime,$date);
+            }
+        }
        
-        $this->lessons->createLessonFromCourse($course,$classTime,$date);
+        
     }
 
+    public function loadViewModel(Lesson $lesson)
+    {
+        $teacherIds=$lesson->getTeacherIds();
+        $lesson->teachers=$this->users->getByIds($teacherIds)->get();
+
+        $volunteerIds=$lesson->getVolunteerIds();
+        $lesson->volunteers=$this->users->getByIds($volunteerIds)->get();
+
+        $studentIds=$lesson->getStudentIds();
+        $lesson->students=$this->users->getByIds($studentIds)->get();
+
+        $lesson->loadViewModel();
+        
+
+    }
 
     public function index()
     {
@@ -50,29 +87,33 @@ class LessonsController extends Controller
         $course=0;
         if($request->course)  $course=(int)$request->course;
 
-        $keyword='';
-        if($request->keyword)  $keyword=$request->keyword;
+        $reviewed=true;
+        if($request->reviewed)  $reviewed=Helper::isTrue($request->reviewed);
 
-        $status=0;
-        if($request->status)  $status=(int)$request->status;
+        $beginDate=Carbon::today();
+        if($request->beginDate){
+            try {
+                $beginDate=new Carbon($request->beginDate);
+            }catch (Exception $e) {
+                $beginDate=Carbon::today();
+            }
+        }  
 
-        $payway=0;
-        if($request->payway)  $payway=(int)$request->payway;
+        $endDate=null;
+        if($request->endDate){
+            try {
+                $endDate=new Carbon($request->endDate);
+            }catch (Exception $e) {
+                $endDate=null;
+            }
+        }  
 
-        $selectedPayway=null;
-        if($payway)   $selectedPayway = Payway::find($payway);
-        
-       
-
-        $page=1;
-        if($request->page)  $page=(int)$request->page;
-
-        $pageSize=999;
-        if($request->pageSize)  $pageSize=(int)$request->pageSize;
+        $reviewed=true;
+        if($request->reviewed)  $reviewed=Helper::isTrue($request->reviewed);
 
        
         if($this->isAjaxRequest()){
-            return $this->fetchSignups($term, $center, $course, $keyword,  $status , $payway ,$page , $pageSize);
+            return $this->fetchLessons($term, $center, $course);
         }
 
         $termOptions = $this->terms->options();
@@ -115,67 +156,90 @@ class LessonsController extends Controller
 
         }
 
-        if (!$selectedCourse)
-        {
-            $course = 0;
-            if ($pageSize == 999) $pageSize = 10;
-        }
-        else
-        {
-            $pageSize = 999;
-        }
-
-        $signups = $this->signups->fetchSignups($selectedTerm, $selectedCenter, $selectedCourse);
+        $lessons = $this->lessons->fetchLessons($selectedTerm, $selectedCenter, $selectedCourse);
         
-        if($keyword){
-            $signups =$this->filterSignupsByKeyword($signups, $keyword);
-        }
-
-
-        $signups = $signups->where('status' , $status);
-        
-        if($selectedPayway){
-            $signups = $signups->whereHas('bill', function($q) use($selectedPayway){
-                $q->where('paywayId', $selectedPayway->id);
-            });
-        } 
-
-       
-       
-        $summary=$this->signups->getSignupSummary($selectedTerm, $selectedCenter, $selectedCourse);
-
-        $pageList =$this->getPageList($signups,$page,$pageSize);
-
+        $pageList =$this->getPageList($lessons);
 
         $courseOptions=$this->courses->options($selectedTerm,$selectedCenter,true);
 
-        $paywayOptions=$this->payways->paywayOptions();
-        array_unshift($paywayOptions, ['text' => '所有繳費方式' , 'value' =>'0']);
-
-        $counterPayways=$this->payways->counterPayways();
-        $counterPaywayOptions=$counterPayways->map(function ($payway) {
-            return $payway->toOption();
-        })->all();
-
-
         $model=[
-            'title' => '報名管理',
-            'menus' => $this->adminMenus('SignupsAdmin'),
+            'title' => '課堂紀錄',
+            'menus' => $this->adminMenus('CoursesAdmin'),
 
             'terms' => $termOptions,
             'centers' => $centerOptions,
-            'courses' => $courseOptions,                
-            'statuses' => $this->signups->statusOptions(),
-            
-            'payways' => $paywayOptions,
-            'counterPayways' => $counterPaywayOptions,
-
-            'summary' => $summary,
+            'courses' => $courseOptions,  
+           
             'list' => $pageList
         ];
 
-        return view('signups.index')->with($model);
+        return view('lessons.index')->with($model);
            
+    }
+
+    function getPageList($lessons)
+    {
+        $pageList = new PagedList($lessons);
+        //dd($pageList);
+       
+        foreach($pageList->viewList as $lesson){
+            $this->loadViewModel($lesson);
+        }  
+
+        return $pageList;
+    }
+
+    //Ajax
+    function fetchLessons(int $term = 0, int $center = 0, int $course = 0)
+    {
+       
+        $selectedCenter = null;
+        $selectedTerm = null;
+        $selectedCourse = null;
+
+        if ($course)
+        {
+        
+            $selectedCourse = $this->courses->getById($course);
+            
+            if (!$selectedCourse) abort(404);
+            else
+            {
+                $selectedCenter = $selectedCourse->center;
+                $selectedTerm = $selectedCourse->term;
+            }
+
+        }
+        else
+        {
+            if ($center)
+            {
+                $selectedCenter = $this->centers->getById($center);
+                if (!$selectedCenter) abort(404);
+            }
+
+
+            $selectedTerm =  $this->terms->getById($term);
+            if (!$selectedTerm) return abort(404);
+
+        }
+
+        $lessons = $this->lessons->fetchLessons($selectedTerm, $selectedCenter, $selectedCourse);
+        
+        $pageList =$this->getPageList($lessons);
+
+        
+
+        $courseOptions=$this->courses->options($selectedTerm,$selectedCenter,true);
+
+        $model=[
+            'courseOptions' => $courseOptions,
+            'model' => $pageList
+        ];
+
+        return response() ->json($model);
+
+        
     }
 
     public function store(Request $request)

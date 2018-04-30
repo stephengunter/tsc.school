@@ -1,7 +1,7 @@
 <template>
    <div class="date-input-group">
 		         
-        <flat-pickr v-model="selectedDate"  :config="config"  class="date-input"  >
+        <flat-pickr v-model="selectedDate"  :config="config"  class="date-input" :placeholder="placeholder" >
 		
 		</flat-pickr>
       
@@ -28,6 +28,10 @@ export default {
         can_clear:{
             type:Boolean,
 			default:false
+        },
+        placeholder:{
+            type:String,
+			default:'ssssssss'
         }
 	},
 	components: {

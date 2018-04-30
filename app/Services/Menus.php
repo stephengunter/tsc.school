@@ -67,6 +67,11 @@ class Menus
                         'text' => '學員管理',
                         'path' => '/manage/students',
                         'active' => $current=='manage/students'
+                    ],
+                    [
+                        'text' => '課堂紀錄',
+                        'path' => '/manage/lessons',
+                        'active' => $current=='manage/lessons'
                     ]
                 );
         } 

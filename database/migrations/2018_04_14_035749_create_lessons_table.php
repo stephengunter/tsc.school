@@ -27,6 +27,9 @@ class CreateLessonsTable extends Migration
             $table->string('title')->nullable();
             $table->text('content')->nullable();
             $table->text('materials')->nullable();
+
+            $table->boolean('reviewed')->default(false);
+            $table->integer('reviewedBy')->unsigned()->nullable();
             
             $table->string('ps')->nullable();
             $table->integer('updatedBy')->unsigned()->nullable();
