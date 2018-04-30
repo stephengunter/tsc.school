@@ -48,7 +48,7 @@ class Students
 
     public function createStudent($courseId, $userId)
     {
-        
+       
         $exist = $this->findStudent($courseId, $userId);
        
         if ($exist) abort(500);   //重複

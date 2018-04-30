@@ -28,6 +28,19 @@ class Volunteers
     {   
         return Volunteer::with($this->with)->find($id);
     }
+    public function getByIds(array $ids)
+    {   
+        return Volunteer::with($this->with)->whereIn('userId',$ids);
+    }
+    public function getBySIDs(array $sids)
+	{
+		$users=$this->users->getBySIDs($sids);
+		
+		$userIds=$users->pluck('id')->toArray();
+		
+		return $this->getByIds($userIds);
+       
+	}
 
     public function createVolunteer(User $user,Volunteer $volunteer)
     {

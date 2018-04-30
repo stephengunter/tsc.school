@@ -85,7 +85,8 @@
 
                 </div> 
                 <div class="col-sm-4">
-                    
+                    <label class="label-title">教育志工</label>
+                    <p v-text="course.volunteerNames"></p>
                 </div>    
             </div>  <!-- End Row -->
             <div class="row" >

@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests\TeacherRequest;
 
 use App\Teacher;
+use App\Wage;
 use App\User;
 use App\Profile;
+use App\Account;
 use App\Center;
 use App\Role;
 use App\Services\Teachers;
@@ -17,6 +19,7 @@ use App\Services\Users;
 use App\Services\Centers;
 use App\Services\Courses;
 use App\Services\Files;
+use App\Services\Wages;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -26,13 +29,14 @@ class TeachersController extends Controller
 {
     
     public function __construct(Teachers $teachers, TeacherGroups $teacherGroups ,Users $users,
-        Centers $centers ,Courses $courses,Files $files)
+        Centers $centers ,Courses $courses,Wages $wages,Files $files)
     {
         $this->teachers=$teachers;
         $this->teacherGroups=$teacherGroups;
         $this->users=$users;
         $this->centers=$centers;
         $this->courses=$courses;
+        $this->wages=$wages;
         $this->files=$files;
        
     }
@@ -41,12 +45,8 @@ class TeachersController extends Controller
     {
         if($this->currentUserIsDev()) return true;
         if(!count($teacher->centers)) return true;
-      
-        $centersCanAdmin= $this->centersCanAdmin();
-        $intersect = $centersCanAdmin->intersect($teacher->centers);
 
-        if(count($intersect)) return true;
-        return false;
+        return $this->canAdminCenters($teacher->centers);
 
     }
 
@@ -55,24 +55,13 @@ class TeachersController extends Controller
         if($this->currentUserIsDev()) return true;
         if(!$this->currentUser()->isBoss()) return false;
 
-        $centersCanAdmin= $this->centersCanAdmin();
-        $intersect = $centersCanAdmin->intersect($teacher->centers);
-
-        
-        if(count($intersect)) return true;
-        return false;
+        return $this->canAdminCenters($teacher->centers);
 
     }
     function canEditCenter(Center $center)
     {
-        if($this->currentUserIsDev()) return true;
-        
-      
-        $centersCanAdmin= $this->centersCanAdmin();
-        $intersect = $centersCanAdmin->intersect([$center]);
-
-        if(count($intersect)) return true;
-        return false;
+       
+        return $this->canAdminCenter($center);
 
     }
     function canReviewCenter(Center $center)
@@ -82,11 +71,7 @@ class TeachersController extends Controller
         if($this->currentUserIsDev()) return true;
         if(!$this->currentUser()->isBoss()) return false;
 
-        $centersCanAdmin= $this->centersCanAdmin();
-        $intersect = $centersCanAdmin->intersect([$center]);
-
-        if(count($intersect)) return true;
-        return false;
+        return $this->canAdminCenter($center);
     }
 
     function canDelete($teacher)
@@ -117,19 +102,6 @@ class TeachersController extends Controller
     
     }
 
-    function loadWage($teacher)
-    {
-        $wage = $teacher->getWage();
-        if($wage){
-            $teacher->wage=$wage->money;
-            $teacher->account=$wage->account;
-        }else{
-            $teacher->wage=0;
-            $teacher->account='';
-        }
-        
-    }
- 
    
     public function index()
     {
@@ -270,13 +242,16 @@ class TeachersController extends Controller
         {
             array_push($centerIds,$centerOptions[0]['value']);
         }
+
+        $wageOptions=$this->wages->options();
+        $teacher['wageId'] = $wageOptions[0]['value'];
       
         $form=[
             'teacher' => $teacher,
             'user' => $user,
             'centerOptions' => $centerOptions,
-            'centerIds' => $centerIds
-
+            'centerIds' => $centerIds,
+            'wageOptions' => $this->wages->options(),
         ];
 
         return response() ->json($form);
@@ -294,11 +269,17 @@ class TeachersController extends Controller
 
 
         }else{
-            $wage=0;
-            if($values['wage']) $wage=floatval($values['wage']);
-            if(!$wage) 	$errors['teacher.wage'] = ['必須填寫鐘點費'];
+           
+            $wageId=$values['wageId'];
+            $wage=Wage::find($wageId);
+            if($wage->isSpecial()){
+               
+                $pay = floatval($values['pay']);
+                
+                if(!$pay) 	$errors['teacher.pay'] = ['必須填寫特殊講師鐘點費'];
+            }
 
-            if(!$values['account']) 	$errors['teacher.account'] = ['必須填寫銀行帳號'];
+            if(!$values['accountNumber']) 	$errors['teacher.accountNumber'] = ['必須填寫銀行帳號'];
 
         }
 
@@ -350,22 +331,21 @@ class TeachersController extends Controller
          
         }
 
-        $wageValues=[
-            'account' => $teacherValues['account'],
-            'money' => $teacherValues['wage'],
+        $accountValues=[
+            'number' => $teacherValues['accountNumber'],
             'updatedBy' => $updatedBy,
         ];
 
         $teacher=Teacher::find($userId);
         if($teacher){
-            $teacher->update($teacherValues);
+            $this->teachers->updateTeacher($teacher,$teacherValues);
+           
             $teacher->addRole();
 
-            $wage=$teacher->getWage();
-            if($wage) $wage->update($wageValues);
+            $teacher->setAccount($accountValues);
 
         }else{
-            $teacher=$this->teachers->createTeacher($user,new Teacher($teacherValues), $wageValues);
+            $teacher=$this->teachers->createTeacher($user,new Teacher($teacherValues), new Account($accountValues));
             $teacher->userId=$userId;
         }
 
@@ -393,7 +373,7 @@ class TeachersController extends Controller
 
         $teacher->courses = $courses;
 
-        $this->loadWage($teacher);
+        
 
         $teacher->user->loadContactInfo();
      
@@ -410,7 +390,9 @@ class TeachersController extends Controller
         $teacher = Teacher::findOrFail($id);        
         if(!$this->canEdit($teacher)) $this->unauthorized();
 
-        $this->loadWage($teacher);
+        $teacher->accountNumber = '';
+        $account =$teacher->getAccount();
+        if($account)  $teacher->accountNumber = $account->number;
        
         $centerIds=$teacher->centers->pluck('id')->toArray();
 
@@ -424,7 +406,9 @@ class TeachersController extends Controller
             'teacher' => $teacher,
          
             'centerOptions' => $centerOptions,
-            'centerIds' => $centerIds
+            'centerIds' => $centerIds,
+
+            'wageOptions' => $this->wages->options(),
 
         ];
 
@@ -453,15 +437,14 @@ class TeachersController extends Controller
         $current_user=$this->currentUser();
         $values['updatedBy'] = $current_user->id;
 
-        $teacher->update($values);
+        $this->teachers->updateTeacher($teacher,$values);
 
-        $wageValues=[
-            'account' => $values['account'],
-            'money' => $values['wage'],
+        $accountValues=[
+            'number' => $values['accountNumber'],
             'updatedBy' =>  $current_user->id
         ];
 
-        $teacher->setWage($wageValues);
+        $teacher->setAccount($accountValues);
      
         $centerIds=$request->getCenterIds();
         if(!count($centerIds)){

@@ -17,7 +17,9 @@ class CreateTeachersTable extends Migration
             $table->integer('userId')->unsigned();
 			$table->primary('userId');
 			$table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
-			
+            
+            $table->integer('wageId')->unsigned(); 
+            $table->decimal('pay', 8, 2)->nullable(); 
 			
 			$table->text('experiences')->nullable();
 			$table->string('education')->nullable();
@@ -33,7 +35,7 @@ class CreateTeachersTable extends Migration
             $table->boolean('reviewed')->default(false);
             $table->integer('reviewedBy')->unsigned()->nullable();
 			
-			$table->date('joinDate')->nullable();
+            $table->date('joinDate')->nullable();
             $table->string('ps')->nullable();
 			$table->integer('updatedBy')->unsigned()->nullable();
 			

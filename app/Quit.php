@@ -13,7 +13,7 @@ class Quit extends Model
     protected $primaryKey = 'signupId';
 
     protected $fillable = [
-		'date', 'tuitions', 'fee',
+		'date', 'tuitions', 'fee', 'auto',
 		'paywayId' , 'account' , 'status',
 		'reviewed' , 'reviewedBy' ,
         'ps', 'updatedBy'
@@ -28,7 +28,7 @@ class Quit extends Model
 			'date' =>Carbon::today()->toDateString(),
 			'fee' => 0,
 			'tuitions' => 0,
-
+			
 			'paywayId' => 0,
 			'status' => 0,
 			'account' => '',

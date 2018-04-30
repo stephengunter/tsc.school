@@ -3,11 +3,13 @@
 Auth::routes();
 
 Route::get('/test', function () {
-   $course = \App\Course::first();
-   dd($course->canSignup());
    
-
+    
 });
+
+Route::get('/test', 'LessonsController@test');
+
+
 
 //client routes
 Route::get('/', '\App\Http\Controllers\Client\HomeController@index')->name('home');
@@ -88,6 +90,10 @@ Route::group(['middleware' => 'admin'], function()
     
     Route::resource('/manage/users', 'UsersController');
     Route::post('/manage/users/find', 'UsersController@find');
+
+    Route::resource('/manage/accounts', 'AccountsController');
+
+    Route::resource('/manage/photoes', 'PhotoesController');
 
     Route::resource('/manage/contactInfoes', 'ContactInfoesController');
 

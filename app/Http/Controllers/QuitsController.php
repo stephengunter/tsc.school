@@ -328,6 +328,7 @@ class QuitsController extends Controller
         if(!$this->canQuits($signup)) return $this->unauthorized();
 
         $quitValues['updatedBy']=$updatedBy;
+        $quitValues['auto']=false;
         $quit=new Quit($quitValues);
 
         $quit=$this->quits->createQuit($signup, $quit,$quitDetails);

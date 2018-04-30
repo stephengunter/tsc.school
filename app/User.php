@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Profile;
 use App\Role;
+use App\Account;
 use App\Identity;
 
 class User extends Authenticatable
@@ -55,9 +56,9 @@ class User extends Authenticatable
 		return $this->hasMany('App\ContactInfo','userId');
     }
 
-    public function wages() 
+    public function accounts() 
 	{
-		return $this->hasMany('App\Wage','userId');
+		return $this->hasMany('App\Account','userId');
     }
     
     public function admin() 
@@ -133,6 +134,16 @@ class User extends Authenticatable
 		$this->contactInfo=$this->getContactInfo();
 		if($this->contactInfo)  $this->contactInfo->address->fullText();
     }
+
+    public function getAccount()
+	{
+		return $this->accounts->first();
+    }
+    public function setAccount(Account $account)
+	{
+        $this->accounts()->delete();
+        $this->accounts()->save($account);
+	}
     
     public function addRole(string $roleName)
 	{

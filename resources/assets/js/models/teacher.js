@@ -181,6 +181,13 @@ class Teacher {
         })
     }
 
+    static accountNumber(teacher){
+        if(teacher.user.accounts){
+            return teacher.user.accounts[0].number;
+        }
+        return '';
+    }
+
     
 
     static groupOptions() {

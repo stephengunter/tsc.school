@@ -425,13 +425,15 @@ class CoursesController extends Controller
         $center=$course->center;
        
         $teacherOptions = array_merge($this->teachers->options($center), $this->teacherGroups->options($center));
-        
+        $volunteerOptions = $this->volunteers->options();
        
       
         $form=[
             'course' => $course,
             'teacherIds' =>$teacherIds,
+            'volunteerIds' =>$volunteerIds,
             'teacherOptions' => $teacherOptions,
+            'volunteerOptions' => $volunteerOptions,
             'termOptions' => $this->terms->options(),
             'centerOptions' => $centerOptions,
             'categoryOptions' => $categoryOptions

@@ -24,6 +24,8 @@ Vue.component('review-editor', require('./components/review-editor'));
 Vue.component('ps-editor', require('./components/ps-editor'));
 Vue.component('searcher', require('./components/searcher'));
 Vue.component('user-selector', require('./components/user/selector'));
+Vue.component('photo', require('./components/photo'));
+Vue.component('image-upload', require('./components/image-upload'));
 
 Vue.component('login-view', require('./views/login'));
 Vue.component('change-password-view', require('./views/auth/change-password'));

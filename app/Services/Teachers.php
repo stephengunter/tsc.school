@@ -7,19 +7,22 @@ use App\Profile;
 use App\Center;
 use App\Teacher;
 use App\Wage;
+use App\Account;
 use App\ContactInfo;
 use App\Address;
 use App\District;
 use App\Services\Users;
+use App\Services\Wages;
 use DB;
 use Excel;
 
 class Teachers 
 {
-    public function __construct(Users $users)
+    public function __construct(Users $users, Wages $wages)
     {
         $this->users=$users;
-        $this->with=['user.roles','user.profile','user.contactInfoes.address.district.city'];
+        $this->wages=$wages;
+        $this->with=['wage', 'user.accounts' ,'user.roles','user.profile','user.contactInfoes.address.district.city'];
     }
     public function getAll()
     {
@@ -50,15 +53,21 @@ class Teachers
        
 	}
 
-    public function createTeacher(User $user,Teacher $teacher,Array $wageValues)
+    public function createTeacher(User $user,Teacher $teacher,Account $account)
     {
         $user->teacher()->save($teacher);
-
-        $wage=$user->wages->first();
-        if($wage) $wage->update($wageValues);
-        else $user->wages()->save(new Wage($wageValues));
-
+        $user->setAccount($account);
+       
         return $teacher;
+        
+    }
+
+    public function updateTeacher(Teacher $teacher,array $values)
+    {
+        $wage=Wage::find($values['wageId']);
+        if(!$wage->isSpecial())   $values['pay'] = 0;
+      
+        $teacher->update($values);
         
     }
 
@@ -206,21 +215,24 @@ class Teachers
                 continue;
             }
 
-            $wage=trim($row['wage']);
-            if(!$wage){
-                $err_msg .= '鐘點費不可空白' . ',';
+            $wage=null;
+            $wageName=trim($row['wage']);
+            $pay=trim($row['pay']);
+
+            if(!$wageName){
+                $err_msg .= '薪酬標準不可空白' . ',';
                 continue;
             }else{
-                $wage=floatval($wage);
+                $wage=$this->wages->getByName($wageName);
                 if(!$wage){
-                    $err_msg .= '鐘點費錯誤' . ',';
+                    $err_msg .= '薪酬標準錯誤' . ',';
                     continue;
-                } 
+                }
             }
 
-            $account=trim($row['account']);
-            if(!$account){
-                $err_msg .= '帳號不可空白' . ',';
+            $accountNumber=trim($row['account']);
+            if(!$accountNumber){
+                $err_msg .= '銀行帳號不可空白' . ',';
                 continue;
             }
 
@@ -264,7 +276,9 @@ class Teachers
               
             ];   
 
+            
             $teacherValues=[
+                'wageId' => $wage->id,
                 'education' => $education,
                 'specialty' => $specialty,
                 'description' => $description,
@@ -274,11 +288,23 @@ class Teachers
                 'removed' => false
             ];
 
-            $wageValues=[
-                'money' => $wage,
-                'account' => $account,
+            if($wage->isSpecial()){
+                $pay=floatval($pay);
+               
+                if(!$pay){
+                    $err_msg .= '特殊講師鐘點費' . ',';
+                    continue;
+                }else{
+                    $teacherValues['pay'] = $pay;
+                } 
+                
+            }
+
+
+            $account=new Account([
+                'number' => $accountNumber,
                 'updatedBy' => $updatedBy,
-            ];
+            ]);
 
             $user= $this->users->findUser($email, $phone);
 
@@ -316,7 +342,7 @@ class Teachers
     
             $teacher = new Teacher($teacherValues);
 
-            $teacher=$this->createTeacher($user,$teacher,$wageValues);
+            $teacher=$this->createTeacher($user,$teacher,$account);
      
             $teacher->userId=$user->id;
             $teacher->centers()->sync($centerIds);

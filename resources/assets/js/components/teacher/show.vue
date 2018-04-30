@@ -87,12 +87,16 @@
         </div>   <!-- End row-->
         <div class="row">
             <div class="col-sm-4">
-                <label class="label-title">鐘點費</label>
-                <p>{{ teacher.wage | formatMoney }}</p>           
+                <label class="label-title">薪酬標準</label>
+                <p>{{ teacher.wage.name }}</p>           
+            </div>
+            <div class="col-sm-4" v-if="specialPay(teacher)">
+                <label class="label-title">特殊講師鐘點費</label>
+                <p>{{ teacher.pay | formatMoney }}</p>           
             </div>
             <div class="col-sm-4">
                 <label class="label-title">銀行帳號</label> 
-                 <p>{{ teacher.account  }}</p>        
+                 <p v-text="accountNumber(teacher)"></p>        
             </div>
         </div>  
         <div class="row">
@@ -148,6 +152,13 @@
             }
         }, 
         methods: { 
+            specialPay(teacher){
+                let pay=Number(teacher.pay);
+                return pay > 0;
+            },
+            accountNumber(teacher){
+                return Teacher.accountNumber(teacher);
+            },
             centerNames(teacher){
               
                 if(teacher.centerNames) return teacher.centerNames;

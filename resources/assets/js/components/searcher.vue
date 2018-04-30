@@ -1,6 +1,6 @@
 <template>
     <form @submit.prevent="onSubmit" class="input-group">
-        <input class="form-control" v-model="keyword" >
+        <input :placeholder="text" class="form-control" v-model="keyword" >
         <div class="input-group-btn">
             <button type="submit" class="btn btn-default">
                 <i class="fa fa-search" aria-hidden="true"></i>
@@ -12,6 +12,12 @@
 <script>
 export default {
     name:'Searcher',
+    props: {
+        text: {
+            type: String,
+            default: ''
+        },
+    },
     data(){
         return {
             keyword:'',

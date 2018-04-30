@@ -6,6 +6,7 @@ use App\Role;
 use App\Category;
 use App\TeacherGroup;
 use App\Teacher;
+use App\CoursesTeachers;
 use App\Profile;
 use App\Term;
 use App\Center;
@@ -16,6 +17,7 @@ use App\Address;
 use App\District;
 use App\Services\Users;
 use App\Services\Teachers;
+use App\Services\Volunteers;
 use DB;
 use Excel;
 use App\Core\Helper;
@@ -24,10 +26,11 @@ use App\Events\CourseShutDown;
 
 class Courses 
 {
-    public function __construct(Users $users, Teachers $teachers)
+    public function __construct(Users $users, Teachers $teachers, Volunteers $volunteers)
     {
         $this->users=$users;
         $this->teachers=$teachers;
+        $this->volunteers=$volunteers;
       
         $this->with=['teacherGroup','term','center','classTimes.weekday'];
     }
@@ -188,8 +191,11 @@ class Courses
     {
         $byNames=Course::where('name', 'LIKE', '%' .$keyword .'%')->pluck('id')->toArray();
         $byNumbers=Course::where('number', 'LIKE', '%' .$keyword .'%')->pluck('id')->toArray();
+
+        $byTeacherUserIds=Profile::where('fullname', 'LIKE', '%' .$keyword .'%')->pluck('userId')->toArray();
+        $byTeachers = CoursesTeachers::whereIn('teacher_id',$byTeacherUserIds)->get()->pluck('course_id')->toArray();
        
-        $courseIds=array_unique(array_merge($byNames,$byNumbers));
+        $courseIds=array_unique(array_merge($byNames,$byNumbers,$byTeachers));
 
         return $this->getAll($includStudents)->whereIn('id' , $courseIds );
        
@@ -220,7 +226,7 @@ class Courses
         $err_msg='';
 
         $excel=Excel::load($file, function($reader) {             
-            $reader->limitColumns(16);
+            $reader->limitColumns(20);
             $reader->limitRows(100);
         })->get();
 
@@ -228,7 +234,6 @@ class Courses
        
         for($i = 1; $i < count($courseList); ++$i) {
             $row=$courseList[$i];
-
            
             $number=trim($row['number']);
             $name=trim($row['name']);
@@ -240,7 +245,7 @@ class Courses
             $categoryId=(int)trim($row['categories']);
             $teacherSIDs= trim($row['teachers']);  
             $teacherGroupId= trim($row['group']);
-
+          
             $volunteerSIDs= trim($row['volunteers']);
 
             $begin_date=trim($row['begin_date']);

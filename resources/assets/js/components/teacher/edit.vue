@@ -2,9 +2,11 @@
 <div>
     <form v-if="form" :class="formStyle" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
         
-		<teacher-inputs v-if="id" :group="group"  :form="form" :centers="centerOptions">
+		<teacher-inputs v-if="id" :group="group"  :form="form" :centers="centerOptions"
+		   :wages="wageOptions">
 		</teacher-inputs>
-		<teacher-create-inputs  v-else :form="form" :group="group" :centers="centerOptions">
+		<teacher-create-inputs  v-else :form="form" :group="group" :centers="centerOptions"
+		 :wages="wageOptions">
 		</teacher-create-inputs> 
 		
 		
@@ -62,7 +64,8 @@ export default {
 	data(){
 		return {
 
-            centerOptions:[],
+			centerOptions:[],
+			wageOptions:[],
 
             form:null,
             
@@ -146,7 +149,9 @@ export default {
 					
 					this.form.teacher.experiences=Helper.replaceAll(this.form.teacher.experiences,'<br>' , '\n')
 					
-					this.form.teacher.wage=Helper.formatMoney(this.form.teacher.wage);
+					this.wageOptions=model.wageOptions.slice(0);
+					
+					this.form.teacher.pay=Helper.formatMoney(this.form.teacher.pay);
 					
 				}
 

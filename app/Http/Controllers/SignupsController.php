@@ -83,8 +83,15 @@ class SignupsController extends Controller
         return $this->canAdminCenter($center);
     }
 
+    function filterSignupsByKeyword($signups, $keyword)
+    {
+        $userIds=$this->users->getByKeyword($keyword)->pluck('id')->toArray();
+        return $signups->whereIn('userId',$userIds);
+    }
+
     public function seed()
     {
+      
         if(!$this->currentUserIsDev()) dd('權限不足');
 
         $users=User::all();
@@ -92,6 +99,7 @@ class SignupsController extends Controller
         $active = true;
         $term=\App\Term::where('active',true)->first();
         $center=\App\Center::where('head',true)->first();
+        
         $courses= $this->courses->fetchCourses($term->id,$center)->get();
 
         $updatedBy=$this->currentUserId();
@@ -120,6 +128,8 @@ class SignupsController extends Controller
 
             }
 
+            
+
             $identities = $this->discounts->getIdentitiesOptions($center);
             $identity = array_random($identities, 1)[0];
             $identityIds=[$identity['value']];
@@ -128,6 +138,7 @@ class SignupsController extends Controller
     
             foreach ($selectedCourses as $selectedCourse)
             {
+               
                 $detail = new SignupDetail([
                     'courseId' => $selectedCourse->id,
                     'tuition' => $selectedCourse->tuition,
@@ -143,10 +154,13 @@ class SignupsController extends Controller
 
             $signup=new Signup(['userId' => $user->id , 'net'=> $net , 'updatedBy' => $updatedBy ]);
 
+           
             $this->setSignupMoney($signup, $signupDetails ,collect($selectedCourses), $identityIds, $lotus);
 
             
             $signup=$this->signups->createSignup($signup,$signupDetails);
+
+         
 
 
         }//end for
@@ -171,6 +185,9 @@ class SignupsController extends Controller
         $course=0;
         if($request->course)  $course=(int)$request->course;
 
+        $keyword='';
+        if($request->keyword)  $keyword=$request->keyword;
+
         $status=0;
         if($request->status)  $status=(int)$request->status;
 
@@ -190,7 +207,7 @@ class SignupsController extends Controller
 
        
         if($this->isAjaxRequest()){
-            return $this->fetchSignups($term, $center, $course,  $status , $payway ,$page , $pageSize);
+            return $this->fetchSignups($term, $center, $course, $keyword,  $status , $payway ,$page , $pageSize);
         }
 
         $termOptions = $this->terms->options();
@@ -244,6 +261,12 @@ class SignupsController extends Controller
         }
 
         $signups = $this->signups->fetchSignups($selectedTerm, $selectedCenter, $selectedCourse);
+        
+        if($keyword){
+            $signups =$this->filterSignupsByKeyword($signups, $keyword);
+        }
+
+
         $signups = $signups->where('status' , $status);
         
         if($selectedPayway){
@@ -302,7 +325,7 @@ class SignupsController extends Controller
     }
 
     //Ajax
-    function fetchSignups(int $term = 0, int $center = 0, int $course = 0, int $status = 0,int $payway = 0, int $page=1 ,int $pageSize=999)
+    function fetchSignups(int $term = 0, int $center = 0, int $course = 0, string $keyword='',int $status = 0,int $payway = 0, int $page=1 ,int $pageSize=999)
     {
        
         $selectedCenter = null;
@@ -347,6 +370,12 @@ class SignupsController extends Controller
         }
 
         $signups = $this->signups->fetchSignups($selectedTerm, $selectedCenter, $selectedCourse);
+
+        if($keyword){
+            $signups =$this->filterSignupsByKeyword($signups, $keyword);
+        }
+
+
         $signups = $signups->where('status' , $status);
 
         $selectedPayway=null;
@@ -493,6 +522,7 @@ class SignupsController extends Controller
 
     function setSignupMoney(Signup $signup, array $signupDetails ,$courses, $identityIds, $lotus)
     {
+        
         $terms= $courses->pluck('termId')->all();
         //課程必須在同一學期
         if(count(array_unique($terms)) > 1) abort(500);
@@ -536,6 +566,8 @@ class SignupsController extends Controller
         foreach($signupDetails as $signupDetail) {
             $tuitions += $signupDetail['tuition'];
         }
+
+       
         
         $signup->tuitions = $tuitions * $signup->points / 100;
         $signup->costs = 0;

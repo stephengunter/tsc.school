@@ -28,8 +28,10 @@ class CreateStudentsBySignup
      */
     public function handle(SignupPayed $event)
     {
-       
+        
         $signup=$event->signup;
+
+       
       
         foreach($signup->details as $detail){
            

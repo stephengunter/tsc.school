@@ -21,10 +21,16 @@ class UsersController extends Controller
         $this->users=$users;
     }
 
-    function canEdit($user)
+    function canEdit(User $user)
     {
         if($this->currentUserIsDev()) return true;
-        return false;
+
+        if($user->teacher){
+            if(!count($user->teacher->centers)) return true;
+
+            return $this->canAdminCenters($user->teacher->centers);
+        }
+        return true;
     }
 
     function canDelete($user)
@@ -125,7 +131,7 @@ class UsersController extends Controller
     public function update(UserRequest $request, $id)
     {
         $user = User::findOrFail($id);
-        if(!$this->canEdit($user)) $this->unauthorized();
+        if(!$this->canEdit($user)) return $this->unauthorized();
 
         
 

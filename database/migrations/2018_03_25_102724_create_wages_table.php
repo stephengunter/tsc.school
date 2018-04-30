@@ -11,14 +11,21 @@ class CreateWagesTable extends Migration
     {
         Schema::create('wages', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('userId')->unsigned();
 
-            $table->string('bank')->nullable();
-            $table->string('branch')->nullable();
-            $table->string('owner')->nullable();
-            $table->string('account');
-            $table->decimal('money', 8, 2); 
+            $table->string('name');
+            $table->string('code')->nullable();
             
+            $table->decimal('small_day', 8, 2)->nullable(); 
+            $table->decimal('small_night', 8, 2)->nullable();
+            $table->decimal('small_holiday', 8, 2)->nullable();
+
+            $table->decimal('big_day', 8, 2)->nullable();
+            $table->decimal('big_night', 8, 2)->nullable(); 
+            $table->decimal('big_holiday', 8, 2)->nullable(); 
+
+            $table->decimal('lecture', 8, 2)->nullable(); 
+
+            $table->boolean('removed')->default(false);
             $table->integer('updatedBy')->unsigned()->nullable();
             $table->timestamps();
         });

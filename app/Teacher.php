@@ -11,7 +11,7 @@ class Teacher extends Model
     protected $fillable = [ 
         'experiences','education','certificate','specialty',
         'job','jobtitle','description','reviewed','reviewedBy',
-       
+        'wageId' , 'pay' , 
         'active', 'removed', 'updatedBy', 'joinDate','ps'
     
     ];
@@ -39,8 +39,7 @@ class Teacher extends Model
 
             'ps' => '',
             
-            'wage' => 0,
-            'account' => ''
+            'accountNumber' => '',
 
 		];
     }  
@@ -55,6 +54,12 @@ class Teacher extends Model
     {
         return $this->belongsTo('App\User','userId');
     }
+
+    public function wage() 
+	{
+        return $this->hasOne('App\Wage', 'id' ,'wageId');
+    }
+
 
     public function centers()
     {
@@ -91,17 +96,17 @@ class Teacher extends Model
         return $this->jobtitle;
     }
 
-    public function getWage()
+    public function getAccount()
     {
-        $wage= $this->user->wages->first();
-        return $wage;
+        $account= $this->user->accounts->first();
+        return $account;
     }
 
-    public function setWage($values)
+    public function setAccount($values)
     { 
-        $wage= $this->getWage();
-        if($wage) $wage->update($values);
-        else $this->user->wages()->save(new Wage($values));
+        $account= $this->getAccount();
+        if($account) $account->update($values);
+        else $this->user->accounts()->save(new Account($values));
 
         
     }

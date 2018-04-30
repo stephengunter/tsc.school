@@ -71,7 +71,7 @@ class Quits
 
     public function createQuitsByCourse(Course $course, $percents)
     {
-        //為每個學生產生全額退費
+        //為每個學生產生退費
         $studentsInCourse=Student::where('courseId',$course->id);
         $studntUserIds= $studentsInCourse->pluck('userId')->toArray();
         
@@ -98,6 +98,7 @@ class Quits
                 'tuitions' => $tuition,
                 'fee' => 0, // 手續費
                 'paywayId' => $payway->id,
+                'auto' => true,  
                 'ps' =>  $date . '課程停開'
             ]);
 

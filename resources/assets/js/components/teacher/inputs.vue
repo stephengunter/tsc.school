@@ -113,16 +113,25 @@
     <div class="row">
         <div class="col-sm-4">
             <div class="form-group">                           
-                <label>鐘點費</label>
-                <input type="text" name="teacher.wage" class="form-control" v-model="form.teacher.wage"  >
-                <small class="text-danger" v-if="form.errors.has('teacher.wage')" v-text="form.errors.get('teacher.wage')"></small>
+                <label>薪酬標準</label>
+                <drop-down :items="wages" :selected="form.teacher.wageId"
+                    @selected="onWageSelected">
+                </drop-down>
+                
+            </div>
+        </div>
+        <div class="col-sm-4" v-if="isSpecialPay">
+            <div class="form-group">                           
+                <label>特殊講師鐘點費</label>
+                <input type="text" name="teacher.pay" class="form-control" v-model="form.teacher.pay"  >
+                <small class="text-danger" v-if="form.errors.has('teacher.pay')" v-text="form.errors.get('teacher.pay')"></small>
             </div>
         </div>
         <div class="col-sm-4">
             <div class="form-group">                           
                 <label>銀行帳號</label>
-                <input type="text" name="teacher.account" class="form-control" v-model="form.teacher.account"  >
-                <small class="text-danger" v-if="form.errors.has('teacher.account')" v-text="form.errors.get('teacher.account')"></small>
+                <input type="text" name="teacher.accountNumber" class="form-control" v-model="form.teacher.accountNumber"  >
+                <small class="text-danger" v-if="form.errors.has('teacher.accountNumber')" v-text="form.errors.get('teacher.accountNumber')"></small>
             </div>
         </div>
         <div class="col-sm-4">
@@ -158,12 +167,16 @@
             centers:{
                 type: Array,
                 default: null
+            },
+            wages:{
+                type: Array,
+                default: null
             }
         },
         data() {
             return {
                 activeOptions:Helper.activeOptions(),
-               
+                isSpecialPay:false
             }
         },
         computed:{
@@ -181,7 +194,13 @@
         },
         methods: {
             init() {
-                
+                if(!this.group){
+                    let wage=this.wages.find(item=>{
+                        return item.value==this.form.teacher.wageId;
+                    });
+
+                    this.isSpecialPay=Wage.isSpecial(wage);
+                }
             },
             onCenterSelected(center){
                
@@ -190,6 +209,12 @@
             onCentersChanged(values){
                 this.form.centerIds=values.slice(0);
                 if(values.length)  this.form.errors.clear('centerIds');
+            },
+            onWageSelected(item){
+                this.form.teacher.wageId=item.value;
+               
+                this.isSpecialPay= Wage.isSpecial(item);
+                
             },
             setActive(val){
                 this.form.teacher.active=val;

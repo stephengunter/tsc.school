@@ -36,7 +36,11 @@
                     <a @click.prevent="activeIndex=1" href="#" >聯絡資訊</a>
                 </li>
                 <li :class="{ active: activeIndex==2 }" class="label-title">
-                    <a @click.prevent="activeIndex=2" href="#" >開課紀錄</a>
+                    <a @click.prevent="activeIndex=2" href="#" >銀行帳戶</a>
+                </li>
+
+                <li :class="{ active: activeIndex==3 }" class="label-title">
+                    <a @click.prevent="activeIndex=3" href="#" >開課紀錄</a>
                 </li>
             </ul>
        
@@ -54,7 +58,12 @@
                         @created="reloadTeacher" @deleted="reloadTeacher" >             
                     </contact-info> 
 
-                    <courses v-if="activeIndex==2" :model="teacher"></courses>
+                    <bank-account v-if="activeIndex==2" :account="getBankAccount()"
+                     @saved="reloadTeacher">
+
+                    </bank-account>
+
+                    <courses v-if="activeIndex==3" :model="teacher"></courses>
                 </div>
                           
             </div>
@@ -72,6 +81,7 @@
     import TeacherCourses from '../../components/teacher/courses.vue';
     import UserComponent from '../../components/user/view.vue';
     import ContactInfoComponent from '../../components/contactInfo/view.vue';
+    import AccountComponent from '../../components/account/view.vue';
     import GroupTeacherComponent from '../../components/teacher/group-view.vue';
     export default {
         name: 'TeacherDetails',
@@ -80,6 +90,7 @@
             'courses':TeacherCourses,
             'user':UserComponent,
             'contact-info':ContactInfoComponent,
+            'bank-account':AccountComponent,
             'group-view':GroupTeacherComponent,
         },
         props: {
@@ -169,6 +180,14 @@
                 
                 this.teacher=null;
                 this.$refs.teacherView.init();
+            },
+            getBankAccount(){
+                if(!this.teacher) return null;
+                if(!this.teacher.user) return null;
+                if(!this.teacher.user.accounts) return null;
+
+                 return this.teacher.user.accounts[0];
+                
             },
             onTeacherSaved(teacher){  
                 this.teacher=teacher   

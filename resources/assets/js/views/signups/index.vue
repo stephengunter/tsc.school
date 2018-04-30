@@ -34,14 +34,15 @@
                 </div>
                 
             </div>
-            <div v-if="false" class="col-sm-3" style="margin-top: 3px;"> 
-               
+            <div class="col-sm-2"  style="margin-top: 20px;"> 
+                <searcher text="姓名" @search="onSearch">
+                </searcher>
             </div>
-            <div class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
+            <div class="col-sm-1 pull-right" style="margin-top: 20px;">
+                
                 <a v-show="hasCourse" @click.prevent="onCreate" href="#" class="btn btn-primary">
                     <i class="fa fa-plus-circle"></i> 新增
                 </a>
-                
             </div>
         </div>
             
@@ -143,6 +144,7 @@
                     center:'0',
                     course:'0',
                     status:'0',
+                    keyword:'',
                     payway:'0',
                     
                     page:1,
@@ -191,6 +193,11 @@
                 if(this.model) return this.model.viewList;
                 return [];
             },
+            onSearch(keyword){
+               
+				this.params.keyword=keyword;
+				this.fetchData();
+			},
             onCreate(){
                 this.$emit('create',this.params.course);
             },

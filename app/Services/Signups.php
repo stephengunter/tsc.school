@@ -47,9 +47,12 @@ class Signups
         
     public function createSignup(Signup $signup, array $details)
     {
+       
         if(!$signup->tuitions)   abort(500, '報名表課程費用錯誤');
         $signup->status=0;
         $bill=$this->bills->initBill($signup);
+
+       
       
         $signup=DB::transaction(function() use($signup,$details,$bill) {
             $signup->save();

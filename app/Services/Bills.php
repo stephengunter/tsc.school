@@ -71,7 +71,9 @@ class Bills
     public function payBill(Payway $payway, $code, $amount)
     {
         $bill = $this->getBillByCode($code);
+      
         if ($bill->amount != $amount) abort(500);
+        
 
         $bill->payed=true;
         $bill->payDate=Carbon::now();
@@ -97,7 +99,9 @@ class Bills
     {
         
         $bill = $this->getById($id);
+       
         if ($bill->amount != $amount) abort(500);
+       
 
         $bill->payed=true;
         $bill->payDate=Carbon::now();
@@ -121,6 +125,7 @@ class Bills
 
     public function initBill(Signup $signup)
     {
+        
         $date = Carbon::today();
         $amount=$signup->amount();
       
