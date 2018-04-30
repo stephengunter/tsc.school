@@ -3,7 +3,7 @@
             <div class="imageupload panel panel-default">
                 
                 <div class="file-tab panel-body">
-                    <form  v-if="!hasImage" method="post" enctype="multipart/form-data" action="" >
+                    <form id="form-upload"  v-if="!hasImage" method="post" enctype="multipart/form-data" action="" >
   
                         <label class="btn btn-info btn-file">
                             <span>選擇檔案</span>
@@ -94,7 +94,8 @@
             },
             submitImage() {
                 this.submitting = true
-                let form = new FormData();
+                var form = new FormData(document.querySelector('form-upload'));
+                
                 form.append('width',this.width);
                 form.append('height',this.height);
                 form.append('type',this.type);
