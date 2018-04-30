@@ -19,19 +19,19 @@ class Photoes
     {
         //尺寸不變
         if(!$width && !$height){
-            Image::make($file)->save($path);
+            Image::make($file->getRealPath())->save($path);
         }
 
          //鎖定寬度
         if($width && !$height){
-            Image::make($file)->resize($width, null, function ($constraint) {
+            Image::make($file->getRealPath())->resize($width, null, function ($constraint) {
                     $constraint->aspectRatio();
-            })-> save($path);
+            })->save($path);
             
         }
         //鎖定高度
         if(!$width && $height){
-            Image::make($file)->resize(null, $height, function ($constraint) {
+            Image::make($file->getRealPath())->resize(null, $height, function ($constraint) {
                     $constraint->aspectRatio();
             })-> save($path);
             
@@ -39,7 +39,7 @@ class Photoes
 
         //鎖定寬度與高度
         if($width && $height){
-            Image::make($file)->resize($width, $height, function ($constraint) {
+            Image::make($file->getRealPath())->resize($width, $height, function ($constraint) {
                     $constraint->aspectRatio();
             })-> save($path);
         }
