@@ -70606,7 +70606,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var _this = this;
 
             this.submitting = true;
-            var form = new FormData();
+            var form = new FormData(document.querySelector('form-upload'));
+
             form.append('width', this.width);
             form.append('height', this.height);
             form.append('type', this.type);
@@ -70649,6 +70650,7 @@ var render = function() {
               "form",
               {
                 attrs: {
+                  id: "form-upload",
                   method: "post",
                   enctype: "multipart/form-data",
                   action: ""
