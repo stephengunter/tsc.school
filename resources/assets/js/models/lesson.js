@@ -12,6 +12,9 @@ class Lesson {
     static source() {
         return '/manage/lessons';
     }
+    static initUrl(){
+        return this.source() + '/init';
+    }
     static showUrl(id){
         return `${this.source()}/${id}`;
     }
@@ -26,6 +29,9 @@ class Lesson {
     }
     static updateUrl(id) {
         return this.source() + `/${id}`;
+    }
+    static reviewUrl(id) {
+        return this.source() + '/review';
     }
     static deleteUrl(id){
         return this.source() + `/${id}`;
@@ -95,6 +101,20 @@ class Lesson {
  
         })
     }
+
+    static init(form){
+        let url = this.initUrl();
+        let method = 'post';
+        return new Promise((resolve, reject) => {
+            form.submit(method, url)
+                .then(data => {
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    }
      
     static store(form){
         let url = this.storeUrl();
@@ -125,8 +145,22 @@ class Lesson {
         })
     }
 
-    static updatePS(form){
-        let url = this.source() + '/updatePS';
+    static updateMember(form){
+        let url = this.source() + '/updateMember';
+        let method = 'post';
+        return new Promise((resolve, reject) => {
+            form.submit(method, url)
+                .then(data => {
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    }
+
+    static review(form){
+        let url = this.reviewUrl();
         let method = 'post';
         return new Promise((resolve, reject) => {
             form.submit(method, url)
@@ -238,7 +272,15 @@ class Lesson {
         return names.join(',');
     }
 
-    
+    static absenceOptions() {
+        return [{
+            text: '正常',
+            value: false
+        }, {
+            text: '缺席',
+            value: true
+        }]
+    }
  
     
  }

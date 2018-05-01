@@ -474,10 +474,12 @@ class CoursesController extends Controller
         if($errors) return $this->requestError($errors);
 
         $teacherIds = [];
+        $groupId=0;
         foreach($teacherIdValues as $item){
             if (Helper::isTrue($item['group']))
             {
-                $courseValues['teacherGroupId'] = $item['value'];
+                //$courseValues['teacherGroupId'] = $item['value'];
+                $groupId=$item['value'];
             }
             else
             {
@@ -485,10 +487,18 @@ class CoursesController extends Controller
             }
         }
 
+        if($groupId){
+            $courseValues['teacherGroupId'] = $groupId;
+        }else{
+            $courseValues['teacherGroupId'] = null;
+        }
+
         $volunteerIds = [];
         foreach($volunteerIdValues as $item){
             array_push($volunteerIds,$item['value']);
         }
+
+
 
         $courseValues['updatedBy']=$this->currentUserId();
         $course->fill($courseValues);

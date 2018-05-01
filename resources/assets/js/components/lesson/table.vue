@@ -38,7 +38,7 @@
                             {{ lesson.date }} 
                         </td>
                         <td>
-                             {{ lesson.on }} ~ {{ lesson.off }}
+                             {{ lesson.timeString }} 
                         </td>
                         <td> {{ lesson.hours }} </td>
 
@@ -122,9 +122,6 @@ export default {
         getViewList(){
 			if(this.model) return this.model.viewList;
 			return this.lessons;
-        },
-        courseNames(lesson){
-            return '';
         },
         teacherNames(lesson){
             return Lesson.teacherNames(lesson);

@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 
 use App\Course;
 use App\Center;
+use App\Profile;
 use App\Lesson;
+use App\LessonMember;
 use App\Weekday;
 use App\Services\Users;
 use App\Services\Terms;
@@ -58,6 +60,40 @@ class LessonsController extends Controller
         
     }
 
+    function canEdit(Lesson $lesson)
+    {
+        if($lesson->reviewed) return false;
+        if($this->currentUserIsDev()) return true;
+
+        return $this->canAdminCenter($lesson->getCenter());
+    }
+    function canEditCenter($center)
+    {
+        if($this->currentUserIsDev()) return true;
+
+        return $this->canAdminCenter($center);
+    }
+
+    function canDelete(Lesson $lesson)
+    {
+        if($lesson->reviewed) return false;
+        return $this->canEdit($lesson);
+
+    }
+    function canReview(Lesson $lesson)
+    {
+        return $this->canReviewCenter($lesson->getCenter());
+    }
+    function canReviewCenter(Center $center=null)
+    {
+        if(!$center) return false;
+
+        if($this->currentUserIsDev()) return true;
+        if(!$this->currentUser()->isBoss()) return false;
+
+        return $this->canAdminCenter($center);
+    }
+
     public function loadViewModel(Lesson $lesson)
     {
         $teacherIds=$lesson->getTeacherIds();
@@ -74,6 +110,68 @@ class LessonsController extends Controller
 
     }
 
+    function getTeacherIds(Lesson $lesson)
+    {
+        $teacherIds= $lesson->getTeacherIds();
+       
+        $teachers= $this->teachers->getByIds($teacherIds)->get();
+        
+        $options = $teachers->map(function ($item) {
+            return $item->toOption();
+        })->all();
+
+        return  $options;
+    }  
+
+    function getVolunteerIds(Lesson $lesson)
+    {
+        $volunteerIds=$lesson->getVolunteerIds();
+        $volunteers= $this->volunteers->getByIds($volunteerIds)->get();
+
+        $options = $volunteers->map(function ($item) {
+            return $item->toOption();
+        })->all();
+
+        return  $options;
+    }  
+
+    function teacherOptions(Lesson $lesson)
+    {
+        $course=$lesson->course;
+        $teachers=$course->teachers;
+        
+        $options=$teachers->map(function ($item) {
+            return $item->toOption();
+        })->all();
+
+        if($course->teacherGroup){
+            $ids=$lesson->course->teachers->pluck('userId')->toArray();
+            
+            foreach($course->teacherGroup->teachers as $teacher){
+                if(!in_array($teacher->userId,$ids)){
+                    array_push($options, $teacher->toOption());
+                }
+            }
+        }
+        
+        return $options;
+
+    }
+
+    function volunteerOptions(Lesson $lesson)
+    {
+        $course=$lesson->course;
+        $volunteers=$course->volunteers;
+        
+        $options=$volunteers->map(function ($item) {
+            return $item->toOption();
+        })->all();
+
+       
+        return $options;
+
+    }
+
     public function index()
     {
         $request=request();
@@ -87,15 +185,15 @@ class LessonsController extends Controller
         $course=0;
         if($request->course)  $course=(int)$request->course;
 
-        $reviewed=true;
+        $reviewed=false;
         if($request->reviewed)  $reviewed=Helper::isTrue($request->reviewed);
 
-        $beginDate=Carbon::today();
+        $beginDate=null;
         if($request->beginDate){
             try {
                 $beginDate=new Carbon($request->beginDate);
             }catch (Exception $e) {
-                $beginDate=Carbon::today();
+                $beginDate=null;
             }
         }  
 
@@ -106,14 +204,10 @@ class LessonsController extends Controller
             }catch (Exception $e) {
                 $endDate=null;
             }
-        }  
-
-        $reviewed=true;
-        if($request->reviewed)  $reviewed=Helper::isTrue($request->reviewed);
-
+        } 
        
         if($this->isAjaxRequest()){
-            return $this->fetchLessons($term, $center, $course);
+            return $this->fetchLessons($term, $center, $course, $beginDate,$endDate, $reviewed);
         }
 
         $termOptions = $this->terms->options();
@@ -156,12 +250,17 @@ class LessonsController extends Controller
 
         }
 
-        $lessons = $this->lessons->fetchLessons($selectedTerm, $selectedCenter, $selectedCourse);
+        $lessons = $this->lessons->fetchLessons($selectedTerm, $selectedCenter, $selectedCourse,$beginDate,$endDate);
         
+        $lessons = $lessons->where('reviewed',$reviewed);
+
         $pageList =$this->getPageList($lessons);
 
         $courseOptions=$this->courses->options($selectedTerm,$selectedCenter,true);
 
+        $canReview=$this->canReviewCenter($selectedCenter);
+
+        
         $model=[
             'title' => '課堂紀錄',
             'menus' => $this->adminMenus('CoursesAdmin'),
@@ -169,6 +268,8 @@ class LessonsController extends Controller
             'terms' => $termOptions,
             'centers' => $centerOptions,
             'courses' => $courseOptions,  
+
+            'canReview' => $canReview,
            
             'list' => $pageList
         ];
@@ -179,8 +280,8 @@ class LessonsController extends Controller
 
     function getPageList($lessons)
     {
+        $lessons=$lessons->orderBy('date');
         $pageList = new PagedList($lessons);
-        //dd($pageList);
        
         foreach($pageList->viewList as $lesson){
             $this->loadViewModel($lesson);
@@ -190,7 +291,7 @@ class LessonsController extends Controller
     }
 
     //Ajax
-    function fetchLessons(int $term = 0, int $center = 0, int $course = 0)
+    function fetchLessons(int $term = 0, int $center = 0, int $course = 0,$beginDate,$endDate, $reviewed)
     {
        
         $selectedCenter = null;
@@ -224,7 +325,9 @@ class LessonsController extends Controller
 
         }
 
-        $lessons = $this->lessons->fetchLessons($selectedTerm, $selectedCenter, $selectedCourse);
+        $lessons = $this->lessons->fetchLessons($selectedTerm, $selectedCenter, $selectedCourse,$beginDate,$endDate);
+        
+        $lessons = $lessons->where('reviewed',$reviewed);
         
         $pageList =$this->getPageList($lessons);
 
@@ -239,6 +342,25 @@ class LessonsController extends Controller
 
         return response() ->json($model);
 
+        
+    }
+
+    public function show($id)
+    {
+        $lesson = $this->lessons->getById($id);
+        if(!$lesson) abort(404);
+
+        $this->loadViewModel($lesson);
+
+        foreach($lesson->members as $member){
+            $member->name=Profile::find($member->userId)->fullname;
+        }
+
+        $lesson->canEdit = $this->canEdit($lesson);
+        $lesson->canDelete = $this->canDelete($lesson);
+        $lesson->canReview = $this->canReview($lesson);
+
+        return response()->json($lesson);
         
     }
 
@@ -280,6 +402,37 @@ class LessonsController extends Controller
         return $errors;
     }
 
+    public function edit($id)
+    {
+        $lesson = $this->lessons->getById($id);
+        if(!$lesson) abort(404);
+
+        if(!$this->canEdit($lesson))  return $this->unauthorized();
+
+        
+
+        $teacherIds=$this->getTeacherIds($lesson);
+       
+        $volunteerIds=$this->getVolunteerIds($lesson);
+       
+        $teacherOptions = $this->teacherOptions($lesson);
+        
+        $volunteerOptions = $this->volunteerOptions($lesson);
+
+        $lesson->course->fullName();
+
+        $form=[
+            'lesson' => $lesson,
+            'teacherIds' =>$teacherIds,
+            'volunteerIds' =>$volunteerIds,
+            'teacherOptions' => $teacherOptions,
+            'volunteerOptions' => $volunteerOptions,
+        ];
+
+        return response() ->json($form);
+        
+    }
+
     public function update(Request $request, $id)
     {
         $lesson=Lesson::findOrFail($id);
@@ -298,7 +451,63 @@ class LessonsController extends Controller
         return response() ->json();
     }
 
-    
+    public function updateMember(Request $request)
+    {
+        $id=$request['id'];
+        $member=LessonMember::findOrFail($id);
+        
+        $absence=$request['absence'];
+        $ps=$request['ps'];
+
+        $member->absence=$absence;
+        $member->ps=$ps;
+        $member->updatedBy=$this->currentUserId();
+
+        $member->save();
+        
+        return response() ->json();
+    }
+
+    public function init(Request $form)
+    {
+        $date=  $form['date'];
+        $center=  $form['center'];
+
+        $selectedCenter=$this->centers->getById($center);
+        if(!$selectedCenter) abort(404);
+
+        if(!$this->canAdminCenter($selectedCenter))  return $this->unauthorized();
+
+       
+        $this->lessons->initLessonsByDate(new Carbon($date));
+
+        return response() ->json();
+
+
+    }
+
+    public function review(Request $form)
+    {
+        $reviewedBy=$this->currentUserId();
+        
+        $lessons=  $form['lessons'];
+
+        if(count($lessons) > 1){
+            $lessonIds=array_pluck($lessons, 'id');
+            $this->lessons->reviewOK($lessonIds, $reviewedBy);
+        }else{
+            
+            $id=$lessons[0]['id'];
+         
+            $reviewed=Helper::isTrue($lessons[0]['reviewed']);
+
+            $this->lessons->updateReview($id,$reviewed ,$reviewedBy);
+        }
+
+        return response() ->json();
+
+
+    }
 
     public function destroy($id) 
     {

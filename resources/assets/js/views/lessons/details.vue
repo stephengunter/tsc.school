@@ -1,49 +1,27 @@
 <template>
 <div>
-    <signup :id="id" ref="signupView" :payways="payways"
-     :can_edit="signupSettings.can_edit" :can_back="signupSettings.can_back"  
-      @loaded="onSignupLoaded"   @back="onBack" @saved="onSignupSaved"  
-      @deleted="onSignupDeleted" >
+    <lesson :id="id" ref="lessonView" 
+     :can_edit="lessonSettings.can_edit" :can_back="lessonSettings.can_back"  
+      @loaded="onLessonLoaded"   @back="onBack" @saved="reloadLesson"  
+      @deleted="onLessonDeleted" >
      
-    </signup>
+    </lesson>
 
-    <div v-if="signup">
+    <div v-if="lesson">
         
         <div>
             <ul class="nav nav-tabs">
                 <li :class="{ active: activeIndex==0 , 'label-title':true}" >
-                    <a v-if="payed" @click.prevent="activeIndex=0" href="#" >列印收據</a>
-                    <a v-else @click.prevent="activeIndex=0" href="#" >列印繳費單</a>
-                </li>
-                <li v-show="payed" :class="{ 'active ': activeIndex==1 , 'label-title':true}">
-                    <a @click.prevent="activeIndex=1" href="#">退費申請</a>
+                    <a @click.prevent="activeIndex=0" href="#" >課堂學員</a>
                 </li>
             </ul>
-       
-           
             <div class="tab-content" style="margin-top:10px">
                 <div class="tab-pane fade active in">
-                    <div v-show="activeIndex==0"  class="panel panel-default">
-                        <div class="panel-heading">
-                            <div>
-                                <button  @click.prevent="beginPrint" class="btn btn-primary btn-sm" >
-                                    <i class="fa fa-print"></i>
-                                    列印
-                                </button>
-                            </div>
-                        </div>  
-                        <div class="panel-body">
-                            <bill-print  :signup="signup" ref="billPrint"></bill-print>
+                    
+                    <lesson-students v-if="activeIndex==0" :lesson="lesson"
+                        @saved="reloadLesson">
 
-                        </div>
-                        
-                    </div>
-
-                    <quit-view v-if="activeIndex==1"  :signup="signup"  :can_back="false"
-                        @saved="reloadSignup" @deleted="reloadSignup"> 
-
-                    </quit-view>
-                     
+                    </lesson-students>
                     
                 </div>
                           
@@ -58,25 +36,18 @@
 </template>
 <script>
    
-    import SignupComponent from '../../components/signup/view.vue';
-    import BillPrint from '../../components/signup/bill-print.vue'; 
-    import QuitView from '../../components/quit/view.vue'
-    
+    import LessonComponent from '../../components/lesson/view.vue';
+    import LessonStudents from '../../components/lesson/students.vue';
     export default {
-        name: 'SignupDetails',
+        name: 'LessonDetails',
         components: {
-            'signup':SignupComponent,
-            'bill-print':BillPrint,
-            'quit-view':QuitView
+            'lesson':LessonComponent,
+            'lesson-students':LessonStudents,
         },
         props: {
             id: {
               type: Number,
               default: 0
-            },
-            payways: {
-              type: Array,
-              default: null
             },
             can_back: {
               type: Boolean,
@@ -89,9 +60,9 @@
         },
         data(){
             return{
-                signup:null,
+                lesson:null,
 
-                signupSettings:{
+                lessonSettings:{
                     can_edit:true,
                     can_back:true,
                  
@@ -104,10 +75,7 @@
             }
         },
         computed:{
-            payed(){
-               if(!this.signup) return false;
-               return Helper.isTrue(this.signup.bill.payed);
-            }
+            
         },
         beforeMount(){
            this.init()
@@ -119,55 +87,22 @@
             init(){
                
             },
-            onSignupLoaded(signup){
+            onLessonLoaded(lesson){
                 
-                this.signup={
-                    ...signup
+                this.lesson={
+                    ...lesson
                 };
-
-                if(this.needPrint){
-                   
-                   setTimeout(()=>{ 
-                        this.$refs.billPrint.print();
-                        this.needPrint=false;
-                   }, 1000);
-
-                }
-                
             },
-            reloadSignup(){
+            reloadLesson(){
                 
-                this.signup=null;
-                this.$refs.signupView.init();
+                this.lesson=null;
+                this.$refs.lessonView.init();
             },
-            onSignupSaved(signup){  
-                this.signup=signup   
-                this.$emit('signup-saved',signup)        
-            },  
-            onSignupDeleted(){
-                this.$emit('signup-deleted') 
+            onLessonDeleted(){
+                this.$emit('lesson-deleted') 
             },
             onBack(){
                 this.$emit('back');
-            },
-            beginPrint() {
-                if(this.payed){
-                    this.$refs.billPrint.print();
-                    return;
-                } 
-                else{
-                   
-                    let initPrint=Bill.initPrint(this.signup.id);
-                    initPrint.then(() => {
-                        this.needPrint=true;
-                        this.reloadSignup();
-                    })
-                    .catch(error=> {
-                        
-                        Helper.BusEmitError(error)
-                    })
-                }
-                
             },
             
         }

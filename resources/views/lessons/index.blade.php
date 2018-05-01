@@ -5,14 +5,12 @@
 
 
 <lessons-index v-show="indexMode" :init_model="model" :terms="terms" :centers="centers" :courses="courses" 
-               :version="version"
-               v-on:selected="onSelected" v-on:create="onCreate" >
+                :can_review="can_review" :version="version"
+               v-on:selected="onSelected">
 </lessons-index>
-<lessons-details v-if="selected" :id="selected" :payways="counter_payways" 
+<lessons-details v-if="selected" :id="selected"  
                  v-on:back="backToIndex" v-on:lesson-deleted="backToIndex">
 </lessons-details>
-<lessons-create v-if="creating" :course="courseId" v-on:cancel="backToIndex" v-on:saved="onCreated">
-</lessons-create>
 
 
 
@@ -34,7 +32,7 @@
                     centers: [],
                     courses: [],
 
-                  
+                    can_review: false,
 
                     courseId:0,
 
@@ -47,7 +45,7 @@
             },
             computed: {
                 indexMode() {
-                    if (this.creating) return false;
+                    
                     if (this.selected) return false;
 
                     return true;
@@ -60,13 +58,10 @@
                 this.centers = {!! json_encode($centers) !!} ;
                 this.courses = {!! json_encode($courses) !!} ;
                
-
+                this.can_review = Helper.isTrue('{!! $canReview !!}');  
 			},
             methods: {
-                onCreate(courseId) {
-                    this.creating = true;
-                    this.courseId = parseInt(courseId);
-                },
+                
                 onSelected(id,group) {
                     this.selected = id;
                 },
@@ -74,11 +69,9 @@
                     this.version += 1;
 
                     this.selected = 0;
-                    this.creating = false;
                 },
                 onCreated(lesson) {
                     this.selected = lesson.id;
-                    this.creating = false;
                 }
 
 

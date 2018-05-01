@@ -4,14 +4,7 @@
     <div class="row">
         <div class="col-sm-3">
             <div class="text-center">
-                <!-- <photo :id="photo_id"></photo>
-                <h5>個人相片</h5>
-                <button @click.prevent="editPhoto(1)" title="編輯相片" class="btn btn-info btn-xs">                                 
-                    <span class="glyphicon glyphicon-pencil"></span>
-                </button> 
-                <button v-show="photo_id" @click.prevent="editPhoto(0)" type="button" class="btn btn-danger btn-xs"  data-toggle="tooltip" title="刪除相片">
-                    <span class="glyphicon glyphicon-trash"></span>
-                </button> -->
+                
                 
             </div>
         </div>

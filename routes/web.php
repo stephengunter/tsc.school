@@ -176,6 +176,10 @@ Route::group(['middleware' => 'admin'], function()
     Route::get('/manage/reports/courses', 'ReportsController@courses');
 
     Route::resource('/manage/lessons', 'LessonsController');
+    Route::post('/manage/lessons/init', 'LessonsController@init');
+    Route::post('/manage/lessons/review', 'LessonsController@review');
+    Route::post('/manage/lessons/updateMember', 'LessonsController@updateMember');
+
    
 
 });

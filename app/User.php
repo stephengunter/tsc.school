@@ -181,4 +181,9 @@ class User extends Authenticatable
 		$this->identities()->detach($identityId);
     }
 
+    public function  toOption()
+    {
+        return [ 'text' => $this->profile->fullname ,  'value' => $this->id ];
+    }
+
 }

@@ -3,7 +3,9 @@
     <div v-if="model" >
         <div class="row">
             
-            <div class="col-sm-11 form-inline" style="margin-top: 20px;">
+            <div class="col-sm-10 form-inline" style="margin-top: 20px;">
+               
+                
                 <div class="form-group" style="padding-left:1em;">
                     <drop-down :items="terms" :selected="params.term"
                         @selected="onTermSelected">
@@ -35,25 +37,29 @@
                 </div>
             </div>
             
-            <div v-if="showReviewBtn" class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
+            <!-- <div v-if="showReviewBtn" class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
 
                 <a v-if="canReview" @click.prevent="onReviewOk" :disabled="!canSubmitReview"  href="#" class="btn btn-success">
                     <i class="fa fa-check-circle"></i>
                     審核通過
                 </a>
                 
-            </div>
-            <div v-else class="col-sm-1 pull-right" style="margin-top: 20px;">
-                
-                <a v-show="hasCourse" @click.prevent="onCreate" href="#" class="btn btn-primary">
-                    <i class="fa fa-plus-circle"></i> 新增
+            </div> -->
+            <div class="col-sm-2 pull-right" style="margin-top: 20px;">
+               
+                <a v-show="hasBeginDate" @click.prevent="onInitByDate" href="#" class="btn btn-warning btn-sm">
+                 自動產生
+                </a>
+                <a v-if="showReviewBtn" @click.prevent="onReviewOk" :disabled="!canSubmitReview"  href="#" class="btn btn-sm btn-success">
+                   
+                    審核通過
                 </a>
             </div>
         </div>
 
         <hr/>    
         
-        <lesson-table :model="model" :can_review="canReview" 
+        <lesson-table :model="model" :can_review="showReviewBtn" ref="lessonsTable"
             @selected="onSelected" @check-changed="onCheckIdsChanged">
             <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
                 <page-controll   :model="model" >
@@ -150,19 +156,25 @@
             hasCourse(){
                 return Helper.tryParseInt(this.params.course) > 0;
             },
+            hasBeginDate(){
+                if(this.params.beginDate) return true;
+                return false;
+            },
             showReviewBtn(){
+                
                 if(this.params.reviewed) return false;
-                if(!this.center) return false;
+                if(!this.params.center) return false;
                 return true;
             },
+            canSubmitReview(){
+                return this.checkedIds.length > 0;
+            },
+            
         }, 
         methods:{
             getList(){
                 if(this.model) return this.model.viewList;
                 return [];
-            },
-            onCreate(){
-                this.$emit('create',this.params.course);
             },
             onSelected(id){
                this.$emit('selected',id);
@@ -193,8 +205,27 @@
                 this.params.endDate=val;
                 this.fetchData();
             },
+            onInitByDate(){
+                let center=this.params.center;
+                let date=this.params.beginDate;
+                let form=new Form({
+                    center:center,
+                    date:date
+                });
+                let init=Lesson.init(form);
+                init.then(() => {
+                    Helper.BusEmitOK('資料已存檔');
+                    this.fetchData();
+                    this.checkedIds=[];
+				})
+				.catch(error => {
+					Helper.BusEmitError(error,'存檔失敗');
+				})
+
+                
+            },
             fetchData() {
-                //if(!this.params.beginDate) 
+              
                 let params={
                     ...this.params
                 };
@@ -236,6 +267,7 @@
                     Helper.BusEmitOK('資料已存檔');
                     this.fetchData();
                     this.checkedIds=[];
+                    this.$refs.lessonsTable.unCheckAll();
 				})
 				.catch(error => {
 					Helper.BusEmitError(error,'存檔失敗');

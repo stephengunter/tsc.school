@@ -13,7 +13,7 @@ class Lesson extends Model
 	
     protected $fillable = [  'courseId', 'status', 
         'date','title', 'content','materials',
-		'on','off', 'classroom', 'ps' , 'updatedBy',
+		'on','off', 'location', 'ps' , 'updatedBy',
 		'reviewed','reviewedBy',
     ];
 
@@ -24,8 +24,8 @@ class Lesson extends Model
 			'status' => 0,
 			'on' => 0,
             'off' => 0,
-          
-			'classroom' => '',
+            'content' => '',
+			'location' => '',
 			'updatedBy' => '',
 
 		];
@@ -40,6 +40,11 @@ class Lesson extends Model
 	{
 		return $this->hasMany('App\LessonMember','lessonId');
 	}
+
+	public function getCenter()
+	{
+        return $this->course->center;
+    }
 
 	public function getTeacherIds()
 	{
@@ -73,10 +78,25 @@ class Lesson extends Model
 	
 	public function loadViewModel()
     {
+		$this->timeString();
 		$this->hours=$this->getHours();
 		$this->course->fullName();
-        $this->studentCount=$this->members()->where('role',Role::studentRoleName())->count();
+		$this->studentCount=$this->members()->where('role',Role::studentRoleName())->count();
+		$this->studentAttended=$this->members()->where('role',Role::studentRoleName())
+												->where('absence',true)->count();  
+
+		
+		
+		
 	}
+
+	public function timeString()
+	{
+		$timeString= Helper::toTimeString($this->on) . '~' . Helper::toTimeString($this->off);
+		$this->timeString=$timeString;
+		return $timeString;
+	}
+
 	
 
 }

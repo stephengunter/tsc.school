@@ -66,11 +66,8 @@ class Courses
         $course->save();
         $course->categories()->sync($categoryIds);
 
-        if(count($teacherIds)) $course->teachers()->sync($teacherIds);
-        else $course->teachers()->delete();
-
-        if(count($volunteerIds)) $course->volunteers()->sync($volunteerIds);
-        else $course->volunteers()->delete();
+        $course->teachers()->sync($teacherIds);
+        $course->volunteers()->sync($volunteerIds);
     }
 
     public function reviewOK(array $ids, $reviewedBy)

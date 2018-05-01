@@ -5,14 +5,14 @@
             <span class="panel-title">
                <h4 v-html="title"></h4>
             </span> 
-            <div v-if="signup" >
+            <div v-if="lesson" >
                 <button v-show="can_back"  @click.prevent="onBack" class="btn btn-default btn-sm" >
                     <i class="fa fa-arrow-circle-left"></i>
                     返回
                 </button>
-                <button v-if="canPay" @click.prevent="beginPay" class="btn btn-success btn-sm" >
-                    <i class="fa fa-check"></i> 
-                    繳費
+                <button v-if="canEdit"  @click.prevent="beginEdit" class="btn btn-primary btn-sm" >
+                    <i class="fa fa-edit"></i> 
+                    編輯
                 </button>
                 <button v-if="canDelete" @click.prevent="beginDelete" class="btn btn-danger btn-sm" >
                     <i class="fa fa-trash"></i> 
@@ -29,51 +29,23 @@
         </div>  
         <div class="panel-body">
 
-            <show v-if="readOnly"  :signup="signup" @edit-ps="onEditPS" @unPay="beginUnpay">  
+            <show v-if="readOnly"  :lesson="lesson" @edit-review="onEditReview" @edit-ps="onEditPS" >  
             </show> 
-            <edit v-else ref="editComponent"  :id="id" :course_id="course_id" :user="userSelector.user"
-                    @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" @user-saved="loadUser">                 
+            <edit v-else ref="editComponent"  :id="id" 
+                @saved="onSaved"   @cancel="onEditCanceled" >                 
             </edit>
             
         </div>
         
     </div>
-   
-    <modal :showbtn="false"  :show.sync="userSelector.show"  @closed="userSelector.show=false" 
-        effect="fade" :width="1200">
-		<div slot="modal-header" class="modal-header modal-header-danger">
-            
-			<button id="close-button" type="button" class="close"  @click="userSelector.show=false">
-					x
-			</button>
-			<h3 style="color:white">
-				<i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-				相同資料的使用者已經存在
-			</h3>
-		</div>
-	
-		<div slot="modal-body" class="modal-body">
-			<user-selector v-if="userSelector.show" :model="userSelector.model"
-             @selected="onExistUserSelected">
-            </user-selector>
-		</div>
-    </modal>
-    
-    <pay-editor ref="payEditor" :showing="payEditorSettings.showing" :signup="signup" :payways="payways"
-      @close="payEditorSettings.showing=false" @saved="onPaySaved">        
-    </pay-editor>
-
-    <ps-editor ref="psEditor"  :showing="psEditor.show" :text="psEditor.text"
-      @close="psEditor.show=false" @save="updatePS">
-    </ps-editor>
+    <review-editor :showing="reviewEditor.show" :reviewed="reviewEditor.reviewed"
+      @close="reviewEditor.show=false" @save="updateReview">
+    </review-editor>
 
     <delete-confirm  :showing="deleteConfirm.show" :message="deleteConfirm.msg"
-      @close="closeConfirm" @confirmed="deleteSignup">        
+      @close="closeConfirm" @confirmed="deleteLesson">        
     </delete-confirm>
-
-    <delete-confirm  :showing="unpayConfirm.show" :message="unpayConfirm.msg"
-      @close="closeUnpayConfirm" @confirmed="unpaySignup">        
-    </delete-confirm>
+   
 </div>
 </template>
 <script>
@@ -81,14 +53,13 @@
 
     import Show from './show.vue';
     import Edit from './edit.vue';
-    import PayEditor from './pay-editor.vue';
+    
    
     export default {
-        name:'Signup',
+        name:'Lesson',
         components: {
             Show,
             Edit,
-            'pay-editor':PayEditor
            
         },
         props: {
@@ -99,10 +70,6 @@
             course_id: {
               type: Number,
               default: 0
-            },
-            payways: {
-              type: Array,
-              default: null
             },
             can_edit:{
                type: Boolean,
@@ -123,29 +90,16 @@
         },
         data() {
             return {
-                icon:Menus.getIcon('signups') ,
+                icon:Menus.getIcon('lessons') ,
                 readOnly:true,
 
-                signup:null,
+                lesson:null,
 
 
-                userSelector:{
-                    model:null,
-                    show:false,
-                    user:null,
-                    
-                },
-
-                payEditorSettings:{
-                  
-                    showing:false,
-                    
-                },
-
-                psEditor:{
+                reviewEditor:{
                     show:false,
                     id:0,
-                    text:'',
+                    reviewed:false,
                 },
 
                 deleteConfirm:{
@@ -155,12 +109,7 @@
 
                 },
 
-                unpayConfirm:{
-                    id:0,
-                    show:false,
-                    msg:'',
-
-                }
+                
             }
         },
         computed:{
@@ -172,30 +121,20 @@
             canEdit(){
                 if(!this.can_edit) return false;
                 if(!this.readOnly) return false;
-                if(!this.signup) return false;
+                if(!this.lesson) return false;
                 
-                return this.signup.canEdit;
-            },
-            payed(){
-                if(!this.signup) return false;
-                return Signup.hasPayed(this.signup);
-            },
-            canPay(){
-                if(!this.can_edit) return false;
-                if(this.payed) return false;
-                return true;
+                return this.lesson.canEdit;
             },
             canDelete(){
                 if(!this.canEdit) return false;
-                return this.signup.canDelete;
+                return this.lesson.canDelete;
             },
-           
             title(){
                
-                if(this.readOnly) return this.icon + ' 報名資料';
+                if(this.readOnly) return this.icon + ' 課堂紀錄';
                 if(this.creating) return this.icon + ' 新增報名';
                
-                return this.icon + ' 編輯報名資料';
+                return this.icon + ' 編輯課堂紀錄';
             },
             
            
@@ -216,17 +155,9 @@
                     this.readOnly=false;                    
                 }
                 
-                this.payEditorSettings={
-                    showing:false
-                };
+                
 
                 this.deleteConfirm={
-                    id:0,
-                    show:false,
-                    msg:''
-                }; 
-
-                this.unpayConfirm={
                     id:0,
                     show:false,
                     msg:''
@@ -234,70 +165,62 @@
             },
             fetchData() {
               
-                let getData=Signup.show(this.id);
+                let getData=Lesson.show(this.id);
                
-                getData.then(signup => {
+                getData.then(lesson => {
                    
-                    this.signup = {
-                        ...signup
+                    this.lesson = {
+                        ...lesson
                     }; 
 
-                    this.$emit('loaded',this.signup);
+                    this.$emit('loaded',this.lesson);
                 })
                 .catch(error=> {
                     this.loaded = false 
                     Helper.BusEmitError(error)
                 })
             }, 
-            isPayed(signup){
-                return Helper.isTrue(signup.bill.payed);
-            },
             onBack(){
                 this.$emit('back');
             },
+            beginEdit() {
+                this.readOnly=false;
+            },
             onEditCanceled(){
-                if(this.creating){
-                    this.onBack();
-                }else{
-                    this.init();
-                }
+                this.init();
+            },
+            onEditReview(){
+                this.reviewEditor.id=this.lesson.id;
+                this.reviewEditor.reviewed=Helper.isTrue(this.lesson.reviewed);
+                this.reviewEditor.show=true;
+            },
+            updateReview(reviewed){
                 
-            },
-            onExistUser(model){
-                this.userSelector.model={
-                    ...model
-                };
-                this.userSelector.show=true;
-            },
-            onExistUserSelected(id){
-                this.loadUser(id);
-               
-                this.userSelector.show=false;
-                this.userSelector.model=null;
-            },
-            loadUser(id){
-                
-                if(!id) id= this.form.user.id;
-                let getData=User.edit(id);
-                getData.then(model => {
-                   
-                    this.userSelector.user = {
-                        ...model.user
-                    }; 
+                let lessons= [{
+                    id:this.reviewEditor.id,
+                    reviewed:reviewed
+                }];
 
-                    this.$refs.editComponent.setUser(model.user);
-                    
-                })
-                .catch(error=> {
-                    Helper.BusEmitError('無法取得使用者資料,請稍後再試.');
-                })
+                let form=new Form({
+                    lessons:lessons
+                });
+
+                let save=Lesson.review(form);
+				save.then(() => {
+                    Helper.BusEmitOK('資料已存檔');
+                    this.fetchData();
+                    this.reviewEditor.show=false;
+				})
+				.catch(error => {
+					Helper.BusEmitError(error,'存檔失敗');
+				})
             },
             onEditPS(){
                
-                this.psEditor.id=this.signup.id;
-                this.psEditor.text=this.signup.ps;
+                this.psEditor.id=this.lesson.id;
+                this.psEditor.text=this.lesson.ps;
                
-                this.$refs.psEditor.init(this.signup.ps);
+                this.$refs.psEditor.init(this.lesson.ps);
 
                 this.psEditor.show=true;
             },
@@ -308,7 +231,7 @@
                      ps:ps
                 });
 
-                let save=Signup.updatePS(form);
+                let save=Lesson.updatePS(form);
 				save.then(() => {
                     this.psEditor.show=false;
                     Helper.BusEmitOK('資料已存檔');
@@ -319,60 +242,27 @@
 					Helper.BusEmitError(error,'存檔失敗');
 				})
             },
-            onSaved(signup){
-                if(this.creating)this.$emit('saved',signup);
-                else  this.init();
-            },
-            onPaySaved(){
+            onSaved(){
                 this.init();
-            },  
-            beginPay(){
-                this.$refs.payEditor.init(this.signup.bill);
-                this.payEditorSettings.showing=true;
             },
             beginDelete(){
                 
-                let name=this.signup.user.profile.fullname;
-                let id=this.signup.id;
-                this.deleteConfirm.msg=`確定要刪除 ${name} 的報名資料嗎?`;
+                let id=this.lesson.id;
+                this.deleteConfirm.msg=`確定要刪除這筆課堂紀錄嗎?`;
                 this.deleteConfirm.id=id;
                 this.deleteConfirm.show=true;       
             },
             closeConfirm(){
                 this.deleteConfirm.show=false;
             },
-            beginUnpay(){
-                
-                let id=this.signup.id;
-                this.unpayConfirm.msg='確定要將狀態改為未繳費嗎?';
-                this.unpayConfirm.id=id;
-                this.unpayConfirm.show=true;       
-            },
-            closeUnpayConfirm(){
-                this.unpayConfirm.show=false;
-            },
-            deleteSignup(){
+            deleteLesson(){
                 this.closeConfirm();
                 
                 let id = this.deleteConfirm.id ;
-                let remove= Signup.remove(id);
+                let remove= Lesson.remove(id);
                 remove.then(() => {
                     Helper.BusEmitOK('刪除成功');
                     this.$emit('deleted');
-                })
-                .catch(error => {
-                    Helper.BusEmitError(error,'刪除失敗');
-                    this.closeConfirm();
-                })
-            },
-            unpaySignup(){
-
-                let id = this.unpayConfirm.id ;
-                let save= Bill.unpay(id);
-                save.then(() => {
-                    Helper.BusEmitOK('資料已存檔');
-                    this.init();
-                    this.unpayConfirm.show=false;       
                 })
                 .catch(error => {
                     Helper.BusEmitError(error,'刪除失敗');

@@ -19,7 +19,7 @@ class CreateLessonsTable extends Migration
             $table->foreign('courseId')->references('id')->on('courses')->onDelete('cascade');
             
             $table->integer('status')->default(0);    
-            $table->string('classroom')->nullable(); 
+            $table->string('location')->nullable(); 
             $table->integer('on')->nullable();
             $table->integer('off')->nullable();
 

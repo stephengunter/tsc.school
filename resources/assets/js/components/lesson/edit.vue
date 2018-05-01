@@ -1,88 +1,100 @@
 <template>
-    <div>
-		<form v-if="form" :class="formStyle" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
-			
-			
-			<signup-create-inputs  :form="form" :identity_options="identityOptions" 
-				@add-detail="onAddDetail" @reset-user="resetUser" @user-saved="onUserSaved">
-			</signup-create-inputs> 
-
-			<submit-buttons :form="form"  :submitting="submitting"
-			@cancel="cancel">
-
-			</submit-buttons>
-			
-			
-		</form>
-
-		<modal :showbtn="false"  :show.sync="courseSelector.show"  @closed="courseSelector.show=false" 
-			effect="fade" :width="600">
-			<div slot="modal-header" class="modal-header">
-				
-				<button id="close-button" type="button" class="close"  @click="courseSelector.show=false">
-						x
-				</button>
-				<h3>
-					選擇課程
-				</h3>
+    <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
+		<div class="row">	
+			<div class="col-sm-3">
+				<div class="form-group">                           
+                	<label>課程</label>
+					<input  class="form-control" readonly :value="form.lesson.course.fullName"/>
+					
+				</div>
 			</div>
-		
-			<div slot="modal-body" class="modal-body">
-				<form  v-if="courseSelector.show"  class="form-horizontal" @submit.prevent="onSubmitCourseToAdd">
-					<div class="form-group">
-						<label class="col-md-2 control-label">選擇課程</label>
-						<div class="col-md-4">
-							<drop-down v-if="courseSelector.show" :items="courseOptions" :selected="courseSelector.selected"
-									@selected="onCourseSelected">
-							</drop-down>
-						</div>
-						<div class="col-md-4">
-							<button type="submit" class="btn btn-success">
-								確認
-							</button> 
-						</div>
+			<div class="col-sm-3">
+				<div class="form-group">                           
+                	<label>課堂日期</label>
+					<div>
+						<datetime-picker :date="form.lesson.date" @selected="setDate"></datetime-picker>
+                		<small class="text-danger" v-if="form.errors.has('lesson.date')" v-text="form.errors.get('lesson.date')"></small>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="form-group" >                           
+                	<label>上課時間</label>
+					<div class="form-inline" >
+						<input type="text" name="lesson.on" class="form-control" v-model="form.lesson.on" style="width:35%">
+                    	<small class="text-danger" v-if="form.errors.has('lesson.on')" v-text="form.errors.get('lesson.on')"></small>
+							~
+						<input type="text" name="lesson.off" class="form-control" v-model="form.lesson.off" style="width:35%">
+						<small class="text-danger" v-if="form.errors.has('lesson.off')" v-text="form.errors.get('lesson.off')"></small>
 					</div>
 					
+				</div>
+			</div> 
+			<div class="col-sm-3">
+				<div class="form-group">                           
+                	<label>上課地點</label>
+					<input name="lesson.location" class="form-control" :model="form.lesson.location"/>
 					
-					
-				</form>
-				
+				</div>
 			</div>
-		</modal>
-    </div>
+		</div>	
+		<div class="row">	
+			<div class="col-sm-6">
+				
+				<div  class="form-group">  
+					<label>授課教師</label>
+					<v-select :value.sync="form.teacherIds" multiple  :options="teacherOptions" :onChange="onTeacherChanged" label="text">
+						<slot name="no-options">-----</slot>
+					</v-select>
+					<small class="text-danger" v-if="!form.teacherIds.length" >請選擇教師</small>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="form-group">                           
+                	<label>教育志工</label>
+					<v-select :value.sync="form.volunteerIds" multiple  :options="volunteerOptions" :onChange="onVolunteerChanged" label="text">
+						<slot name="no-options">-----</slot>
+					</v-select>
+				</div>
+			</div>
+			
+		</div>
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="form-group">                           
+					<label>課程內容</label>
+					<textarea rows="3"  class="form-control" name="lesson.content"  v-model="form.lesson.content">
+					</textarea>
+					
+				</div>
+			</div>
+		</div> <!--  row   -->
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="form-group">                           
+					<label>備註</label>
+					<input type="text" name="lesson.ps" class="form-control" v-model="form.lesson.ps"  >
+				</div>
+			</div>
+		
+		</div> <!--  row   -->	
+	</form>
 </template>
 
 <script>
-import SignupCreateInputs from './create-inputs.vue';
-import SubmitButtons from './submit-buttons.vue'
 
 export default {
-    name:'EditSignup',
+    name:'EditLesson',
     props: {
         id: {
             type: Number,
             default: 0
-		},
-		course_id: {
-            type: Number,
-            default: 0
 		}
-	},
-	components: {
-		
-		'signup-create-inputs':SignupCreateInputs,
-		'submit-buttons':SubmitButtons
 	},
 	data(){
 		return {
-			
-			courseOptions:[],
-			identityOptions:[],
-
-            courseSelector:{
-				show:false,
-				selected:0,
-			},
+			teacherOptions:[],
+			volunteerOptions:[],
 
             form :null,
             
@@ -91,14 +103,6 @@ export default {
 		}
 	},
 	computed:{
-		isCreate(){
-			return this.id < 1;
-		},
-		formStyle(){
-			if(this.isCreate) return 'form-horizontal';
-			return 'form';
-		},
-		
 		
 
 	},
@@ -115,151 +119,53 @@ export default {
 			this.fetchData();
 		},
 		fetchData(){
-            let getData=null;
-            if(this.isCreate) getData=Signup.create(this.course_id);
-            else  getData=Signup.edit(this.id);
+            let getData=Lesson.edit(this.id)
 
 			getData.then(model => {
-				if(this.isCreate){
-					this.form = new Form({
-							signup:{
-								...model.signup
+				this.form = new Form({
+							lesson:{
+								...model.lesson
 							},
-							user:{
-								...model.user
-							},
-							lotus:model.lotus,
-							courseIds:model.courseIds.slice(0),
-							identityIds:model.identityIds.slice(0)
+							teacherIds:model.teacherIds.slice(0),
+							volunteerIds:model.volunteerIds.slice(0)
 						});
 
-					this.courseOptions=model.courseOptions.slice(0);	
-					if(model.courseOptions.length){
-						this.courseSelector.selected=model.courseOptions[0].value;
-					}
-
-					this.identityOptions=model.identityOptions.slice(0);
-
-					
-					
-				}else{
-					this.form = new Form({
-						signup:{
-							...model.signup
-						},
-						
-					});
-				}
+				
+				
+				this.teacherOptions=model.teacherOptions.slice(0);
+				this.volunteerOptions=model.volunteerOptions.slice(0);
 				
 			})
 			.catch(error=> {
 				Helper.BusEmitError(error); 
 			})
 		},
-		setUser(user){
-			this.form.user={...user };
+		setDate(val){
+			this.form.lesson.date=val;
+			this.clearErrorMsg('lesson.date');
 		},
-		resetUser(){
-			this.form.user={
-				id:0,
-				email:'',
-				phone:'',
-				profile:{
-					dob:'',
-					sid:'',
-					fullname:'',
-					gender:1
-				}
-
-			};
+		onTeacherChanged(val){
+            if(val.length) this.clearErrorMsg('teacherIds');
 		},
-		onUserSaved(id){
-		
-			this.$emit('user-saved',id);
-		},
-		onAddDetail(){
-			this.courseSelector.show=true;
-		},
-		onSubmitCourseToAdd(){
-			let courseId=this.courseSelector.selected;
-			let getData=Course.show(courseId);
-               
-			getData.then(data => {
-				
-				let course={ ...data };
-				this.addDetail(course);
-			})
-			.catch(error=> {
-				Helper.BusEmitError(error);
-			})
-			this.courseSelector.show=false;
-		},
-		addDetail(course){
-			let exist=this.form.courseIds.includes(course.id);
-			if(exist) return;
-
-			let detail={
-				id:0,
-				courseId:course.id,
-				tuition:course.tuition,
-				cost:course.cost,
-				course:course
-			};
-			this.form.courseIds.push(course.id);
-			this.form.signup.details.push(detail);
-
-			this.clearErrorMsg('courseIds');
-		},
-		onCourseSelected(item){
-			this.courseSelector.selected=item.value;
+		onVolunteerChanged(val){
+			
 		},
 		onSubmit(){
-			if(!this.isCreate){
-				
-				this.submit();
-				return;
-			}
-
-			let user=this.form.user;
-			if(user.id){
-				
-				this.submit();
-				return;
-			}
-
-			if(!user.email && !user.phone ){
-
-			}
-
-			let find=User.find(user.email,user.phone,user.profile.sid);
-
-			find.then(model => {
-                    if(model.viewList.length){
-						this.$emit('exist-user',model);
-					}else{
-						this.submit();
-					}
-				})
-				.catch(error => {
-					Helper.BusEmitError(error,'存檔失敗');
-				})
-			
-		},
-		submit(){
 			let save=null;
 
-			this.form.signup.user= { ...this.form.user };
+			this.form.lesson.user= { ...this.form.user };
 			
-			if(this.isCreate) save=Signup.store(this.form); 
-			else  save=Signup.update(this.id,this.form);
+			if(this.isCreate) save=Lesson.store(this.form); 
+			else  save=Lesson.update(this.id,this.form);
 
-			save.then(signup => {
-                    this.$emit('saved',signup);
+			save.then(lesson => {
+                    this.$emit('saved',lesson);
 					Helper.BusEmitOK('資料已存檔');
 				})
 				.catch(error => {
 					Helper.BusEmitError(error,'存檔失敗');
 				})
+			
 		},
 		clearErrorMsg(name) {
 			
