@@ -64,7 +64,7 @@ class Bills
           
         });
 
-        event(new SignupUnPayed($bill->signup));
+       // event(new SignupUnPayed($bill->signup));
     }
 
    
@@ -72,10 +72,9 @@ class Bills
     {
         $bill = $this->getBillByCode($code);
       
-        if ($bill->amount != $amount) {
-            abort(500);
+        if ($bill->amount != $amount){
+            dd( 'payBill ,'.$bill->code . ';' . $bill->amount  .';'  .$amount);
         }
-        
 
         $bill->payed=true;
         $bill->payDate=Carbon::now();
@@ -101,9 +100,10 @@ class Bills
     {
         
         $bill = $this->getById($id);
-       
-        if ($bill->amount != $amount) abort(500);
-       
+        
+        if ($bill->amount != $amount){
+            dd( 'payBillById ,'. $bill->signupId . ';' . $bill->amount  .';'  .$amount);
+        }
 
         $bill->payed=true;
         $bill->payDate=Carbon::now();
@@ -147,6 +147,8 @@ class Bills
         $maxSerial=Bill::whereDate('deadLine', $deadlineDate->toDateString())
                           ->orderBy('serial','desc')->first();
 
+                         
+
         if($maxSerial && $maxSerial->serial){
             $maxSerial=(int)$maxSerial->serial;
         } 
@@ -171,25 +173,28 @@ class Bills
         $deadLineDate = $date->addDays(10);
 
         $serial = $this->getMaxSerial($deadLineDate);
-
-        $exist=true;
-        while($exist){
+             
+        $ok=false;
+        while(!$ok){
             $serial+=1;
-         
+           
             if($serial > 9999) abort(500);
 
             $exist=Bill::whereDate('deadLine', $deadLineDate->toDateString())
                         ->where('serial', $serial)->first();
 
-                        
+                         
             if(!$exist){
                 $bill->update([
                     'serial' => $serial
                 ]);
+
+                $ok=true;
+               
             }            
         }
-
-        $code = $this->ESuns->initBillCode($deadLineDate, $bill->amount, $bill->$serial);
+        
+        $code = $this->ESuns->initBillCode($deadLineDate, $bill->amount, $serial);
         $sevenCodes=$this->ESuns->initSevenCodes($deadLineDate, $code,$bill->amount);
 
 

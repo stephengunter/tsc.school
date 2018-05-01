@@ -34,7 +34,7 @@ class CreateStudentsBySignup
        
       
         foreach($signup->details as $detail){
-           
+            
             $this->students->createStudent($detail->courseId, $signup->userId);
         }
         

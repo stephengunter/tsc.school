@@ -62,9 +62,11 @@ class ESuns
     
     public function initBillCode(Carbon $deadlineDate, $amount,$serial)
     {
+       
         $dateString=Helper::getMonthDayString($deadlineDate->month,$deadlineDate->day);
 
         $serialString=Helper::intToStringLength($serial,4);
+        
        
         // 銷帳編號
         $code=$this->shopId . $dateString . $serialString;

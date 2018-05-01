@@ -45,24 +45,28 @@ class BillsController extends Controller
 
     public function seedPays()
     {
-        
+       
         if(!$this->currentUserIsDev()) dd('權限不足');
 
         $ids = Bill::where('payed',false)->pluck('signupId')->toArray();
-        $signups=$this->signups->getByIds($ids)->get();
-        foreach ($signups as $signup)
+      
+        $keys = (array_rand($ids,(int)ceil(count($ids)/3 )));
+
+     
+        foreach ($keys as $key)
         {
-            $num = rand(0 ,100);
-            if (($num % 2) == 0) continue;
+            $signupId=$ids[$key];
+           
+            $signup=$this->signups->getById($signupId);
            
             $amount = $signup->bill->amount;
 
-            $num = rand(0 ,100);
             $payways=\App\Payway::whereIn('code',['credit_net','seven'])->get();
-
+            $num = rand(0 ,100);
             $payway= (($num % 2) == 0) ? $payways[0] : $payways[1];
             
             if($payway->code=='seven'){
+               
                 $this->bills->createBillCode($signup);
 
                 $bill=$this->bills->getById($signup->id);
