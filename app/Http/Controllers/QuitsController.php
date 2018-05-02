@@ -95,17 +95,23 @@ class QuitsController extends Controller
 
     public function seedQuits()
     {
+      
         if(!$this->currentUserIsDev()) dd('權限不足');
 
         $percentsOptions=$this->quits->percentsOptions();
         $paywayOptions=$this->backPaywayOptions();
         
 
-        $signups = Signup::where('status',1)->get();
-        foreach ($signups as $signup)
+        $ids = Signup::where('status',1)->pluck('id')->toArray();
+       
+        $keys = (array_rand($ids,(int)ceil(count($ids)/3 )));
+      
+        foreach ($keys as $key)
         {
             $num = rand(0 ,100);
-            if (($num % 3) != 0) continue;
+            $signupId=$ids[$key];
+
+            $signup=$this->signups->getById($signupId);
 
             $quitDetails=[];
             foreach($signup->details as $signupDetail){
@@ -133,8 +139,11 @@ class QuitsController extends Controller
             if($payway->needAccount()){
                 $quitValues['account'] = '01345679' . rand(100,100000);
             }
-
             $quitValues['paywayId']=$paywayId;
+
+            $date=new Carbon('2018-4-2'); 
+            $date= $date->addDays(rand(0 ,45));
+            $quitValues['date']=$date;
 
             $quit=new Quit($quitValues);
 

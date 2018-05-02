@@ -65788,6 +65788,19 @@ var Lesson = function () {
             });
         }
     }, {
+        key: 'update',
+        value: function update(id, form) {
+            var url = this.updateUrl(id);
+            var method = 'put';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
         key: 'updateMember',
         value: function updateMember(form) {
             var url = this.source() + '/updateMember';
@@ -67287,7 +67300,7 @@ exports = module.exports = __webpack_require__(1)(false);
 
 
 // module
-exports.push([module.i, "\n.date-input-group[data-v-5440d43f]{\r\n\t display: -webkit-box;\r\n\t display: -ms-flexbox;\r\n\t display: flex;\r\n    -webkit-box-align: center;\r\n        -ms-flex-align: center;\r\n            align-items: center;\n}\n.date-input[data-v-5440d43f] {\r\n    width:85%;\r\n\tborder: 1px solid #c3c3c3;\r\n\theight: 36px;\r\n\tline-height: 36px;\r\n\t\r\n\tpadding: 8px;\r\n\tmax-width: 360px;\r\n\tborder-radius: 3px;\r\n\tbackground: #fff\n}\r\n", ""]);
+exports.push([module.i, "\n.date-input-group[data-v-5440d43f]{\r\n\t display: -webkit-box;\r\n\t display: -ms-flexbox;\r\n\t display: flex;\r\n    -webkit-box-align: center;\r\n        -ms-flex-align: center;\r\n            align-items: center;\n}\n.date-input[data-v-5440d43f] {\r\n    width:75%;\r\n\tborder: 1px solid #c3c3c3;\r\n\theight: 36px;\r\n\tline-height: 36px;\r\n\t\r\n\tpadding: 8px;\r\n\tmax-width: 360px;\r\n\tborder-radius: 3px;\r\n\tbackground: #fff\n}\r\n", ""]);
 
 // exports
 
@@ -113095,6 +113108,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -113505,6 +113522,8 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("手機")]),
               _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("缺席次數")]),
+              _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } })
             ])
           ]),
@@ -113586,6 +113605,14 @@ var render = function() {
                 _c("td", [_vm._v(_vm._s(student.user.email))]),
                 _vm._v(" "),
                 _c("td", [_vm._v(_vm._s(student.user.phone))]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                            " +
+                      _vm._s(student.absenceCount) +
+                      "\n                        "
+                  )
+                ]),
                 _vm._v(" "),
                 _c("td", [
                   student.status < 0
@@ -115598,10 +115625,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
-//
-//
-//
-//
 
 
 
@@ -115916,6 +115939,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'LessonTable',
@@ -116070,7 +116094,9 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "15%" } }, [_vm._v("教育志工")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("學員人數")])
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("學員人數")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "5%" } }, [_vm._v("審核")])
             ])
           ]),
           _vm._v(" "),
@@ -116142,7 +116168,15 @@ var render = function() {
                       _vm._s(lesson.studentCount) +
                       " \n                        "
                   )
-                ])
+                ]),
+                _vm._v(" "),
+                _c("td", {
+                  domProps: {
+                    innerHTML: _vm._s(
+                      _vm.$options.filters.reviewedLabel(lesson.reviewed)
+                    )
+                  }
+                })
               ])
             })
           )
@@ -116180,6 +116214,15 @@ var render = function() {
             _c(
               "div",
               {
+                staticClass: "col-sm-2",
+                staticStyle: { "margin-top": "20px" }
+              },
+              [_c("h3", { domProps: { innerHTML: _vm._s(_vm.title) } })]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
                 staticClass: "col-sm-10 form-inline",
                 staticStyle: { "margin-top": "20px" }
               },
@@ -116188,7 +116231,7 @@ var render = function() {
                   "div",
                   {
                     staticClass: "form-group",
-                    staticStyle: { "padding-left": "1em" }
+                    staticStyle: { "padding-left": "0.5em" }
                   },
                   [
                     _c("drop-down", {
@@ -116203,7 +116246,7 @@ var render = function() {
                   "div",
                   {
                     staticClass: "form-group",
-                    staticStyle: { "padding-left": "1em" }
+                    staticStyle: { "padding-left": "0.5em" }
                   },
                   [
                     _c("drop-down", {
@@ -116221,7 +116264,7 @@ var render = function() {
                   "div",
                   {
                     staticClass: "form-group",
-                    staticStyle: { "padding-left": "1em" }
+                    staticStyle: { "padding-left": "0.5em" }
                   },
                   [
                     _c("drop-down", {
@@ -116239,7 +116282,7 @@ var render = function() {
                   "div",
                   {
                     staticClass: "form-group",
-                    staticStyle: { "padding-left": "1em" }
+                    staticStyle: { "padding-left": "0.5em" }
                   },
                   [
                     _c("toggle", {
@@ -116257,7 +116300,7 @@ var render = function() {
                   "div",
                   {
                     staticClass: "form-group",
-                    staticStyle: { "padding-left": "1em" }
+                    staticStyle: { "padding-left": "0.5em" }
                   },
                   [
                     _c("datetime-picker", {
@@ -116267,18 +116310,8 @@ var render = function() {
                         placeholder: "日期起"
                       },
                       on: { selected: _vm.setBeginDate }
-                    })
-                  ],
-                  1
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  {
-                    staticClass: "form-group",
-                    staticStyle: { "padding-left": "1em" }
-                  },
-                  [
+                    }),
+                    _vm._v(" "),
                     _c("datetime-picker", {
                       attrs: {
                         date: _vm.params.endDate,
@@ -116289,60 +116322,69 @@ var render = function() {
                     })
                   ],
                   1
-                )
-              ]
-            ),
-            _vm._v(" "),
-            _c(
-              "div",
-              {
-                staticClass: "col-sm-2 pull-right",
-                staticStyle: { "margin-top": "20px" }
-              },
-              [
-                _c(
-                  "a",
-                  {
-                    directives: [
-                      {
-                        name: "show",
-                        rawName: "v-show",
-                        value: _vm.hasBeginDate,
-                        expression: "hasBeginDate"
-                      }
-                    ],
-                    staticClass: "btn btn-warning btn-sm",
-                    attrs: { href: "#" },
-                    on: {
-                      click: function($event) {
-                        $event.preventDefault()
-                        return _vm.onInitByDate($event)
-                      }
-                    }
-                  },
-                  [_vm._v("\n             自動產生\n            ")]
                 ),
                 _vm._v(" "),
-                _vm.showReviewBtn
-                  ? _c(
+                _c(
+                  "div",
+                  {
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "0.5em" }
+                  },
+                  [
+                    _vm.showReviewBtn
+                      ? _c(
+                          "a",
+                          {
+                            staticClass: "btn btn-success",
+                            attrs: {
+                              disabled: !_vm.canSubmitReview,
+                              href: "#"
+                            },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.onReviewOk($event)
+                              }
+                            }
+                          },
+                          [
+                            _c("i", { staticClass: "fa fa-check-circle" }),
+                            _vm._v(
+                              "\n                    審核通過\n                "
+                            )
+                          ]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c(
                       "a",
                       {
-                        staticClass: "btn btn-sm btn-success",
-                        attrs: { disabled: !_vm.canSubmitReview, href: "#" },
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.hasBeginDate,
+                            expression: "hasBeginDate"
+                          }
+                        ],
+                        staticClass: "btn btn-warning",
+                        attrs: { href: "#" },
                         on: {
                           click: function($event) {
                             $event.preventDefault()
-                            return _vm.onReviewOk($event)
+                            return _vm.onInitByDate($event)
                           }
                         }
                       },
                       [
+                        _c("i", { staticClass: "fa fa-play-circle" }),
                         _vm._v(
-                          "\n               \n                審核通過\n            "
+                          "\n                    自動產生\n                "
                         )
                       ]
                     )
-                  : _vm._e()
+                  ]
+                )
               ]
             )
           ]),
@@ -117022,6 +117064,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'ShowLesson',
@@ -117183,7 +117231,19 @@ var render = function() {
               })
             ]),
             _vm._v(" "),
-            _c("div", { staticClass: "col-sm-6" }, [
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("label", { staticClass: "label-title" }, [_vm._v("上課地點")]),
+              _vm._v(" "),
+              _c("p", [
+                _vm._v(
+                  "\r\n                   " +
+                    _vm._s(_vm.lesson.location) +
+                    "\r\n                "
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
               _c("label", { staticClass: "label-title" }, [
                 _vm._v("學員出席狀況")
               ]),
@@ -117371,6 +117431,32 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -117435,11 +117521,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		onSubmit: function onSubmit() {
 			var _this2 = this;
 
-			var save = null;
-
-			this.form.lesson.user = _extends({}, this.form.user);
-
-			if (this.isCreate) save = Lesson.store(this.form);else save = Lesson.update(this.id, this.form);
+			var save = Lesson.update(this.id, this.form);
 
 			save.then(function (lesson) {
 				_this2.$emit('saved', lesson);
@@ -117597,10 +117679,24 @@ var render = function() {
                 _c("label", [_vm._v("上課地點")]),
                 _vm._v(" "),
                 _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.lesson.location,
+                      expression: "form.lesson.location"
+                    }
+                  ],
                   staticClass: "form-control",
-                  attrs: {
-                    name: "lesson.location",
-                    model: _vm.form.lesson.location
+                  attrs: { name: "lesson.location" },
+                  domProps: { value: _vm.form.lesson.location },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.form.lesson, "location", $event.target.value)
+                    }
                   }
                 })
               ])
@@ -117735,12 +117831,64 @@ var render = function() {
                 })
               ])
             ])
-          ])
+          ]),
+          _vm._v(" "),
+          _vm.submitting
+            ? _c("div", { staticClass: "row" }, [_vm._m(0)])
+            : _c("div", { staticClass: "row" }, [
+                _c("div", { staticClass: "col-sm-6" }, [
+                  _c("div", { staticClass: "form-group" }, [
+                    _vm._m(1),
+                    _vm._v(" \n\t\t\t\t\t\t     \n\t\t\t\t\t"),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-default",
+                        attrs: { type: "button" },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.cancel($event)
+                          }
+                        }
+                      },
+                      [_vm._v("\n\t\t\t\t\t\t取消\n\t\t\t\t\t")]
+                    )
+                  ])
+                ])
+              ])
         ]
       )
     : _vm._e()
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-sm-3" }, [
+      _c("div", { staticClass: "form-group" }, [
+        _c("button", { staticClass: "btn btn-default" }, [
+          _c("i", { staticClass: "fa fa-spinner fa-spin" }),
+          _vm._v(" \n                        處理中\n                    ")
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      { staticClass: "btn btn-success", attrs: { type: "submit" } },
+      [
+        _c("i", { staticClass: "fa fa-save" }),
+        _vm._v("\n\t\t\t\t\t\t確認存檔\n\t\t\t\t\t")
+      ]
+    )
+  }
+]
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {

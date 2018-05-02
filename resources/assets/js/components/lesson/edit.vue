@@ -33,7 +33,7 @@
 			<div class="col-sm-3">
 				<div class="form-group">                           
                 	<label>上課地點</label>
-					<input name="lesson.location" class="form-control" :model="form.lesson.location"/>
+					<input name="lesson.location" class="form-control" v-model="form.lesson.location"/>
 					
 				</div>
 			</div>
@@ -78,6 +78,32 @@
 			</div>
 		
 		</div> <!--  row   -->	
+		<div v-if="submitting"  class="row">
+			
+			<div class="col-sm-3">
+				<div class="form-group">                           
+					<button class="btn btn-default">
+                        <i class="fa fa-spinner fa-spin"></i> 
+                        處理中
+                    </button> 
+				</div>
+			</div>
+    	</div>
+		<div v-else class="row">
+			
+			<div class="col-sm-6">
+				<div class="form-group">   
+					<button type="submit" class="btn btn-success" >
+						<i class="fa fa-save"></i>
+						確認存檔
+					</button> 
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<button type="button" class="btn btn-default" @click.prevent="cancel">
+						取消
+					</button>  
+				</div>
+			</div>
+    	</div>
 	</form>
 </template>
 
@@ -151,12 +177,7 @@ export default {
 			
 		},
 		onSubmit(){
-			let save=null;
-
-			this.form.lesson.user= { ...this.form.user };
-			
-			if(this.isCreate) save=Lesson.store(this.form); 
-			else  save=Lesson.update(this.id,this.form);
+			let save=Lesson.update(this.id,this.form);
 
 			save.then(lesson => {
                     this.$emit('saved',lesson);

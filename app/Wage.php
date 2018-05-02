@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Lesson;
+use App\Teacher;
 
 class Wage extends Model
 {
@@ -41,6 +43,27 @@ class Wage extends Model
     public function toOption()
     {
         return [ 'text' => $this->name ,  'value' => $this->id  ];
+    }
+
+    public function getActualMoney(Lesson $lesson)
+    {
+        if($this->isSpecial()) return 0;
+        
+        $isNightLesson=$lesson->isNightLesson();
+        $isBigLesson=$lesson->isBigLesson();
+        $isHolidayLesson=$lesson->isHolidayLesson();
+
+        if($isBigLesson){
+            if($isHolidayLesson) return $this->big_holiday;
+            if($isNightLesson)  return $this->big_night;
+            return $this->big_day;
+        }else{
+            if($isHolidayLesson) return $this->small_holiday;
+            if($isNightLesson)  return $this->small_night;
+            return $this->small_day;
+        }
+
+       
     }
     
 }

@@ -538,7 +538,8 @@ class CoursesController extends Controller
 
         $courses = $form['courses'];
         $active=$courses[0]['active'];
-        
+        $percents=100;  //全額退
+
         $courseIds=array_column($courses, 'id');
 
         $course = $this->courses->getById($courseIds[0]); 
@@ -546,9 +547,10 @@ class CoursesController extends Controller
        
 
         if(count($courseIds) > 1){
-            $this->courses->setActives($courseIds,$active,$reviewedBy);
+            $this->courses->setActives($courseIds,$active,$reviewedBy,$percents);
         }else{
-            $this->courses->setActive($course , $active , $reviewedBy);
+           
+            $this->courses->setActive($course , $active , $reviewedBy,$percents);
         }
 
         return response()->json();

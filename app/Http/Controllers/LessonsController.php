@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\LessonRequest;
 
 use App\Course;
+use App\ClassTime;
 use App\Center;
 use App\Profile;
 use App\Lesson;
@@ -17,6 +19,7 @@ use App\Services\Centers;
 use App\Services\Teachers;
 use App\Services\Volunteers;
 use App\Services\Courses;
+use App\Services\CourseInfoes;
 use App\Services\Lessons;
 use App\Core\PagedList;
 use Carbon\Carbon;
@@ -27,12 +30,13 @@ use Exception;
 class LessonsController extends Controller
 {
     
-    public function __construct(Terms $terms,Centers $centers,Courses $courses,Lessons $lessons,
+    public function __construct(Terms $terms,Centers $centers,Courses $courses,CourseInfoes $courseInfoes,Lessons $lessons,
     Users $users,Teachers $teachers, Volunteers $volunteers)
     {
         $this->terms=$terms;
         $this->centers=$centers;
         $this->courses=$courses;
+        $this->courseInfoes=$courseInfoes;
         $this->lessons=$lessons;
         $this->users=$users;
         $this->teachers=$teachers;
@@ -42,21 +46,31 @@ class LessonsController extends Controller
 
     public function test()
     {
+        $this->lessons->initLessonsByDate(new Carbon('2018-3-25'));
+    }
+
+    public function seedLessons()
+    {
+        if(!$this->currentUserIsDev()) dd('權限不足');
+
         $term=$this->terms->getActiveTerm();
-        if(!$term) return;
 
-        $courses=$this->courses->getStartedCourses($term);
+        $beginDate=$term->courses()->orderBy('beginDate')->first()->beginDate;
+        $beginDate= new Carbon($beginDate);
 
-        $date=Carbon::today();
-        $weekday=Weekday::where('val',$date->dayOfWeek)->first();
+        $endDate=$term->courses()->orderBy('endDate','desc')->first()->endDate;
+        $endDate= new Carbon($endDate);
 
-        foreach($courses as $course){
-            $classTime=$course->classTimes->where('weekdayId',$weekday->id)->first();
-            if($classTime){
-                $this->lessons->createLessonFromCourse($course,$classTime,$date);
-            }
-        }
        
+        $date=$beginDate->copy();
+      
+        while($date->lte($endDate)){
+            $this->lessons->initLessonsByDate($date);
+
+            $date->addDays(1);
+        }
+
+        dd('done');
         
     }
 
@@ -125,6 +139,7 @@ class LessonsController extends Controller
 
     function getVolunteerIds(Lesson $lesson)
     {
+        
         $volunteerIds=$lesson->getVolunteerIds();
         $volunteers= $this->volunteers->getByIds($volunteerIds)->get();
 
@@ -364,40 +379,27 @@ class LessonsController extends Controller
         
     }
 
-    public function store(Request $request)
-    {
-        $values=$request->toArray();
-       
-       
-        $on=$values['on'];
-        $off=$values['off'];
-
-        $errors=$this->validateInputs($values);
-
-        if($errors) return $this->requestError($errors);
-
-        $values['updatedBy']=$this->currentUserId();
-        Lesson::create($values);
-        
-        return response() ->json();
-      
-    }
-    function validateInputs(array $values)
+    
+    function validateInputs(array $values ,array $teacherIds)
     {
         $errors=[];
+
         $on=$values['on'];
         $off=$values['off'];
         
         $on=(int)$on;
         if(!$this->courseInfoes->isValidTimeNumber($on)){
-            $errors['on'] = ['時間錯誤'];
+            $errors['lesson.on'] = ['時間錯誤'];
         }
         $off=(int)$off;
         if(!$this->courseInfoes->isValidTimeNumber($off)){
-            $errors['off'] = ['時間錯誤'];
+            $errors['lesson.off'] = ['時間錯誤'];
         }
 
-        if($on >= $off)  $errors['off'] = ['時間錯誤'];
+        if($on >= $off)  $errors['lesson.off'] = ['時間錯誤'];
+       
+
+        if(!count($teacherIds))  $errors['teacherIds'] = ['請選擇教師'];
 
         return $errors;
     }
@@ -408,7 +410,6 @@ class LessonsController extends Controller
         if(!$lesson) abort(404);
 
         if(!$this->canEdit($lesson))  return $this->unauthorized();
-
         
 
         $teacherIds=$this->getTeacherIds($lesson);
@@ -433,22 +434,54 @@ class LessonsController extends Controller
         
     }
 
-    public function update(Request $request, $id)
+    public function update(LessonRequest $request, $id)
     {
-        $lesson=Lesson::findOrFail($id);
+        $lesson = $this->lessons->getById($id); 
+        if(!$lesson) abort(404);   
+        if(!$this->canEdit($lesson)) return $this->unauthorized();
 
-        $values=$request->toArray();
+        $lessonValues=$request->getValues();
        
-      
+        $teacherIdValues=$request->getTeacherIds();
+        $volunteerIdValues=$request->getVolunteerIds();
+       
+        $errors=$this->validateInputs($lessonValues,$teacherIdValues);
+        if($errors) return $this->requestError($errors);
 
-        $errors=$this->validateInputs($values);
+
+        $courseId=$lesson->courseId;
+        $classTime=new ClassTime([
+            'on' => $lessonValues['on'],
+            'off' => $lessonValues['off']
+        ]);
+
+
+        $date=new Carbon($lessonValues['date']);
+        $exist=$this->lessons->findByCourseDateTime($courseId,$classTime,$date);
+        
+        if($exist && $exist->id != $lesson->id){
+            $errors['lesson.date'] = ['日期時間與其他課堂重覆了'];            
+        }
 
         if($errors) return $this->requestError($errors);
 
-        $values['updatedBy']=$this->currentUserId();
-        $lesson->update($values);
+        $teacherIds = [];
+        foreach($teacherIdValues as $item){
+            array_push($teacherIds,$item['value']);
+        }
 
-        return response() ->json();
+        $volunteerIds = [];
+        foreach($volunteerIdValues as $item){
+            array_push($volunteerIds,$item['value']);
+        }
+
+
+        $lessonValues['updatedBy']=$this->currentUserId();
+        $lesson->fill($lessonValues);
+
+        $this->lessons->updateLesson($lesson, $teacherIds,$volunteerIds);
+
+        return response()->json();
     }
 
     public function updateMember(Request $request)

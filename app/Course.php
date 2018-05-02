@@ -175,22 +175,24 @@ class Course extends Model
     }
 
     //進行中
-    public function isProcessing()
+    public function isProcessing(Carbon $date=null)
     {
         if(!$this->isValid()) return false;
-        if(!$this->hasStarted()) return false;
-        if($this->hasEnded()) return false;
+        if(!$this->hasStarted($date)) return false;
+        if($this->hasEnded($date)) return false;
         return true;
     }
 
-    public function hasStarted()
+    public function hasStarted(Carbon $date=null)
     {
-        return Carbon::today()->gte(new Carbon($this->beginDate));
+        if(!$date) $date=Carbon::today();
+        return $date->gte(new Carbon($this->beginDate));
     }
 
-    public function hasEnded()
+    public function hasEnded(Carbon $date=null)
     {
-        return Carbon::today()->gt(new Carbon($this->endDate));
+        if(!$date) $date=Carbon::today();
+        return $date->gt(new Carbon($this->endDate));
     }
 
     public function canSignup($net=true)

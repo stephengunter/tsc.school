@@ -19,6 +19,7 @@ use App\Services\Users;
 use App\Services\Teachers;
 use App\Services\Volunteers;
 use DB;
+use Carbon\Carbon;
 use Excel;
 use App\Core\Helper;
 
@@ -46,7 +47,12 @@ class Courses
     public function getByIds($ids)
     {   
         return $this->getAll()->whereIn('id',$ids);
-    }    
+    } 
+    
+    public function getByTerm($termId)
+    {   
+        return $this->getAll()->where('termId',$termId);
+    } 
 
     public function createCourse(Course $course,Array $categoryIds,Array $teacherIds=[],Array $volunteerIds=[])
     {
@@ -99,6 +105,7 @@ class Courses
     public function setActives(array $ids, $active, $reviewedBy)
     {
         $courses=Course::where('removed',false)->whereIn('id',$ids)->get();
+       
         foreach($courses as $course){
             if($course->hasStarted()) continue;
             if(!$active){
@@ -119,7 +126,9 @@ class Courses
     //單筆課程狀態重新開啟課程
     public function setActive(Course $course, $active ,$reviewedBy, $percents=0)
     {
+        
         if(!$active){
+            
             if(!$percents) abort(500);
             else{
                 $this->shutDownCourse( $course, $percents,$reviewedBy);
@@ -179,11 +188,23 @@ class Courses
         return  $courses;
     }
 
-    public function  getStartedCourses(Term $term)
+    public function  getStartedCourses(Term $term, Carbon $date=null)
     {
-        $courses=$this->getAll()->where('termId',$term->id)->get();
-        $courses = $courses->filter(function ($course) {
-            return $course->isProcessing();
+        $courses=$this->getByTerm($term->id)->get();
+        $courses = $courses->filter(function ($course) use($date){
+            return $course->hasStarted($date);
+        })->all();
+        
+        return $courses;
+                        
+    }
+
+    public function  getProcessingCourses(Term $term, Carbon $date=null)
+    {
+        
+        $courses=$this->getByTerm($term->id)->get();
+        $courses = $courses->filter(function ($course) use($date) {
+            return $course->isProcessing($date);
         })->all();
         
         return $courses;

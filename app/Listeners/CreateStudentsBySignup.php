@@ -7,6 +7,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Services\Students;
+use Carbon\Carbon;
 
 class CreateStudentsBySignup
 {
@@ -31,11 +32,11 @@ class CreateStudentsBySignup
         
         $signup=$event->signup;
 
-       
+        $joinDate=$signup->bill->payDate;
       
         foreach($signup->details as $detail){
             
-            $this->students->createStudent($detail->courseId, $signup->userId);
+            $this->students->createStudent($detail->courseId, $signup->userId, $joinDate);
         }
         
     }

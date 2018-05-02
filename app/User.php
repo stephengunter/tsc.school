@@ -85,6 +85,13 @@ class User extends Authenticatable
 	{
 		return $this->hasMany('App\Students','userId');
     }
+
+    public function payrolls() 
+	{
+		return $this->hasMany('App\Payroll','userId');
+    }
+    
+
     public function identities()
     {
         return $this->belongsToMany(Identity::class,'identity_user','user_id','identity_id');

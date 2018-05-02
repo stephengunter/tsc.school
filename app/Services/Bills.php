@@ -64,20 +64,22 @@ class Bills
           
         });
 
-       // event(new SignupUnPayed($bill->signup));
+        event(new SignupUnPayed($bill->signup));
     }
 
    
-    public function payBill(Payway $payway, $code, $amount)
+    public function payBill(Payway $payway, $code, $amount , $date='')
     {
+        if(!$date) $date=Carbon::now();
+
         $bill = $this->getBillByCode($code);
       
         if ($bill->amount != $amount){
-            dd( 'payBill ,'.$bill->code . ';' . $bill->amount  .';'  .$amount);
+            abort(500);
         }
 
         $bill->payed=true;
-        $bill->payDate=Carbon::now();
+        $bill->payDate=$date;
         $bill->paywayId=$payway->id;
        
 
@@ -96,17 +98,19 @@ class Bills
         return $bill;
     }
     
-    public function payBillById(int $id, Payway $payway, $amount)
+    public function payBillById(int $id, Payway $payway, $amount, $date='')
     {
-        
+       
         $bill = $this->getById($id);
         
         if ($bill->amount != $amount){
-            dd( 'payBillById ,'. $bill->signupId . ';' . $bill->amount  .';'  .$amount);
+            abort(500);
         }
 
+        if(!$date) $date=Carbon::now();
+
         $bill->payed=true;
-        $bill->payDate=Carbon::now();
+        $bill->payDate=$date;
         $bill->paywayId=$payway->id;
        
 

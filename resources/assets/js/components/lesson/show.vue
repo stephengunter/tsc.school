@@ -49,7 +49,13 @@
                    
                 </p>                   
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-3">
+                <label class="label-title">上課地點</label>
+                <p >
+                   {{ lesson.location }}
+                </p>                   
+            </div>
+            <div class="col-sm-3">
                 <label class="label-title">學員出席狀況</label>
                 <p v-html="attendSummary(lesson)" >
                    

@@ -10,6 +10,7 @@ use App\Bill;
 use App\Student;
 use App\Payway;
 
+use App\Services\Terms;
 use App\Services\Signups;
 use App\Services\Bills;
 use App\Services\ESuns;
@@ -23,8 +24,9 @@ use DB;
 
 class BillsController extends Controller
 {
-    public function __construct(Signups $signups, Bills $bills, ESuns $ESuns, Students $students)        
+    public function __construct(Terms $terms,Signups $signups, Bills $bills, ESuns $ESuns, Students $students)        
     {
+        $this->terms=$terms;
         $this->signups=$signups;
         $this->bills=$bills;
         $this->ESuns=$ESuns;
@@ -47,6 +49,13 @@ class BillsController extends Controller
     {
        
         if(!$this->currentUserIsDev()) dd('權限不足');
+
+        $term=$this->terms->getActiveTerm();
+
+        $beginDate=$term->courses()->orderBy('beginDate')->first()->beginDate;
+        $beginDate= new Carbon($beginDate);
+        $date=$beginDate->subDays(5)->toDateString();
+        
 
         $ids = Bill::where('payed',false)->pluck('signupId')->toArray();
       
@@ -73,13 +82,13 @@ class BillsController extends Controller
                 $code=$bill->code;
                 $amount=$bill->amount;
                 
-                $this->bills->payBill($payway, $code, $amount);
+                $this->bills->payBill($payway, $code, $amount,$date);
 
             }else{
                 $bill=$this->bills->getById($signup->id);
                 $code=$bill->code;
                 $amount=$bill->amount;
-                $this->bills->payBillById($signup->id,$payway,$amount);
+                $this->bills->payBillById($signup->id,$payway,$amount,$date);
             } 
             
 

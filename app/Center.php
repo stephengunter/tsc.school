@@ -42,6 +42,8 @@ class Center extends Model
 	{
 		return $this->hasMany('App\Course','centerId');
 	}
+
+	
 	public function notices() 
 	{
 		return $this->hasMany('App\Notice','centerId');
@@ -69,6 +71,11 @@ class Center extends Model
 	public function discounts()
     {
         return $this->belongsToMany(Discount::class,'center_discount','center_id','discount_id');
+	}
+
+	public function payrolls() 
+	{
+		return $this->hasMany('App\Payroll','centerId');
 	}
 
 	public function getContactInfo()

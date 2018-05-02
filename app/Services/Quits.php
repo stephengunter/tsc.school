@@ -76,7 +76,8 @@ class Quits
         $studntUserIds= $studentsInCourse->pluck('userId')->toArray();
         
         $signups=Signup::whereIn('userId',$studntUserIds)->get();
-       
+        $date=Carbon::today()->toDateString();  
+
         foreach($signups as $signup){
             if($signup->quit) continue;  //之前已經退費
 
@@ -87,12 +88,12 @@ class Quits
 
             $quitDetail=new QuitDetail([
                 'signupDetailId' => $signupDetail->id,
-                'percents' => $percent ,   
+                'percents' => $percents ,   
                 'tuition' => $tuition,
             ]);
 
             $payway=$this->payways->initQuitPaywayBySignup($signup);
-            $date=Carbon::today()->toDateString();    
+              
             $quit=new Quit([
                 'date' =>$date,
                 'tuitions' => $tuition,
@@ -111,11 +112,9 @@ class Quits
                 $quit->details()->save($quitDetail);
                
                 $signup->update([
-                    'status' => -1
+                    'status' => -1,
+                   
                 ]);
-    
-               
-                
                 
             });
             
@@ -123,7 +122,7 @@ class Quits
         foreach($studentsInCourse->get() as $student){
             $student->update([
                 'status' => -1, 
-            
+                'quitDate' => $date
             ]);
         }
         
@@ -161,7 +160,7 @@ class Quits
                     $student= $signupDetail->getStudent();
                     $student->update([
                         'status' => -1, 
-                    
+                        'quitDate' => $quit->date
                     ]);
                 } 
                
@@ -182,6 +181,7 @@ class Quits
 
     public function updateQuit(Quit $quit ,array $quitValues, array $detailsValues)
     {
+        $date=$quitValues['date'];
         DB::transaction(function() use($quit,$quitValues,$detailsValues) {
            
             foreach($detailsValues as $detail){
@@ -194,6 +194,7 @@ class Quits
                     $student= $signupDetail->getStudent();
                     $student->update([
                         'status' => 1, 
+                        'quitDate' => $date
                     ]);
                     $quitDetail->delete();
                 }else{
@@ -284,7 +285,8 @@ class Quits
                 $student= $signupDetail->getStudent();
                 $student->update([
                     'status' => 1, 
-                    'updatedBy' => $updatedBy
+                    'quitDate' => '',
+                    'updatedBy' => $updatedBy,
                 ]);
             }
 

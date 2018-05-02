@@ -37,6 +37,17 @@ return [
         'mackey' => 'IVIPUZ2FTROXRQUAVGBD9QTT8YKT7LZZ', 
     ),
 
+    'wage' => array(
+        'night' => [
+            'east' => 1800,
+            'west' => 1800
+        ],  
+        'big' => [
+            'east' => 15,
+            'west' => 18
+        ],  
+    ),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

@@ -124,7 +124,7 @@ export default {
     align-items: center;
 }
 .date-input {
-    width:85%;
+    width:75%;
 	border: 1px solid #c3c3c3;
 	height: 36px;
 	line-height: 36px;

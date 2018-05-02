@@ -14,7 +14,10 @@ class CreateStudentsTable extends Migration
             $table->integer('courseId')->unsigned(); 
             $table->integer('userId')->unsigned(); 
             $table->integer('status'); 
-            $table->decimal('score', 8, 2)->nullable();   
+            $table->decimal('score', 8, 2)->nullable(); 
+            
+            $table->date('joinDate');
+            $table->date('quitDate')->nullable();
             
             $table->string('ps')->nullable();
             $table->integer('updatedBy')->unsigned()->nullable();

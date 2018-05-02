@@ -3,13 +3,13 @@
 Auth::routes();
 
 Route::get('/test', function () {
-   
-
-    
+    $date=new Carbon\Carbon('2018-4-2'); 
+    $date= $date->addDays(rand(0 ,45));
+    dd($date);
     
 });
 
-//Route::get('/test', 'LessonsController@test');
+Route::get('/test', 'PayrollsController@test');
 
 
 
@@ -86,6 +86,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::get('/manage/SeedSignups', 'SignupsController@seed');
     Route::get('/manage/seedPays', 'BillsController@seedPays');
     Route::get('/manage/seedQuits', 'QuitsController@seedQuits');
+    Route::get('/manage/seedLessons', 'LessonsController@seedLessons');
 
 
     Route::resource('/manage/change-password', 'ChangePasswordController',['only' => ['index','store']]);
@@ -179,6 +180,8 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/lessons/init', 'LessonsController@init');
     Route::post('/manage/lessons/review', 'LessonsController@review');
     Route::post('/manage/lessons/updateMember', 'LessonsController@updateMember');
+
+    Route::resource('/manage/payrolls', 'PayrollsController');
 
    
 

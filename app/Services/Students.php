@@ -46,7 +46,7 @@ class Students
         return $student;
     }
 
-    public function createStudent($courseId, $userId)
+    public function createStudent($courseId, $userId, $joinDate='')
     {
        
         $exist = $this->findStudent($courseId, $userId);
@@ -56,6 +56,7 @@ class Students
         $student=Student::create([
             'userId' => $userId,
             'courseId' => $courseId,
+            'joinDate' => $joinDate,
             'status' => 1,
             'score' => 0
         ]);

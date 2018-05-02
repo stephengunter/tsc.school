@@ -72,6 +72,11 @@ class Menus
                         'text' => '課堂紀錄',
                         'path' => '/manage/lessons',
                         'active' => $current=='manage/lessons'
+                    ],
+                    [
+                        'text' => '教師鐘點費',
+                        'path' => '/manage/payrolls',
+                        'active' => $current=='manage/payrolls'
                     ]
                 );
         } 

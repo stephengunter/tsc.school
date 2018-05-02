@@ -149,15 +149,15 @@ class StudentsController extends Controller
         {
             $selectedCourse = $this->courses->getById($courseOptions[0]['value']);
         }
-
-       
-
+        
         $students = $this->students->getStudentsByCourse($selectedCourse); 
        
         $students = $students->orderBy('status','desc');
 
         $pageList = new PagedList($students);
-
+        foreach($pageList->viewList as $student){
+            //$student->absenceRecords()->get();
+        }  
        
         $canEditScores=$this->canEditCourse($selectedCourse);
 

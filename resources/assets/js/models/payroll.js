@@ -1,6 +1,6 @@
 import jsPDF from 'jsPdf';
 
-class Lesson {
+class Payroll {
     constructor(data) {
  
         for (let property in data) {
@@ -10,7 +10,7 @@ class Lesson {
     }
  
     static source() {
-        return '/manage/lessons';
+        return '/manage/payrolls';
     }
     static initUrl(){
         return this.source() + '/init';
@@ -272,32 +272,18 @@ class Lesson {
         return `<span class="${style}" > ${text} </span>`
     }
 
-    static teacherNames(lesson){
-        let names=lesson.teachers.map(item=>{
+    static teacherNames(payroll){
+        let names=payroll.teachers.map(item=>{
             return item.profile.fullname;
         })
         return names.join(',');
     }
 
-    static volunteerNames(lesson){
-        let names=lesson.volunteers.map(item=>{
-            return item.profile.fullname;
-        })
-        return names.join(',');
-    }
+    
 
-    static absenceOptions() {
-        return [{
-            text: '正常',
-            value: false
-        }, {
-            text: '缺席',
-            value: true
-        }]
-    }
- 
+    
     
  }
  
  
- export default Lesson;
+ export default Payroll;

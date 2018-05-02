@@ -26,6 +26,7 @@
                         </th>
                         <th >Email</th>
                         <th style="width:10%">手機</th>
+                        <th style="width:10%">缺席次數</th>
                         <th style="width:10%"></th>
                     </tr>
                 </thead>
@@ -49,6 +50,9 @@
                        
                         <td>{{  student.user.email }}</td>
                         <td>{{  student.user.phone }}</td>
+                        <td>
+                            {{  student.absenceCount }}
+                        </td>
                         <td>
                             <span v-if="student.status < 0" class="label label-default"> 已退出 </span>
                         </td>

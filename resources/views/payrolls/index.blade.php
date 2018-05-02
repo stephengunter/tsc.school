@@ -4,13 +4,13 @@
 @section('content')
 
 
-<lessons-index v-show="indexMode" :init_model="model" :terms="terms" :centers="centers" :courses="courses" 
+<payrolls-index v-show="indexMode" :init_model="model" :init_params="params" :centers="centers" :years="years" :months="months"
                 :can_review="can_review" :version="version"
                v-on:selected="onSelected">
-</lessons-index>
-<lessons-details v-if="selected" :id="selected"  
-                 v-on:back="backToIndex" v-on:lesson-deleted="backToIndex">
-</lessons-details>
+</payrolls-index>
+<payrolls-details v-if="selected" :id="selected"  
+                 v-on:back="backToIndex" v-on:payroll-deleted="backToIndex">
+</payrolls-details>
 
 
 
@@ -28,18 +28,20 @@
 
                     model: {},
 
-                    terms: [],
+                   
                     centers: [],
-                    courses: [],
+                    years: [],
+                    months: [],
+
+                    params:{
+                        year:0,
+                        month:0
+                    }
 
                     can_review: false,
 
-                    courseId:0,
-
-                 
+                   
                     selected: 0,
-
-                    
 
                 }
             },
@@ -54,15 +56,21 @@
             beforeMount() {
                 this.model = {!! json_encode($list) !!} ;
 
-                this.terms = {!! json_encode($terms) !!} ;
+              
                 this.centers = {!! json_encode($centers) !!} ;
-                this.courses = {!! json_encode($courses) !!} ;
-               
+                this.years = {!! json_encode($years) !!} ;
+                this.months = {!! json_encode($months) !!} ;
+
+                let year = {!! json_encode($year) !!} ;
+                let month = {!! json_encode($month) !!} ;
+                this.params.year=year;
+                this.params.month=month;
+
                 this.can_review = Helper.isTrue('{!! $canReview !!}');  
 			},
             methods: {
                 
-                onSelected(id,group) {
+                onSelected(id) {
                     this.selected = id;
                 },
                 backToIndex() {

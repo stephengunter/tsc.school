@@ -23,36 +23,36 @@
                     
                 </thead>
                 <tbody>
-                    <tr v-for="(lesson,index) in getViewList()" :key="index">
+                    <tr v-for="(payroll,index) in getViewList()" :key="index">
                         <td v-if="canCheck">
-							<check-box :value="lesson.id" :default="beenChecked(lesson.id)"
+							<check-box :value="payroll.id" :default="beenChecked(payroll.id)"
 								@selected="onChecked" @unselected="unChecked">
 							</check-box>
                         </td>
                       
                         <td> 
-                            <a  href="#" @click.prevent="onSelected(lesson.id)" v-text="lesson.course.fullName"> </a> 
+                            <a  href="#" @click.prevent="onSelected(payroll.id)" v-text="payroll.course.fullName"> </a> 
                          
                         </td>
                         <td> 
-                            {{ lesson.date }} 
+                            {{ payroll.date }} 
                         </td>
                         <td>
-                             {{ lesson.timeString }} 
+                             {{ payroll.timeString }} 
                         </td>
-                        <td> {{ lesson.hours }} </td>
+                        <td> {{ payroll.hours }} </td>
 
                         
-                        <td v-html="teacherNames(lesson)">
+                        <td v-html="teacherNames(payroll)">
                            
                         </td>
-                        <td v-html="volunteerNames(lesson)" > 
+                        <td v-html="volunteerNames(payroll)" > 
                              
                         </td>
                         <td>
-                            {{ lesson.studentCount }} 
+                            {{ payroll.studentCount }} 
                         </td>
-                        <td v-html="$options.filters.reviewedLabel(lesson.reviewed)" ></td>
+                        <td v-html="$options.filters.reviewedLabel(payroll.reviewed)" ></td>
                     </tr>
                     
                 </tbody>
@@ -69,13 +69,13 @@
 
 <script>
 export default {
-    name:'LessonTable',
+    name:'PayrollTable',
     props: {
         model: {
             type: Object,
             default: null
         },
-        lessons:{
+        payrolls:{
             type: Array,
             default: null
         },
@@ -122,13 +122,13 @@ export default {
     methods:{
         getViewList(){
 			if(this.model) return this.model.viewList;
-			return this.lessons;
+			return this.payrolls;
         },
-        teacherNames(lesson){
-            return Lesson.teacherNames(lesson);
+        teacherNames(payroll){
+            return Payroll.teacherNames(payroll);
         },
-        volunteerNames(lesson){
-            return Lesson.volunteerNames(lesson);
+        volunteerNames(payroll){
+            return Payroll.volunteerNames(payroll);
         },
         onSelected(id){
             
@@ -150,11 +150,11 @@ export default {
 		onCheckAll(){
 			this.checkAll=true;
 			
-			let lessonList = this.getViewList();
-			if(!lessonList)  return false;
+			let payrollList = this.getViewList();
+			if(!payrollList)  return false;
 
-			lessonList.forEach( lesson => {
-				this.onChecked(lesson.id)
+			payrollList.forEach( payroll => {
+				this.onChecked(payroll.id)
 			});
 		},
 		unCheckAll(){

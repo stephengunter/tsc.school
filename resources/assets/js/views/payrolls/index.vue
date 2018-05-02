@@ -6,56 +6,49 @@
                 <h3 v-html="title">
                 </h3>
             </div>
-            <div class="col-sm-10 form-inline" style="margin-top: 20px;">
+            <div class="col-sm-8 form-inline" style="margin-top: 20px;">
                
-                
-                <div class="form-group" style="padding-left:0.5em;">
-                    <drop-down :items="terms" :selected="params.term"
-                        @selected="onTermSelected">
-                    </drop-down>
-                </div>
                 <div  class="form-group" style="padding-left:0.5em;">
                     <drop-down :items="centers" :selected="params.center"
                         @selected="onCenterSelected">
                     </drop-down>
                 </div>
                 <div  class="form-group" style="padding-left:0.5em;">
-                    <drop-down :items="courseOptions" :selected="params.course"
-                        @selected="onCourseSelected">
-                    </drop-down>
+                    <select v-model="params.year"  class="form-control">
+                        <option v-for="(item,index) in years" :key="index" :value="item.value" v-text="item.text" >
+                        </option>
+                    </select>
+                </div>
+                <div  class="form-group" style="padding-left:0.5em;">
+                    <select v-model="params.month"  class="form-control">
+                        <option v-for="(item,index) in months" :key="index" :value="item.value" v-text="item.text" >
+                        </option>
+                    </select>
                 </div>
                 <div  class="form-group" style="padding-left:0.5em;">
                     <toggle :items="reviewedOptions"   :default_val="params.reviewed" @selected="setReviewed"></toggle>
                     
                 </div>
-                <div  class="form-group" style="padding-left:0.5em;">
-                    
-                    <datetime-picker :date="params.beginDate" :can_clear="true" placeholder="日期起"
-                        @selected="setBeginDate">
-                    </datetime-picker>
-                    <datetime-picker :date="params.endDate" :can_clear="true" placeholder="日期止"
-                        @selected="setEndDate">
-                    </datetime-picker>
-                </div>
-                <div  class="form-group" style="padding-left:0.5em;">
-                    
-                    <a v-if="showReviewBtn" @click.prevent="onReviewOk" :disabled="!canSubmitReview"  href="#" class="btn btn-success">
-                        <i class="fa fa-check-circle"></i>
-                        審核通過
-                    </a>
-                    <a v-show="hasBeginDate" @click.prevent="onInitByDate" href="#" class="btn btn-warning">
-                       <i class="fa fa-play-circle"></i>
-                        自動產生
-                    </a>
-                </div>
+                
             </div>
-            
+            <div class="col-sm-2 pull-right" align="right" style="margin-top: 20px;">
+
+                <a v-if="showReviewBtn" @click.prevent="onReviewOk" :disabled="!canSubmitReview"  href="#" class="btn btn-success">
+                    <i class="fa fa-check-circle"></i>
+                    審核通過
+                </a>
+                <a @click.prevent="onInitByDate" href="#" class="btn btn-warning">
+                    <i class="fa fa-play-circle"></i>
+                    自動產生
+                </a>
+                
+            </div>
             
         </div>
 
         <hr/>    
         
-        <lesson-table :model="model" :can_review="showReviewBtn" ref="lessonsTable"
+        <payroll-table v-if="false" :model="model" :can_review="showReviewBtn" ref="payrollsTable"
             @selected="onSelected" @check-changed="onCheckIdsChanged">
             <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
                 <page-controll   :model="model" >
@@ -63,7 +56,7 @@
                 </page-controll>
         
             </div>
-        </lesson-table>
+        </payroll-table>
         
         
 
@@ -76,15 +69,19 @@
 
 
 <script>
-    import LessonTable from '../../components/lesson/table';
+    import PayrollTable from '../../components/payroll/table';
     
     export default {
-        name:'LessonIndexView',
+        name:'PayrollIndexView',
         components: {
-            'lesson-table':LessonTable
+            'payroll-table':PayrollTable
         },
         props: {
             init_model: {
+                type: Object,
+                default: null
+            },
+            init_params: {
                 type: Object,
                 default: null
             },
@@ -92,15 +89,15 @@
                 type:Boolean,
                 default:false
             },
-            terms:{
-                type:Array,
-                default:null
-            },
             centers:{
                 type:Array,
                 default:null
             },
-            courses:{
+            years:{
+                type:Array,
+                default:null
+            },
+            months:{
                 type:Array,
                 default:null
             },
@@ -111,21 +108,17 @@
         },
         data(){
             return {
-                title: Menus.getIcon('lessons')  + '  課堂紀錄',
-               
-                loaded:false,
+                title: '教師鐘點費',
 
                 model:null,
 
                 courseOptions:[],
                 
                 params:{
-                    term:'0',
                     center:'0',
-                    course:'0',
-                    reviewed:false,
-                    beginDate:'',
-                    endDate:''
+                    year:'0',
+                    month:'0',
+                    reviewed:false
                 },
               
                 canReview:false,
@@ -141,21 +134,16 @@
             if(this.init_model){
                 this.model={...this.init_model };
             }
-
-            this.courseOptions=this.courses.slice(0);
-            this.params.term=this.terms[0].value;
+           
             this.params.center=this.centers[0].value;
+
+            this.params.year=this.init_params.year;
+            this.params.month=this.init_params.month;
             	
             this.canReview=this.can_review;	 	
         },
         computed:{
-            hasCourse(){
-                return Helper.tryParseInt(this.params.course) > 0;
-            },
-            hasBeginDate(){
-                if(this.params.beginDate) return true;
-                return false;
-            },
+            
             showReviewBtn(){
                 
                 if(this.params.reviewed) return false;
@@ -175,30 +163,13 @@
             onSelected(id){
                this.$emit('selected',id);
             },
-            onTermSelected(item){
-                this.params.term=item.value;
-                this.params.course='0';
-                this.fetchData()
-            },
             onCenterSelected(item){
                 this.params.center = item.value;
                 this.params.course='0';
                 this.fetchData();
             },
-            onCourseSelected(item){
-                this.params.course = item.value;
-                this.fetchData();
-            },
             setReviewed(val) {
                 this.params.reviewed = val;
-                this.fetchData();
-            },
-            setBeginDate(val){
-                this.params.beginDate=val;
-                this.fetchData();
-            },
-            setEndDate(val){
-                this.params.endDate=val;
                 this.fetchData();
             },
             onInitByDate(){
@@ -208,7 +179,7 @@
                     center:center,
                     date:date
                 });
-                let init=Lesson.init(form);
+                let init=Payroll.init(form);
                 init.then(() => {
                     Helper.BusEmitOK('資料已存檔');
                     this.fetchData();
@@ -227,7 +198,7 @@
                 };
                 if(!params.beginDate) params.beginDate='';
                 
-                let getData = Lesson.index(params);
+                let getData = Payroll.index(params);
 
                 getData.then(model => {
 
@@ -247,7 +218,7 @@
                 
                 if(!this.checkedIds.length) return;
 
-                let lessons= this.checkedIds.map((item)=>{
+                let payrolls= this.checkedIds.map((item)=>{
                    return {
                        id:item,
                        reviewed:true
@@ -255,15 +226,15 @@
                 })
 
                 let form=new Form({
-                    lessons:lessons
+                    payrolls:payrolls
                 });
 
-                let save=Lesson.review(form);
+                let save=Payroll.review(form);
 				save.then(() => {
                     Helper.BusEmitOK('資料已存檔');
                     this.fetchData();
                     this.checkedIds=[];
-                    this.$refs.lessonsTable.unCheckAll();
+                    this.$refs.payrollsTable.unCheckAll();
 				})
 				.catch(error => {
 					Helper.BusEmitError(error,'存檔失敗');
