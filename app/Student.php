@@ -58,5 +58,10 @@ class Student extends Model
 
 		return $studentLessonRecords->where('absence',true);
 
-	}
+    }
+    
+    public function  hasQuit()
+    {
+        return $this->status < 0;
+    }
 }

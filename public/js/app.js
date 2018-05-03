@@ -94201,12 +94201,14 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 					if (_this.user) {
 						_this.form = new Form({
 							admin: _extends({}, model.admin),
+							role: model.role,
 							user: _extends({}, _this.user),
 							centerIds: []
 						});
 					} else {
 						_this.form = new Form({
 							admin: _extends({}, model.admin),
+							role: model.role,
 							user: _extends({}, model.user),
 							centerIds: []
 						});
@@ -94231,18 +94233,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			}).catch(function (error) {
 				Helper.BusEmitError(error);
 			});
-		},
-		setActive: function setActive(val) {
-			this.form.admin.active = val;
-		},
-		setOpenDate: function setOpenDate(val) {
-			this.form.admin.openDate = val;
-		},
-		setBirdDate: function setBirdDate(val) {
-			this.form.admin.birdDate = val;
-		},
-		setCloseDate: function setCloseDate(val) {
-			this.form.admin.closeDate = val;
 		},
 		getErrors: function getErrors() {
 			var errors = {};
@@ -94703,7 +94693,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (values.length) this.form.errors.clear('centerIds');
         },
         setRole: function setRole(val) {
-            this.form.user.roles = val;
+            this.form.role = val;
         }
     }
 });
@@ -94768,7 +94758,7 @@ var render = function() {
                 _c("toggle", {
                   attrs: {
                     items: _vm.role_options,
-                    default_val: _vm.form.user.roles
+                    default_val: _vm.form.role
                   },
                   on: { selected: _vm.setRole }
                 })

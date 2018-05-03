@@ -15,7 +15,7 @@
         <div class="form-group">
             <label class="col-md-2 control-label">角色</label>
             <div class="col-md-10">
-                <toggle :items="role_options"   :default_val="form.user.roles" @selected="setRole"></toggle>
+                <toggle :items="role_options"   :default_val="form.role" @selected="setRole"></toggle>
             </div>
             
         </div>
@@ -64,7 +64,7 @@ export default {
             if(values.length)  this.form.errors.clear('centerIds');
         },
         setRole(val){
-            this.form.user.roles=val;
+            this.form.role=val;
         }
     }
 }

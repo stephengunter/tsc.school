@@ -3,13 +3,11 @@
 Auth::routes();
 
 Route::get('/test', function () {
-    $date=new Carbon\Carbon('2018-4-2'); 
-    $date= $date->addDays(rand(0 ,45));
-    dd($date);
+    
     
 });
 
-Route::get('/test', 'PayrollsController@test');
+//Route::get('/test', 'PayrollsController@test');
 
 
 

@@ -53,6 +53,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        // if(!Helper::str_starts_with($request->path(),'manage')){
+        //     return response()->view('errors');
+        // }
+
         return parent::render($request, $exception);
     }
 

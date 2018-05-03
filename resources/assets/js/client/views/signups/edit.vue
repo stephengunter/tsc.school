@@ -5,7 +5,8 @@
                 線上報名
             </h2>
         </div>
-        <div class="columns" style="padding-top:1em">
+        
+        <div v-if="!err" class="columns" style="padding-top:1em">
             
             <signup-edit :form="form" :identity_options="identity_options"
                @saved="onSaved" @cancel="onCancel">
@@ -35,11 +36,11 @@
             identity_options: {
                 type: Array,
                 default: null
-            },
+            }
         },
         data(){
             return {
-            
+                
             }
         },
         beforeMount(){

@@ -67,6 +67,8 @@ class UserController extends Controller
         $id = $this->currentUserId();
         $user = $this->users->getById($id);
 
+       
+
         $userValuesWithProfile=$request->getUserValues(true);
        
         $roleName=$request['role'];
@@ -75,7 +77,9 @@ class UserController extends Controller
         if($user->isBoss()) $roleName=Role::bossRoleName();
         else if($user->isStaff()) $roleName=Role::staffRoleName();
         else if($user->isTeacher()) $roleName=Role::teacherRoleName();
-        else if($user->isStudent()) $roleName=Role::isStudent();
+        else if($user->isStudent()) $roleName=Role::studentRoleName();
+
+       
 
         $errors=$this->users->validateUserInputs($userValuesWithProfile, $roleName);
 

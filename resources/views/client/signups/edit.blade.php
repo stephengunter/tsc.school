@@ -22,39 +22,42 @@ new Vue({
             identityOptions:[],
          
             canEdit:true,
-            canBack:false
+            canBack:false,
+
+            
         }
     },
     beforeMount() {
-        let signup = {!! json_encode($signup) !!};
-        let user = {!! json_encode($user) !!};
-       
-      
-        let identityIds = {!! json_encode($identityIds) !!};
-        let lotus = {!! json_encode($lotus) !!};
-
-        this.identityOptions = {!! json_encode($identityOptions) !!};
-         
-        this.form = new Form({
-							signup:{
-								...signup
-							},
-							user:{
-								...user
-							},
-							lotus:lotus,
-							
-							identityIds:identityIds.map(item=> parseInt(item))
-						});
-
-
+        this.init();
                
     },
     mounted(){
         onPageLoaded();
     },
     methods: {
+        init(){
+            let signup = {!! json_encode($signup) !!};
+            let user = {!! json_encode($user) !!};
         
+        
+            let identityIds = {!! json_encode($identityIds) !!};
+            let lotus = {!! json_encode($lotus) !!};
+
+            this.identityOptions = {!! json_encode($identityOptions) !!};
+            
+            this.form = new Form({
+                                signup:{
+                                    ...signup
+                                },
+                                user:{
+                                    ...user
+                                },
+                                lotus:lotus,
+                                
+                                identityIds:identityIds.map(item=> parseInt(item))
+                            });
+
+        }
     }
 
 });

@@ -60,8 +60,9 @@ class StudentsController extends Controller
 
     function canTrans($student)
     {
-        
+        if($student->hasQuit()) return false;
         return $this->canEdit($student);
+        
 
     }
    
@@ -156,7 +157,7 @@ class StudentsController extends Controller
 
         $pageList = new PagedList($students);
         foreach($pageList->viewList as $student){
-            //$student->absenceRecords()->get();
+            $student->absenceCount=$student->absenceRecords()->count();
         }  
        
         $canEditScores=$this->canEditCourse($selectedCourse);
@@ -184,8 +185,6 @@ class StudentsController extends Controller
        
         $student = $this->students->getById($id);
         if(!$student) abort(404);
-
-        
 
         $student->loadViewModel();
 

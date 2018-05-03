@@ -112,6 +112,7 @@ export default {
 							admin:{
 								...model.admin
 							},
+							role:model.role,
 							user:{
 								...this.user
 							},
@@ -124,6 +125,7 @@ export default {
 							admin:{
 								...model.admin
 							},
+							role:model.role,
 							user:{
 								...model.user
 							},
@@ -158,18 +160,6 @@ export default {
 				Helper.BusEmitError(error); 
 			})
         },
-        setActive(val) {
-            this.form.admin.active = val;
-        },
-        setOpenDate(val){
-            this.form.admin.openDate=val;
-        },
-        setBirdDate(val){
-            this.form.admin.birdDate=val;
-        },
-        setCloseDate(val){
-            this.form.admin.closeDate=val;
-		},
 		getErrors(){
 			let errors={ };
 			if(!this.form.user.phone) errors['user.phone']=['必須填寫手機'];

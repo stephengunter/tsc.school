@@ -72180,6 +72180,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
@@ -73319,6 +73320,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -73479,12 +73481,8 @@ var render = function() {
               _vm.hasDiscount
                 ? _c("div", [
                     _c("label", { staticClass: "label label-title" }, [
-                      _vm._v("折扣")
-                    ]),
-                    _vm._v(" "),
-                    _c("p", [
                       _vm._v(
-                        "\r\n                        " +
+                        "折扣：\r\n                          " +
                           _vm._s(_vm.signup.discount) +
                           " \r\n                        "
                       ),
@@ -73535,17 +73533,19 @@ var render = function() {
   return _c("div", [
     _vm._m(0),
     _vm._v(" "),
-    _c(
-      "div",
-      { staticClass: "columns", staticStyle: { "padding-top": "1em" } },
-      [
-        _c("signup-edit", {
-          attrs: { form: _vm.form, identity_options: _vm.identity_options },
-          on: { saved: _vm.onSaved, cancel: _vm.onCancel }
-        })
-      ],
-      1
-    )
+    !_vm.err
+      ? _c(
+          "div",
+          { staticClass: "columns", staticStyle: { "padding-top": "1em" } },
+          [
+            _c("signup-edit", {
+              attrs: { form: _vm.form, identity_options: _vm.identity_options },
+              on: { saved: _vm.onSaved, cancel: _vm.onCancel }
+            })
+          ],
+          1
+        )
+      : _vm._e()
   ])
 }
 var staticRenderFns = [

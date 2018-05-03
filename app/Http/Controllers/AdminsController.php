@@ -180,17 +180,17 @@ class AdminsController extends Controller
         $admin=Admin::init();
         $user=User::init();
         $roleOptions=$this->roleOptions();
+      
         $centerOptions = $this->centerOptions();
         $centerIds=[];
         if (count($centerOptions))
         {
             array_push($centerIds,$centerOptions[0]['value']);
-           
-            $user['roles'] = Role::staffRoleName();
         }
       
         $form=[
             'admin' => $admin,
+            'role' => Role::staffRoleName(),
             'user' => $user,
             'roleOptions' => $roleOptions,
             'centerOptions' => $centerOptions,
@@ -209,7 +209,7 @@ class AdminsController extends Controller
         $userValues=$request->getUserValues();
         $profileValues= $userValues['profile'];
 
-        $role = $userValues['roles'];
+        $role = $request['role'];
       
         $errors=$this->users->validateUserInputs($userValues,$role);
         if($errors) return $this->requestError($errors);
@@ -233,7 +233,7 @@ class AdminsController extends Controller
         $userValues['updatedBy']=$updatedBy;
         $profileValues['updatedBy']=$updatedBy;
 
-        $role = $userValues['roles'];
+      
         
         $userValues=array_except($userValues,['profile','roles']);
         $userId=$request->getUserId();

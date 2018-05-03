@@ -9,6 +9,7 @@ use App\Tran;
 use App\Course;
 use App\Services\Users;
 use DB;
+use Carbon\Carbon;
 
 class Trans 
 {
@@ -38,6 +39,7 @@ class Trans
                 'status' => 1,
                 'userId' => $student->userId,
                 'courseId' => $tran->courseId,
+                'joinDate' => Carbon::today()
             ]);
            
             return $tran;

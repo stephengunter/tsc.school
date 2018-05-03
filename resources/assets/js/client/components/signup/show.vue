@@ -44,13 +44,14 @@
         <div class="columns" >
             <div  class="column">
                 <div v-if="hasDiscount">
-                     <label class="label label-title">折扣</label>
-                    <p >
-                        {{ signup.discount }} 
+                     <label class="label label-title">折扣：
+                          {{ signup.discount }} 
                         <span>
                             &nbsp; {{ signup.pointsText }}
                         </span>  
-                    </p>     
+
+                     </label>
+                     
                 </div>
                                 
             </div>

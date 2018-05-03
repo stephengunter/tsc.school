@@ -130,7 +130,15 @@ class SignupsController extends Controller
         if(!$selectedCourse) abort(404);
 
         if($this->canNotSignup($selectedCourse, $user)){
-            abort(404);
+            
+            $model=[
+                'title' => '線上報名 - ' .  $selectedCourse->fullName(),
+                'topMenus' => $this->clientMenus(),
+    
+                'err' => 'canNotSignup'
+            ];
+    
+            return view('client.signups.error')->with($model);
         }
        
 
@@ -176,7 +184,9 @@ class SignupsController extends Controller
           
             'identityOptions' => $this->discounts->getIdentitiesOptions($selectedCourse->center),            
             'identityIds' => $identityIds,
-            'lotus' => false
+            'lotus' => false,
+
+            'err' => ''
         ];
 
         return view('client.signups.edit')->with($model);
@@ -264,9 +274,10 @@ class SignupsController extends Controller
         $user = $this->users->getById($this->currentUserId());
         if($signup->userId!=$user->id)  abort(404);
 
-       
-
         $signup->loadViewModel();
+
+        $signup->bill->payDate = new Carbon($signup->bill->payDate);
+        $signup->bill->payDate = $signup->bill->payDate->toDateString();
 
         foreach($signup->details as $detail){
           
