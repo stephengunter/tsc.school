@@ -1,24 +1,25 @@
 <template>
 <div>
-    <!-- <payroll :id="id" ref="payrollView" 
-     :can_edit="payrollSettings.can_edit" :can_back="payrollSettings.can_back"  
+    <payroll :id="id" ref="payrollView" 
+      :can_back="payrollSettings.can_back"  
       @loaded="onPayrollLoaded"   @back="onBack" @saved="reloadPayroll"  
       @deleted="onPayrollDeleted" >
      
-    </payroll> -->
+    </payroll>
 
     <div v-if="payroll">
         
         <div>
             <ul class="nav nav-tabs">
                 <li :class="{ active: activeIndex==0 , 'label-title':true}" >
-                    <a @click.prevent="activeIndex=0" href="#" >課堂學員</a>
+                    <a @click.prevent="activeIndex=0" href="#" >鐘點費明細</a>
                 </li>
             </ul>
             <div class="tab-content" style="margin-top:10px">
                 <div class="tab-pane fade active in">
                     
-                   
+                   <details-table  v-if="activeIndex==0" :payroll="payroll">
+                   </details-table>
                     
                 </div>
                           
@@ -33,12 +34,13 @@
 </template>
 <script>
    
-    //import PayrollComponent from '../../components/payroll/view.vue';
+    import PayrollComponent from '../../components/payroll/view.vue';
+    import PayrollDetailsTable from '../../components/payroll/details-table.vue';
     export default {
         name: 'PayrollDetails',
         components: {
-            // 'payroll':PayrollComponent,
-            // 'payroll-students':PayrollStudents,
+            'payroll':PayrollComponent,
+            'details-table':PayrollDetailsTable,
         },
         props: {
             id: {

@@ -85,6 +85,7 @@ import Course from './models/course';
 import ClassTime from './models/classTime';
 import Process from './models/process';
 import Lesson from './models/lesson';
+import Payroll from './models/payroll';
 import Signup from './models/signup';
 import Bill from './models/bill';
 import Quit from './models/quit';
@@ -110,6 +111,7 @@ window.Course=Course;
 window.ClassTime=ClassTime;
 window.Process=Process;
 window.Lesson=Lesson;
+window.Payroll=Payroll;
 window.Signup=Signup;
 window.Bill=Bill;
 window.Quit=Quit;
@@ -150,6 +152,10 @@ Vue.filter('signupStatusLabel', (status)=> {
 
 Vue.filter('quitStatusLabel', (status)=> {
     return Quit.statusLabel(status)
+});
+
+Vue.filter('payrollStatusLabel', (status)=> {
+    return Payroll.statusLabel(status)
 });
 
 

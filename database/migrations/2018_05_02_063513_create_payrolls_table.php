@@ -17,7 +17,7 @@ class CreatePayrollsTable extends Migration
             $table->increments('id');
             $table->integer('centerId')->unsigned();
             $table->integer('userId')->unsigned();
-
+            $table->string('wageName');
             $table->integer('year')->unsigned();
             $table->integer('month')->unsigned();
 

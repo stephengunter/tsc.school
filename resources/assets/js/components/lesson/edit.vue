@@ -189,7 +189,6 @@ export default {
 			
 		},
 		clearErrorMsg(name) {
-			
       	    this.form.errors.clear(name);
         },
 	}

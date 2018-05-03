@@ -10,14 +10,11 @@
 							 @selected="onCheckAll" @unselected="unCheckAll">
 							</check-box>
                         </th>
-                        
-                        <th style="width:15%">課程</th>
-                        <th style="width:10%">課堂日期</th>
-                        <th style="width:10%">上課時間</th>
-                        <th style="width:10%">時數</th>
-                        <th>授課教師</th>
-                        <th style="width:15%">教育志工</th>
-                        <th style="width:10%">學員人數</th>
+                        <th style="width:10%">開課中心</th>
+                        <th style="width:10%">教師姓名</th>
+                        <th style="width:10%">薪酬標準</th>
+                        <th style="width:10%">月份</th>
+                        <th style="width:10%">鐘點費金額</th>
                         <th style="width:5%">審核</th>
                     </tr>
                     
@@ -29,30 +26,25 @@
 								@selected="onChecked" @unselected="unChecked">
 							</check-box>
                         </td>
+                        <td>
+                            {{ payroll.center.name }} 
+                        </td>
                       
                         <td> 
-                            <a  href="#" @click.prevent="onSelected(payroll.id)" v-text="payroll.course.fullName"> </a> 
+                            <a  href="#" @click.prevent="onSelected(payroll.id)" v-text="payroll.user.profile.fullname"> </a> 
                          
                         </td>
                         <td> 
-                            {{ payroll.date }} 
+                            {{ payroll.wageName }} 
                         </td>
                         <td>
-                             {{ payroll.timeString }} 
+                             {{ payroll.monthString }} 
                         </td>
-                        <td> {{ payroll.hours }} </td>
-
-                        
-                        <td v-html="teacherNames(payroll)">
-                           
+                        <td> 
+                             {{ payroll.amount | formatMoney }} 
                         </td>
-                        <td v-html="volunteerNames(payroll)" > 
-                             
-                        </td>
-                        <td>
-                            {{ payroll.studentCount }} 
-                        </td>
-                        <td v-html="$options.filters.reviewedLabel(payroll.reviewed)" ></td>
+                      
+                        <td v-html="getStatusLabels(payroll)" ></td>
                     </tr>
                     
                 </tbody>
@@ -124,11 +116,10 @@ export default {
 			if(this.model) return this.model.viewList;
 			return this.payrolls;
         },
-        teacherNames(payroll){
-            return Payroll.teacherNames(payroll);
-        },
-        volunteerNames(payroll){
-            return Payroll.volunteerNames(payroll);
+        getStatusLabels(lesson){
+            let reviewedLabel=Helper.reviewedLabel(lesson.reviewed);
+            let statusLabel=Payroll.statusLabel(lesson.status);
+            return reviewedLabel + '&nbsp;' +  statusLabel;
         },
         onSelected(id){
             

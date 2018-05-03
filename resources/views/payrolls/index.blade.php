@@ -5,8 +5,8 @@
 
 
 <payrolls-index v-show="indexMode" :init_model="model" :init_params="params" :centers="centers" :years="years" :months="months"
-                :can_review="can_review" :version="version"
-               v-on:selected="onSelected">
+                :can_review="can_review" :can_finish="can_finish" :version="version"
+                v-on:selected="onSelected">
 </payrolls-index>
 <payrolls-details v-if="selected" :id="selected"  
                  v-on:back="backToIndex" v-on:payroll-deleted="backToIndex">
@@ -36,9 +36,10 @@
                     params:{
                         year:0,
                         month:0
-                    }
+                    },
 
                     can_review: false,
+                    can_finish: false,
 
                    
                     selected: 0,
@@ -66,7 +67,8 @@
                 this.params.year=year;
                 this.params.month=month;
 
-                this.can_review = Helper.isTrue('{!! $canReview !!}');  
+                this.can_review = Helper.isTrue('{!! $canReview !!}');
+                this.can_finish = Helper.isTrue('{!! $canFinish !!}');  
 			},
             methods: {
                 

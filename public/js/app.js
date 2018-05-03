@@ -61996,7 +61996,7 @@ module.exports = Component.exports
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(141);
-module.exports = __webpack_require__(622);
+module.exports = __webpack_require__(631);
 
 
 /***/ }),
@@ -62010,7 +62010,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_select___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_select__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__xkeshi_vue_barcode__ = __webpack_require__(78);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__xkeshi_vue_barcode___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__xkeshi_vue_barcode__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_footer__ = __webpack_require__(619);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_footer__ = __webpack_require__(628);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_footer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_footer__);
 
 
@@ -62095,6 +62095,9 @@ Vue.component('students-details', __webpack_require__(580));
 Vue.component('lessons-index', __webpack_require__(595));
 Vue.component('lessons-details', __webpack_require__(601));
 
+Vue.component('payrolls-index', __webpack_require__(619));
+Vue.component('payrolls-details', __webpack_require__(625));
+
 
 new Vue({
   render: function render(h) {
@@ -62129,12 +62132,13 @@ new Vue({
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__models_classTime__ = __webpack_require__(160);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__models_process__ = __webpack_require__(161);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__models_lesson__ = __webpack_require__(162);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__models_signup__ = __webpack_require__(163);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__models_bill__ = __webpack_require__(164);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__models_quit__ = __webpack_require__(165);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_24__models_student__ = __webpack_require__(166);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_25__models_tran__ = __webpack_require__(167);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_26__models_files__ = __webpack_require__(168);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__models_payroll__ = __webpack_require__(844);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__models_signup__ = __webpack_require__(163);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__models_bill__ = __webpack_require__(164);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_24__models_quit__ = __webpack_require__(165);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_25__models_student__ = __webpack_require__(166);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_26__models_tran__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_27__models_files__ = __webpack_require__(168);
 
 window.Vue = __WEBPACK_IMPORTED_MODULE_0_vue___default.a;
 
@@ -62226,6 +62230,7 @@ window.Form = __WEBPACK_IMPORTED_MODULE_2__utilities_form__["a" /* default */];
 
 
 
+
 window.Auth = __WEBPACK_IMPORTED_MODULE_3__models_auth__["a" /* default */];
 window.Menus = __WEBPACK_IMPORTED_MODULE_4__models_menus__["a" /* default */];
 window.Term = __WEBPACK_IMPORTED_MODULE_5__models_term__["a" /* default */];
@@ -62244,12 +62249,13 @@ window.Course = __WEBPACK_IMPORTED_MODULE_17__models_course__["a" /* default */]
 window.ClassTime = __WEBPACK_IMPORTED_MODULE_18__models_classTime__["a" /* default */];
 window.Process = __WEBPACK_IMPORTED_MODULE_19__models_process__["a" /* default */];
 window.Lesson = __WEBPACK_IMPORTED_MODULE_20__models_lesson__["a" /* default */];
-window.Signup = __WEBPACK_IMPORTED_MODULE_21__models_signup__["a" /* default */];
-window.Bill = __WEBPACK_IMPORTED_MODULE_22__models_bill__["a" /* default */];
-window.Quit = __WEBPACK_IMPORTED_MODULE_23__models_quit__["a" /* default */];
-window.Student = __WEBPACK_IMPORTED_MODULE_24__models_student__["a" /* default */];
-window.Tran = __WEBPACK_IMPORTED_MODULE_25__models_tran__["a" /* default */];
-window.Files = __WEBPACK_IMPORTED_MODULE_26__models_files__["a" /* default */];
+window.Payroll = __WEBPACK_IMPORTED_MODULE_21__models_payroll__["a" /* default */];
+window.Signup = __WEBPACK_IMPORTED_MODULE_22__models_signup__["a" /* default */];
+window.Bill = __WEBPACK_IMPORTED_MODULE_23__models_bill__["a" /* default */];
+window.Quit = __WEBPACK_IMPORTED_MODULE_24__models_quit__["a" /* default */];
+window.Student = __WEBPACK_IMPORTED_MODULE_25__models_student__["a" /* default */];
+window.Tran = __WEBPACK_IMPORTED_MODULE_26__models_tran__["a" /* default */];
+window.Files = __WEBPACK_IMPORTED_MODULE_27__models_files__["a" /* default */];
 
 window.Bus = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({});
 
@@ -62277,11 +62283,15 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.filter('classTimesHtml', function (c
 });
 
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.filter('signupStatusLabel', function (status) {
-    return __WEBPACK_IMPORTED_MODULE_21__models_signup__["a" /* default */].statusLabel(status);
+    return __WEBPACK_IMPORTED_MODULE_22__models_signup__["a" /* default */].statusLabel(status);
 });
 
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.filter('quitStatusLabel', function (status) {
-    return __WEBPACK_IMPORTED_MODULE_23__models_quit__["a" /* default */].statusLabel(status);
+    return __WEBPACK_IMPORTED_MODULE_24__models_quit__["a" /* default */].statusLabel(status);
+});
+
+__WEBPACK_IMPORTED_MODULE_0_vue___default.a.filter('payrollStatusLabel', function (status) {
+    return __WEBPACK_IMPORTED_MODULE_21__models_payroll__["a" /* default */].statusLabel(status);
 });
 
 /***/ }),
@@ -65888,9 +65898,9 @@ var Lesson = function () {
         key: 'getStatusText',
         value: function getStatusText(status) {
             status = parseInt(status);
-            if (status == 0) return '待繳費';
-            if (status == 1) return '已繳費';
-            if (status == -1) return '已取消';
+            if (status == 0) return '未完成';
+            if (status == 1) return '已結案';
+
             return '';
         }
     }, {
@@ -65899,7 +65909,6 @@ var Lesson = function () {
             status = parseInt(status);
             if (status == 0) return 'default';
             if (status == 1) return 'info';
-            if (status == -1) return 'warning';
 
             return '';
         }
@@ -117531,7 +117540,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			});
 		},
 		clearErrorMsg: function clearErrorMsg(name) {
-
 			this.form.errors.clear(name);
 		}
 	}
@@ -118645,7 +118653,1292 @@ var normalizeComponent = __webpack_require__(0)
 /* script */
 var __vue_script__ = __webpack_require__(620)
 /* template */
-var __vue_template__ = __webpack_require__(621)
+var __vue_template__ = __webpack_require__(624)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\views\\payrolls\\index.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-3c962291", Component.options)
+  } else {
+    hotAPI.reload("data-v-3c962291", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 620 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_payroll_table__ = __webpack_require__(621);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_payroll_table___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_payroll_table__);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'PayrollIndexView',
+    components: {
+        'payroll-table': __WEBPACK_IMPORTED_MODULE_0__components_payroll_table___default.a
+    },
+    props: {
+        init_model: {
+            type: Object,
+            default: null
+        },
+        init_params: {
+            type: Object,
+            default: null
+        },
+        can_review: {
+            type: Boolean,
+            default: false
+        },
+        can_finish: {
+            type: Boolean,
+            default: false
+        },
+        centers: {
+            type: Array,
+            default: null
+        },
+        years: {
+            type: Array,
+            default: null
+        },
+        months: {
+            type: Array,
+            default: null
+        },
+        version: {
+            type: Number,
+            default: 0
+        }
+    },
+    data: function data() {
+        return {
+            title: '教師鐘點費',
+
+            model: null,
+
+            courseOptions: [],
+
+            params: {
+                center: '0',
+                year: '0',
+                month: '0',
+                reviewed: false
+            },
+
+            form: new Form({}),
+
+            canReview: false,
+            reviewedOptions: Helper.reviewedOptions(),
+
+            canFinish: false,
+
+            checkedIds: []
+        };
+    },
+
+    watch: {
+        'version': 'fetchData'
+    },
+    beforeMount: function beforeMount() {
+        if (this.init_model) {
+            this.model = _extends({}, this.init_model);
+        }
+
+        this.params.center = this.centers[0].value;
+
+        this.params.year = this.init_params.year;
+        this.params.month = this.init_params.month;
+
+        this.canReview = this.can_review;
+        this.canFinish = this.can_finish;
+    },
+
+    computed: {
+        showReviewBtn: function showReviewBtn() {
+
+            if (this.params.reviewed) return false;
+            if (!this.params.center) return false;
+            return true;
+        },
+        canChecked: function canChecked() {
+            if (this.canReview) return true;
+            if (this.canFinish) return true;
+        },
+        canSubmitReview: function canSubmitReview() {
+            return this.checkedIds.length > 0;
+        },
+        canSubmitFinish: function canSubmitFinish() {
+            return this.checkedIds.length > 0;
+        }
+    },
+    methods: {
+        getList: function getList() {
+            if (this.model) return this.model.viewList;
+            return [];
+        },
+        onSelected: function onSelected(id) {
+            this.$emit('selected', id);
+        },
+        onCenterSelected: function onCenterSelected(item) {
+            this.params.center = item.value;
+            this.params.course = '0';
+            this.fetchData();
+        },
+        setReviewed: function setReviewed(val) {
+            this.params.reviewed = val;
+            this.fetchData();
+        },
+        onInitPayrolls: function onInitPayrolls() {
+            var _this = this;
+
+            this.form = new Form({
+                center: this.params.center,
+                year: this.params.year,
+                month: this.params.month
+            });
+            var init = Payroll.init(this.form);
+            init.then(function () {
+                Helper.BusEmitOK('資料已存檔');
+                _this.fetchData();
+
+                _this.checkedIds = [];
+                _this.$refs.payrollsTable.unCheckAll();
+            }).catch(function (error) {
+                Helper.BusEmitError(error, '存檔失敗');
+            });
+        },
+        fetchData: function fetchData() {
+            var _this2 = this;
+
+            var params = _extends({}, this.params);
+            if (!params.beginDate) params.beginDate = '';
+
+            var getData = Payroll.index(params);
+
+            getData.then(function (model) {
+
+                _this2.model = _extends({}, model.model);
+                _this2.canReview = model.canReview;
+            }).catch(function (error) {
+                Helper.BusEmitError(error);
+            });
+        },
+        onCheckIdsChanged: function onCheckIdsChanged(ids) {
+            this.checkedIds = ids.slice(0);
+        },
+        onReviewOk: function onReviewOk() {
+            var _this3 = this;
+
+            if (!this.checkedIds.length) return;
+
+            var payrolls = this.checkedIds.map(function (item) {
+                return {
+                    id: item,
+                    reviewed: true
+                };
+            });
+
+            var form = new Form({
+                payrolls: payrolls
+            });
+
+            var save = Payroll.review(form);
+            save.then(function () {
+                Helper.BusEmitOK('資料已存檔');
+                _this3.fetchData();
+                _this3.checkedIds = [];
+                _this3.$refs.payrollsTable.unCheckAll();
+            }).catch(function (error) {
+                Helper.BusEmitError(error, '存檔失敗');
+            });
+        },
+        onFinishOk: function onFinishOk() {
+            var _this4 = this;
+
+            if (!this.checkedIds.length) return;
+
+            var payrolls = this.checkedIds.map(function (item) {
+                return {
+                    id: item,
+                    finish: true
+                };
+            });
+
+            var form = new Form({
+                payrolls: payrolls
+            });
+
+            var save = Payroll.finish(form);
+            save.then(function () {
+                Helper.BusEmitOK('資料已存檔');
+                _this4.fetchData();
+                _this4.$refs.payrollsTable.unCheckAll();
+            }).catch(function (error) {
+                Helper.BusEmitError(error, '存檔失敗');
+            });
+        }
+    },
+    clearErrorMsg: function clearErrorMsg(name) {
+        this.form.errors.clear(name);
+    }
+});
+
+/***/ }),
+/* 621 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(622)
+/* template */
+var __vue_template__ = __webpack_require__(623)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\payroll\\table.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-f7d7dde0", Component.options)
+  } else {
+    hotAPI.reload("data-v-f7d7dde0", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 622 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'PayrollTable',
+    props: {
+        model: {
+            type: Object,
+            default: null
+        },
+        payrolls: {
+            type: Array,
+            default: null
+        },
+        can_review: {
+            type: Boolean,
+            default: false
+        },
+        can_select: {
+            type: Boolean,
+            default: true
+        },
+        can_checked: {
+            type: Boolean,
+            default: false
+        }
+    },
+    data: function data() {
+        return {
+
+            checked_ids: [],
+            checkAll: false
+
+        };
+    },
+
+    computed: {
+        canCheck: function canCheck() {
+
+            if (this.can_review) return true;
+            return this.can_checked;
+        },
+        dataCounts: function dataCounts() {
+
+            var viewList = this.getViewList();
+            if (!viewList) return 0;
+            return viewList.length;
+        }
+    },
+    watch: {
+        checked_ids: function checked_ids() {
+            this.$emit('check-changed', this.checked_ids);
+        }
+    },
+    methods: {
+        getViewList: function getViewList() {
+            if (this.model) return this.model.viewList;
+            return this.payrolls;
+        },
+        getStatusLabels: function getStatusLabels(lesson) {
+            var reviewedLabel = Helper.reviewedLabel(lesson.reviewed);
+            var statusLabel = Payroll.statusLabel(lesson.status);
+            return reviewedLabel + '&nbsp;' + statusLabel;
+        },
+        onSelected: function onSelected(id) {
+
+            this.$emit('selected', id);
+        },
+        beenChecked: function beenChecked(id) {
+            return this.checked_ids.includes(id);
+        },
+        onChecked: function onChecked(id) {
+
+            if (!this.beenChecked(id)) this.checked_ids.push(id);
+        },
+        unChecked: function unChecked(id) {
+
+            var index = this.checked_ids.indexOf(id);
+            if (index >= 0) this.checked_ids.splice(index, 1);
+        },
+        onCheckAll: function onCheckAll() {
+            var _this = this;
+
+            this.checkAll = true;
+
+            var payrollList = this.getViewList();
+            if (!payrollList) return false;
+
+            payrollList.forEach(function (payroll) {
+                _this.onChecked(payroll.id);
+            });
+        },
+        unCheckAll: function unCheckAll() {
+            this.checkAll = false;
+            this.checked_ids = [];
+        },
+        isTrue: function isTrue(val) {
+            return Helper.isTrue(val);
+        }
+    }
+});
+
+/***/ }),
+/* 623 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "panel panel-default" },
+    [
+      _c("div", { staticClass: "panel-body" }, [
+        _c("table", { staticClass: "table table-striped" }, [
+          _c("thead", [
+            _c("tr", [
+              _vm.canCheck
+                ? _c(
+                    "th",
+                    { staticStyle: { width: "3%" } },
+                    [
+                      _c("check-box", {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.dataCounts,
+                            expression: "dataCounts"
+                          }
+                        ],
+                        attrs: { value: 0, default: _vm.checkAll },
+                        on: {
+                          selected: _vm.onCheckAll,
+                          unselected: _vm.unCheckAll
+                        }
+                      })
+                    ],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("開課中心")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("教師姓名")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("薪酬標準")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("月份")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [
+                _vm._v("鐘點費金額")
+              ]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "5%" } }, [_vm._v("審核")])
+            ])
+          ]),
+          _vm._v(" "),
+          _c(
+            "tbody",
+            _vm._l(_vm.getViewList(), function(payroll, index) {
+              return _c("tr", { key: index }, [
+                _vm.canCheck
+                  ? _c(
+                      "td",
+                      [
+                        _c("check-box", {
+                          attrs: {
+                            value: payroll.id,
+                            default: _vm.beenChecked(payroll.id)
+                          },
+                          on: {
+                            selected: _vm.onChecked,
+                            unselected: _vm.unChecked
+                          }
+                        })
+                      ],
+                      1
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                            " +
+                      _vm._s(payroll.center.name) +
+                      " \n                        "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _c("a", {
+                    attrs: { href: "#" },
+                    domProps: {
+                      textContent: _vm._s(payroll.user.profile.fullname)
+                    },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        _vm.onSelected(payroll.id)
+                      }
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    " \n                            " +
+                      _vm._s(payroll.wageName) +
+                      " \n                        "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                             " +
+                      _vm._s(payroll.monthString) +
+                      " \n                        "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    " \n                             " +
+                      _vm._s(_vm._f("formatMoney")(payroll.amount)) +
+                      " \n                        "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", {
+                  domProps: { innerHTML: _vm._s(_vm.getStatusLabels(payroll)) }
+                })
+              ])
+            })
+          )
+        ])
+      ]),
+      _vm._v(" "),
+      _vm._t("table-footer")
+    ],
+    2
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-f7d7dde0", module.exports)
+  }
+}
+
+/***/ }),
+/* 624 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.model
+    ? _c(
+        "div",
+        [
+          _c("div", { staticClass: "row" }, [
+            _c(
+              "div",
+              { staticClass: "col-sm-2", staticStyle: { "margin-top": "3px" } },
+              [_c("h3", { domProps: { innerHTML: _vm._s(_vm.title) } })]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "col-sm-7 form-inline",
+                staticStyle: { "margin-top": "20px" }
+              },
+              [
+                _c(
+                  "div",
+                  {
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "0.5em" }
+                  },
+                  [
+                    _c("drop-down", {
+                      attrs: {
+                        items: _vm.centers,
+                        selected: _vm.params.center
+                      },
+                      on: { selected: _vm.onCenterSelected }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "0.5em" }
+                  },
+                  [
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.params.year,
+                            expression: "params.year"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        on: {
+                          change: [
+                            function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.$set(
+                                _vm.params,
+                                "year",
+                                $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              )
+                            },
+                            _vm.fetchData
+                          ]
+                        }
+                      },
+                      _vm._l(_vm.years, function(item, index) {
+                        return _c("option", {
+                          key: index,
+                          domProps: {
+                            value: item.value,
+                            textContent: _vm._s(item.text)
+                          }
+                        })
+                      })
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "0.5em" }
+                  },
+                  [
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.params.month,
+                            expression: "params.month"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        on: {
+                          change: [
+                            function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.$set(
+                                _vm.params,
+                                "month",
+                                $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              )
+                            },
+                            _vm.fetchData
+                          ]
+                        }
+                      },
+                      _vm._l(_vm.months, function(item, index) {
+                        return _c("option", {
+                          key: index,
+                          domProps: {
+                            value: item.value,
+                            textContent: _vm._s(item.text)
+                          }
+                        })
+                      })
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "0.5em" }
+                  },
+                  [
+                    _c("toggle", {
+                      attrs: {
+                        items: _vm.reviewedOptions,
+                        default_val: _vm.params.reviewed
+                      },
+                      on: { selected: _vm.setReviewed }
+                    })
+                  ],
+                  1
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "col-sm-3 pull-right",
+                staticStyle: { "margin-top": "20px" },
+                attrs: { align: "right" }
+              },
+              [
+                _vm.params.reviewed
+                  ? _c("div", [
+                      _vm.canFinish
+                        ? _c(
+                            "a",
+                            {
+                              staticClass: "btn btn-primary",
+                              attrs: {
+                                disabled: !_vm.canSubmitFinish,
+                                href: "#"
+                              },
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  return _vm.onFinishOk($event)
+                                }
+                              }
+                            },
+                            [
+                              _c("i", { staticClass: "fa fa-check-circle" }),
+                              _vm._v(
+                                "\n                    結案\n                "
+                              )
+                            ]
+                          )
+                        : _vm._e()
+                    ])
+                  : _c("div", [
+                      _vm.showReviewBtn
+                        ? _c(
+                            "a",
+                            {
+                              staticClass: "btn btn-success",
+                              attrs: {
+                                disabled: !_vm.canSubmitReview,
+                                href: "#"
+                              },
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  return _vm.onReviewOk($event)
+                                }
+                              }
+                            },
+                            [
+                              _c("i", { staticClass: "fa fa-check-circle" }),
+                              _vm._v(
+                                "\n                    審核通過\n                "
+                              )
+                            ]
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _c(
+                        "a",
+                        {
+                          staticClass: "btn btn-warning",
+                          attrs: { href: "#" },
+                          on: {
+                            click: function($event) {
+                              $event.preventDefault()
+                              return _vm.onInitPayrolls($event)
+                            }
+                          }
+                        },
+                        [
+                          _c("i", { staticClass: "fa fa-play-circle" }),
+                          _vm._v(
+                            "\n                    自動產生\n                "
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _vm.form.errors.has("payroll.duplicate")
+                        ? _c("small", {
+                            staticClass: "text-danger",
+                            domProps: {
+                              textContent: _vm._s(
+                                _vm.form.errors.get("payroll.duplicate")
+                              )
+                            }
+                          })
+                        : _vm._e()
+                    ])
+              ]
+            )
+          ]),
+          _vm._v(" "),
+          _c("hr"),
+          _vm._v(" "),
+          _c(
+            "payroll-table",
+            {
+              ref: "payrollsTable",
+              attrs: {
+                model: _vm.model,
+                can_review: _vm.showReviewBtn,
+                can_checked: _vm.canChecked
+              },
+              on: {
+                selected: _vm.onSelected,
+                "check-changed": _vm.onCheckIdsChanged
+              }
+            },
+            [
+              _c(
+                "div",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.model.totalItems > 0,
+                      expression: "model.totalItems > 0"
+                    }
+                  ],
+                  staticClass: "panel-footer pagination-footer",
+                  attrs: { slot: "table-footer" },
+                  slot: "table-footer"
+                },
+                [_c("page-controll", { attrs: { model: _vm.model } })],
+                1
+              )
+            ]
+          )
+        ],
+        1
+      )
+    : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-3c962291", module.exports)
+  }
+}
+
+/***/ }),
+/* 625 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(626)
+/* template */
+var __vue_template__ = __webpack_require__(627)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\views\\payrolls\\details.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-355b737e", Component.options)
+  } else {
+    hotAPI.reload("data-v-355b737e", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 626 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_payroll_view_vue__ = __webpack_require__(845);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_payroll_view_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_payroll_view_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_payroll_details_table_vue__ = __webpack_require__(854);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_payroll_details_table_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__components_payroll_details_table_vue__);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'PayrollDetails',
+    components: {
+        'payroll': __WEBPACK_IMPORTED_MODULE_0__components_payroll_view_vue___default.a,
+        'details-table': __WEBPACK_IMPORTED_MODULE_1__components_payroll_details_table_vue___default.a
+    },
+    props: {
+        id: {
+            type: Number,
+            default: 0
+        },
+        can_back: {
+            type: Boolean,
+            default: true
+        },
+        version: {
+            type: Number,
+            default: 0
+        }
+    },
+    data: function data() {
+        return {
+            payroll: null,
+
+            payrollSettings: {
+                can_edit: true,
+                can_back: true
+
+            },
+
+            needPrint: false,
+
+            activeIndex: 0
+        };
+    },
+
+    computed: {},
+    beforeMount: function beforeMount() {
+        this.init();
+    },
+
+    watch: {
+        'id': 'init'
+    },
+    methods: {
+        init: function init() {},
+        onPayrollLoaded: function onPayrollLoaded(payroll) {
+
+            this.payroll = _extends({}, payroll);
+        },
+        reloadPayroll: function reloadPayroll() {
+
+            this.payroll = null;
+            this.$refs.payrollView.init();
+        },
+        onPayrollDeleted: function onPayrollDeleted() {
+            this.$emit('payroll-deleted');
+        },
+        onBack: function onBack() {
+            this.$emit('back');
+        }
+    }
+
+});
+
+/***/ }),
+/* 627 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _c("payroll", {
+        ref: "payrollView",
+        attrs: { id: _vm.id, can_back: _vm.payrollSettings.can_back },
+        on: {
+          loaded: _vm.onPayrollLoaded,
+          back: _vm.onBack,
+          saved: _vm.reloadPayroll,
+          deleted: _vm.onPayrollDeleted
+        }
+      }),
+      _vm._v(" "),
+      _vm.payroll
+        ? _c("div", [
+            _c("div", [
+              _c("ul", { staticClass: "nav nav-tabs" }, [
+                _c(
+                  "li",
+                  {
+                    class: { active: _vm.activeIndex == 0, "label-title": true }
+                  },
+                  [
+                    _c(
+                      "a",
+                      {
+                        attrs: { href: "#" },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            _vm.activeIndex = 0
+                          }
+                        }
+                      },
+                      [_vm._v("鐘點費明細")]
+                    )
+                  ]
+                )
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass: "tab-content",
+                  staticStyle: { "margin-top": "10px" }
+                },
+                [
+                  _c(
+                    "div",
+                    { staticClass: "tab-pane fade active in" },
+                    [
+                      _vm.activeIndex == 0
+                        ? _c("details-table", {
+                            attrs: { payroll: _vm.payroll }
+                          })
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ]
+              )
+            ])
+          ])
+        : _vm._e()
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-355b737e", module.exports)
+  }
+}
+
+/***/ }),
+/* 628 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(629)
+/* template */
+var __vue_template__ = __webpack_require__(630)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -118684,7 +119977,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 620 */
+/* 629 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -118783,7 +120076,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 621 */
+/* 630 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -118876,10 +120169,1864 @@ if (false) {
 }
 
 /***/ }),
-/* 622 */
+/* 631 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 632 */,
+/* 633 */,
+/* 634 */,
+/* 635 */,
+/* 636 */,
+/* 637 */,
+/* 638 */,
+/* 639 */,
+/* 640 */,
+/* 641 */,
+/* 642 */,
+/* 643 */,
+/* 644 */,
+/* 645 */,
+/* 646 */,
+/* 647 */,
+/* 648 */,
+/* 649 */,
+/* 650 */,
+/* 651 */,
+/* 652 */,
+/* 653 */,
+/* 654 */,
+/* 655 */,
+/* 656 */,
+/* 657 */,
+/* 658 */,
+/* 659 */,
+/* 660 */,
+/* 661 */,
+/* 662 */,
+/* 663 */,
+/* 664 */,
+/* 665 */,
+/* 666 */,
+/* 667 */,
+/* 668 */,
+/* 669 */,
+/* 670 */,
+/* 671 */,
+/* 672 */,
+/* 673 */,
+/* 674 */,
+/* 675 */,
+/* 676 */,
+/* 677 */,
+/* 678 */,
+/* 679 */,
+/* 680 */,
+/* 681 */,
+/* 682 */,
+/* 683 */,
+/* 684 */,
+/* 685 */,
+/* 686 */,
+/* 687 */,
+/* 688 */,
+/* 689 */,
+/* 690 */,
+/* 691 */,
+/* 692 */,
+/* 693 */,
+/* 694 */,
+/* 695 */,
+/* 696 */,
+/* 697 */,
+/* 698 */,
+/* 699 */,
+/* 700 */,
+/* 701 */,
+/* 702 */,
+/* 703 */,
+/* 704 */,
+/* 705 */,
+/* 706 */,
+/* 707 */,
+/* 708 */,
+/* 709 */,
+/* 710 */,
+/* 711 */,
+/* 712 */,
+/* 713 */,
+/* 714 */,
+/* 715 */,
+/* 716 */,
+/* 717 */,
+/* 718 */,
+/* 719 */,
+/* 720 */,
+/* 721 */,
+/* 722 */,
+/* 723 */,
+/* 724 */,
+/* 725 */,
+/* 726 */,
+/* 727 */,
+/* 728 */,
+/* 729 */,
+/* 730 */,
+/* 731 */,
+/* 732 */,
+/* 733 */,
+/* 734 */,
+/* 735 */,
+/* 736 */,
+/* 737 */,
+/* 738 */,
+/* 739 */,
+/* 740 */,
+/* 741 */,
+/* 742 */,
+/* 743 */,
+/* 744 */,
+/* 745 */,
+/* 746 */,
+/* 747 */,
+/* 748 */,
+/* 749 */,
+/* 750 */,
+/* 751 */,
+/* 752 */,
+/* 753 */,
+/* 754 */,
+/* 755 */,
+/* 756 */,
+/* 757 */,
+/* 758 */,
+/* 759 */,
+/* 760 */,
+/* 761 */,
+/* 762 */,
+/* 763 */,
+/* 764 */,
+/* 765 */,
+/* 766 */,
+/* 767 */,
+/* 768 */,
+/* 769 */,
+/* 770 */,
+/* 771 */,
+/* 772 */,
+/* 773 */,
+/* 774 */,
+/* 775 */,
+/* 776 */,
+/* 777 */,
+/* 778 */,
+/* 779 */,
+/* 780 */,
+/* 781 */,
+/* 782 */,
+/* 783 */,
+/* 784 */,
+/* 785 */,
+/* 786 */,
+/* 787 */,
+/* 788 */,
+/* 789 */,
+/* 790 */,
+/* 791 */,
+/* 792 */,
+/* 793 */,
+/* 794 */,
+/* 795 */,
+/* 796 */,
+/* 797 */,
+/* 798 */,
+/* 799 */,
+/* 800 */,
+/* 801 */,
+/* 802 */,
+/* 803 */,
+/* 804 */,
+/* 805 */,
+/* 806 */,
+/* 807 */,
+/* 808 */,
+/* 809 */,
+/* 810 */,
+/* 811 */,
+/* 812 */,
+/* 813 */,
+/* 814 */,
+/* 815 */,
+/* 816 */,
+/* 817 */,
+/* 818 */,
+/* 819 */,
+/* 820 */,
+/* 821 */,
+/* 822 */,
+/* 823 */,
+/* 824 */,
+/* 825 */,
+/* 826 */,
+/* 827 */,
+/* 828 */,
+/* 829 */,
+/* 830 */,
+/* 831 */,
+/* 832 */,
+/* 833 */,
+/* 834 */,
+/* 835 */,
+/* 836 */,
+/* 837 */,
+/* 838 */,
+/* 839 */,
+/* 840 */,
+/* 841 */,
+/* 842 */,
+/* 843 */,
+/* 844 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsPdf__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsPdf___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsPdf__);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+
+
+var Payroll = function () {
+    function Payroll(data) {
+        _classCallCheck(this, Payroll);
+
+        for (var property in data) {
+            this[property] = data[property];
+        }
+    }
+
+    _createClass(Payroll, null, [{
+        key: 'source',
+        value: function source() {
+            return '/manage/payrolls';
+        }
+    }, {
+        key: 'initUrl',
+        value: function initUrl() {
+            return this.source();
+        }
+    }, {
+        key: 'showUrl',
+        value: function showUrl(id) {
+            return this.source() + '/' + id;
+        }
+    }, {
+        key: 'createUrl',
+        value: function createUrl() {
+            return this.source() + '/create';
+        }
+    }, {
+        key: 'storeUrl',
+        value: function storeUrl() {
+            return this.source();
+        }
+    }, {
+        key: 'editUrl',
+        value: function editUrl(id) {
+            return this.source() + '/' + id + '/edit';
+        }
+    }, {
+        key: 'updateUrl',
+        value: function updateUrl(id) {
+            return this.source() + ('/' + id);
+        }
+    }, {
+        key: 'reviewUrl',
+        value: function reviewUrl(id) {
+            return this.source() + '/review';
+        }
+    }, {
+        key: 'deleteUrl',
+        value: function deleteUrl(id) {
+            return this.source() + ('/' + id);
+        }
+    }, {
+        key: 'finishUrl',
+        value: function finishUrl(id) {
+            return this.source() + '/finish';
+        }
+    }, {
+        key: 'show',
+        value: function show(id) {
+            var _this = this;
+
+            return new Promise(function (resolve, reject) {
+                var url = _this.showUrl(id);
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'index',
+        value: function index(params) {
+            var url = this.source();
+            url = Helper.buildQuery(url, params);
+
+            return new Promise(function (resolve, reject) {
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'finish',
+        value: function finish(form) {
+            var url = this.finishUrl();
+            var method = 'post';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'create',
+        value: function create(course) {
+            var url = this.createUrl();
+            url += '?course=' + course;
+
+            return new Promise(function (resolve, reject) {
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'init',
+        value: function init(form) {
+            var url = this.initUrl();
+            var method = 'post';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'store',
+        value: function store(form) {
+            var url = this.storeUrl();
+            var method = 'post';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'edit',
+        value: function edit(id) {
+            var url = this.editUrl(id);
+
+            return new Promise(function (resolve, reject) {
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'update',
+        value: function update(id, form) {
+            var url = this.updateUrl(id);
+            var method = 'put';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'updatePS',
+        value: function updatePS(form) {
+            var url = this.source() + '/updatePS';
+            var method = 'post';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'review',
+        value: function review(form) {
+            var url = this.reviewUrl();
+            var method = 'post';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'remove',
+        value: function remove(id) {
+            var url = this.deleteUrl(id);
+
+            return new Promise(function (resolve, reject) {
+                axios.delete(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'getByUser',
+        value: function getByUser(user) {
+
+            var url = this.source() + ('/GetByUser/' + user);
+
+            return new Promise(function (resolve, reject) {
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'print',
+        value: function print(canvas) {
+
+            var contentWidth = canvas.width;
+            var contentHeight = canvas.height;
+            var pageHeight = contentWidth / 578.28 * 757.701;
+            var leftHeight = contentHeight;
+            var position = 0;
+            var imgWidth = 578.28;
+            var imgHeight = 578.28 / contentWidth * contentHeight;
+
+            var pageData = canvas.toDataURL('image/jpeg', 1.0);
+
+            var PDF = new __WEBPACK_IMPORTED_MODULE_0_jsPdf___default.a('1', 'pt', 'a4');
+
+            if (leftHeight < pageHeight) {
+                PDF.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight);
+            } else {
+                while (leftHeight > 0) {
+                    PDF.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight);
+                    leftHeight -= pageHeight;
+                    position -= 841.89;
+                    if (leftHeight > 0) {
+                        PDF.addPage();
+                    }
+                }
+            }
+            PDF.autoPrint();
+            window.open(PDF.output('bloburl'), '_blank');
+        }
+    }, {
+        key: 'getStatusText',
+        value: function getStatusText(status) {
+            status = parseInt(status);
+            if (status == 0) return '未支付';
+            if (status == 1) return '已支付';
+
+            return '';
+        }
+    }, {
+        key: 'getStatusStyle',
+        value: function getStatusStyle(status) {
+            status = parseInt(status);
+            if (status == 0) return 'default';
+            if (status == 1) return 'info';
+
+            return '';
+        }
+    }, {
+        key: 'statusLabel',
+        value: function statusLabel(status) {
+            var text = this.getStatusText(status);
+            var style = 'label label-' + this.getStatusStyle(status);
+
+            return '<span class="' + style + '" > ' + text + ' </span>';
+        }
+    }, {
+        key: 'teacherNames',
+        value: function teacherNames(payroll) {
+            var names = payroll.teachers.map(function (item) {
+                return item.profile.fullname;
+            });
+            return names.join(',');
+        }
+    }, {
+        key: 'statusOptions',
+        value: function statusOptions() {
+            return [{
+                text: '未支付',
+                value: 0
+            }, {
+                text: '已支付',
+                value: 1
+            }];
+        }
+    }]);
+
+    return Payroll;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (Payroll);
+
+/***/ }),
+/* 845 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(846)
+/* template */
+var __vue_template__ = __webpack_require__(850)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\payroll\\view.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-0691085a", Component.options)
+  } else {
+    hotAPI.reload("data-v-0691085a", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 846 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__show_vue__ = __webpack_require__(847);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__show_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__show_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__status_editor_vue__ = __webpack_require__(851);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__status_editor_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__status_editor_vue__);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'Payroll',
+    components: {
+        Show: __WEBPACK_IMPORTED_MODULE_0__show_vue___default.a,
+        'status-editor': __WEBPACK_IMPORTED_MODULE_1__status_editor_vue___default.a
+    },
+    props: {
+        id: {
+            type: Number,
+            default: 0
+        },
+        can_edit: {
+            type: Boolean,
+            default: true
+        },
+        can_back: {
+            type: Boolean,
+            default: true
+        },
+        hide_delete: {
+            type: Boolean,
+            default: false
+        },
+        version: {
+            type: Number,
+            default: 0
+        }
+    },
+    data: function data() {
+        return {
+
+            readOnly: true,
+
+            payroll: null,
+
+            reviewEditor: {
+                show: false,
+                id: 0,
+                reviewed: false
+            },
+
+            psEditor: {
+                show: false,
+                id: 0,
+                text: ''
+            },
+
+            statusEditor: {
+                show: false,
+                id: 0,
+                text: ''
+            },
+
+            deleteConfirm: {
+                id: 0,
+                show: false,
+                msg: ''
+
+            }
+
+        };
+    },
+
+    computed: {
+        canDelete: function canDelete() {
+
+            return this.payroll.canDelete;
+        },
+        title: function title() {
+
+            if (this.readOnly) return '教師鐘點費';
+            return '';
+        }
+    },
+    beforeMount: function beforeMount() {
+        this.init();
+    },
+
+    watch: {
+        'id': 'init',
+        'version': 'init'
+    },
+    methods: {
+        init: function init() {
+            this.fetchData();
+            this.readOnly = true;
+
+            this.deleteConfirm = {
+                id: 0,
+                show: false,
+                msg: ''
+            };
+        },
+        fetchData: function fetchData() {
+            var _this = this;
+
+            var getData = Payroll.show(this.id);
+
+            getData.then(function (payroll) {
+
+                _this.payroll = _extends({}, payroll);
+
+                _this.$emit('loaded', _this.payroll);
+            }).catch(function (error) {
+                _this.loaded = false;
+                Helper.BusEmitError(error);
+            });
+        },
+        onBack: function onBack() {
+            this.$emit('back');
+        },
+        onEditReview: function onEditReview() {
+            this.reviewEditor.id = this.payroll.id;
+            this.reviewEditor.reviewed = Helper.isTrue(this.payroll.reviewed);
+            this.reviewEditor.show = true;
+        },
+        updateReview: function updateReview(reviewed) {
+            var _this2 = this;
+
+            var payrolls = [{
+                id: this.reviewEditor.id,
+                reviewed: reviewed
+            }];
+
+            var form = new Form({
+                payrolls: payrolls
+            });
+
+            var save = Payroll.review(form);
+            save.then(function () {
+                Helper.BusEmitOK('資料已存檔');
+                _this2.fetchData();
+                _this2.reviewEditor.show = false;
+            }).catch(function (error) {
+                Helper.BusEmitError(error, '存檔失敗');
+            });
+        },
+        onEditPS: function onEditPS() {
+
+            this.psEditor.id = this.payroll.id;
+            this.psEditor.text = this.payroll.ps;
+
+            this.$refs.psEditor.init(this.payroll.ps);
+
+            this.psEditor.show = true;
+        },
+        updatePS: function updatePS(ps) {
+            var _this3 = this;
+
+            var form = new Form({
+                id: this.psEditor.id,
+                ps: ps
+            });
+
+            var save = Payroll.updatePS(form);
+            save.then(function () {
+                _this3.psEditor.show = false;
+                Helper.BusEmitOK('資料已存檔');
+                _this3.init();
+            }).catch(function (error) {
+                _this3.psEditor.show = false;
+                Helper.BusEmitError(error, '存檔失敗');
+            });
+        },
+        onEditStatus: function onEditStatus() {
+
+            this.statusEditor.id = this.payroll.id;
+            this.statusEditor.status = this.payroll.status;
+            this.statusEditor.show = true;
+        },
+        updateStaus: function updateStaus(status) {
+            alert(status);
+        },
+        onSaved: function onSaved() {
+            this.init();
+        },
+        beginDelete: function beginDelete() {
+
+            var id = this.payroll.id;
+            this.deleteConfirm.msg = '\u78BA\u5B9A\u8981\u522A\u9664\u9019\u7B46\u8AB2\u5802\u7D00\u9304\u55CE?';
+            this.deleteConfirm.id = id;
+            this.deleteConfirm.show = true;
+        },
+        closeConfirm: function closeConfirm() {
+            this.deleteConfirm.show = false;
+        },
+        deletePayroll: function deletePayroll() {
+            var _this4 = this;
+
+            this.closeConfirm();
+
+            var id = this.deleteConfirm.id;
+            var remove = Payroll.remove(id);
+            remove.then(function () {
+                Helper.BusEmitOK('刪除成功');
+                _this4.$emit('deleted');
+            }).catch(function (error) {
+                Helper.BusEmitError(error, '刪除失敗');
+                _this4.closeConfirm();
+            });
+        }
+    }
+});
+
+/***/ }),
+/* 847 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(848)
+/* template */
+var __vue_template__ = __webpack_require__(849)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\payroll\\show.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-bd839faa", Component.options)
+  } else {
+    hotAPI.reload("data-v-bd839faa", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 848 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+var _methods;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'ShowPayroll',
+    props: {
+        payroll: {
+            type: Object,
+            default: null
+        },
+        can_edit: {
+            type: Boolean,
+            default: true
+        },
+        can_back: {
+            type: Boolean,
+            default: true
+        },
+        hide_delete: {
+            type: Boolean,
+            default: false
+        },
+        version: {
+            type: Number,
+            default: 0
+        }
+    },
+    data: function data() {
+        return {};
+    },
+
+    computed: {
+        hasReviewedBy: function hasReviewedBy() {
+            if (!this.payroll) return false;
+            if (!this.payroll.reviewedBy) return false;
+            return true;
+        }
+    },
+    methods: (_methods = {
+        editReview: function editReview() {
+            this.$emit('edit-review');
+        },
+        isTrue: function isTrue(val) {
+            return Helper.isTrue(val);
+        }
+    }, _defineProperty(_methods, 'editReview', function editReview() {
+        this.$emit('edit-review');
+    }), _defineProperty(_methods, 'editStatus', function editStatus() {
+        this.$emit('edit-status');
+    }), _defineProperty(_methods, 'editPS', function editPS() {
+        this.$emit('edit-ps');
+    }), _methods)
+});
+
+/***/ }),
+/* 849 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.payroll
+    ? _c("div", [
+        _c("div", { staticClass: "show-data" }, [
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("label", { staticClass: "label-title" }, [_vm._v("開課中心")]),
+              _vm._v(" "),
+              _c("p", [
+                _vm._v(
+                  "\r\n                    " +
+                    _vm._s(_vm.payroll.center.name) +
+                    "     \r\n                "
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("label", { staticClass: "label-title" }, [_vm._v("教師姓名")]),
+              _vm._v(" "),
+              _c("p", [
+                _vm._v(
+                  "\r\n                  " +
+                    _vm._s(_vm.payroll.user.profile.fullname) +
+                    "  \r\n                "
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("label", { staticClass: "label-title" }, [_vm._v("審核")]),
+              _vm._v(" "),
+              _c("p", [
+                _c("span", {
+                  domProps: {
+                    innerHTML: _vm._s(
+                      _vm.$options.filters.reviewedLabel(_vm.payroll.reviewed)
+                    )
+                  }
+                }),
+                _vm._v("\r\n                     \r\n                    "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary btn-xs",
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.editReview($event)
+                      }
+                    }
+                  },
+                  [_c("i", { staticClass: "fa fa-edit" })]
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("label", { staticClass: "label-title" }, [_vm._v("狀態")]),
+              _vm._v(" "),
+              _c("p", [
+                _c("span", {
+                  domProps: {
+                    innerHTML: _vm._s(
+                      _vm.$options.filters.payrollStatusLabel(
+                        _vm.payroll.status
+                      )
+                    )
+                  }
+                }),
+                _vm._v("\r\n                     \r\n                    "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary btn-xs",
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.editStatus($event)
+                      }
+                    }
+                  },
+                  [_c("i", { staticClass: "fa fa-edit" })]
+                )
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("label", { staticClass: "label-title" }, [_vm._v("月份")]),
+              _vm._v(" "),
+              _c("p", [
+                _vm._v(
+                  "\r\n                    " +
+                    _vm._s(_vm.payroll.monthString) +
+                    " \r\n                "
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("label", { staticClass: "label-title" }, [_vm._v("薪酬標準")]),
+              _vm._v(" "),
+              _c("p", [
+                _vm._v(
+                  "\r\n                     " +
+                    _vm._s(_vm.payroll.wageName) +
+                    " \r\n                "
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("label", { staticClass: "label-title" }, [
+                _vm._v("鐘點費金額")
+              ]),
+              _vm._v(" "),
+              _c("p", [
+                _vm._v(
+                  "\r\n                   " +
+                    _vm._s(_vm._f("formatMoney")(_vm.payroll.amount)) +
+                    " \r\n                "
+                )
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-sm-12" }, [
+              _c("label", { staticClass: "label-title" }, [_vm._v("備註")]),
+              _vm._v(" "),
+              _c("p", [
+                _vm._v(
+                  "\r\n                    " +
+                    _vm._s(_vm.payroll.ps) +
+                    "\r\n                      \r\n                    "
+                ),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary btn-xs",
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.editPS($event)
+                      }
+                    }
+                  },
+                  [_c("i", { staticClass: "fa fa-edit" })]
+                )
+              ])
+            ])
+          ])
+        ])
+      ])
+    : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-bd839faa", module.exports)
+  }
+}
+
+/***/ }),
+/* 850 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _c("div", { staticClass: "panel panel-default" }, [
+        _c("div", { staticClass: "panel-heading" }, [
+          _c("span", { staticClass: "panel-title" }, [
+            _c("h4", { domProps: { innerHTML: _vm._s(_vm.title) } })
+          ]),
+          _vm._v(" "),
+          _vm.payroll
+            ? _c("div", [
+                _c(
+                  "button",
+                  {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: _vm.can_back,
+                        expression: "can_back"
+                      }
+                    ],
+                    staticClass: "btn btn-default btn-sm",
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.onBack($event)
+                      }
+                    }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-arrow-circle-left" }),
+                    _vm._v("\r\n                    返回\r\n                ")
+                  ]
+                ),
+                _vm._v(" "),
+                _vm.canDelete
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-danger btn-sm",
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.beginDelete($event)
+                          }
+                        }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-trash" }),
+                        _vm._v(
+                          " \r\n                    刪除\r\n                "
+                        )
+                      ]
+                    )
+                  : _vm._e()
+              ])
+            : _c("div", [
+                _c(
+                  "button",
+                  {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: _vm.can_back,
+                        expression: "can_back"
+                      }
+                    ],
+                    staticClass: "btn btn-default btn-sm",
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.onBack($event)
+                      }
+                    }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-arrow-circle-left" }),
+                    _vm._v("\r\n                    返回\r\n                ")
+                  ]
+                )
+              ])
+        ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "panel-body" },
+          [
+            _vm.readOnly
+              ? _c("show", {
+                  attrs: { payroll: _vm.payroll },
+                  on: {
+                    "edit-review": _vm.onEditReview,
+                    "edit-ps": _vm.onEditPS,
+                    "edit-status": _vm.onEditStatus
+                  }
+                })
+              : _vm._e()
+          ],
+          1
+        )
+      ]),
+      _vm._v(" "),
+      _c("review-editor", {
+        attrs: {
+          showing: _vm.reviewEditor.show,
+          reviewed: _vm.reviewEditor.reviewed
+        },
+        on: {
+          close: function($event) {
+            _vm.reviewEditor.show = false
+          },
+          save: _vm.updateReview
+        }
+      }),
+      _vm._v(" "),
+      _c("ps-editor", {
+        ref: "psEditor",
+        attrs: { showing: _vm.psEditor.show, text: _vm.psEditor.text },
+        on: {
+          close: function($event) {
+            _vm.psEditor.show = false
+          },
+          save: _vm.updatePS
+        }
+      }),
+      _vm._v(" "),
+      _c("status-editor", {
+        ref: "statusEditor",
+        attrs: { showing: _vm.statusEditor.show, text: _vm.statusEditor.text },
+        on: {
+          close: function($event) {
+            _vm.statusEditor.show = false
+          },
+          save: _vm.updateStaus
+        }
+      }),
+      _vm._v(" "),
+      _c("delete-confirm", {
+        attrs: {
+          showing: _vm.deleteConfirm.show,
+          message: _vm.deleteConfirm.msg
+        },
+        on: { close: _vm.closeConfirm, confirmed: _vm.deletePayroll }
+      })
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-0691085a", module.exports)
+  }
+}
+
+/***/ }),
+/* 851 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(852)
+/* template */
+var __vue_template__ = __webpack_require__(853)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\payroll\\status-editor.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-266b55ea", Component.options)
+  } else {
+    hotAPI.reload("data-v-266b55ea", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 852 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'PayrollStatusEditor',
+    props: {
+
+        showing: {
+            type: Boolean,
+            default: true
+        },
+        status: {
+            type: Number,
+            default: 0
+        }
+
+    },
+    data: function data() {
+        return {
+            statusOptions: Payroll.statusOptions(),
+            selectedValue: 0
+        };
+    },
+
+    watch: {
+        'status': 'init'
+    },
+    beforeMount: function beforeMount() {
+        this.init(this.status);
+    },
+
+    methods: {
+        init: function init(status) {
+            this.selectedValue = status;
+        },
+        onClose: function onClose() {
+            this.$emit('close');
+        },
+        onConfirmed: function onConfirmed() {
+            this.$emit('save', this.selectedValue);
+        }
+    }
+});
+
+/***/ }),
+/* 853 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "modal",
+    {
+      attrs: {
+        showBtn: true,
+        show: _vm.showing,
+        "ok-text": "確定",
+        effect: "fade",
+        width: "600"
+      },
+      on: {
+        "update:show": function($event) {
+          _vm.showing = $event
+        },
+        ok: _vm.onConfirmed,
+        closed: _vm.onClose
+      }
+    },
+    [
+      _c(
+        "div",
+        {
+          staticClass: "modal-header modal-header-danger",
+          attrs: { slot: "modal-header" },
+          slot: "modal-header"
+        },
+        [
+          _c(
+            "button",
+            {
+              staticClass: "close",
+              attrs: {
+                id: "close-button",
+                type: "button",
+                "data-dismiss": "modal"
+              },
+              on: { click: _vm.onClose }
+            },
+            [
+              _c("span", {
+                staticClass: "glyphicon glyphicon-remove",
+                attrs: { "aria-hidden": "true" }
+              })
+            ]
+          ),
+          _vm._v(" "),
+          _c("h3", [_vm._v(" 更新教師鐘點費狀態 ")])
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          staticClass: "modal-body",
+          attrs: { slot: "modal-body" },
+          slot: "modal-body"
+        },
+        [
+          _c(
+            "select",
+            {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.selectedValue,
+                  expression: "selectedValue"
+                }
+              ],
+              staticClass: "form-control",
+              on: {
+                change: function($event) {
+                  var $$selectedVal = Array.prototype.filter
+                    .call($event.target.options, function(o) {
+                      return o.selected
+                    })
+                    .map(function(o) {
+                      var val = "_value" in o ? o._value : o.value
+                      return val
+                    })
+                  _vm.selectedValue = $event.target.multiple
+                    ? $$selectedVal
+                    : $$selectedVal[0]
+                }
+              }
+            },
+            _vm._l(_vm.statusOptions, function(item, index) {
+              return _c("option", {
+                key: index,
+                domProps: { value: item.value, textContent: _vm._s(item.text) }
+              })
+            })
+          )
+        ]
+      )
+    ]
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-266b55ea", module.exports)
+  }
+}
+
+/***/ }),
+/* 854 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(855)
+/* template */
+var __vue_template__ = __webpack_require__(856)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\payroll\\details-table.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-466e3145", Component.options)
+  } else {
+    hotAPI.reload("data-v-466e3145", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 855 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'PayrollDetailsTable',
+    props: {
+        payroll: {
+            type: Object,
+            default: null
+        }
+    },
+    data: function data() {
+        return {
+
+            checked_ids: [],
+            checkAll: false
+
+        };
+    },
+
+    computed: {},
+    watch: {},
+    methods: {
+        isTrue: function isTrue(val) {
+            return Helper.isTrue(val);
+        }
+    }
+});
+
+/***/ }),
+/* 856 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "panel panel-default" },
+    [
+      _c("div", { staticClass: "panel-body" }, [
+        _c("table", { staticClass: "table table-striped" }, [
+          _vm._m(0),
+          _vm._v(" "),
+          _c(
+            "tbody",
+            _vm._l(_vm.payroll.details, function(detail, index) {
+              return _c("tr", { key: index }, [
+                _c("td", [
+                  _vm._v(
+                    " \n                       " +
+                      _vm._s(_vm.payroll.user.profile.fullname) +
+                      "\n                    "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    " \n                        " +
+                      _vm._s(detail.lesson.course.fullName) +
+                      " \n                    "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                         " +
+                      _vm._s(detail.date) +
+                      " \n                    "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                         " +
+                      _vm._s(detail.timeString) +
+                      " \n                    "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [_vm._v(" " + _vm._s(detail.hours) + " ")]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(detail.studentCount))]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    " \n                         " +
+                      _vm._s(_vm._f("formatMoney")(detail.money)) +
+                      " \n                    "
+                  )
+                ])
+              ])
+            })
+          )
+        ])
+      ]),
+      _vm._v(" "),
+      _vm._t("table-footer")
+    ],
+    2
+  )
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", [
+        _c("th", { staticStyle: { width: "10%" } }, [_vm._v("教師姓名")]),
+        _vm._v(" "),
+        _c("th", { staticStyle: { width: "15%" } }, [_vm._v("課程")]),
+        _vm._v(" "),
+        _c("th", { staticStyle: { width: "10%" } }, [_vm._v("課堂日期")]),
+        _vm._v(" "),
+        _c("th", { staticStyle: { width: "10%" } }, [_vm._v("上課時間")]),
+        _vm._v(" "),
+        _c("th", { staticStyle: { width: "10%" } }, [_vm._v("時數")]),
+        _vm._v(" "),
+        _c("th", { staticStyle: { width: "10%" } }, [_vm._v("學員人數")]),
+        _vm._v(" "),
+        _c("th", { staticStyle: { width: "10%" } }, [_vm._v("鐘點費")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-466e3145", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

@@ -24,7 +24,7 @@ class CreatePayrollDetailsTable extends Migration
             $table->integer('off');
             $table->integer('minutes');
             $table->integer('studentCount');
-            $table->string('wageName');
+            
             $table->decimal('wageMoney', 8, 2)->nullable();
 
             $table->timestamps();

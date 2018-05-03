@@ -13,7 +13,7 @@ class Payroll {
         return '/manage/payrolls';
     }
     static initUrl(){
-        return this.source() + '/init';
+        return this.source();
     }
     static showUrl(id){
         return `${this.source()}/${id}`;
@@ -35,6 +35,9 @@ class Payroll {
     }
     static deleteUrl(id){
         return this.source() + `/${id}`;
+    } 
+    static finishUrl(id) {
+        return this.source() + '/finish';
     }
 
     static show(id) {
@@ -69,20 +72,18 @@ class Payroll {
         })
     }
 
-    static report(params){
-        let url = this.source() + '/report';
-        url=Helper.buildQuery(url, params);
- 
- 
+    
+    static finish(form){
+        let url = this.finishUrl();
+        let method = 'post';
         return new Promise((resolve, reject) => {
-            axios.get(url)
-                .then(response => {
-                        resolve(response.data);
+            form.submit(method, url)
+                .then(data => {
+                    resolve(data);
                 })
                 .catch(error => {
-                        reject(error);
+                    reject(error);
                 })
- 
         })
     }
      
@@ -159,8 +160,8 @@ class Payroll {
         })
     }
 
-    static updateMember(form){
-        let url = this.source() + '/updateMember';
+    static updatePS(form){
+        let url = this.source() + '/updatePS';
         let method = 'post';
         return new Promise((resolve, reject) => {
             form.submit(method, url)
@@ -251,16 +252,15 @@ class Payroll {
     
     static getStatusText(status){
         status=parseInt(status);
-        if(status==0) return '待繳費';
-        if(status==1) return '已繳費';
-        if(status==-1) return '已取消';
+        if(status==0) return '未支付';
+        if(status==1) return '已支付';
+       
             return '';
     }
     static getStatusStyle(status){
         status=parseInt(status);
         if(status==0) return 'default';
         if(status==1) return 'info';
-        if(status==-1) return 'warning';
 
         return ''
     }
@@ -279,7 +279,15 @@ class Payroll {
         return names.join(',');
     }
 
-    
+    static statusOptions() {
+        return [{
+            text: '未支付',
+            value: 0
+        }, {
+            text: '已支付',
+            value: 1
+        }]
+    }
 
     
     

@@ -251,16 +251,15 @@ class Lesson {
     
     static getStatusText(status){
         status=parseInt(status);
-        if(status==0) return '待繳費';
-        if(status==1) return '已繳費';
-        if(status==-1) return '已取消';
+        if(status==0) return '未完成';
+        if(status==1) return '已結案';
+       
             return '';
     }
     static getStatusStyle(status){
         status=parseInt(status);
         if(status==0) return 'default';
         if(status==1) return 'info';
-        if(status==-1) return 'warning';
 
         return ''
     }

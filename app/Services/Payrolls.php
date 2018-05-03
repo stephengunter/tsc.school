@@ -39,11 +39,16 @@ class Payrolls
         return Payroll::with($this->with)->find($id);
     }
 
-   
+    public function getByIds(array $ids)
+    {   
+        return $this->getAll()->whereIn('id', $ids);
+    }
 
     public function initPayrolls(Center $center , $year, $month)
     {
-        
+        $existRecordIds=$this->fetchPayrolls($center,$year,$month)->pluck('id')->toArray();
+        Payroll::destroy($existRecordIds);
+
         $year=(int)$year + 1911;
         //找出課堂紀錄
         $lessons=$this->lessons->getByCenter($center);
@@ -68,11 +73,13 @@ class Payrolls
         $teacherIds=array_unique($teacherIds);
        
         foreach($teacherIds as $teacherId){
+            $teacher=$this->teachers->getById($teacherId);
             $payroll=new Payroll([
                     'centerId' => $center->id,
                     'userId' => $teacherId,
                     'year' => $year - 1911,
                     'month' => $month,
+                    'wageName' => $teacher->wage->name,
                   ]);
            
               
@@ -114,7 +121,7 @@ class Payrolls
                 'off' => $lesson->off,
                 'minutes' => $lesson->getMinutes(),
                 'studentCount' => $lesson->getStudentCount(),
-                'wageName' => $teacher->wage->name,
+                
                 'wageMoney' => $actualMoney
             ];
 
@@ -176,9 +183,8 @@ class Payrolls
     
     public function fetchPayrolls(Center $center, $year, $month)
     {
-        
         $payrolls=$this->fetchPayrollsByCenter($center);
-        $payrolls=$this->findByYearMonth($year, $month);
+        $payrolls=$this->findByYearMonth($payrolls,$year, $month);
 
         return $payrolls;
 
@@ -211,6 +217,35 @@ class Payrolls
         }else{
             $payroll->reviewedBy='';
         }
+        $payroll->save();
+    }
+
+    public function finishOK(array $ids,  $updatedBy)
+    {
+        $payrolls=$this->getByIds($ids)->get();
+        foreach($payrolls as $payroll){
+            if(!$payroll->reviewed) abort(500);
+            $payroll->status=1;
+            $payroll->updatedBy=$updatedBy;
+            $payroll->save();
+        } 
+    }
+
+    public function  updateFinish($id, bool $finish, $updatedBy)
+    {
+        $payroll=Payroll::findOrFail($id);
+
+        if($finish){
+            $payroll->status=1;
+            if(!$payroll->reviewed) abort(500);
+           
+        }else{
+            $payroll->status=0;
+        }
+        
+        $payroll->updatedBy=$updatedBy;
+        
+
         $payroll->save();
     }
    

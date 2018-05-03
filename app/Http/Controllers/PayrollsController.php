@@ -51,6 +51,23 @@ class PayrollsController extends Controller
         $this->payrolls->initPayrolls($center , 107, 4);
     }
 
+    function canFinish(Payroll $payroll)
+    {
+        return $this->canAdminCenter($payroll->center);
+
+    }
+
+    function canReview(Payroll $payroll)
+    {
+        return $this->canReviewCenter($payroll->center);
+    }
+
+    function canDelete(Payroll $payroll)
+    {
+        if($payroll->reviewed) return false;
+        return $this->canReviewCenter($payroll->center);
+    }
+
     function canReviewCenter(Center $center)
     {
         if($this->currentUserIsDev()) return true;
@@ -76,6 +93,7 @@ class PayrollsController extends Controller
 
     function monthOptions()
     {
+        $options=[];
         for ($i = 1; $i <= 12; $i++)
         {
             $item=[ 'text' => $i . '月' ,  'value' => $i ];
@@ -88,18 +106,7 @@ class PayrollsController extends Controller
 
     public function loadViewModel(Payroll $payroll)
     {
-        $teacherIds=$payroll->getTeacherIds();
-        $payroll->teachers=$this->users->getByIds($teacherIds)->get();
-
-        $volunteerIds=$payroll->getVolunteerIds();
-        $payroll->volunteers=$this->users->getByIds($volunteerIds)->get();
-
-        $studentIds=$payroll->getStudentIds();
-        $payroll->students=$this->users->getByIds($studentIds)->get();
-
         $payroll->loadViewModel();
-        
-
     }
 
     public function index()
@@ -149,7 +156,7 @@ class PayrollsController extends Controller
             }
         }
 
-        if(!$selectedYear) $selectedYear=Carbon::today()->year;
+        if(!$selectedYear) $selectedYear=Carbon::today()->year -1911;
 
         $monthOptions=$this->monthOptions();
         $selectedMonth = 0;
@@ -190,6 +197,7 @@ class PayrollsController extends Controller
             'month' => $selectedMonth,  
 
             'canReview' => $canReview,
+            'canFinish' => $this->canAdminCenter($selectedCenter),
            
             'list' => $pageList
         ];
@@ -200,7 +208,7 @@ class PayrollsController extends Controller
 
     function getPageList($payrolls)
     {
-        $payrolls=$payrolls->orderBy('date');
+        
         $pageList = new PagedList($payrolls);
        
         foreach($pageList->viewList as $payroll){
@@ -211,58 +219,67 @@ class PayrollsController extends Controller
     }
 
     //Ajax
-    function fetchPayrolls(int $term = 0, int $center = 0, int $course = 0,$beginDate,$endDate, $reviewed)
+    function fetchPayrolls(int $center = 0, int $year = 0, int $month = 0, $reviewed)
     {
        
         $selectedCenter = null;
-        $selectedTerm = null;
-        $selectedCourse = null;
 
-        if ($course)
+        if ($center)
         {
-        
-            $selectedCourse = $this->courses->getById($course);
-            
-            if (!$selectedCourse) abort(404);
-            else
-            {
-                $selectedCenter = $selectedCourse->center;
-                $selectedTerm = $selectedCourse->term;
-            }
-
-        }
-        else
-        {
-            if ($center)
-            {
-                $selectedCenter = $this->centers->getById($center);
-                if (!$selectedCenter) abort(404);
-            }
-
-
-            $selectedTerm =  $this->terms->getById($term);
-            if (!$selectedTerm) return abort(404);
-
+            $selectedCenter = $this->centers->getById($center);
+            if (!$selectedCenter) abort(404);
         }
 
-        $payrolls = $this->payrolls->fetchPayrolls($selectedTerm, $selectedCenter, $selectedCourse,$beginDate,$endDate);
+        if(!$year)   $year=Carbon::today()->year -1911;
+        if(!$month)  $month=Carbon::today()->month;
+
+        $payrolls = $this->payrolls->fetchPayrolls($selectedCenter, $year,$month);
         
         $payrolls = $payrolls->where('reviewed',$reviewed);
-        
+
         $pageList =$this->getPageList($payrolls);
 
-        
-
-        $courseOptions=$this->courses->options($selectedTerm,$selectedCenter,true);
+        $canReview=$this->canReviewCenter($selectedCenter);
 
         $model=[
-            'courseOptions' => $courseOptions,
+            'canReview' => $canReview,
             'model' => $pageList
         ];
 
         return response() ->json($model);
 
         
+    }
+
+    
+    public function store(Request $form)
+    {
+        $year=  $form['year'];
+        $month=  $form['month'];
+        $center=  $form['center'];
+
+        $selectedCenter=$this->centers->getById($center);
+        if(!$selectedCenter) abort(404);
+
+        if(!$this->canAdminCenter($selectedCenter))  return $this->unauthorized();
+
+       
+
+        $errors=[];
+        $exist=$this->payrolls->fetchPayrolls($selectedCenter,$year,$month)
+                              ->where('reviewed',true)->first();
+                             
+
+        if($exist) $errors['payroll.duplicate'] = ['相同月份的鐘點費已經存在'];
+
+        if($errors) return $this->requestError($errors);
+
+        
+        $this->payrolls->initPayrolls($selectedCenter,$year,$month);
+
+        return response()->json();
+
+
     }
 
     public function show($id)
@@ -272,11 +289,11 @@ class PayrollsController extends Controller
 
         $this->loadViewModel($payroll);
 
-        foreach($payroll->members as $member){
-            $member->name=Profile::find($member->userId)->fullname;
+        foreach($payroll->details as $detail){
+            $detail->loadViewModel();
         }
 
-        $payroll->canEdit = $this->canEdit($payroll);
+      
         $payroll->canDelete = $this->canDelete($payroll);
         $payroll->canReview = $this->canReview($payroll);
 
@@ -309,126 +326,23 @@ class PayrollsController extends Controller
         return $errors;
     }
 
-    public function edit($id)
-    {
-        $payroll = $this->payrolls->getById($id);
-        if(!$payroll) abort(404);
+    
 
-        if(!$this->canEdit($payroll))  return $this->unauthorized();
-        
+    
 
-        $teacherIds=$this->getTeacherIds($payroll);
-       
-        $volunteerIds=$this->getVolunteerIds($payroll);
-       
-        $teacherOptions = $this->teacherOptions($payroll);
-        
-        $volunteerOptions = $this->volunteerOptions($payroll);
-
-        $payroll->course->fullName();
-
-        $form=[
-            'payroll' => $payroll,
-            'teacherIds' =>$teacherIds,
-            'volunteerIds' =>$volunteerIds,
-            'teacherOptions' => $teacherOptions,
-            'volunteerOptions' => $volunteerOptions,
-        ];
-
-        return response() ->json($form);
-        
-    }
-
-    public function update(PayrollRequest $request, $id)
-    {
-        $payroll = $this->payrolls->getById($id); 
-        if(!$payroll) abort(404);   
-        if(!$this->canEdit($payroll)) return $this->unauthorized();
-
-        $payrollValues=$request->getValues();
-       
-        $teacherIdValues=$request->getTeacherIds();
-        $volunteerIdValues=$request->getVolunteerIds();
-       
-        $errors=$this->validateInputs($payrollValues,$teacherIdValues);
-        if($errors) return $this->requestError($errors);
-
-
-        $courseId=$payroll->courseId;
-        $classTime=new ClassTime([
-            'on' => $payrollValues['on'],
-            'off' => $payrollValues['off']
-        ]);
-
-
-        $date=new Carbon($payrollValues['date']);
-        $exist=$this->payrolls->findByCourseDateTime($courseId,$classTime,$date);
-        
-        if($exist && $exist->id != $payroll->id){
-            $errors['payroll.date'] = ['日期時間與其他課堂重覆了'];            
-        }
-
-        if($errors) return $this->requestError($errors);
-
-        $teacherIds = [];
-        foreach($teacherIdValues as $item){
-            array_push($teacherIds,$item['value']);
-        }
-
-        $volunteerIds = [];
-        foreach($volunteerIdValues as $item){
-            array_push($volunteerIds,$item['value']);
-        }
-
-
-        $payrollValues['updatedBy']=$this->currentUserId();
-        $payroll->fill($payrollValues);
-
-        $this->payrolls->updatePayroll($payroll, $teacherIds,$volunteerIds);
-
-        return response()->json();
-    }
-
-    public function updateMember(Request $request)
-    {
-        $id=$request['id'];
-        $member=PayrollMember::findOrFail($id);
-        
-        $absence=$request['absence'];
-        $ps=$request['ps'];
-
-        $member->absence=$absence;
-        $member->ps=$ps;
-        $member->updatedBy=$this->currentUserId();
-
-        $member->save();
-        
-        return response() ->json();
-    }
-
-    public function init(Request $form)
-    {
-        $date=  $form['date'];
-        $center=  $form['center'];
-
-        $selectedCenter=$this->centers->getById($center);
-        if(!$selectedCenter) abort(404);
-
-        if(!$this->canAdminCenter($selectedCenter))  return $this->unauthorized();
-
-       
-        $this->payrolls->initPayrollsByDate(new Carbon($date));
-
-        return response() ->json();
-
-
-    }
 
     public function review(Request $form)
     {
-        $reviewedBy=$this->currentUserId();
+        $payrolls= $form['payrolls'];
+
+        $id=$payrolls[0]['id'];
+        $payroll=$this->payrolls->getById($id);
+
+        if(!$payroll) abort(404);   
+        if(!$this->canReview($payroll)) return $this->unauthorized();
         
-        $payrolls=  $form['payrolls'];
+
+        $reviewedBy=$this->currentUserId();
 
         if(count($payrolls) > 1){
             $payrollIds=array_pluck($payrolls, 'id');
@@ -441,6 +355,60 @@ class PayrollsController extends Controller
 
             $this->payrolls->updateReview($id,$reviewed ,$reviewedBy);
         }
+
+        return response() ->json();
+
+
+    }
+
+    public function finish(Request $form)
+    {
+        $updatedBy=$this->currentUserId();
+        
+        $payrolls=  $form['payrolls'];
+
+        if(count($payrolls) > 1){
+            $payrollIds=array_pluck($payrolls, 'id');
+
+            $payroll = $this->payrolls->getById($payrollIds[0]); 
+            if(!$this->canFinish($payroll)) return $this->unauthorized();
+           
+            $this->payrolls->finishOK($payrollIds, $updatedBy);
+
+        }else{
+            
+            $id=$payrolls[0]['id'];
+
+            $payroll = $this->payrolls->getById($id); 
+            if(!$this->canFinish($payroll)) return $this->unauthorized();
+         
+            $finish=Helper::isTrue($payrolls[0]['finish']);
+
+            $this->payrolls->updateFinish($id, $finish ,$updatedBy);
+        }
+        
+
+        return response() ->json();
+
+
+    }
+
+    public function updatePS(Request $form)
+    {
+        $id=$form['id'];
+        $ps=$form['ps'];
+
+        $payroll = $this->payrolls->getById($id);   
+        if(!$payroll) abort(404);   
+
+        if(!$this->canAdminCenter($payroll->center)) return $this->unauthorized();
+        
+        
+        $payroll->update([
+             'ps' => $ps,
+             'updatedBy' => $this->currentUserId()
+        ]);
+        
 
         return response() ->json();
 
