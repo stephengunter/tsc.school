@@ -415,6 +415,35 @@ class PayrollsController extends Controller
 
     }
 
+    public function updateStatus(Request $form)
+    {
+        $id=$form['id'];
+        $status=$form['status'];
+
+        $payroll = $this->payrolls->getById($id);   
+        if(!$payroll) abort(404);   
+
+        $updatedBy=$this->currentUserId();
+
+        if(!$this->canAdminCenter($payroll->center)) return $this->unauthorized();
+        if(Helper::isTrue($status)){
+            $this->payrolls->finishOK([$id],  $updatedBy);
+        }else{
+            $payroll->update([
+                'status' => $status,
+                'updatedBy' => $updatedBy
+           ]);
+        }
+       
+        
+        
+        
+
+        return response() ->json();
+
+
+    }
+
     public function destroy($id) 
     {
         $payroll=Payroll::findOrFail($id);

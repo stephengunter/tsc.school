@@ -174,6 +174,20 @@ class Payroll {
         })
     }
 
+    static updateStatus(form){
+        let url = this.source() + '/updateStatus';
+        let method = 'post';
+        return new Promise((resolve, reject) => {
+            form.submit(method, url)
+                .then(data => {
+                    resolve(data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    }
+
     static review(form){
         let url = this.reviewUrl();
         let method = 'post';

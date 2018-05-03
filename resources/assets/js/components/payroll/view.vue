@@ -44,7 +44,7 @@
     </ps-editor>
 
     <status-editor ref="statusEditor"  :showing="statusEditor.show" :text="statusEditor.text"
-      @close="statusEditor.show=false" @save="updateStaus">
+      @close="statusEditor.show=false" @save="updateStatus">
     </status-editor>
 
     <delete-confirm  :showing="deleteConfirm.show" :message="deleteConfirm.msg"
@@ -233,8 +233,23 @@
                 this.statusEditor.status=this.payroll.status;
                 this.statusEditor.show=true;
             },
-            updateStaus(status){
-                alert(status);
+            updateStatus(status){
+                
+                let form=new Form({
+                    id:this.statusEditor.id,
+                    status:status
+                });
+
+                let save=Payroll.updateStatus(form);
+				save.then(() => {
+                    Helper.BusEmitOK('資料已存檔');
+                    this.statusEditor.show=false;
+                    this.init();
+                   
+				})
+				.catch(error => {
+					Helper.BusEmitError(error,'存檔失敗');
+				})
             },
             onSaved(){
                 this.init();

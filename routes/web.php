@@ -185,6 +185,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/payrolls/review', 'PayrollsController@review');
     Route::post('/manage/payrolls/finish', 'PayrollsController@finish');
     Route::post('/manage/payrolls/updatePS', 'PayrollsController@updatePS');
+    Route::post('/manage/payrolls/updateStatus', 'PayrollsController@updateStatus');
 
    
 
