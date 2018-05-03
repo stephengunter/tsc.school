@@ -221,6 +221,8 @@ class Users
 			return $this->validateInputs($values, $needFullname,$needSID,$needDOB);
 		}
 
+		
+
 		$role=Role::where('name',$roleName)->first();
 		if($role->name==Role::studentRoleName()){
 			$needFullname=true;
@@ -245,7 +247,7 @@ class Users
 
 	public function validateInputs($values, bool $needFullname=true,bool $needSID=false,bool $needDOB=false)
     {
-        $errors=[];
+		$errors=[];
 
         $id=0;        
 		if(array_key_exists ('id' ,$values)) $id=(int)$values['id']; 
@@ -274,13 +276,19 @@ class Users
 			
 		}
 
+		
+
 		if($needFullname){
 			$fullname=$values['profile']['fullname'];
+			
 			if(!$fullname) $errors['user.profile.fullname'] = ['必須填寫姓名'];
 				
 		}
 
+		
+
 		$sid=$values['profile']['sid'];
+		
 
 		if($sid){
 			$existUser=$this->findBySID($sid);
@@ -292,6 +300,8 @@ class Users
 			if($needSID){
 				$errors['user.profile.sid'] = ['必須填寫身分證號'];
 			}
+
+			
 		}
 
 		if($needDOB){

@@ -78,8 +78,6 @@ export default {
 			let save=null;
 
 			this.form.signup.user= { ...this.form.user };
-
-		   
 			
 			if(this.isCreate) save=Signup.store(this.form); 
 			else  save=Signup.update(this.getId(),this.form);

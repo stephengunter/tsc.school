@@ -120,18 +120,22 @@ class CoursesController extends Controller
     }
 
     
-    function canSignup(Course $course,User $user)
+    function canSignup(Course $course,User $user=null)
     {
+       
         //User報名過的課程記錄
-        $coursesSignupedIds = [];
-        $userSignupDetailRecords = $this->signups->getSignupDetailsByUser($user);
-        
-        $coursesSignupedIds = $userSignupDetailRecords->pluck('courseId')->toArray();
-        
-        if (in_array($course->id, $coursesSignupedIds)){
-            return false;
-        }
+        if($user){
+            $coursesSignupedIds = [];
+            $userSignupDetailRecords = $this->signups->getSignupDetailsByUser($user);
+            
+            $coursesSignupedIds = $userSignupDetailRecords->pluck('courseId')->toArray();
+            
+            if (in_array($course->id, $coursesSignupedIds)){
+                return false;
+            }
 
+        }
+        
         return true;
     }
 

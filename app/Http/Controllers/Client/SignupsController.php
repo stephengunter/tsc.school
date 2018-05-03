@@ -190,7 +190,8 @@ class SignupsController extends Controller
         
         $user=$this->currentUser();
 
-        $this->updateUser($request,$user);
+        $errors = $this->updateUser($request,$user);
+        if($errors) return $this->requestError($errors);
 
         $signupDetails=[];
 
@@ -241,12 +242,15 @@ class SignupsController extends Controller
         $roleName=Role::studentRoleName();
 
         $errors=$this->users->validateUserInputs($userValues,$roleName);
-        if($errors) return $this->requestError($errors);
+       
+        if($errors) return $errors;
+
 
         $profileValues= $userValues['profile'];
         $userValues=$request->getClearUserValues();
         $userValues['updatedBy'] =  $user->id;
         $profileValues['updatedBy'] =  $user->id;
+        
     
         $user->profile->update($profileValues);
         $this->users->updateUser($user,$userValues);
@@ -316,8 +320,9 @@ class SignupsController extends Controller
         if(!$this->canEdit($signup)) abort(404);
 
         $user=$this->currentUser();
-       
-        $this->updateUser($request,$user);
+
+        $errors = $this->updateUser($request,$user);
+        if($errors) return $this->requestError($errors);
 
         $signupDetails=[];
         $selectedCourses=[];

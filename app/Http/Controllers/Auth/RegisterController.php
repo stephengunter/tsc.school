@@ -55,9 +55,11 @@ class RegisterController extends Controller
     {
         //event(new Registered($user = $this->create($request->all())));
         $values=$request->getValues();
+       
         $user=new User([
             'name' => $values['email'],
             'email' => $values['email'],
+            'phone' => $values['phone'],
             'password' => Hash::make($values['password']),
         ]);
         $profile=new Profile([

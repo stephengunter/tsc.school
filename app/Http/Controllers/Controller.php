@@ -23,6 +23,7 @@ class Controller extends BaseController
     }
     protected function requestError($errors)
     {
+       
         return response() ->json(['errors'=> $errors ],422);
        
     }
