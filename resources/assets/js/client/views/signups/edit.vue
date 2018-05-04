@@ -6,13 +6,16 @@
             </h2>
         </div>
         
-        <div v-if="!err" class="columns" style="padding-top:1em">
+        <div class="columns" style="padding-top:1em">
             
-            <signup-edit :form="form" :identity_options="identity_options"
-               @saved="onSaved" @cancel="onCancel">
+            <signup-edit :form="form" :identity_options="identity_options" :center="center"
+              :bird_date_text="bird_date_text" @saved="onSaved" @cancel="onCancel">
 
             </signup-edit>
+
+            
         </div>
+       
     </div>
         
     
@@ -26,7 +29,7 @@
         name:'SignupEditView',
         components: {
             'show-signup':ShowSignup,
-            'signup-edit':SignupEdit                
+            'signup-edit':SignupEdit,               
         },
         props: {
             form: {
@@ -36,7 +39,15 @@
             identity_options: {
                 type: Array,
                 default: null
-            }
+            },
+            center: {
+                type: Object,
+                default: null
+            },
+            bird_date_text: {
+                type: String,
+                default: ''
+            },
         },
         data(){
             return {

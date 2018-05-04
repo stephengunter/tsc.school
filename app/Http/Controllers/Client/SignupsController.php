@@ -175,12 +175,16 @@ class SignupsController extends Controller
 
         $identityIds=$user->identities()->pluck('identity_id')->toArray();
 
+        $center=$signup->getCenter();
+        $center->discounts;
+
         $model=[
             'title' => '線上報名 - ' .  $selectedCourse->fullName(),
             'topMenus' => $this->clientMenus(),
 
             'signup' => $signup,
             'user' => $user,
+            'center' => $center,
           
             'identityOptions' => $this->discounts->getIdentitiesOptions($selectedCourse->center),            
             'identityIds' => $identityIds,
@@ -291,17 +295,25 @@ class SignupsController extends Controller
 
         $selectedCourse=$signup->details->first()->course;
 
+        $center=$signup->getCenter();
+        foreach($center->discounts as $discount){
+            $discount->loadViewModel();
+        }
+
         if(!$signup->canEdit){
             $model=[
                 'title' => '報名紀錄 - ' .  $selectedCourse->fullName(),
                 'topMenus' => $this->clientMenus(),
     
-                'signup' => $signup
+                'signup' => $signup,
+                'center' => $center
             ];
 
             return view('client.signups.show')->with($model);
         }
 
+        $term=$signup->getTerm();
+        $birdDateText=$term->birdDateText();
         
 
         $identityIds=$user->identities()->pluck('identity_id')->toArray();
@@ -312,6 +324,8 @@ class SignupsController extends Controller
 
             'signup' => $signup,
             'user' => $user,
+            'center' => $center,
+            'birdDateText' => $birdDateText,
             
             'identityOptions' => $this->discounts->getIdentitiesOptions($selectedCourse->center),            
             'identityIds' =>  $identityIds,

@@ -2,7 +2,8 @@
 
 @section('content')
 
-<signup-edit-view :form="form" :identity_options="identityOptions">
+<signup-edit-view :form="form" :identity_options="identityOptions" 
+:center="center" :bird_date_text="birdDateText">
 
 </signup-edit-view>
 
@@ -24,6 +25,9 @@ new Vue({
             canEdit:true,
             canBack:false,
 
+            center:null,
+            birdDateText:'',
+
             
         }
     },
@@ -36,6 +40,10 @@ new Vue({
     },
     methods: {
         init(){
+
+            this.center={!! json_encode($center) !!};
+            this.birdDateText={!! json_encode($birdDateText) !!};
+
             let signup = {!! json_encode($signup) !!};
             let user = {!! json_encode($user) !!};
         

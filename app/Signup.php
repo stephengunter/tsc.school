@@ -50,6 +50,15 @@ class Signup extends Model
 
         return $this->details->first()->course->center;
     }
+
+    public function getTerm()
+	{
+        if(!count($this->details)) return null;
+
+        return $this->details->first()->course->term;
+    }
+
+
     public function getDate()
 	{
         $this->date = $this->created_at->format('Y-m-d');

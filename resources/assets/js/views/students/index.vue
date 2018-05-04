@@ -30,9 +30,10 @@
                
             </div>
             <div class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
-
-                
-                
+                <a :disabled="checkedIds.length < 1" @click.prevent="onSubmitPrint" href="#" class="btn btn-success">
+                    <i class="fa fa-check-circle"></i>
+                    列印證書
+                </a>
             </div>
             
         </div>
@@ -219,6 +220,9 @@
             onCheckIdsChanged(ids){
                 this.checkedIds=ids.slice(0);
             },
+            onSubmitPrint(){
+                
+            }
             
         }
     }

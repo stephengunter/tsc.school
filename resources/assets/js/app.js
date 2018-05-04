@@ -30,6 +30,8 @@ Vue.component('image-upload', require('./components/image-upload'));
 Vue.component('login-view', require('./views/login'));
 Vue.component('change-password-view', require('./views/auth/change-password'));
 
+Vue.component('test', require('./views/test'));
+
 Vue.component('home-view', require('./views/home'));
 
 Vue.component('centers-index', require('./views/centers/index'));

@@ -33,6 +33,26 @@ class Discount extends Model
        
     }
 
+    public function  getPointsText($points)
+    {
+        $points=(int)$points;
+
+        if(!$points) return '';
+        if($points==100) return '';
+       
+        if($points % 10 == 0){
+            return $points/10 . '折';
+        }
+
+        return $points . '折';
+    }
+
+    public function  loadViewModel()
+    {
+        $this->pointOneText=$this->getPointsText($this->pointOne);
+        $this->pointTwoText=$this->getPointsText($this->pointTwo);
+       
+    }
 
 	
 }

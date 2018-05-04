@@ -8,9 +8,12 @@
 			</signup-edit-inputs> 
 
 			<submit-buttons :form="form"  :submitting="submitting"
-			@cancel="cancel">
-
+				@cancel="cancel">
 			</submit-buttons>
+
+			<div class="control" style="padding-top:1em">
+				<discount-view :center="center" :bird_date_text="bird_date_text"></discount-view>
+			</div>
 
 		</div>	
 		
@@ -19,7 +22,8 @@
 
 <script>
 import SignupEditInputs from './edit-inputs.vue';
-import SubmitButtons from './submit-buttons.vue'
+import SubmitButtons from './submit-buttons.vue';
+import DiscountView from '../discount/view.vue';
 
 export default {
     name:'EditSignup',
@@ -32,10 +36,19 @@ export default {
             type: Array,
             default: null
 		},
+		center:{
+			type: Object,
+            default: null	
+		},
+		bird_date_text: {
+			type: String,
+			default: ''
+		},
 	},
 	components: {
 		'signup-edit-inputs':SignupEditInputs,
-		'submit-buttons':SubmitButtons
+		'submit-buttons':SubmitButtons,
+		'discount-view':DiscountView     
 	},
 	data(){
 		return {

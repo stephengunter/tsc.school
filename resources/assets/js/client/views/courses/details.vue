@@ -22,7 +22,10 @@
                 
             </ul>
         </div>
-
+        <div style="padding-top:1.2em">
+            <h1 class="title" >優惠辦法</h1>
+            <discount-view :center="model.center" :bird_date_text="model.term.birdDate" ></discount-view>
+        </div>
         <div style="padding-top:1.2em">
             <h1 class="title" >師資介紹</h1>
             <teacher-card v-for="(teacher,index) in model.teachers" :key="index" :teacher="teacher"></teacher-card>
@@ -41,13 +44,15 @@
     import CourseInfo from '../../components/course/info.vue';
     import TeacherCard from '../../components/course/teacher-card.vue';
     import CourseProcesses from '../../components/course/processes.vue';
+    import DiscountView from '../../components/discount/view.vue';
     export default {
         name:'CourseDetailsView',
         components:{
             'large-card':LargeCard,
             'course-info':CourseInfo,
             'teacher-card':TeacherCard,
-            'processes':CourseProcesses
+            'processes':CourseProcesses,
+            'discount-view':DiscountView
         },
         props: {
             init_model: {

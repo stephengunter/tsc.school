@@ -5,6 +5,8 @@ Auth::routes();
 Route::get('/test', function () {
     
     
+    
+    return view('errors');
 });
 
 //Route::get('/test', 'PayrollsController@test');

@@ -1,20 +1,20 @@
 <template>
-   <post-edit :id="345"></post-edit>
+   <certificate></certificate>
 </template>
 
 <script>
-import PostEdit from '../components/post-edit';
+import Certificate from '../components/student/certificate';
 
 export default {
-   components: {
-     'post-edit':PostEdit
-   },
-   data(){
-		return {
-		 id:348
-			
-		}
-	},
+    components: {
+      Certificate
+    },
+    data(){
+      return {
+      id:348
+        
+      }
+    },
 }
 </script>
 

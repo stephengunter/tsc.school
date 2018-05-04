@@ -1,42 +1,45 @@
-@extends('layouts.client')
+@extends('layouts.manage')
+
 
 @section('content')
 
- 
+<test></test>
 
 
 @endsection
-
-
-
-
 
 @section('scripts')
 
-<script type="text/babel">
+    <script type="text/babel">
+
+        new Vue({
+            el: '#main',
+            data() {
+                return {
+                    
+
+                }
+            },
+            computed: {
+               
+            },
+            beforeMount() {
+               
+
+			},
+            methods: {
+                
+
+			}
+
+		});
 
 
-new Vue({
-    el: '#main',
-    data() {
-        return {
-            msg:'',
-        }
-    },
-    beforeMount() {
 
-        this.msg = {!! json_encode($msg) !!} ;
-    },
-    methods: {
-        onLoaded(){
-            onPageLoaded();
-        }
-    }
+    </script>
 
-});
-
-
-
-</script>
 
 @endsection
+
+
+

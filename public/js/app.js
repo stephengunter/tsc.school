@@ -62044,6 +62044,8 @@ Vue.component('image-upload', __webpack_require__(229));
 Vue.component('login-view', __webpack_require__(234));
 Vue.component('change-password-view', __webpack_require__(237));
 
+Vue.component('test', __webpack_require__(860));
+
 Vue.component('home-view', __webpack_require__(240));
 
 Vue.component('centers-index', __webpack_require__(246));
@@ -66746,6 +66748,17 @@ var Bill = function () {
             }
 
             window.open(PDF.output('bloburl'), '_blank');
+        }
+    }, {
+        key: 'titleText',
+        value: function titleText(payed) {
+            if (payed) return '慈濟大學社會教育推廣中心課程繳費收據';
+            return '慈濟大學社會教育推廣中心課程繳費單';
+        }
+    }, {
+        key: 'footerText',
+        value: function footerText() {
+            return '慈濟大學社會教育推廣中心 03-8565301轉1703、1704';
         }
     }]);
 
@@ -109009,6 +109022,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -109021,7 +109036,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     data: function data() {
         return {
-
+            footerText: Bill.footerText(),
             options: {
                 height: 50
             }
@@ -109030,8 +109045,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     computed: {
         title: function title() {
-            if (this.payed) return '慈濟大學社會教育推廣中心課程繳費收據';
-            return '慈濟大學社會教育推廣中心課程繳費單';
+            return Bill.titleText(this.payed);
         },
         payed: function payed() {
             if (!this.signup) return false;
@@ -109066,7 +109080,9 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { attrs: { id: "signup" } }, [
-    _c("div", { staticStyle: { margin: "50px" } }, [
+    _c("div", { staticClass: "row", staticStyle: { "padding-top": "1em" } }),
+    _vm._v(" "),
+    _c("div", { staticStyle: { margin: "50px 100px 15px 100px" } }, [
       _c("div", { staticClass: "row text-center" }, [
         _vm.payed
           ? _c("h3", [_vm._v(_vm._s(_vm.title))])
@@ -109284,7 +109300,13 @@ var render = function() {
           )
         : _vm._e(),
       _vm._v(" "),
-      _vm._m(3)
+      _c("div", { staticClass: "row" }, [
+        _c("div", { staticClass: "col-sm-12 text-right" }, [
+          _vm._v(
+            "\n                 " + _vm._s(_vm.footerText) + "\n            "
+          )
+        ])
+      ])
     ])
   ])
 }
@@ -109322,18 +109344,6 @@ var staticRenderFns = [
         _c("th", { staticStyle: { width: "50%" } }, [_vm._v("繳費期限")]),
         _vm._v(" "),
         _c("th", [_vm._v("應繳金額")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-sm-12 text-right" }, [
-        _vm._v(
-          "\n                慈濟大學社會教育推廣中心 03-8565301轉1703、1704\n            "
-        )
       ])
     ])
   }
@@ -113156,6 +113166,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
 
 
 
@@ -113307,7 +113318,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         onCheckIdsChanged: function onCheckIdsChanged(ids) {
             this.checkedIds = ids.slice(0);
-        }
+        },
+        onSubmitPrint: function onSubmitPrint() {}
     }
 });
 
@@ -114055,11 +114067,33 @@ var render = function() {
               staticStyle: { "margin-top": "20px" }
             }),
             _vm._v(" "),
-            _c("div", {
-              staticClass: "col-sm-1 pull-right",
-              staticStyle: { "margin-top": "20px" },
-              attrs: { align: "right" }
-            })
+            _c(
+              "div",
+              {
+                staticClass: "col-sm-1 pull-right",
+                staticStyle: { "margin-top": "20px" },
+                attrs: { align: "right" }
+              },
+              [
+                _c(
+                  "a",
+                  {
+                    staticClass: "btn btn-success",
+                    attrs: { disabled: _vm.checkedIds.length < 1, href: "#" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.onSubmitPrint($event)
+                      }
+                    }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-check-circle" }),
+                    _vm._v("\n                列印證書\n            ")
+                  ]
+                )
+              ]
+            )
           ]),
           _vm._v(" "),
           _vm.hasCourse
@@ -121832,6 +121866,503 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 645 */,
+/* 646 */,
+/* 647 */,
+/* 648 */,
+/* 649 */,
+/* 650 */,
+/* 651 */,
+/* 652 */,
+/* 653 */,
+/* 654 */,
+/* 655 */,
+/* 656 */,
+/* 657 */,
+/* 658 */,
+/* 659 */,
+/* 660 */,
+/* 661 */,
+/* 662 */,
+/* 663 */,
+/* 664 */,
+/* 665 */,
+/* 666 */,
+/* 667 */,
+/* 668 */,
+/* 669 */,
+/* 670 */,
+/* 671 */,
+/* 672 */,
+/* 673 */,
+/* 674 */,
+/* 675 */,
+/* 676 */,
+/* 677 */,
+/* 678 */,
+/* 679 */,
+/* 680 */,
+/* 681 */,
+/* 682 */,
+/* 683 */,
+/* 684 */,
+/* 685 */,
+/* 686 */,
+/* 687 */,
+/* 688 */,
+/* 689 */,
+/* 690 */,
+/* 691 */,
+/* 692 */,
+/* 693 */,
+/* 694 */,
+/* 695 */,
+/* 696 */,
+/* 697 */,
+/* 698 */,
+/* 699 */,
+/* 700 */,
+/* 701 */,
+/* 702 */,
+/* 703 */,
+/* 704 */,
+/* 705 */,
+/* 706 */,
+/* 707 */,
+/* 708 */,
+/* 709 */,
+/* 710 */,
+/* 711 */,
+/* 712 */,
+/* 713 */,
+/* 714 */,
+/* 715 */,
+/* 716 */,
+/* 717 */,
+/* 718 */,
+/* 719 */,
+/* 720 */,
+/* 721 */,
+/* 722 */,
+/* 723 */,
+/* 724 */,
+/* 725 */,
+/* 726 */,
+/* 727 */,
+/* 728 */,
+/* 729 */,
+/* 730 */,
+/* 731 */,
+/* 732 */,
+/* 733 */,
+/* 734 */,
+/* 735 */,
+/* 736 */,
+/* 737 */,
+/* 738 */,
+/* 739 */,
+/* 740 */,
+/* 741 */,
+/* 742 */,
+/* 743 */,
+/* 744 */,
+/* 745 */,
+/* 746 */,
+/* 747 */,
+/* 748 */,
+/* 749 */,
+/* 750 */,
+/* 751 */,
+/* 752 */,
+/* 753 */,
+/* 754 */,
+/* 755 */,
+/* 756 */,
+/* 757 */,
+/* 758 */,
+/* 759 */,
+/* 760 */,
+/* 761 */,
+/* 762 */,
+/* 763 */,
+/* 764 */,
+/* 765 */,
+/* 766 */,
+/* 767 */,
+/* 768 */,
+/* 769 */,
+/* 770 */,
+/* 771 */,
+/* 772 */,
+/* 773 */,
+/* 774 */,
+/* 775 */,
+/* 776 */,
+/* 777 */,
+/* 778 */,
+/* 779 */,
+/* 780 */,
+/* 781 */,
+/* 782 */,
+/* 783 */,
+/* 784 */,
+/* 785 */,
+/* 786 */,
+/* 787 */,
+/* 788 */,
+/* 789 */,
+/* 790 */,
+/* 791 */,
+/* 792 */,
+/* 793 */,
+/* 794 */,
+/* 795 */,
+/* 796 */,
+/* 797 */,
+/* 798 */,
+/* 799 */,
+/* 800 */,
+/* 801 */,
+/* 802 */,
+/* 803 */,
+/* 804 */,
+/* 805 */,
+/* 806 */,
+/* 807 */,
+/* 808 */,
+/* 809 */,
+/* 810 */,
+/* 811 */,
+/* 812 */,
+/* 813 */,
+/* 814 */,
+/* 815 */,
+/* 816 */,
+/* 817 */,
+/* 818 */,
+/* 819 */,
+/* 820 */,
+/* 821 */,
+/* 822 */,
+/* 823 */,
+/* 824 */,
+/* 825 */,
+/* 826 */,
+/* 827 */,
+/* 828 */,
+/* 829 */,
+/* 830 */,
+/* 831 */,
+/* 832 */,
+/* 833 */,
+/* 834 */,
+/* 835 */,
+/* 836 */,
+/* 837 */,
+/* 838 */,
+/* 839 */,
+/* 840 */,
+/* 841 */,
+/* 842 */,
+/* 843 */,
+/* 844 */,
+/* 845 */,
+/* 846 */,
+/* 847 */,
+/* 848 */,
+/* 849 */,
+/* 850 */,
+/* 851 */,
+/* 852 */,
+/* 853 */,
+/* 854 */,
+/* 855 */,
+/* 856 */,
+/* 857 */,
+/* 858 */,
+/* 859 */,
+/* 860 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(861)
+/* template */
+var __vue_template__ = __webpack_require__(865)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\views\\test.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-32e8f202", Component.options)
+  } else {
+    hotAPI.reload("data-v-32e8f202", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 861 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_student_certificate__ = __webpack_require__(862);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_student_certificate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_student_certificate__);
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  components: {
+    Certificate: __WEBPACK_IMPORTED_MODULE_0__components_student_certificate___default.a
+  },
+  data: function data() {
+    return {
+      id: 348
+
+    };
+  }
+});
+
+/***/ }),
+/* 862 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(863)
+/* template */
+var __vue_template__ = __webpack_require__(864)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\student\\certificate.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-5c6c9bef", Component.options)
+  } else {
+    hotAPI.reload("data-v-5c6c9bef", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 863 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_html2Canvas__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_html2Canvas___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_html2Canvas__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'StudentCertificate',
+    props: {
+        student: {
+            type: Object,
+            default: null
+        }
+    },
+    data: function data() {
+        return {
+
+            options: {
+                height: 50
+            }
+        };
+    },
+
+    computed: {
+        title: function title() {
+            return '慈濟大學社會教育推廣中心 課程結業證書';
+        }
+    },
+    beforeMount: function beforeMount() {},
+
+    methods: {
+        print: function print() {
+
+            __WEBPACK_IMPORTED_MODULE_0_html2Canvas___default()(document.querySelector("#certificate")).then(function (canvas) {
+                Bill.print(canvas);
+            });
+        }
+    }
+});
+
+/***/ }),
+/* 864 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("div", [_c("button", { on: { click: _vm.print } }, [_vm._v("print")])]),
+    _vm._v(" "),
+    _c("div", { attrs: { id: "certificate" } }, [
+      _c("div", { staticClass: "row", staticStyle: { "padding-top": "1em" } }),
+      _vm._v(" "),
+      _c("div", { staticStyle: { margin: "50px 100px 15px 100px" } }, [
+        _c("div", { staticClass: "row text-center" }, [
+          _c("h1", [_vm._v(_vm._s(_vm.title))])
+        ]),
+        _vm._v(" "),
+        _vm._m(0),
+        _vm._v(" "),
+        _vm._m(1)
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "text-right" }, [
+        _vm._v("\n                95年5月29日第21次校務會議通過 "),
+        _c("br"),
+        _vm._v(
+          " 教育部91年3月14台(九一)高(二)字第九一０三二三一三號函准予核備 \n            "
+        )
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "row", staticStyle: { "padding-top": "1em" } },
+      [
+        _c(
+          "p",
+          { staticStyle: { "line-height": "45px", "font-size": "22px" } },
+          [
+            _vm._v(
+              "\n                何金水 君 自民國107年9月7日 至 民國107年12月23日，於本校社會教育推廣中心進修『生活輔導人員進修班』，修業期滿成績及格，特此證明。\n            "
+            )
+          ]
+        )
+      ]
+    )
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-5c6c9bef", module.exports)
+  }
+}
+
+/***/ }),
+/* 865 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("certificate")
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-32e8f202", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

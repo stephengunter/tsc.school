@@ -226,7 +226,13 @@ class CoursesController extends Controller
         
 
         $course->canSignup = $this->canSignup($course,$this->currentUser());
-      
+        
+       
+        foreach($course->center->discounts as $discount){
+            $discount->loadViewModel();
+        }
+       
+        $course->term->birdDateText=$course->term->birdDateText();
 
         $model=[
             'title' => $course->center->name . ' - ' . $course->fullName,

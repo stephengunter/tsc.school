@@ -41,6 +41,12 @@ class Bill {
         PDF.save(name);
         
     }
+    static titleText(){
+        return '慈濟大學社會教育推廣中心課程繳費單';
+    }
+    static footerText(){
+        return '慈濟大學社會教育推廣中心 03-8565301轉1703、1704';
+    }
     
     
     

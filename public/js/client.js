@@ -63073,6 +63073,16 @@ var Bill = function () {
 
             PDF.save(name);
         }
+    }, {
+        key: 'titleText',
+        value: function titleText() {
+            return '慈濟大學社會教育推廣中心課程繳費單';
+        }
+    }, {
+        key: 'footerText',
+        value: function footerText() {
+            return '慈濟大學社會教育推廣中心 03-8565301轉1703、1704';
+        }
     }]);
 
     return Bill;
@@ -69035,6 +69045,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_course_teacher_card_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_course_teacher_card_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_course_processes_vue__ = __webpack_require__(773);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_course_processes_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_course_processes_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_discount_view_vue__ = __webpack_require__(857);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_discount_view_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__components_discount_view_vue__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 //
@@ -69075,6 +69087,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+
 
 
 
@@ -69086,7 +69102,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         'large-card': __WEBPACK_IMPORTED_MODULE_0__components_course_large_card_vue___default.a,
         'course-info': __WEBPACK_IMPORTED_MODULE_1__components_course_info_vue___default.a,
         'teacher-card': __WEBPACK_IMPORTED_MODULE_2__components_course_teacher_card_vue___default.a,
-        'processes': __WEBPACK_IMPORTED_MODULE_3__components_course_processes_vue___default.a
+        'processes': __WEBPACK_IMPORTED_MODULE_3__components_course_processes_vue___default.a,
+        'discount-view': __WEBPACK_IMPORTED_MODULE_4__components_discount_view_vue___default.a
     },
     props: {
         init_model: {
@@ -70293,6 +70310,22 @@ var render = function() {
             )
           ])
         : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticStyle: { "padding-top": "1.2em" } },
+        [
+          _c("h1", { staticClass: "title" }, [_vm._v("優惠辦法")]),
+          _vm._v(" "),
+          _c("discount-view", {
+            attrs: {
+              center: _vm.model.center,
+              bird_date_text: _vm.model.term.birdDate
+            }
+          })
+        ],
+        1
+      ),
       _vm._v(" "),
       _c(
         "div",
@@ -72181,6 +72214,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 
 
@@ -72198,6 +72234,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         identity_options: {
             type: Array,
             default: null
+        },
+        center: {
+            type: Object,
+            default: null
+        },
+        bird_date_text: {
+            type: String,
+            default: ''
         }
     },
     data: function data() {
@@ -72276,6 +72320,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__edit_inputs_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__edit_inputs_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submit_buttons_vue__ = __webpack_require__(810);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submit_buttons_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__submit_buttons_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__discount_view_vue__ = __webpack_require__(857);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__discount_view_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__discount_view_vue__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 //
@@ -72297,6 +72343,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+
 
 
 
@@ -72311,11 +72361,20 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		identity_options: {
 			type: Array,
 			default: null
+		},
+		center: {
+			type: Object,
+			default: null
+		},
+		bird_date_text: {
+			type: String,
+			default: ''
 		}
 	},
 	components: {
 		'signup-edit-inputs': __WEBPACK_IMPORTED_MODULE_0__edit_inputs_vue___default.a,
-		'submit-buttons': __WEBPACK_IMPORTED_MODULE_1__submit_buttons_vue___default.a
+		'submit-buttons': __WEBPACK_IMPORTED_MODULE_1__submit_buttons_vue___default.a,
+		'discount-view': __WEBPACK_IMPORTED_MODULE_2__discount_view_vue___default.a
 	},
 	data: function data() {
 		return {
@@ -73221,7 +73280,24 @@ var render = function() {
               _c("submit-buttons", {
                 attrs: { form: _vm.form, submitting: _vm.submitting },
                 on: { cancel: _vm.cancel }
-              })
+              }),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass: "control",
+                  staticStyle: { "padding-top": "1em" }
+                },
+                [
+                  _c("discount-view", {
+                    attrs: {
+                      center: _vm.center,
+                      bird_date_text: _vm.bird_date_text
+                    }
+                  })
+                ],
+                1
+              )
             ],
             1
           )
@@ -73533,19 +73609,22 @@ var render = function() {
   return _c("div", [
     _vm._m(0),
     _vm._v(" "),
-    !_vm.err
-      ? _c(
-          "div",
-          { staticClass: "columns", staticStyle: { "padding-top": "1em" } },
-          [
-            _c("signup-edit", {
-              attrs: { form: _vm.form, identity_options: _vm.identity_options },
-              on: { saved: _vm.onSaved, cancel: _vm.onCancel }
-            })
-          ],
-          1
-        )
-      : _vm._e()
+    _c(
+      "div",
+      { staticClass: "columns", staticStyle: { "padding-top": "1em" } },
+      [
+        _c("signup-edit", {
+          attrs: {
+            form: _vm.form,
+            identity_options: _vm.identity_options,
+            center: _vm.center,
+            bird_date_text: _vm.bird_date_text
+          },
+          on: { saved: _vm.onSaved, cancel: _vm.onCancel }
+        })
+      ],
+      1
+    )
   ])
 }
 var staticRenderFns = [
@@ -74491,6 +74570,43 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -74507,6 +74623,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     data: function data() {
         return {
+            title: Bill.titleText(),
+            footerText: Bill.footerText(),
             showPrint: false,
             barcodeOptions: {
                 height: 50
@@ -74517,6 +74635,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     computed: {
         hasDiscount: function hasDiscount() {
             return Signup.hasDiscount(this.signup);
+        },
+        sevenCodes: function sevenCodes() {
+            if (!this.signup.bill.sevenCodes) return [];
+            return this.signup.bill.sevenCodes.split(',');
         }
     },
     beforeMount: function beforeMount() {},
@@ -74543,8 +74665,24 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { attrs: { id: "signup" } }, [
-    _c("div", { staticStyle: { margin: "50px" } }, [
-      _vm._m(0),
+    _c("div", { staticClass: "row", staticStyle: { "padding-top": "1em" } }),
+    _vm._v(" "),
+    _c("div", { staticStyle: { margin: "50px 100px 15px 100px" } }, [
+      _c("div", { staticClass: "columns" }, [
+        _c(
+          "div",
+          {
+            staticClass: "column",
+            staticStyle: { "text-align": "center", "margin-top": "35px" }
+          },
+          [
+            _c("h2", {
+              staticClass: "title",
+              domProps: { textContent: _vm._s(_vm.title) }
+            })
+          ]
+        )
+      ]),
       _vm._v(" "),
       _c("div", { staticClass: "columns" }, [
         _c("div", { staticClass: "column" }, [
@@ -74582,15 +74720,17 @@ var render = function() {
         _c("div", { staticClass: "column" }, [
           _c(
             "div",
-            { staticClass: "panel", staticStyle: { height: "600px" } },
+            { staticClass: "panel", staticStyle: { height: "850px" } },
             [
               _c("div", { staticClass: "panel-heading panel-title heading" }, [
-                _vm._v("\n                    報名課程\n                ")
+                _vm._v(
+                  "\n                        報名課程\n                    "
+                )
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "panel-block" }, [
                 _c("table", { staticClass: "table" }, [
-                  _vm._m(1),
+                  _vm._m(0),
                   _vm._v(" "),
                   _c(
                     "tbody",
@@ -74629,15 +74769,15 @@ var render = function() {
                     _vm.hasDiscount
                       ? _c("h5", { staticClass: "title is-5" }, [
                           _vm._v(
-                            "折扣：\n                                " +
+                            "折扣：\n                                    " +
                               _vm._s(_vm.signup.discount) +
-                              " \n                                "
+                              " \n                                    "
                           ),
                           _c("span", [
                             _vm._v(
-                              "\n                                      " +
+                              "\n                                          " +
                                 _vm._s(_vm.signup.pointsText) +
-                                "\n                                "
+                                "\n                                    "
                             )
                           ])
                         ])
@@ -74662,50 +74802,96 @@ var render = function() {
         ])
       ]),
       _vm._v(" "),
+      _c("hr", { staticStyle: { border: "1px dashed #000", height: "1px" } }),
+      _vm._v(" "),
       _c("div", { staticClass: "columns" }, [
-        _c(
-          "div",
-          { staticClass: "column" },
-          [
-            _c("barcode", {
-              attrs: {
-                value: _vm.signup.bill.code,
-                options: _vm.barcodeOptions
-              }
-            })
-          ],
-          1
-        ),
+        _c("div", { staticClass: "column" }, [
+          _c("h4", [_vm._v("超商專用條碼")]),
+          _vm._v(" "),
+          _c(
+            "p",
+            [
+              _c("barcode", {
+                key: "1",
+                attrs: { value: _vm.sevenCodes[0], options: _vm.barcodeOptions }
+              })
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "p",
+            [
+              _c("barcode", {
+                key: "2",
+                attrs: { value: _vm.sevenCodes[1], options: _vm.barcodeOptions }
+              })
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "p",
+            [
+              _c("barcode", {
+                key: "3",
+                attrs: { value: _vm.sevenCodes[2], options: _vm.barcodeOptions }
+              })
+            ],
+            1
+          )
+        ]),
         _vm._v(" "),
-        _c("div", { staticClass: "column" })
+        _c("div", { staticClass: "column" }, [
+          _c("h5", { staticClass: "title is-5" }, [_vm._v(_vm._s(_vm.title))]),
+          _vm._v(" "),
+          _c(
+            "table",
+            { staticClass: "table is-bordered", staticStyle: { width: "90%" } },
+            [
+              _vm._m(1),
+              _vm._v(" "),
+              _c("tbody", [
+                _c("tr", [
+                  _c("td", [
+                    _vm._v(
+                      "\n                                " +
+                        _vm._s(_vm.signup.date) +
+                        "\n                            "
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("td", [
+                    _vm._v(
+                      "\n                                " +
+                        _vm._s(_vm._f("formatMoney")(_vm.signup.bill.amount)) +
+                        " \n                            "
+                    )
+                  ])
+                ])
+              ])
+            ]
+          )
+        ])
       ]),
       _vm._v(" "),
-      _vm._m(2)
+      _c("div", { staticClass: "columns" }, [
+        _c("div", { staticClass: "column" }),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "column", staticStyle: { "text-align": "right" } },
+          [
+            _vm._v(
+              "\n                " + _vm._s(_vm.footerText) + "\n            "
+            )
+          ]
+        )
+      ])
     ])
   ])
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "columns" }, [
-      _c(
-        "div",
-        {
-          staticClass: "column",
-          staticStyle: { "text-align": "center", "margin-top": "35px" }
-        },
-        [
-          _c("h2", { staticClass: "title" }, [
-            _vm._v(
-              "\n                    慈濟大學社會教育推廣中心課程繳費單\n                "
-            )
-          ])
-        ]
-      )
-    ])
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
@@ -74728,11 +74914,11 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "columns" }, [
-      _c("div", { staticClass: "column" }, [
-        _vm._v(
-          "\n                慈濟大學社會教育推廣中心 03-8565301轉1703、1704\n            "
-        )
+    return _c("thead", [
+      _c("tr", [
+        _c("th", { staticStyle: { width: "50%" } }, [_vm._v("繳費期限")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("應繳金額")])
       ])
     ])
   }
@@ -77128,6 +77314,226 @@ if (false) {
   module.hot.accept()
   if (module.hot.data) {
     require("vue-hot-reload-api")      .rerender("data-v-7836c302", module.exports)
+  }
+}
+
+/***/ }),
+/* 856 */,
+/* 857 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(858)
+/* template */
+var __vue_template__ = __webpack_require__(859)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\client\\components\\discount\\view.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-12be355c", Component.options)
+  } else {
+    hotAPI.reload("data-v-12be355c", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 858 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'DiscountView',
+    props: {
+        center: {
+            type: Object,
+            default: null
+        },
+        bird_date_text: {
+            type: String,
+            default: ''
+        }
+    },
+    beforeMount: function beforeMount() {},
+    data: function data() {
+        return {};
+    },
+
+    computed: {},
+    methods: {
+        pointsText: function pointsText(val) {
+            if (!val) return '不優惠';
+            return val;
+        }
+    }
+
+});
+
+/***/ }),
+/* 859 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "panel" }, [
+    _c("div", { staticClass: "panel-heading panel-title heading" }, [
+      _vm._v("\n        優惠辦法\n    ")
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "panel-block" }, [
+      _c("table", { staticClass: "table is-bordered is-striped " }, [
+        _c("thead", [
+          _c("tr", [
+            _c(
+              "th",
+              { staticStyle: { width: "60%", "text-align": "center" } },
+              [_vm._v("\n                    身分別\n                    ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "th",
+              { staticStyle: { width: "20%", "text-align": "center" } },
+              [
+                _vm._v(
+                  "\n                        " +
+                    _vm._s(_vm.bird_date_text) +
+                    " 前報名繳費\n                    "
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "th",
+              { staticStyle: { width: "20%", "text-align": "center" } },
+              [
+                _vm._v(
+                  "\n                        " +
+                    _vm._s(_vm.bird_date_text) +
+                    " 後\n                    "
+                )
+              ]
+            )
+          ])
+        ]),
+        _vm._v(" "),
+        _vm.center
+          ? _c(
+              "tbody",
+              { staticStyle: { "font-size": "17px" } },
+              _vm._l(_vm.center.discounts, function(discount, index) {
+                return _c("tr", { key: index }, [
+                  _c("td", [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(discount.name) +
+                        "\n                    "
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("td", {
+                    staticStyle: { "text-align": "center" },
+                    domProps: {
+                      innerHTML: _vm._s(_vm.pointsText(discount.pointOneText))
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("td", {
+                    staticStyle: { "text-align": "center" },
+                    domProps: {
+                      innerHTML: _vm._s(_vm.pointsText(discount.pointTwoText))
+                    }
+                  })
+                ])
+              })
+            )
+          : _vm._e()
+      ])
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-12be355c", module.exports)
   }
 }
 

@@ -1,7 +1,8 @@
 <template>
-    
     <div id="signup">
-        <div style="margin:50px;">
+        <div class="row" style="padding-top: 1em">
+        </div>
+        <div style="margin:50px 100px 15px 100px">
             <div class="row text-center" >
                 <h3 v-if="payed">{{ title }}</h3>
                 <h3 v-else>{{ title }}</h3>
@@ -118,13 +119,14 @@
             </div>
             <div class="row">
                 <div class="col-sm-12 text-right" >
-                    慈濟大學社會教育推廣中心 03-8565301轉1703、1704
+                     {{ footerText  }}
                 </div>
                 
             </div>
         </div>
     </div>
-    
+
+     
 </template>
 <script>
     import html2Canvas from 'html2Canvas';
@@ -138,7 +140,7 @@
         },
         data() {
             return {
-                
+                footerText:Bill.footerText(),
                 options:{
                     height: 50,
                 }
@@ -146,8 +148,7 @@
         },
         computed:{
             title(){
-                if(this.payed) return '慈濟大學社會教育推廣中心課程繳費收據';
-                return '慈濟大學社會教育推廣中心課程繳費單';
+                return Bill.titleText(this.payed);
             },
             payed(){
                if(!this.signup) return false;

@@ -27,6 +27,9 @@ new Vue({
     data() {
         return {
             model: {},
+            
+            center:null,
+            birdDateText:'',
 			
         }
     },

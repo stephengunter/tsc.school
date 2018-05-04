@@ -3,6 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+use App\Weekday;
+use App\Core\Helper;
 
 class Term extends Model
 {
@@ -43,6 +46,22 @@ class Term extends Model
 	public function toOption()
     {
         return [ 'text' => $this->number . '學期' ,  'value' => $this->id  ];
-    }
+	}
+	
+	public function	 birdDateText()
+	{
+		if(!$this->birdDate) return '';
+
+		$date=new Carbon($this->birdDate);
+		$weekdayText=Weekday::getChineseText($date->dayOfWeek);
+
+		$dateString=$date->subYears(1911)->toDateString();
+
+		if(Helper::str_starts_with($dateString,'0')){
+			$dateString=substr($dateString, 1);  
+		}
+
+		return $dateString . $weekdayText;
+	}
 
 }
