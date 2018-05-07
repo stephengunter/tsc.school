@@ -26,6 +26,10 @@ return [
 		'email' =>'traders.com.tw@gmail.com',
 		'phone' => '0936060049',
      ),
+
+    'user' => array(
+        'default_pw' => '000000',  
+    ),
      
     'bill' => array(
         'shopId' => '92914',  //商店代碼 for 虛擬帳號, 便利商店

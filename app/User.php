@@ -96,10 +96,15 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Identity::class,'identity_user','user_id','identity_id');
     }
+
     public function setPasswordAttribute($value) 
     {
+        if(!$value){
+            $value = config('app.user.default_pw') ;
+        }
 		$this->attributes['password'] = bcrypt($value);
     }
+   
 
     public function hasRole(string $roleName)
     {

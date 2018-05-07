@@ -60,11 +60,12 @@ class Users
     
     public function createUser(User $user,Profile $profile, array $roleNames=[])
     {
+		
 		$userName = $user->email;
 		if (!$user->email) $userName = $user->phone;
 		$user->name=$userName;
-
-		if(!$user->password) $user->password = '000000';
+		
+		
 		$user= DB::transaction(function() use($user,$profile) {
             $user->save();
             $user->profile()->save($profile);

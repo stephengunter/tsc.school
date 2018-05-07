@@ -237,6 +237,8 @@ class AdminsController extends Controller
         
         $userValues=array_except($userValues,['profile','roles']);
         $userId=$request->getUserId();
+
+       
         $user=null;
         if($userId){
             $user = User::find($userId);
@@ -246,7 +248,7 @@ class AdminsController extends Controller
             
         }else{
           
-           $user=$this->users-> createUser(new User($userValues),new Profile($profileValues));
+           $user=$this->users->createUser(new User($userValues),new Profile($profileValues));
            $userId=$user->id;
          
         }
