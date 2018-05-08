@@ -2,14 +2,7 @@
 
 Auth::routes();
 
-Route::get('/test', function () {
-    
-    $users=\App\User::all();
-    foreach($users as $user){
-        $user->password='000000';
-        $user->save();
-    }
-});
+Route::get('/test', 'BillsController@test');
 
 //Route::get('/test', 'PayrollsController@test');
 

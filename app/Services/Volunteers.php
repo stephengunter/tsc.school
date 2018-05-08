@@ -9,6 +9,7 @@ use App\Volunteer;
 use App\ContactInfo;
 use App\Address;
 use App\District;
+use App\Weekday;
 use App\Services\Users;
 use DB;
 use Excel;
@@ -40,11 +41,26 @@ class Volunteers
 		
 		return $this->getByIds($userIds);
        
-	}
+    }
+    
+    public function getVolunteerBySID($sid)
+    {
+        $profile=Profile::where('sid',$sid)->first();
+        if(!$profile) return null;
 
-    public function createVolunteer(User $user,Volunteer $volunteer)
+        return Volunteer::find($profile->userId);
+    }
+
+    public function createVolunteer(User $user,Volunteer $volunteer,array $centerIds=[],array $weekdayIds=[])
     {
         $user->volunteer()->save($volunteer);
+
+        $volunteer->userId=$user->id;
+
+        if($centerIds) $volunteer->centers()->sync($centerIds);
+
+        if($weekdayIds) $volunteer->weekdays()->sync($weekdayIds);
+
         $user->addRole(Role::volunteerRoleName());
         
         return $volunteer;
@@ -96,14 +112,6 @@ class Volunteers
         })->all();
     }
 
-    public function getVolunteerBySID($sid)
-    {
-        $profile=Profile::where('sid',$sid)->first();
-        if(!$profile) return null;
-
-        return Volunteer::find($profile->userId);
-    }
-
     
     
     public function importVolunteers($file,$updatedBy)
@@ -119,6 +127,30 @@ class Volunteers
        
         for($i = 1; $i < count($volunteerList); ++$i) {
             $row=$volunteerList[$i];
+
+            $center_codes=trim($row['centers']);
+            if(!$center_codes){
+                $err_msg .= '中心代碼不可空白' . ',';
+                continue;
+            }
+
+            $centerIds=[];
+            $center_codes=explode(',', $center_codes);
+            foreach($center_codes as $code){
+                $center=Center::where('code',$code)->first();
+                if(!$center){
+                    $err_msg .= '中心代碼' . $code . '錯誤';
+                    continue;     
+                } 
+                array_push($centerIds, $center->id);
+            }
+
+            $existVolunteer = $this->getVolunteerBySID($sid);
+            if($existVolunteer)
+            {
+                $existVolunteer->centers()->sync($centerIds);
+                continue;
+            }
 
            
             $sid=trim($row['id']);
@@ -145,6 +177,8 @@ class Volunteers
                 continue;
             }
 
+            
+
            
             $userValues=[
                 'email' => $email,
@@ -161,8 +195,17 @@ class Volunteers
               
             ];   
 
+            $weekdayValues=trim($row['weekdays']);
+            $time=trim($row['time']);
+
+            $weekdayIds=[];
+            if($weekdayValues){
+                $weekdayValues=explode(',', $weekdayValues);
+                $weekdayIds=Weekday::where('val',$weekdayValues)->pluck('id')->toArray();
+            }
+
             $volunteerValues=[
-                
+                'time' => $time
             ];
 
             $user= $this->users->findUser($email, $phone);

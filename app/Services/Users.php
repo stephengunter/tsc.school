@@ -7,6 +7,7 @@ use App\Profile;
 use App\Role;
 use App\ContactInfo;
 use App\Address;
+use App\District;
 use DB;
 
 class Users
@@ -64,6 +65,8 @@ class Users
 		$userName = $user->email;
 		if (!$user->email) $userName = $user->phone;
 		$user->name=$userName;
+
+		if (!$user->password) $user->password = config('app.user.default_pw');
 		
 		
 		$user= DB::transaction(function() use($user,$profile) {
@@ -310,9 +313,85 @@ class Users
 			if(!$dob) $errors['user.profile.dob'] = ['必須填寫生日'];
 				
 		}
-
 		
 
         return $errors;
-    }
+	}
+	
+	public function getImportUserValues($row,$updatedBy)
+	{
+		$err_msg='';
+
+		$phone=trim($row['phone']);
+		$email=trim($row['email']);
+		
+
+		$userValues=[
+			'email' => $email,
+			'phone' => $phone,
+			'updatedBy' => $updatedBy
+		];
+
+		
+
+		$sid=trim($row['id']);
+		$fullname=trim($row['fullname']);
+
+		$gender=(int)trim($row['gender']);
+		if($gender) $gender=true;
+		else $gender=false;
+
+		$dob=trim($row['dob']);
+		if($dob){
+			$pieces=explode('/', $dob);
+			$year = (int)$pieces[0] + 1911;
+			$dob= $year . '/'.$pieces[1]. '/'.$pieces[2];                
+		}
+
+		
+		$profileValues=[
+			'fullname' => $fullname,
+			'sid' => $sid,
+			'gender' => $gender,
+			'dob' => $dob,
+		   
+			'updatedBy' => $updatedBy
+		]; 
+
+		
+		$street=trim($row['street']);
+		$district=null;
+		$zipcode=trim($row['zipcode']);
+
+		if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
+		if(!$district){
+			$err_msg .= '郵遞區號' . $zipcode . '錯誤';			
+		}
+		
+		$addressValues=[
+			'districtId'=>$district->id,
+			'street' => $street,
+			'updatedBy' => $updatedBy
+		];
+		
+		$contactInfoValues=[
+			'tel'=>'',
+			'fax' => '',
+		];
+
+		if($err_msg){
+			return [
+				'err' => $err_msg
+			];
+		}
+
+		return [
+			'userValues' => $userValues,
+			'profileValues' => $profileValues,
+			'contactInfoValues' => $contactInfoValues,
+			'addressValues' => $addressValues
+		];
+
+	}
+
 }

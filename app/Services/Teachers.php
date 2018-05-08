@@ -53,10 +53,13 @@ class Teachers
        
 	}
 
-    public function createTeacher(User $user,Teacher $teacher,Account $account)
+    public function createTeacher(User $user,Teacher $teacher,Account $account,array $centerIds=[])
     {
         $user->teacher()->save($teacher);
         $user->setAccount($account);
+
+        $teacher->userId=$user->id;
+        if($centerIds) $teacher->centers()->sync($centerIds);
        
         return $teacher;
         
@@ -243,7 +246,7 @@ class Teachers
                 continue;
             }
 
-            $centerIds=[];
+            $centers=[];
             $center_codes=explode(',', $center_codes);
             foreach($center_codes as $code){
                 $center=Center::where('code',$code)->first();
@@ -251,13 +254,16 @@ class Teachers
                     $err_msg .= '中心代碼' . $code . '錯誤';
                     continue;     
                 } 
-                array_push($centerIds, $center->id);
+                array_push($centers, $center);
             }
 
             $existTeacher = $this->getTeacherBySID($sid);
             if($existTeacher)
             {
-                $existTeacher->centers()->sync($centerIds);
+                foreach($centers as $center){
+                    $existTeacher->addToCenter($center);
+                }
+               
                 continue;
             }
 
@@ -341,11 +347,12 @@ class Teachers
             $this->users->setContactInfo($user,$contactInfo,$address);
     
             $teacher = new Teacher($teacherValues);
+            
+            
+            $centers=collect($centers);
+            $centerIds=$centers->pluck('id')->toArray();
 
-            $teacher=$this->createTeacher($user,$teacher,$account);
-     
-            $teacher->userId=$user->id;
-            $teacher->centers()->sync($centerIds);
+            $teacher=$this->createTeacher($user,$teacher,$account,$centerIds);
             
            
         }  //end for  

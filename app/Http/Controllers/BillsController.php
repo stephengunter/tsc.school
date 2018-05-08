@@ -38,7 +38,7 @@ class BillsController extends Controller
         $this->bills->createBillCode($signup);
        
 
-        $deadlineDate=new Carbon('2018/5/10');
+        $deadlineDate=new Carbon('2018/5/12');
         $amount = 3400;
         $serial=1;
         dd($this->ESuns->initBillCode($deadlineDate, $amount,$serial));

@@ -9,7 +9,7 @@ class Volunteer extends Model
     protected $primaryKey = 'userId';
     
     protected $fillable = [  'active', 'removed', 
-        'joinDate', 'updatedBy','ps'
+        'joinDate', 'updatedBy', 'time' , 'ps'
     ];
 
     public static function init()
@@ -19,6 +19,7 @@ class Volunteer extends Model
 			'removed' => 0,
 			'joinDate' => '',
             'updatedBy' => '',
+            'time' => '',
             'ps' => ''
 
 		];
@@ -27,6 +28,16 @@ class Volunteer extends Model
     public function courses()
     {
         return $this->belongsToMany(Course::class,'course_volunteer','volunteer_id','course_id');
+    }
+
+    public function centers()
+    {
+        return $this->belongsToMany(Center::class,'center_volunteer','volunteer_id','center_id');
+    }
+
+    public function weekdays()
+    {
+        return $this->belongsToMany(Weekday::class,'volunteer_weekday','volunteer_id','weekday_id');
     }
 	
 	public function user()

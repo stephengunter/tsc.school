@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Center;
 
 class Teacher extends Model
 {
@@ -84,6 +85,24 @@ class Teacher extends Model
     public function removeRole()
     {
         $this->user->removeRole(Role::teacherRoleName());
+    }
+
+    public function inCenter(Center $center)
+    {
+        $centerIds=$this->centers()->pluck('id')->toArray();
+        return in_array( $center->id ,$centerIds);
+    }
+
+    public function addToCenter(Center $center)
+	{
+        if($this->inCenter($center)) return;
+		$this->centers()->attach($center->id);
+    }
+    
+    public function removeFromCenter(Center $center)
+	{
+        if(!$this->inCenter($center)) return;
+		$this->centers()->detach($center->id);
     }
 
     public function getName()
