@@ -96,6 +96,15 @@ class CentersController extends Controller
 
         dd('done');
     }
+
+    public function test()
+    {
+        $codes=[ 'A','B','WH','LZ','BC','TY','HC',
+          'FY','TC','CS','CH','CY','TN','GS','KH'
+        ];
+
+        dd(Helper::array_has_dupes($codes));
+    }
     
     public function index()
     {

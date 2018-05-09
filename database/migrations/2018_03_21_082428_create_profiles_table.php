@@ -19,7 +19,7 @@ class CreateProfilesTable extends Migration
 			$table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
 
 			$table->string('fullname')->nullable();
-			$table->string('sid')->nullable();
+			$table->string('sid');
 			$table->boolean('gender')->default(true);
 			$table->date('dob')->nullable();
 			

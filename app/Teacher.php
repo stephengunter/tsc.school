@@ -4,9 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Center;
+use App\Core\Centers;
 
 class Teacher extends Model
 {
+    use Centers;
+    
     protected $primaryKey = 'userId';
 
     protected $fillable = [ 
@@ -87,23 +90,7 @@ class Teacher extends Model
         $this->user->removeRole(Role::teacherRoleName());
     }
 
-    public function inCenter(Center $center)
-    {
-        $centerIds=$this->centers()->pluck('id')->toArray();
-        return in_array( $center->id ,$centerIds);
-    }
-
-    public function addToCenter(Center $center)
-	{
-        if($this->inCenter($center)) return;
-		$this->centers()->attach($center->id);
-    }
     
-    public function removeFromCenter(Center $center)
-	{
-        if(!$this->inCenter($center)) return;
-		$this->centers()->detach($center->id);
-    }
 
     public function getName()
     {

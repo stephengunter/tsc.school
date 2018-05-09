@@ -8,6 +8,7 @@ use App\Role;
 use App\ContactInfo;
 use App\Address;
 use App\District;
+use App\Core\Helper;
 use DB;
 
 class Users
@@ -27,7 +28,7 @@ class Users
 	public function getByIds(array $ids)
     {   
         return User::with($this->with)->whereIn('id',$ids);
-    }
+	}
 	
 	public function fetchUsers(Role $role = null, $keyword = '')
 	{
@@ -62,11 +63,12 @@ class Users
     public function createUser(User $user,Profile $profile, array $roleNames=[])
     {
 		
-		$userName = $user->email;
-		if (!$user->email) $userName = $user->phone;
-		$user->name=$userName;
+		$user->name=strtoupper($profile->sid);
 
 		if (!$user->password) $user->password = config('app.user.default_pw');
+
+		$sid=strtoupper($profile->sid);
+        $profile->gender = Helper::getGenderFromSID($sid);
 		
 		
 		$user= DB::transaction(function() use($user,$profile) {
@@ -103,13 +105,7 @@ class Users
 
 	public function updateUser(User $user,array $values)
 	{
-		$userName = $values['email'];
-		if (!$userName) $userName = $values['phone'];
-
-		if(!$userName) abort(500); 
-
-		$values['name'] = $userName;
-
+		
 		$user->update($values);
 	}
 
@@ -121,17 +117,7 @@ class Users
 
 	}
 
-	public function findUser($email, $phone)
-	{
-		$email=strtolower($email);
-		
-		$user=$this->findByName($email);
-		
-		
-		if($user) return $user;
-
-		return $this->findByName($phone);
-	}
+	
 
 	public function findUsers($email, $phone, $sid)
 	{
@@ -215,11 +201,16 @@ class Users
         return $users->orderBy('id','desc');
 	}
 	
-	public function validateUserInputs(array $values, string $roleName)
+	public function validateUserInputs(array $values, string $roleName='')
 	{
 		
-		$needSID=false;
-		$needDOB=false;
+		$needSID=true;
+		$needDOB=true;
+		$needFullname=true;
+
+		return $this->validateInputs($values, $needFullname,$needSID,$needDOB);
+
+
 		if(!$roleName){
 			$needFullname=false;
 			return $this->validateInputs($values, $needFullname,$needSID,$needDOB);
@@ -259,32 +250,12 @@ class Users
 		$email=$values['email'];
 		$phone=$values['phone'];
 		$existUser=null;
-		if(!$email){
-			//沒有email
-			if(!$phone){
-				$errors['user.phone'] = ['必須填寫手機'];
-			}else{
-				$values['name']=$phone;
-				$existUser=$this->findByName($values['name']);
-				if($existUser && $existUser->id!=$id){
-					$errors['user.phone'] = ['手機號碼重複了'];
-				} 
-			}
-			
-		}else{
-			$values['name']=$email;
-			$existUser=$this->findByName($values['name']);
-			if($existUser && $existUser->id!=$id){
-				$errors['user.email'] = ['Email重複了'];
-			} 
-			
+		if(!$phone){
+			$errors['user.phone'] = ['必須填寫手機'];
 		}
-
-		
 
 		if($needFullname){
 			$fullname=$values['profile']['fullname'];
-			
 			if(!$fullname) $errors['user.profile.fullname'] = ['必須填寫姓名'];
 				
 		}
@@ -318,80 +289,5 @@ class Users
         return $errors;
 	}
 	
-	public function getImportUserValues($row,$updatedBy)
-	{
-		$err_msg='';
-
-		$phone=trim($row['phone']);
-		$email=trim($row['email']);
-		
-
-		$userValues=[
-			'email' => $email,
-			'phone' => $phone,
-			'updatedBy' => $updatedBy
-		];
-
-		
-
-		$sid=trim($row['id']);
-		$fullname=trim($row['fullname']);
-
-		$gender=(int)trim($row['gender']);
-		if($gender) $gender=true;
-		else $gender=false;
-
-		$dob=trim($row['dob']);
-		if($dob){
-			$pieces=explode('/', $dob);
-			$year = (int)$pieces[0] + 1911;
-			$dob= $year . '/'.$pieces[1]. '/'.$pieces[2];                
-		}
-
-		
-		$profileValues=[
-			'fullname' => $fullname,
-			'sid' => $sid,
-			'gender' => $gender,
-			'dob' => $dob,
-		   
-			'updatedBy' => $updatedBy
-		]; 
-
-		
-		$street=trim($row['street']);
-		$district=null;
-		$zipcode=trim($row['zipcode']);
-
-		if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
-		if(!$district){
-			$err_msg .= '郵遞區號' . $zipcode . '錯誤';			
-		}
-		
-		$addressValues=[
-			'districtId'=>$district->id,
-			'street' => $street,
-			'updatedBy' => $updatedBy
-		];
-		
-		$contactInfoValues=[
-			'tel'=>'',
-			'fax' => '',
-		];
-
-		if($err_msg){
-			return [
-				'err' => $err_msg
-			];
-		}
-
-		return [
-			'userValues' => $userValues,
-			'profileValues' => $profileValues,
-			'contactInfoValues' => $contactInfoValues,
-			'addressValues' => $addressValues
-		];
-
-	}
-
+	
 }

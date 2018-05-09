@@ -3,9 +3,14 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Center;
+use App\Core\Centers;
+use App\Weekday;
 
 class Volunteer extends Model
 {
+    use Centers;
+
     protected $primaryKey = 'userId';
     
     protected $fillable = [  'active', 'removed', 
@@ -58,5 +63,36 @@ class Volunteer extends Model
 	public function  toOption()
     {
         return [ 'text' => $this->user->profile->fullname ,  'value' => $this->userId  ];
+    }
+
+    public function inWeekday(Weekday $weekday)
+    {
+        $weekdayIds=$this->weekdays()->pluck('id')->toArray();
+        return in_array( $weekday->id ,$weekdayIds);
+    }
+
+    public function addToWeekday(Weekday $weekday)
+	{
+        if($this->inWeekday($weekday)) return;
+		$this->weekdays()->attach($weekday->id);
+    }
+    
+    public function removeFromWeekday(Weekday $weekday)
+	{
+        if(!$this->inWeekday($weekday)) return;
+		$this->weekdays()->detach($weekday->id);
+    }
+
+    public function weekdaysText()
+    {
+        if(!$this->weekdays) return '';
+       
+        return join(',',$this->weekdays->pluck('title')->toArray());
+    }
+
+    public function loadViewModel()
+    {
+        $this->weekdaysText=$this->weekdaysText();
+        $this->centersText=$this->centersText();
     }
 }

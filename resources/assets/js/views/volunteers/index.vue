@@ -7,9 +7,16 @@
                    </h3>
                 </div>
                 <div class="col-sm-5 form-inline" style="margin-top: 20px;">
-                   
-                    
-					
+                    <div  class="form-group" style="padding-left:1em;">
+                        <drop-down :items="centers" :selected="params.center"
+                            @selected="onCenterSelected">
+                        </drop-down>
+                    </div>
+                    <div  class="form-group" style="padding-left:1em;">
+                        <drop-down :items="weekdays" :selected="params.weekday"
+                            @selected="onWeekdaySelected">
+                        </drop-down>
+                    </div>
 					
 				</div>
                
@@ -77,6 +84,10 @@
                 type:Array,
                 default:null
             },
+            weekdays:{
+                type:Array,
+                default:null
+            },
             version:{
                 type:Number,
                 default:0
@@ -89,11 +100,14 @@
                 model:null,
                 
                 params:{
-                 
+                    center:'0',
+                    weekday:'0',
                     keyword:'',
                     page:1,
                     pageSize:10
                 },
+
+                center:null,
 
                 checkedIds:[]
             }
@@ -121,6 +135,24 @@
                 if(this.model) return this.model.viewList;
                 return [];
             },
+            onCenterSelected(center){
+                this.setCenter(center);
+                this.fetchData();
+            },
+            setCenter(center){
+                if(parseInt(center.value)>0){
+                    this.center={ ...center };
+                    this.params.center = center.value;
+                }else{
+                    this.center=null;
+                    this.params.center = '0';
+                }
+               
+            },
+            onWeekdaySelected(item){
+                this.params.weekday = item.value;
+                this.fetchData();
+            },
             beginImport(){
                 this.$emit('import');
             },
@@ -146,14 +178,8 @@
             },
             fetchData() {
                 this.model=null;
-                let params={
-                    keyword:this.params.keyword,
-                    page:this.params.page,
-                    pageSize:this.params.pageSize,
-                };
-            
 
-                let getData = Volunteer.index(params);
+                let getData = Volunteer.index(this.params);
 
                 getData.then(data => {
 

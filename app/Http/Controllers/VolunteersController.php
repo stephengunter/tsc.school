@@ -11,10 +11,12 @@ use App\User;
 use App\Profile;
 use App\Center;
 use App\Role;
+use App\Weekday;
 use App\Services\Volunteers;
 use App\Services\Users;
 use App\Services\Centers;
 use App\Services\Courses;
+use App\Services\CourseInfoes;
 use App\Services\Files;
 use App\Core\PagedList;
 use Carbon\Carbon;
@@ -25,12 +27,13 @@ class VolunteersController extends Controller
 {
     
     public function __construct(Volunteers $volunteers ,Users $users,
-        Centers $centers ,Courses $courses,Files $files)
+        Centers $centers ,Courses $courses,CourseInfoes $courseInfoes,Files $files)
     {
         $this->volunteers=$volunteers;
         $this->users=$users;
         $this->centers=$centers;
         $this->courses=$courses;
+        $this->courseInfoes=$courseInfoes;
         $this->files=$files;
        
     }
@@ -39,13 +42,16 @@ class VolunteersController extends Controller
     {
         return $this->currentUserIsDev();
     }
-
-  
-
     
     public function index()
     {
         $request=request();
+
+        $center=0;
+        if($request->center)  $center=(int)$request->center;
+
+        $weekday=0;
+        if($request->weekday)  $weekday=(int)$request->weekday;
 
         $keyword='';
         if($request->keyword)  $keyword=$request->keyword;
@@ -53,20 +59,38 @@ class VolunteersController extends Controller
         $page=1;
         if($request->page)  $page=(int)$request->page;
 
-        $pageSize=10;
+        $pageSize=999;
         if($request->pageSize)  $pageSize=(int)$request->pageSize;
-      
-        $volunteers =  $this->volunteers->fetchVolunteers($keyword);
+
+        $selectedCenter = null;
+        if ($center) $selectedCenter = Center::find($center);
+        if (!$selectedCenter)
+        {
+            $center = 0;
+            if ($pageSize == 999) $pageSize = 10;
+        }
+        else
+        {
+            $pageSize = 999;
+        }
+
+        $selectedWeekday = null;
+        if ($weekday) $selectedWeekday = Weekday::find($weekday);
+
+
+        
+        $volunteers =  $this->volunteers->fetchVolunteers($selectedCenter,$selectedWeekday,$keyword);
       
         $pageList = new PagedList($volunteers,$page,$pageSize);
         
         foreach($pageList->viewList as $volunteer){
-           
+            $volunteer->loadViewModel();
             $volunteer->user->loadContactInfo();
         } 
        
 
         if($this->isAjaxRequest()){
+           
             return response() ->json([
                 'model' => $pageList
             ]);
@@ -80,6 +104,7 @@ class VolunteersController extends Controller
             'title' => '志工管理',
             'menus' => $menus,
             'centers' => $centers,
+            'weekdays' => $this->courseInfoes->weekdayOptions('可服務時間'),
             'canImport' => $this->canImport(),
             'list' =>  $pageList
         ]);

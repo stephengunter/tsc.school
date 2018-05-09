@@ -11,11 +11,14 @@ use App\Address;
 use App\District;
 use App\Weekday;
 use App\Services\Users;
+use App\Services\Import;
 use DB;
 use Excel;
 
 class Volunteers 
 {
+    use Import;
+    
     public function __construct(Users $users)
     {
         $this->users=$users;
@@ -79,12 +82,27 @@ class Volunteers
         
     }
     
-    public function fetchVolunteers($keyword = '')
+    public function fetchVolunteers(Center $center = null, Weekday $weekday=null, $keyword = '')
     {
         $volunteers=null;
         if($keyword) $volunteers=$this->getByKeyword($keyword);
         else $volunteers=$this->getAll();
+        
+        if($center){
+            $volunteers=$volunteers->whereHas('centers', function($q) use ($center)
+            {
+                $q->where('id',$center->id );
+            });
+          
+        }
 
+        if($weekday){
+            $volunteers=$volunteers->whereHas('weekdays', function($q) use ($weekday)
+            {
+                $q->where('id',$weekday->id );
+            });
+          
+        }
         
 
         return $volunteers;
@@ -128,139 +146,93 @@ class Volunteers
         for($i = 1; $i < count($volunteerList); ++$i) {
             $row=$volunteerList[$i];
 
+            $fullname=trim($row['fullname']);
+            if(!$fullname) continue;
+
             $center_codes=trim($row['centers']);
             if(!$center_codes){
                 $err_msg .= '中心代碼不可空白' . ',';
                 continue;
             }
 
-            $centerIds=[];
-            $center_codes=explode(',', $center_codes);
-            foreach($center_codes as $code){
-                $center=Center::where('code',$code)->first();
-                if(!$center){
-                    $err_msg .= '中心代碼' . $code . '錯誤';
-                    continue;     
-                } 
-                array_push($centerIds, $center->id);
+            //取得中心
+            $getCenters=$this->getCenters($row);
+            if(array_key_exists('err',$getCenters)){
+                $err_msg .= $getCenters['err'] . ',';
+                continue;
             }
+            $centers=$getCenters['centers'];
+            $centerIds=array_map(function($item){
+                return $item->id;
+            }, $centers);
 
+           
+          
+            //取得User資料
+            $userDatas=$this->getImportUserDatas($row,$updatedBy);
+            if(array_key_exists('err',$userDatas)){
+                $err_msg .= $userDatas['err'] . ',';
+                continue;
+            }
+         
+            $userValues=$userDatas['userValues'];
+            $profileValues=$userDatas['profileValues'];
+            $contactInfoValues=$userDatas['contactInfoValues'];
+            $addressValues=$userDatas['addressValues'];
+            $identities=$userDatas['identities'];
+          
+
+            $sid=$profileValues['sid'];
             $existVolunteer = $this->getVolunteerBySID($sid);
             if($existVolunteer)
             {
-                $existVolunteer->centers()->sync($centerIds);
-                continue;
-            }
-
-           
-            $sid=trim($row['id']);
-            $fullname=trim($row['fullname']);
-
-            $gender=(int)trim($row['gender']);
-            if($gender) $gender=true;
-            else $gender=false;
-
-            $dob=trim($row['dob']);
-            if($dob){
-                $pieces=explode('/', $dob);
-                $year = (int)$pieces[0] + 1911;
-                $dob= $year . '/'.$pieces[1]. '/'.$pieces[2];                
-            }
-
-
-            $phone=trim($row['phone']);
-            $email=trim($row['email']);
-            $zipcode=trim($row['zipcode']);
-            $street=trim($row['street']);
-
-            if(!$fullname){
-                continue;
-            }
-
-            
-
-           
-            $userValues=[
-                'email' => $email,
-                'phone' => $phone,
-                'updatedBy' => $updatedBy
-            ];
-            $profileValues=[
-                'fullname' => $fullname,
-                'sid' => $sid,
-                'gender' => $gender,
-                'dob' => $dob,
+                foreach($centers as $center){
+                    $existVolunteer->addToCenter($center);
+                }
                
-                'updatedBy' => $updatedBy
-              
-            ];   
-
-            $weekdayValues=trim($row['weekdays']);
-            $time=trim($row['time']);
-
-            $weekdayIds=[];
-            if($weekdayValues){
-                $weekdayValues=explode(',', $weekdayValues);
-                $weekdayIds=Weekday::where('val',$weekdayValues)->pluck('id')->toArray();
+                continue;
             }
+            
+            $user= $this->users->findBySID($sid);
 
-            $volunteerValues=[
-                'time' => $time
-            ];
-
-            $user= $this->users->findUser($email, $phone);
-           
             if(!$user)
             {
                 $user=$this->users->createUser(
                     new User($userValues),
                     new Profile($profileValues)
                 );
-            }
-
-            $district=null;
-                $zipcode=trim($row['zipcode']);
-                if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
-                if(!$district){
-                    $err_msg .= '郵遞區號' . $zipcode . '錯誤';
-                    continue;
-                }
-            
-                $street=trim($row['street']);
-            
-                $address=new Address([
-                    'districtId'=>$district->id,
-                    'street' => $street,
-                    'updatedBy' => $updatedBy
-                ]);
-                
-                $contactInfo=new ContactInfo([
-                    'tel'=>'',
-                    'fax' => '',
-                ]);
-
-                $this->users->setContactInfo($user,$contactInfo,$address);
-
-
-            $existVolunteer = Volunteer::find($user->id);
-            if($existVolunteer)
-            {
-                $existVolunteer->addRole();
                
-            }else{
-                $volunteer = new Volunteer([
-                    'updatedBy' => $updatedBy,
-                    'active' => true,
-                    'removed' => false
-                ]);
-    
-                $volunteer=$this->createVolunteer($user,$volunteer);
             }
 
-         
+            foreach($identities as $identity){
+                $user->addIdentity($identity->id);
+            }
+
+            $contactInfo=new ContactInfo($contactInfoValues);
+            $address=new Address($addressValues);
             
-                
+
+            $this->users->setContactInfo($user,$contactInfo,$address);
             
+
+            $weekdayValues=trim($row['weekdays']);
+            $time=trim($row['time']);
+            $ps=trim($row['ps']);
+
+            $weekdayIds=[];
+            if($weekdayValues){
+                $weekdayValues=explode(',', $weekdayValues);
+                $weekdayIds=Weekday::where('val',$weekdayValues)->pluck('id')->toArray();
+            }
+            
+            $volunteer = new Volunteer([
+                'time' => $time,
+                'ps' => $ps,
+                'updatedBy' => $updatedBy
+            ]);
+            
+
+            $volunteer=$this->createVolunteer($user,$volunteer,$centerIds,$weekdayIds);
             
            
         }  //end for  

@@ -4,7 +4,8 @@
 @section('content')
 
 
-<volunteers-index v-show="indexMode" :init_model="model" :can_import="can_import" :version="version"
+<volunteers-index v-show="indexMode" :init_model="model" :centers="centers" :weekdays="weekdays"
+               :can_import="can_import" :version="version"
                v-on:selected="onSelected" v-on:create="onCreate" v-on:import="beginImport" >
 </volunteers-index>
 <volunteers-details v-if="selected" :id="selected" 
@@ -36,7 +37,7 @@
                     can_import: false,
 
                     centers: [],
-                 
+                    weekdays: [],
 
                     creating:false,
                     selected: 0,
@@ -59,6 +60,7 @@
             beforeMount() {
                 this.model = {!! json_encode($list) !!} ;
                 this.centers = {!! json_encode($centers) !!} ;
+                this.weekdays = {!! json_encode($weekdays) !!} ;
                 
                 let canImport= {!! json_encode($canImport) !!} ;
                 this.can_import = Helper.isTrue(canImport);  

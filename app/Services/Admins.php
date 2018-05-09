@@ -10,11 +10,14 @@ use App\ContactInfo;
 use App\Address;
 use App\District;
 use App\Services\Users;
+use App\Services\Import;
 use DB;
 use Excel;
 
 class Admins 
 {
+    use Import;
+
     public function __construct(Users $users)
     {
         $this->users=$users;
@@ -29,15 +32,21 @@ class Admins
         return Admin::with($this->with)->find($id);
     }
 
-    public function createAdmin(User $user,Admin $admin,$roleName)
+    public function createAdmin(User $user,Admin $admin,string $roleName,array $centerIds=[])
     {
         $user->admin()->save($admin);
         
         $user->addRole($roleName);
 
+        $admin->userId=$user->id;
+        if($centerIds) $admin->centers()->sync($centerIds);
+
         return $admin;
         
     }
+   
+
+
     public function deleteAdmin(Admin $admin)
     {
         $admin->user->removeRole(Role::staffRoleName());
@@ -99,32 +108,8 @@ class Admins
         for($i = 1; $i < count($adminList); ++$i) {
             $row=$adminList[$i];
 
-            $center_codes=trim($row['centers']);
-            $sid=trim($row['id']);
             $fullname=trim($row['fullname']);
-
-            $gender=(int)trim($row['gender']);
-            if($gender) $gender=true;
-            else $gender=false;
-
-            $dob=trim($row['dob']);
-            if($dob){
-                $pieces=explode('/', $dob);
-                $year = (int)$pieces[0] + 1911;
-                $dob= $year . '/'.$pieces[1]. '/'.$pieces[2];                
-            }
-
-
-            $phone=trim($row['phone']);
-            $email=trim($row['email']);
-            $zipcode=trim($row['zipcode']);
-            $street=trim($row['street']);
-
-            $role=trim($row['role']);
-
-            if(!$fullname){
-               continue;
-            }
+            if(!$fullname) continue;
 
             $center_codes=trim($row['centers']);
             if(!$center_codes){
@@ -132,12 +117,12 @@ class Admins
                 continue;
             }
 
+            $role=trim($row['role']);
             if(!$role){
                 $err_msg .= '角色名稱不可空白' . ',';
                 continue;
             }
 
-         
             $roleName='';
             if(strtolower($role) == strtolower(Role::staffRoleName()) ){
                 $roleName=Role::staffRoleName();
@@ -148,40 +133,45 @@ class Admins
                 continue;
             }
 
-            $centerIds=[];
-            $center_codes=explode(',', $center_codes);
-            foreach($center_codes as $code){
-                $center=Center::where('code',$code)->first();
-                if(!$center){
-                    $err_msg .= '中心代碼' . $code . '錯誤';
-                    continue;     
-                } 
-                array_push($centerIds, $center->id);
+            //取得中心
+            $getCenters=$this->getCenters($row);
+            if(array_key_exists('err',$getCenters)){
+                $err_msg .= $getCenters['err'] . ',';
+                continue;
             }
+            $centers=$getCenters['centers'];
+            $centerIds=array_map(function($item){
+                return $item->id;
+            }, $centers);
 
+           
+          
+            //取得User資料
+            $userDatas=$this->getImportUserDatas($row,$updatedBy);
+            if(array_key_exists('err',$userDatas)){
+                $err_msg .= $userDatas['err'] . ',';
+                continue;
+            }
+         
+            $userValues=$userDatas['userValues'];
+            $profileValues=$userDatas['profileValues'];
+            $contactInfoValues=$userDatas['contactInfoValues'];
+            $addressValues=$userDatas['addressValues'];
+            $identities=$userDatas['identities'];
+          
+
+            $sid=$profileValues['sid'];
             $existAdmin = $this->getAdminBySID($sid);
             if($existAdmin)
             {
-                $existAdmin->centers()->sync($centerIds);
+                foreach($centers as $center){
+                    $existAdmin->addToCenter($center);
+                }
+               
                 continue;
             }
-
-            $userValues=[
-                'email' => $email,
-                'phone' => $phone,
-                'updatedBy' => $updatedBy
-            ];
-            $profileValues=[
-                'fullname' => $fullname,
-                'sid' => $sid,
-                'gender' => $gender,
-                'dob' => $dob,
-               
-                'updatedBy' => $updatedBy
-              
-            ];
-
-            $user= $this->users->findUser($email, $phone);
+            
+            $user= $this->users->findBySID($sid);
 
             if(!$user)
             {
@@ -191,30 +181,14 @@ class Admins
                 );
                
             }
-            
-         
-            $district=null;
-            $zipcode=trim($row['zipcode']);
-            if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
-            if(!$district){
-                $err_msg .= '郵遞區號' . $zipcode . '錯誤';
-                continue;
-            }
-          
-            $street=trim($row['street']);
-           
-            $address=new Address([
-                'districtId'=>$district->id,
-                'street' => $street,
-                'updatedBy' => $updatedBy
-            ]);
-            
-         
 
-            $contactInfo=new ContactInfo([
-                'tel'=>'',
-                'fax' => '',
-            ]);
+            foreach($identities as $identity){
+                $user->addIdentity($identity->id);
+            }
+
+            $contactInfo=new ContactInfo($contactInfoValues);
+            $address=new Address($addressValues);
+            
 
             $this->users->setContactInfo($user,$contactInfo,$address);
     
@@ -223,10 +197,7 @@ class Admins
                 'updatedBy' => $updatedBy
             ]);
 
-            $admin=$this->createAdmin($user,$admin,$roleName);
-     
-            $admin->userId=$user->id;
-            $admin->centers()->sync($centerIds);
+            $admin=$this->createAdmin($user,$admin,$roleName,$centerIds);
             
            
         }  //end for  

@@ -22,7 +22,7 @@ return [
     'address' => '',
     'tel' => '',
     'dev'=>array(
-		'name' => 'stephen',
+		'fullname' => '阿水',
 		'email' =>'traders.com.tw@gmail.com',
 		'phone' => '0936060049',
      ),

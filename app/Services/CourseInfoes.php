@@ -13,12 +13,15 @@ class CourseInfoes
 {
   
 
-    public function weekdayOptions()
+    public function weekdayOptions($emptyText='')
     {
         $weekdays=Weekday::orderBy('val')->get();
         $options = $weekdays->map(function ($item) {
             return $item->toOption();
         })->all();
+
+        if($emptyText) array_unshift($options, ['text' => $emptyText , 'value' =>'0']);
+        
 
         return $options;
 

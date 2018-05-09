@@ -8,6 +8,7 @@ use App\Profile;
 use App\Role;
 use App\Account;
 use App\Identity;
+use App\Core\Helper;
 
 class User extends Authenticatable
 {
@@ -145,6 +146,13 @@ class User extends Authenticatable
 	{
 		$this->contactInfo=$this->getContactInfo();
 		if($this->contactInfo)  $this->contactInfo->address->fullText();
+    }
+
+    public function updateProfile(array $profileValues)
+    {
+        $sid=strtoupper($profileValues['sid']);
+        $profileValues['gender'] = Helper::getGenderFromSID($sid);
+        $this->profile->update($profileValues);
     }
 
     public function getAccount()

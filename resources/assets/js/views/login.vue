@@ -7,12 +7,12 @@
             <section>
                 <form  @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
                     <div class="form-group">
-                        <label>Email</label>
-                        <input name="email" class="form-control" v-model="form.email"/>
-                        <small class="text-danger" v-if="form.errors.has('email')" v-text="form.errors.get('email')"></small>
+                        <label>身分證號</label>
+                        <input name="name" class="form-control" v-model="form.name"/>
+                        <small class="text-danger" v-if="form.errors.has('name')" v-text="form.errors.get('name')"></small>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Password"></label>
+                        <label asp-for="Password">密碼</label>
                         <input type="password" name="password" class="form-control" v-model="form.password">
                         <small class="text-danger" v-if="form.errors.has('password')" v-text="form.errors.get('password')"></small>
                     </div>
@@ -52,7 +52,7 @@
         methods: {
             init() {
                 this.form=new Form({
-                    email:'',
+                    name:'',
                     password:''
                 })
             }, 

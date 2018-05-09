@@ -34,6 +34,10 @@ class BillsController extends Controller
     }
     public function test()
     {
+
+        $arr=[''];
+
+
         $signup=Signup::find(4);
         $this->bills->createBillCode($signup);
        

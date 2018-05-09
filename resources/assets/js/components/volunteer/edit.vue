@@ -125,9 +125,9 @@ export default {
 		},
 		getErrors(){
 			let errors={ };
-			if(!this.form.user.phone) errors['user.phone']=['必須填寫手機'];
+			// if(!this.form.user.phone) errors['user.phone']=['必須填寫手機'];
 
-			if(!this.form.user.profile.fullname) errors['user.profile.fullname'] =['必須填寫姓名'];
+			if(!this.form.user.profile.sid) errors['user.profile.sid'] =['必須填寫身分證號'];
 			
 		
 			return errors;

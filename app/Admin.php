@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Core\Centers;
 
 class Admin extends Model
 {
+    use Centers;
+    
     protected $primaryKey = 'userId';
 
     protected $fillable = [ 'active', 'removed', 'updatedBy','ps'];
@@ -67,6 +70,11 @@ class Admin extends Model
 
         
     }
-
+    
+    public function addToCenter(Center $center)
+	{
+        if($this->inCenter($center)) return;
+		$this->centers()->attach($center->id);
+    }
 
 }

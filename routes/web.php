@@ -2,9 +2,15 @@
 
 Auth::routes();
 
-Route::get('/test', 'BillsController@test');
+//Route::get('/test', 'BillsController@test');
 
-//Route::get('/test', 'PayrollsController@test');
+Route::get('/test', function(){
+    $volunteer=\App\Volunteer::find(80);
+    dd($volunteer->weekdaysText());
+   
+    dd(\App\Core\Helper::checkSID($sid));
+    dd(\App\Core\Helper::getGenderFromSID($sid));
+});
 
 
 

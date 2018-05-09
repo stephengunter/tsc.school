@@ -21,20 +21,21 @@ class UserSeeder extends Seeder
 
     private function addDev(){
 		$dev=config('app.dev');
-		$name=$dev['name'];
+		$fullname=$dev['fullname'];
 		$email=$dev['email'];
 		$phone=$dev['phone'];
-		$user=\App\User::create([
-			'name' => $name,
+		$user=new User([
+			
 			'email' =>$email,
 			'phone' => $phone,
 			'password' => 'secret',
 			'emailConfirmed' => true,
 		
 		]);
-		$profile=new \App\Profile([
+		$profile=new Profile([
 			'userId' => $user->id,					
-			'fullname'=> '何金水',
+			'fullname'=> $fullname,
+			'sid' => 'F124597024',		
 			'dob' =>'1979-3-12',
 			'gender' => 1,
         ]);
@@ -47,16 +48,17 @@ class UserSeeder extends Seeder
         $name='test';
 		$email='test@gmail.com';
 		$phone='0932000000';
-		$testUser=\App\User::create([
-			'name' => $name,
+		$testUser=new User([
+			
 			'email' =>$email,
 			'phone' => $phone,
 			'password' => '000000',
 			'emailConfirmed' => true,
 		
 		]);
-		$testUserProfile=new \App\Profile([
-			'userId' => $testUser->id,					
+		$testUserProfile=new Profile([
+			'userId' => $testUser->id,	
+			'sid' => 'A123456789',				
 			'fullname'=> '何金銀',
 			'dob' =>'1975-6-1',
 			'gender' => 1,
@@ -79,15 +81,19 @@ class UserSeeder extends Seeder
         $faker = Factory::create();
 		
 		foreach(range(1, 50) as $i) {
-        
+			$gender=( $i %2 == 0 );
+			$sid= $faker->randomLetter();
+			$sid .= $gender ? '1' : '2' ;
+			$sid .= mt_rand(1, 99999999);
             $user = new User([
-                'name' => $faker->name,
+                
                 'email' => $faker->unique()->safeEmail,
 				'phone' =>  '093' . mt_rand(1, 9999999)
             ]);
 
             $profile=new Profile([
-                'fullname'=> $faker->name,
+				'fullname'=> $faker->name,
+				'sid' => $sid,
                 'dob' => mt_rand(1945, 1995) . '-' .mt_rand(1, 12).'-'.mt_rand(1, 28),
                 'gender' => ( $i %2 == 0 ),
             ]);

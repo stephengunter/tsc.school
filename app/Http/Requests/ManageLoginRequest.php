@@ -13,15 +13,14 @@ class ManageLoginRequest extends FormRequest
     public function rules()
     {
         return [
-             'email' => 'email|required',
+             'name' => 'required',
              'password' => 'required',
         ];
     }
     public function messages()
     {
         return [
-            'email.required' => '請輸入Email',
-            'email.email' => 'Email格式不正確',
+            'name.required' => '請輸入身分證號',
             'password.required' =>'請輸入密碼',
         ];
     }

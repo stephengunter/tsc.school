@@ -13,11 +13,14 @@ use App\Address;
 use App\District;
 use App\Services\Users;
 use App\Services\Wages;
+use App\Services\Import;
 use DB;
 use Excel;
 
 class Teachers 
 {
+    use Import;
+
     public function __construct(Users $users, Wages $wages)
     {
         $this->users=$users;
@@ -53,10 +56,11 @@ class Teachers
        
 	}
 
-    public function createTeacher(User $user,Teacher $teacher,Account $account,array $centerIds=[])
+    public function createTeacher(User $user,Teacher $teacher,array $centerIds=[])
     {
+      
         $user->teacher()->save($teacher);
-        $user->setAccount($account);
+        //$user->setAccount($account);
 
         $teacher->userId=$user->id;
         if($centerIds) $teacher->centers()->sync($centerIds);
@@ -182,41 +186,8 @@ class Teachers
         for($i = 1; $i < count($teacherList); ++$i) {
             $row=$teacherList[$i];
 
-            $center_codes=trim($row['centers']);
-            $sid=trim($row['id']);
             $fullname=trim($row['fullname']);
-
-            $gender=(int)trim($row['gender']);
-            if($gender) $gender=true;
-            else $gender=false;
-
-            $dob=trim($row['dob']);
-            if($dob){
-                $pieces=explode('/', $dob);
-                $year = (int)$pieces[0] + 1911;
-                $dob= $year . '/'.$pieces[1]. '/'.$pieces[2];                
-            }
-
-
-            $phone=trim($row['phone']);
-            $email=trim($row['email']);
-            $zipcode=trim($row['zipcode']);
-            $street=trim($row['street']);
-
-            $education=trim($row['education']);
-            $specialty=trim($row['specialty']);
-            $jobtitle=trim($row['jobtitle']);
-            $description=trim($row['description']);
-
-            $experiences='';               
-            $array_experiences = explode(',', trim($row['experiences']));
-            for($j = 0; $j < count($array_experiences); ++$j){
-                $experiences .= $array_experiences[$j] . '<br>';
-            }
-
-            if(!$fullname){
-                continue;
-            }
+            if(!$fullname) continue;
 
             $wage=null;
             $wageName=trim($row['wage']);
@@ -233,11 +204,11 @@ class Teachers
                 }
             }
 
-            $accountNumber=trim($row['account']);
-            if(!$accountNumber){
-                $err_msg .= '銀行帳號不可空白' . ',';
-                continue;
-            }
+            // $accountNumber=trim($row['account']);
+            // if(!$accountNumber){
+            //     $err_msg .= '銀行帳號不可空白' . ',';
+            //     continue;
+            // }
 
             
             $center_codes=trim($row['centers']);
@@ -245,44 +216,20 @@ class Teachers
                 $err_msg .= '中心代碼不可空白' . ',';
                 continue;
             }
-
-            $centers=[];
-            $center_codes=explode(',', $center_codes);
-            foreach($center_codes as $code){
-                $center=Center::where('code',$code)->first();
-                if(!$center){
-                    $err_msg .= '中心代碼' . $code . '錯誤';
-                    continue;     
-                } 
-                array_push($centers, $center);
-            }
-
-            $existTeacher = $this->getTeacherBySID($sid);
-            if($existTeacher)
-            {
-                foreach($centers as $center){
-                    $existTeacher->addToCenter($center);
-                }
-               
-                continue;
-            }
-
-            $userValues=[
-                'email' => $email,
-                'phone' => $phone,
-                'updatedBy' => $updatedBy
-            ];
-            $profileValues=[
-                'fullname' => $fullname,
-                'sid' => $sid,
-                'gender' => $gender,
-                'dob' => $dob,
-               
-                'updatedBy' => $updatedBy
-              
-            ];   
-
             
+           
+            $education=trim($row['education']);
+            $specialty=trim($row['specialty']);
+            $jobtitle=trim($row['jobtitle']);
+            $description=trim($row['description']);
+            $ps=trim($row['ps']);
+
+            $experiences='';               
+            $array_experiences = explode(',', trim($row['experiences']));
+            for($j = 0; $j < count($array_experiences); ++$j){
+                $experiences .= $array_experiences[$j] . '<br>';
+            }
+
             $teacherValues=[
                 'wageId' => $wage->id,
                 'education' => $education,
@@ -290,8 +237,9 @@ class Teachers
                 'description' => $description,
                 'experiences' => $experiences,
                 'jobtitle' => $jobtitle,
+                'ps' => $ps,
                 'updatedBy' => $updatedBy,
-                'removed' => false
+                'removed' => false,
             ];
 
             if($wage->isSpecial()){
@@ -307,12 +255,49 @@ class Teachers
             }
 
 
-            $account=new Account([
-                'number' => $accountNumber,
-                'updatedBy' => $updatedBy,
-            ]);
+            // $account=new Account([
+            //     'number' => $accountNumber,
+            //     'updatedBy' => $updatedBy,
+            // ]);
 
-            $user= $this->users->findUser($email, $phone);
+
+
+
+            $getCenters=$this->getCenters($row);
+            if(array_key_exists('err',$getCenters)){
+                $err_msg .= $getCenters['err'] . ',';
+                continue;
+            }
+            $centers=$getCenters['centers'];
+            $centerIds=array_map(function($item){
+                return $item->id;
+            }, $centers);
+          
+
+            $userDatas=$this->getImportUserDatas($row,$updatedBy);
+            if(array_key_exists('err',$userDatas)){
+                $err_msg .= $userDatas['err'] . ',';
+                continue;
+            }
+
+            $userValues=$userDatas['userValues'];
+            $profileValues=$userDatas['profileValues'];
+            $contactInfoValues=$userDatas['contactInfoValues'];
+            $addressValues=$userDatas['addressValues'];
+            $identities=$userDatas['identities'];
+
+            $sid=$profileValues['sid'];
+            $existTeacher = $this->getTeacherBySID($sid);
+            if($existTeacher)
+            {
+                foreach($centers as $center){
+                    $existTeacher->addToCenter($center);
+                }
+               
+                continue;
+            }
+            
+            $user= $this->users->findBySID($sid);
 
             if(!$user)
             {
@@ -322,37 +307,21 @@ class Teachers
                 );
                
             }
-         
-            $district=null;
-            $zipcode=trim($row['zipcode']);
-            if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
-            if(!$district){
-                $err_msg .= '郵遞區號' . $zipcode . '錯誤';
-                continue;
+
+            foreach($identities as $identity){
+                $user->addIdentity($identity->id);
             }
-          
-            $street=trim($row['street']);
-           
-            $address=new Address([
-                'districtId'=>$district->id,
-                'street' => $street,
-                'updatedBy' => $updatedBy
-            ]);
+
+            $contactInfo=new ContactInfo($contactInfoValues);
+            $address=new Address($addressValues);
             
-            $contactInfo=new ContactInfo([
-                'tel'=>'',
-                'fax' => '',
-            ]);
 
             $this->users->setContactInfo($user,$contactInfo,$address);
     
             $teacher = new Teacher($teacherValues);
             
-            
-            $centers=collect($centers);
-            $centerIds=$centers->pluck('id')->toArray();
 
-            $teacher=$this->createTeacher($user,$teacher,$account,$centerIds);
+            $teacher=$this->createTeacher($user,$teacher,$centerIds);
             
            
         }  //end for  

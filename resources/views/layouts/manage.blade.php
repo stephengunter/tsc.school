@@ -63,7 +63,7 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                {{ Auth::user()->name }} 
+                                {{ Auth::user()->profile->fullname }} 
                                 </a>
                                 <ul class="dropdown-menu" style="font-size: 15px;">
                                     <li>

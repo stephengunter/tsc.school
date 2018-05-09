@@ -185,10 +185,12 @@ export default {
 
 
 			let user=this.form.user;
+			
 			if(user.id){
 				this.submit();
 				return;
 			}
+			
 
 			let find=User.find(user.email,user.phone,user.profile.sid);
 

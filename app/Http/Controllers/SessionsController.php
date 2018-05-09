@@ -24,7 +24,7 @@ class SessionsController extends Controller
     {  
 
 		$values=[
-			'email' => $request['email'],
+			'name' => strtoupper($request['name']),
 			'password' => $request['password'],
 		];
 

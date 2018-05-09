@@ -167,15 +167,14 @@ class UsersController extends Controller
 
     public function find(UserRequest $request)
     {
-        $email=$request['email'];
-        $phone=$request['phone'];
-        $sid=$request['profile']['sid'];
         
+        $sid=$request['profile']['sid'];
+        $email='';
+        $phone='';
+      
         $users=$this->users->findUsers($email, $phone, $sid);
 
         $pageList = new PagedList($users);
-
-        
         
         foreach($pageList->viewList as $user){
             

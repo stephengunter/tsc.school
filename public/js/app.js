@@ -71529,7 +71529,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
         init: function init() {
             this.form = new Form({
-                email: '',
+                name: '',
                 password: ''
             });
         },
@@ -71582,42 +71582,44 @@ var render = function() {
             },
             [
               _c("div", { staticClass: "form-group" }, [
-                _c("label", [_vm._v("Email")]),
+                _c("label", [_vm._v("身分證號")]),
                 _vm._v(" "),
                 _c("input", {
                   directives: [
                     {
                       name: "model",
                       rawName: "v-model",
-                      value: _vm.form.email,
-                      expression: "form.email"
+                      value: _vm.form.name,
+                      expression: "form.name"
                     }
                   ],
                   staticClass: "form-control",
-                  attrs: { name: "email" },
-                  domProps: { value: _vm.form.email },
+                  attrs: { name: "name" },
+                  domProps: { value: _vm.form.name },
                   on: {
                     input: function($event) {
                       if ($event.target.composing) {
                         return
                       }
-                      _vm.$set(_vm.form, "email", $event.target.value)
+                      _vm.$set(_vm.form, "name", $event.target.value)
                     }
                   }
                 }),
                 _vm._v(" "),
-                _vm.form.errors.has("email")
+                _vm.form.errors.has("name")
                   ? _c("small", {
                       staticClass: "text-danger",
                       domProps: {
-                        textContent: _vm._s(_vm.form.errors.get("email"))
+                        textContent: _vm._s(_vm.form.errors.get("name"))
                       }
                     })
                   : _vm._e()
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "form-group" }, [
-                _c("label", { attrs: { "asp-for": "Password" } }),
+                _c("label", { attrs: { "asp-for": "Password" } }, [
+                  _vm._v("密碼")
+                ]),
                 _vm._v(" "),
                 _c("input", {
                   directives: [
@@ -72864,6 +72866,15 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -73547,15 +73558,38 @@ var render = function() {
             _vm._v(" "),
             _c("hr"),
             _vm._v(" "),
-            _c("center-table", {
-              attrs: { model: _vm.model, can_order: _vm.can_edit },
-              on: {
-                selected: _vm.onSelected,
-                up: _vm.up,
-                down: _vm.down,
-                "save-orders": _vm.saveImportances
-              }
-            })
+            _c(
+              "center-table",
+              {
+                attrs: { model: _vm.model, can_order: _vm.can_edit },
+                on: {
+                  selected: _vm.onSelected,
+                  up: _vm.up,
+                  down: _vm.down,
+                  "save-orders": _vm.saveImportances
+                }
+              },
+              [
+                _c(
+                  "div",
+                  {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: _vm.model.totalItems > 0,
+                        expression: "model.totalItems > 0"
+                      }
+                    ],
+                    staticClass: "panel-footer pagination-footer",
+                    attrs: { slot: "table-footer" },
+                    slot: "table-footer"
+                  },
+                  [_c("page-controll", { attrs: { model: _vm.model } })],
+                  1
+                )
+              ]
+            )
           ],
           1
         )
@@ -77458,6 +77492,12 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -78435,22 +78475,45 @@ var render = function() {
               _vm._v(" "),
               _c("hr"),
               _vm._v(" "),
-              _c("category-table", {
-                ref: "categoryTable",
-                attrs: {
-                  model: _vm.model,
-                  can_edit: _vm.can_edit,
-                  can_order: _vm.can_edit
+              _c(
+                "category-table",
+                {
+                  ref: "categoryTable",
+                  attrs: {
+                    model: _vm.model,
+                    can_edit: _vm.can_edit,
+                    can_order: _vm.can_edit
+                  },
+                  on: {
+                    selected: _vm.onSelected,
+                    saved: _vm.onSaved,
+                    delete: _vm.beginDelete,
+                    up: _vm.up,
+                    down: _vm.down,
+                    "save-orders": _vm.saveImportances
+                  }
                 },
-                on: {
-                  selected: _vm.onSelected,
-                  saved: _vm.onSaved,
-                  delete: _vm.beginDelete,
-                  up: _vm.up,
-                  down: _vm.down,
-                  "save-orders": _vm.saveImportances
-                }
-              })
+                [
+                  _c(
+                    "div",
+                    {
+                      directives: [
+                        {
+                          name: "show",
+                          rawName: "v-show",
+                          value: _vm.model.totalItems > 0,
+                          expression: "model.totalItems > 0"
+                        }
+                      ],
+                      staticClass: "panel-footer pagination-footer",
+                      attrs: { slot: "table-footer" },
+                      slot: "table-footer"
+                    },
+                    [_c("page-controll", { attrs: { model: _vm.model } })],
+                    1
+                  )
+                ]
+              )
             ],
             1
           )
@@ -90047,6 +90110,13 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -90068,6 +90138,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             type: Array,
             default: null
         },
+        weekdays: {
+            type: Array,
+            default: null
+        },
         version: {
             type: Number,
             default: 0
@@ -90080,11 +90154,14 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             model: null,
 
             params: {
-
+                center: '0',
+                weekday: '0',
                 keyword: '',
                 page: 1,
                 pageSize: 10
             },
+
+            center: null,
 
             checkedIds: []
         };
@@ -90107,6 +90184,23 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         getList: function getList() {
             if (this.model) return this.model.viewList;
             return [];
+        },
+        onCenterSelected: function onCenterSelected(center) {
+            this.setCenter(center);
+            this.fetchData();
+        },
+        setCenter: function setCenter(center) {
+            if (parseInt(center.value) > 0) {
+                this.center = _extends({}, center);
+                this.params.center = center.value;
+            } else {
+                this.center = null;
+                this.params.center = '0';
+            }
+        },
+        onWeekdaySelected: function onWeekdaySelected(item) {
+            this.params.weekday = item.value;
+            this.fetchData();
         },
         beginImport: function beginImport() {
             this.$emit('import');
@@ -90135,13 +90229,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             var _this = this;
 
             this.model = null;
-            var params = {
-                keyword: this.params.keyword,
-                page: this.params.page,
-                pageSize: this.params.pageSize
-            };
 
-            var getData = Volunteer.index(params);
+            var getData = Volunteer.index(this.params);
 
             getData.then(function (data) {
 
@@ -90209,6 +90298,9 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
 //
 //
 //
@@ -90408,7 +90500,17 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("手機")]),
               _vm._v(" "),
-              _c("th", [_vm._v("地址")])
+              _c("th", [_vm._v("所屬中心")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "15%" } }, [
+                _vm._v("可服務時間")
+              ]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [
+                _vm._v("可服務時段")
+              ]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "15%" } }, [_vm._v("備註")])
             ])
           ]),
           _vm._v(" "),
@@ -90464,18 +90566,18 @@ var render = function() {
                     _c("td", [_vm._v(_vm._s(volunteer.user.phone))]),
                     _vm._v(" "),
                     _c("td", [
-                      _vm.hasAddress(volunteer)
-                        ? _c("span", [
-                            _vm._v(
-                              "\n                                " +
-                                _vm._s(
-                                  volunteer.user.contactInfo.address.fullText
-                                ) +
-                                "\n                            "
-                            )
-                          ])
-                        : _vm._e()
-                    ])
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(volunteer.centersText) +
+                          "\n                        "
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(volunteer.weekdaysText))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(volunteer.time))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(volunteer.ps))])
                   ])
                 })
               )
@@ -90515,10 +90617,44 @@ var render = function() {
           [_c("h3", { domProps: { innerHTML: _vm._s(_vm.title) } })]
         ),
         _vm._v(" "),
-        _c("div", {
-          staticClass: "col-sm-5 form-inline",
-          staticStyle: { "margin-top": "20px" }
-        }),
+        _c(
+          "div",
+          {
+            staticClass: "col-sm-5 form-inline",
+            staticStyle: { "margin-top": "20px" }
+          },
+          [
+            _c(
+              "div",
+              {
+                staticClass: "form-group",
+                staticStyle: { "padding-left": "1em" }
+              },
+              [
+                _c("drop-down", {
+                  attrs: { items: _vm.centers, selected: _vm.params.center },
+                  on: { selected: _vm.onCenterSelected }
+                })
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "form-group",
+                staticStyle: { "padding-left": "1em" }
+              },
+              [
+                _c("drop-down", {
+                  attrs: { items: _vm.weekdays, selected: _vm.params.weekday },
+                  on: { selected: _vm.onWeekdaySelected }
+                })
+              ],
+              1
+            )
+          ]
+        ),
         _vm._v(" "),
         _c(
           "div",
@@ -91307,9 +91443,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		},
 		getErrors: function getErrors() {
 			var errors = {};
-			if (!this.form.user.phone) errors['user.phone'] = ['必須填寫手機'];
+			// if(!this.form.user.phone) errors['user.phone']=['必須填寫手機'];
 
-			if (!this.form.user.profile.fullname) errors['user.profile.fullname'] = ['必須填寫姓名'];
+			if (!this.form.user.profile.sid) errors['user.profile.sid'] = ['必須填寫身分證號'];
 
 			return errors;
 		},
@@ -92809,7 +92945,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
                 Helper.BusEmitOK();
                 _this.loading = false;
-                _this.$emit('imported');
+                //this.$emit('imported');
             }).catch(function (error) {
 
                 var msg = error.response.data.errors.msg[0];
@@ -94556,6 +94692,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			}
 
 			var user = this.form.user;
+
 			if (user.id) {
 				this.submit();
 				return;
@@ -96211,7 +96348,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
                 Helper.BusEmitOK();
                 _this.loading = false;
-                _this.$emit('imported');
+                //this.$emit('imported');
             }).catch(function (error) {
 
                 var msg = error.response.data.errors.msg[0];

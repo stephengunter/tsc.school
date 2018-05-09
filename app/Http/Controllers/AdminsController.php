@@ -213,12 +213,7 @@ class AdminsController extends Controller
       
         $errors=$this->users->validateUserInputs($userValues,$role);
         if($errors) return $this->requestError($errors);
-
-        $sid=$userValues['profile']['sid'];
-        if(!$sid){
-            $errors['user.profile.sid'] = ['必須填寫身分證號'];
-            return $this->requestError($errors);
-        }
+        
 
         $centerIds=$request->getCenterIds();
         if(!count($centerIds)){
@@ -233,7 +228,7 @@ class AdminsController extends Controller
         $userValues['updatedBy']=$updatedBy;
         $profileValues['updatedBy']=$updatedBy;
 
-      
+        
         
         $userValues=array_except($userValues,['profile','roles']);
         $userId=$request->getUserId();
@@ -243,8 +238,8 @@ class AdminsController extends Controller
         if($userId){
             $user = User::find($userId);
             
-            $user->profile->update($profileValues);
-            $this->users->updateUser($user,$userValues);
+            $user->updateProfile($profileValues);
+            $user->update($userValues);
             
         }else{
           
@@ -257,12 +252,11 @@ class AdminsController extends Controller
         if($admin){
             $admin->update($adminValues);
             $admin->setRole($role);
+            $admin->centers()->sync($centerIds);
         }else{
-            $admin=$this->admins->createAdmin($user,new Admin($adminValues),$role);
+            $admin=$this->admins->createAdmin($user,new Admin($adminValues),$role,$centerIds);
             $admin->userId=$userId;
         }
-
-        $admin->centers()->sync($centerIds);
        
         return response() ->json($admin);
     }

@@ -39,6 +39,15 @@
             <center-table :model="model" :can_order="can_edit"
                 @selected="onSelected"
                 @up="up" @down="down" @save-orders="saveImportances">
+
+                <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
+                    <page-controll   :model="model" >
+                       
+                    </page-controll>
+            
+                </div>
+
+
             </center-table>
             
 
