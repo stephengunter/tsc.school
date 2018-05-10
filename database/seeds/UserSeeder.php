@@ -72,7 +72,9 @@ class UserSeeder extends Seeder
 
 	public function run()
 	{
-        $this->addDev();
+		$this->addDev();
+		
+		return;
 
         $roads=[ '中正','中華','民生','建國','忠孝', '仁愛','信義','和平'];
         
