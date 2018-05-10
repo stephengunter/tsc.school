@@ -64117,8 +64117,8 @@ var Account = function () {
         }
     }, {
         key: 'createUrl',
-        value: function createUrl() {
-            return this.source() + '/create';
+        value: function createUrl(user) {
+            return this.source() + '/create?user=' + user;
         }
     }, {
         key: 'storeUrl',
@@ -64133,6 +64133,11 @@ var Account = function () {
     }, {
         key: 'updateUrl',
         value: function updateUrl(id) {
+            return this.source() + ('/' + id);
+        }
+    }, {
+        key: 'deleteUrl',
+        value: function deleteUrl(id) {
             return this.source() + ('/' + id);
         }
     }, {
@@ -64151,8 +64156,8 @@ var Account = function () {
         }
     }, {
         key: 'create',
-        value: function create() {
-            var url = this.createUrl();
+        value: function create(user) {
+            var url = this.createUrl(user);
 
             return new Promise(function (resolve, reject) {
                 axios.get(url).then(function (response) {
@@ -76013,7 +76018,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         beginDelete: function beginDelete() {
             var id = this.contactInfo.id;
-            this.deleteConfirm.msg = '確定要刪除聯絡資訊嗎？';
+            this.deleteConfirm.msg = '確定要刪除聯絡資訊嗎?';
             this.deleteConfirm.id = id;
             this.deleteConfirm.show = true;
         },
@@ -76114,6 +76119,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -76171,6 +76182,16 @@ var render = function() {
             _vm._v(" "),
             _c("p", {
               domProps: { textContent: _vm._s(_vm.model.address.fullText) }
+            })
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "row" }, [
+          _c("div", { staticClass: "col-sm-6" }, [
+            _c("label", { staticClass: "label-title" }, [_vm._v("第二地址")]),
+            _vm._v(" "),
+            _c("p", {
+              domProps: { textContent: _vm._s(_vm.model.address.ube) }
             })
           ])
         ])
@@ -76242,6 +76263,14 @@ module.exports = Component.exports
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -76689,6 +76718,41 @@ var render = function() {
                         }
                       })
                     : _vm._e()
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", { staticClass: "col-md-2 control-label" }, [
+                  _vm._v("第二地址")
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-8" }, [
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.form.contactInfo.address.ube,
+                        expression: "form.contactInfo.address.ube"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    staticStyle: { width: "480px" },
+                    attrs: { type: "text", name: "contactInfo.address.ube" },
+                    domProps: { value: _vm.form.contactInfo.address.ube },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(
+                          _vm.form.contactInfo.address,
+                          "ube",
+                          $event.target.value
+                        )
+                      }
+                    }
+                  })
                 ])
               ]),
               _vm._v(" "),
@@ -82138,6 +82202,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'ShowTeacher',
@@ -82178,9 +82249,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         specialPay: function specialPay(teacher) {
             var pay = Number(teacher.pay);
             return pay > 0;
-        },
-        accountNumber: function accountNumber(teacher) {
-            return Teacher.accountNumber(teacher);
         },
         centerNames: function centerNames(teacher) {
 
@@ -82357,18 +82425,6 @@ var render = function() {
                   })
                 ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-8" }, [
-                  _c("label", { staticClass: "label-title" }, [
-                    _vm._v("個人簡介")
-                  ]),
-                  _vm._v(" "),
-                  _c("p", {
-                    domProps: { innerHTML: _vm._s(_vm.teacher.description) }
-                  })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "row" }, [
                 _c("div", { staticClass: "col-sm-4" }, [
                   _c("label", { staticClass: "label-title" }, [
                     _vm._v("薪酬標準")
@@ -82389,18 +82445,46 @@ var render = function() {
                     ])
                   : _vm._e(),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-4" }, [
-                  _c("label", { staticClass: "label-title" }, [
-                    _vm._v("銀行帳號")
-                  ]),
-                  _vm._v(" "),
-                  _c("p", {
-                    domProps: {
-                      textContent: _vm._s(_vm.accountNumber(_vm.teacher))
-                    }
-                  })
-                ])
+                false
+                  ? _c("div", { staticClass: "col-sm-8" }, [
+                      _c("label", { staticClass: "label-title" }, [
+                        _vm._v("個人簡介")
+                      ]),
+                      _vm._v(" "),
+                      _c("p", {
+                        domProps: { innerHTML: _vm._s(_vm.teacher.description) }
+                      })
+                    ])
+                  : _vm._e()
               ]),
+              _vm._v(" "),
+              false
+                ? _c("div", { staticClass: "row" }, [
+                    _c("div", { staticClass: "col-sm-4" }, [
+                      _c("label", { staticClass: "label-title" }, [
+                        _vm._v("薪酬標準")
+                      ]),
+                      _vm._v(" "),
+                      _c("p", [_vm._v(_vm._s(_vm.teacher.wage.name))])
+                    ]),
+                    _vm._v(" "),
+                    _vm.specialPay(_vm.teacher)
+                      ? _c("div", { staticClass: "col-sm-4" }, [
+                          _c("label", { staticClass: "label-title" }, [
+                            _vm._v("特殊講師鐘點費")
+                          ]),
+                          _vm._v(" "),
+                          _c("p", [
+                            _vm._v(
+                              _vm._s(_vm._f("formatMoney")(_vm.teacher.pay))
+                            )
+                          ])
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "col-sm-4" })
+                  ])
+                : _vm._e(),
               _vm._v(" "),
               _c("div", { staticClass: "row" }, [
                 _c("div", { staticClass: "col-sm-8" }, [
@@ -82553,6 +82637,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			centerOptions: [],
 			wageOptions: [],
 
+			cities: [],
+
 			form: null,
 
 			submitting: false,
@@ -82621,8 +82707,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 						_this.form = new Form({
 							teacher: _extends({}, model.teacher),
 							user: _extends({}, model.user),
+							contactInfo: _extends({}, model.contactInfo),
 							centerIds: []
 						});
+
+						_this.cities = model.cityOptions.slice(0);
 					}
 
 					_this.form.teacher.experiences = Helper.replaceAll(_this.form.teacher.experiences, '<br>', '\n');
@@ -82747,6 +82836,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 			var save = null;
 			if (this.id) save = Teacher.update(this.id, this.form);else {
+				var ubeAddress = this.$refs.createInputs.getUbeAddress();
+				this.form.contactInfo.address.ube = ubeAddress;
 				save = Teacher.store(this.form);
 				this.form.teacher.user = _extends({}, this.form.user);
 			}
@@ -82925,6 +83016,50 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -82948,11 +83083,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         wages: {
             type: Array,
             default: null
+        },
+        cities: {
+            type: Array,
+            default: null
         }
     },
     data: function data() {
         return {
-            isSpecialPay: false
+            isSpecialPay: false,
+            districts: [],
+            ubeDistricts: [],
+
+            ubeAddress: {
+                cityId: 0,
+                districtId: 0,
+                street: ''
+            }
         };
     },
 
@@ -82971,17 +83118,67 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var _this = this;
 
             if (!this.group) {
+
                 var wage = this.wages.find(function (item) {
                     return item.value == _this.form.teacher.wageId;
                 });
 
                 this.isSpecialPay = Wage.isSpecial(wage);
+
+                this.onCityChanged();
+
+                this.ubeAddress.cityId = this.form.contactInfo.address.cityId;
+                this.onUbeCityChanged();
             }
         },
         onWageSelected: function onWageSelected(item) {
             this.form.teacher.wageId = item.value;
 
             this.isSpecialPay = Wage.isSpecial(item);
+        },
+        onCityChanged: function onCityChanged() {
+            var _this2 = this;
+
+            var getDistrictId = this.loadDistricts();
+            getDistrictId.then(function (districtId) {
+                _this2.form.contactInfo.address.districtId = districtId;
+            });
+        },
+        onUbeCityChanged: function onUbeCityChanged() {
+            var _this3 = this;
+
+            var getDistrictId = this.loadUbeDistricts();
+            getDistrictId.then(function (districtId) {
+                _this3.ubeAddress.districtId = districtId;
+            });
+        },
+        loadDistricts: function loadDistricts() {
+            var _this4 = this;
+
+            return new Promise(function (resolve, reject) {
+
+                var cityId = _this4.form.contactInfo.address.cityId;
+                var city = _this4.cities.find(function (item) {
+                    return item.id == cityId;
+                });
+
+                _this4.districts = city.districts.slice(0);
+                resolve(_this4.districts[0].id);
+            });
+        },
+        loadUbeDistricts: function loadUbeDistricts() {
+            var _this5 = this;
+
+            return new Promise(function (resolve, reject) {
+
+                var cityId = _this5.ubeAddress.cityId;
+                var city = _this5.cities.find(function (item) {
+                    return item.id == cityId;
+                });
+
+                _this5.ubeDistricts = city.districts.slice(0);
+                resolve(_this5.ubeDistricts[0].id);
+            });
         },
         onCentersChanged: function onCentersChanged(values) {
             this.form.centerIds = values.slice(0);
@@ -82992,6 +83189,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         clearDOB: function clearDOB() {
             this.dob.time = '';
+        },
+        getUbeAddress: function getUbeAddress() {
+            var _this6 = this;
+
+            if (!this.ubeAddress.street) return '';
+            var city = this.cities.find(function (item) {
+                return item.id == _this6.ubeAddress.cityId;
+            });
+            var district = this.ubeDistricts.find(function (item) {
+                return item.id == _this6.ubeAddress.districtId;
+            });
+            return city.name + district.name + this.ubeAddress.street;
         }
     }
 });
@@ -83537,7 +83746,7 @@ var render = function() {
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
                   _c("label", { staticClass: "col-md-2 control-label" }, [
-                    _vm._v("職稱")
+                    _vm._v("現職")
                   ]),
                   _vm._v(" "),
                   _c("div", { staticClass: "col-md-4" }, [
@@ -83716,52 +83925,56 @@ var render = function() {
                       : _vm._e()
                   ]),
                   _vm._v(" "),
-                  _c("label", { staticClass: "col-md-2 control-label" }, [
-                    _vm._v("個人簡介")
-                  ]),
+                  false
+                    ? _c("label", { staticClass: "col-md-2 control-label" }, [
+                        _vm._v("個人簡介")
+                      ])
+                    : _vm._e(),
                   _vm._v(" "),
-                  _c("div", { staticClass: "col-md-4" }, [
-                    _c("textarea", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.form.teacher.description,
-                          expression: "form.teacher.description"
-                        }
-                      ],
-                      staticClass: "form-control",
-                      attrs: {
-                        rows: "6",
-                        cols: "50",
-                        name: "teacher.description"
-                      },
-                      domProps: { value: _vm.form.teacher.description },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
+                  false
+                    ? _c("div", { staticClass: "col-md-4" }, [
+                        _c("textarea", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.form.teacher.description,
+                              expression: "form.teacher.description"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: {
+                            rows: "6",
+                            cols: "50",
+                            name: "teacher.description"
+                          },
+                          domProps: { value: _vm.form.teacher.description },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.form.teacher,
+                                "description",
+                                $event.target.value
+                              )
+                            }
                           }
-                          _vm.$set(
-                            _vm.form.teacher,
-                            "description",
-                            $event.target.value
-                          )
-                        }
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.form.errors.has("teacher.description")
-                      ? _c("small", {
-                          staticClass: "text-danger",
-                          domProps: {
-                            textContent: _vm._s(
-                              _vm.form.errors.get("teacher.description")
-                            )
-                          }
-                        })
-                      : _vm._e()
-                  ])
+                        }),
+                        _vm._v(" "),
+                        _vm.form.errors.has("teacher.description")
+                          ? _c("small", {
+                              staticClass: "text-danger",
+                              domProps: {
+                                textContent: _vm._s(
+                                  _vm.form.errors.get("teacher.description")
+                                )
+                              }
+                            })
+                          : _vm._e()
+                      ])
+                    : _vm._e()
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
@@ -83834,7 +84047,7 @@ var render = function() {
                 _vm._v(" "),
                 _c("div", { staticClass: "form-group" }, [
                   _c("label", { staticClass: "col-md-2 control-label" }, [
-                    _vm._v("銀行帳號")
+                    _vm._v("市話")
                   ]),
                   _vm._v(" "),
                   _c("div", { staticClass: "col-md-4" }, [
@@ -83843,37 +84056,316 @@ var render = function() {
                         {
                           name: "model",
                           rawName: "v-model",
-                          value: _vm.form.teacher.accountNumber,
-                          expression: "form.teacher.accountNumber"
+                          value: _vm.form.contactInfo.tel,
+                          expression: "form.contactInfo.tel"
                         }
                       ],
                       staticClass: "form-control",
-                      attrs: { type: "text", name: "teacher.accountNumber" },
-                      domProps: { value: _vm.form.teacher.accountNumber },
+                      attrs: { type: "text", name: "contactInfo.tel" },
+                      domProps: { value: _vm.form.contactInfo.tel },
                       on: {
                         input: function($event) {
                           if ($event.target.composing) {
                             return
                           }
                           _vm.$set(
-                            _vm.form.teacher,
-                            "accountNumber",
+                            _vm.form.contactInfo,
+                            "tel",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    })
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { staticClass: "col-md-2 control-label" }, [
+                    _vm._v("通訊地址")
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-md-10 form-inline" }, [
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.form.contactInfo.address.cityId,
+                            expression: "form.contactInfo.address.cityId"
+                          }
+                        ],
+                        staticClass: "form-control selectWidth",
+                        staticStyle: { width: "auto" },
+                        on: {
+                          change: [
+                            function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.$set(
+                                _vm.form.contactInfo.address,
+                                "cityId",
+                                $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              )
+                            },
+                            _vm.onCityChanged
+                          ]
+                        }
+                      },
+                      _vm._l(_vm.cities, function(city, index) {
+                        return _c("option", {
+                          key: index,
+                          domProps: {
+                            value: city.id,
+                            textContent: _vm._s(city.name)
+                          }
+                        })
+                      })
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.form.contactInfo.address.districtId,
+                            expression: "form.contactInfo.address.districtId"
+                          }
+                        ],
+                        staticClass: "form-control selectWidth",
+                        staticStyle: { width: "auto" },
+                        on: {
+                          change: function($event) {
+                            var $$selectedVal = Array.prototype.filter
+                              .call($event.target.options, function(o) {
+                                return o.selected
+                              })
+                              .map(function(o) {
+                                var val = "_value" in o ? o._value : o.value
+                                return val
+                              })
+                            _vm.$set(
+                              _vm.form.contactInfo.address,
+                              "districtId",
+                              $event.target.multiple
+                                ? $$selectedVal
+                                : $$selectedVal[0]
+                            )
+                          }
+                        }
+                      },
+                      _vm._l(_vm.districts, function(d, index) {
+                        return _c("option", {
+                          key: index,
+                          domProps: { value: d.id, textContent: _vm._s(d.name) }
+                        })
+                      })
+                    ),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form.contactInfo.address.street,
+                          expression: "form.contactInfo.address.street"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      staticStyle: { width: "480px" },
+                      attrs: {
+                        type: "text",
+                        name: "contactInfo.address.street"
+                      },
+                      domProps: { value: _vm.form.contactInfo.address.street },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.form.contactInfo.address,
+                            "street",
                             $event.target.value
                           )
                         }
                       }
                     }),
                     _vm._v(" "),
-                    _vm.form.errors.has("teacher.accountNumber")
+                    _vm.form.errors.has("contactInfo.address.street")
                       ? _c("small", {
                           staticClass: "text-danger",
                           domProps: {
                             textContent: _vm._s(
-                              _vm.form.errors.get("teacher.accountNumber")
+                              _vm.form.errors.get("contactInfo.address.street")
                             )
                           }
                         })
                       : _vm._e()
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { staticClass: "col-md-2 control-label" }, [
+                    _vm._v("第二地址")
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-md-10 form-inline" }, [
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.ubeAddress.cityId,
+                            expression: "ubeAddress.cityId"
+                          }
+                        ],
+                        staticClass: "form-control selectWidth",
+                        staticStyle: { width: "auto" },
+                        on: {
+                          change: [
+                            function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.$set(
+                                _vm.ubeAddress,
+                                "cityId",
+                                $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              )
+                            },
+                            _vm.onUbeCityChanged
+                          ]
+                        }
+                      },
+                      _vm._l(_vm.cities, function(city, index) {
+                        return _c("option", {
+                          key: index,
+                          domProps: {
+                            value: city.id,
+                            textContent: _vm._s(city.name)
+                          }
+                        })
+                      })
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.ubeAddress.districtId,
+                            expression: "ubeAddress.districtId"
+                          }
+                        ],
+                        staticClass: "form-control selectWidth",
+                        staticStyle: { width: "auto" },
+                        on: {
+                          change: function($event) {
+                            var $$selectedVal = Array.prototype.filter
+                              .call($event.target.options, function(o) {
+                                return o.selected
+                              })
+                              .map(function(o) {
+                                var val = "_value" in o ? o._value : o.value
+                                return val
+                              })
+                            _vm.$set(
+                              _vm.ubeAddress,
+                              "districtId",
+                              $event.target.multiple
+                                ? $$selectedVal
+                                : $$selectedVal[0]
+                            )
+                          }
+                        }
+                      },
+                      _vm._l(_vm.ubeDistricts, function(d, index) {
+                        return _c("option", {
+                          key: index,
+                          domProps: { value: d.id, textContent: _vm._s(d.name) }
+                        })
+                      })
+                    ),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.ubeAddress.street,
+                          expression: "ubeAddress.street"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      staticStyle: { width: "480px" },
+                      attrs: { type: "text", name: "ubeAddress.street" },
+                      domProps: { value: _vm.ubeAddress.street },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.ubeAddress,
+                            "street",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    })
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", { staticClass: "col-md-2 control-label" }, [
+                    _vm._v("備註")
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-md-10" }, [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form.teacher.ps,
+                          expression: "form.teacher.ps"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: { type: "text", name: "teacher.ps" },
+                      domProps: { value: _vm.form.teacher.ps },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(_vm.form.teacher, "ps", $event.target.value)
+                        }
+                      }
+                    })
                   ])
                 ])
               ],
@@ -83945,6 +84437,12 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -84379,7 +84877,7 @@ var render = function() {
         _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-sm-4" }, [
             _c("div", { staticClass: "form-group" }, [
-              _c("label", [_vm._v("職稱")]),
+              _c("label", [_vm._v("現職")]),
               _vm._v(" "),
               _c("input", {
                 directives: [
@@ -84539,53 +85037,55 @@ var render = function() {
             ])
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "col-sm-8" }, [
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", [_vm._v("個人簡介")]),
-              _vm._v(" "),
-              _c("textarea", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.form.teacher.description,
-                    expression: "form.teacher.description"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: { rows: "6", cols: "50", name: "teacher.description" },
-                domProps: { value: _vm.form.teacher.description },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
+          false
+            ? _c("div", { staticClass: "col-sm-8" }, [
+                _c("div", { staticClass: "form-group" }, [
+                  _c("label", [_vm._v("個人簡介")]),
+                  _vm._v(" "),
+                  _c("textarea", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.form.teacher.description,
+                        expression: "form.teacher.description"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: {
+                      rows: "6",
+                      cols: "50",
+                      name: "teacher.description"
+                    },
+                    domProps: { value: _vm.form.teacher.description },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(
+                          _vm.form.teacher,
+                          "description",
+                          $event.target.value
+                        )
+                      }
                     }
-                    _vm.$set(
-                      _vm.form.teacher,
-                      "description",
-                      $event.target.value
-                    )
-                  }
-                }
-              }),
-              _vm._v(" "),
-              _vm.form.errors.has("teacher.description")
-                ? _c("small", {
-                    staticClass: "text-danger",
-                    domProps: {
-                      textContent: _vm._s(
-                        _vm.form.errors.get("teacher.description")
-                      )
-                    }
-                  })
-                : _vm._e()
-            ])
-          ]),
+                  }),
+                  _vm._v(" "),
+                  _vm.form.errors.has("teacher.description")
+                    ? _c("small", {
+                        staticClass: "text-danger",
+                        domProps: {
+                          textContent: _vm._s(
+                            _vm.form.errors.get("teacher.description")
+                          )
+                        }
+                      })
+                    : _vm._e()
+                ])
+              ])
+            : _vm._e(),
           _vm._v(" "),
-          _c("div", { staticClass: "col-sm-4" })
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-sm-4" }, [
             _c(
               "div",
@@ -84644,53 +85144,78 @@ var render = function() {
                     : _vm._e()
                 ])
               ])
-            : _vm._e(),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-sm-4" }, [
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", [_vm._v("銀行帳號")]),
-              _vm._v(" "),
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.form.teacher.accountNumber,
-                    expression: "form.teacher.accountNumber"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: { type: "text", name: "teacher.accountNumber" },
-                domProps: { value: _vm.form.teacher.accountNumber },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.$set(
-                      _vm.form.teacher,
-                      "accountNumber",
-                      $event.target.value
-                    )
-                  }
-                }
-              }),
-              _vm._v(" "),
-              _vm.form.errors.has("teacher.accountNumber")
-                ? _c("small", {
-                    staticClass: "text-danger",
-                    domProps: {
-                      textContent: _vm._s(
-                        _vm.form.errors.get("teacher.accountNumber")
-                      )
-                    }
-                  })
-                : _vm._e()
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-sm-4" })
+            : _vm._e()
         ]),
+        _vm._v(" "),
+        false
+          ? _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-sm-4" }, [
+                _c(
+                  "div",
+                  { staticClass: "form-group" },
+                  [
+                    _c("label", [_vm._v("薪酬標準")]),
+                    _vm._v(" "),
+                    _c("drop-down", {
+                      attrs: {
+                        items: _vm.wages,
+                        selected: _vm.form.teacher.wageId
+                      },
+                      on: { selected: _vm.onWageSelected }
+                    })
+                  ],
+                  1
+                )
+              ]),
+              _vm._v(" "),
+              _vm.isSpecialPay
+                ? _c("div", { staticClass: "col-sm-4" }, [
+                    _c("div", { staticClass: "form-group" }, [
+                      _c("label", [_vm._v("特殊講師鐘點費")]),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.form.teacher.pay,
+                            expression: "form.teacher.pay"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: { type: "text", name: "teacher.pay" },
+                        domProps: { value: _vm.form.teacher.pay },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(
+                              _vm.form.teacher,
+                              "pay",
+                              $event.target.value
+                            )
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.form.errors.has("teacher.pay")
+                        ? _c("small", {
+                            staticClass: "text-danger",
+                            domProps: {
+                              textContent: _vm._s(
+                                _vm.form.errors.get("teacher.pay")
+                              )
+                            }
+                          })
+                        : _vm._e()
+                    ])
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-4" })
+            ])
+          : _vm._e(),
         _vm._v(" "),
         _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-sm-12" }, [
@@ -85033,10 +85558,12 @@ var render = function() {
                     }
                   })
                 : _c("teacher-create-inputs", {
+                    ref: "createInputs",
                     attrs: {
                       form: _vm.form,
                       group: _vm.group,
                       centers: _vm.centerOptions,
+                      cities: _vm.cities,
                       wages: _vm.wageOptions
                     }
                   }),
@@ -85399,6 +85926,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_teacher_group_view_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__components_teacher_group_view_vue__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+//
 //
 //
 //
@@ -87653,6 +88181,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -87666,6 +88203,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         account: {
             type: Object,
             default: null
+        },
+        user_id: {
+            type: Number,
+            default: 0
         },
         can_edit: {
             type: Boolean,
@@ -87682,6 +88223,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             photoEditor: {
                 show: false,
                 type: 'account'
+            },
+            deleteConfirm: {
+                id: this.accountId,
+                show: false,
+                msg: ''
+
             }
         };
     },
@@ -87695,6 +88242,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         userId: function userId() {
             if (this.account) return parseInt(this.account.userId);
             return 0;
+        },
+        canCreate: function canCreate() {
+            if (!this.can_edit) return false;
+            if (this.account) return false;
+            return true;
+        },
+        canEdit: function canEdit() {
+            if (!this.can_edit) return false;
+            if (!this.account) return false;
+            return true;
+        },
+        accountId: function accountId() {
+            if (this.account) return this.account.id;
+            return 0;
+        },
+        canDelete: function canDelete() {
+            return this.canEdit;
         }
     },
     beforeMount: function beforeMount() {
@@ -87706,6 +88270,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         init: function init() {
 
             this.readOnly = true;
+            this.deleteConfirm.show = false;
         },
         beginEdit: function beginEdit() {
             this.readOnly = false;
@@ -87736,6 +88301,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }).catch(function (error) {
 
                 Helper.BusEmitError(error, '刪除失敗');
+            });
+        },
+        beginDelete: function beginDelete() {
+            var id = this.accountId;
+            this.deleteConfirm.msg = '確定要刪除此銀行帳號資料嗎?';
+            this.deleteConfirm.id = id;
+            this.deleteConfirm.show = true;
+        },
+        deleteAccount: function deleteAccount() {
+            var _this2 = this;
+
+            var id = this.deleteConfirm.id;
+            var remove = Account.remove(id);
+            remove.then(function (result) {
+                Helper.BusEmitOK('刪除成功');
+                _this2.init();
+                _this2.$emit('saved');
+            }).catch(function (error) {
+                Helper.BusEmitError(error, '刪除失敗');
+                _this2.init();
             });
         }
     }
@@ -87794,6 +88379,10 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
 //
 //
 //
@@ -88015,12 +88604,20 @@ var render = function() {
                 ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "row" }, [
-                  _c("div", { staticClass: "col-sm-12" }, [
+                  _c("div", { staticClass: "col-sm-4" }, [
                     _c("label", { staticClass: "label-title" }, [
                       _vm._v("銀行帳號")
                     ]),
                     _vm._v(" "),
                     _c("p", [_vm._v(" " + _vm._s(_vm.account.number) + " ")])
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-sm-4" }, [
+                    _c("label", { staticClass: "label-title" }, [
+                      _vm._v("金資代碼")
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [_vm._v(" " + _vm._s(_vm.account.code) + " ")])
                   ])
                 ])
               ])
@@ -88214,6 +88811,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	name: 'EditAccount',
@@ -88222,9 +88822,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			type: Number,
 			default: 0
 		},
-		role: {
-			type: String,
-			default: ''
+		user_id: {
+			type: Number,
+			default: 0
 		}
 	},
 	components: {},
@@ -88254,7 +88854,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		fetchData: function fetchData() {
 			var _this = this;
 
-			var getData = Account.edit(this.id);
+			var getData = null;
+			if (this.id) getData = Account.edit(this.id);else getData = Account.create(this.user_id);
 
 			getData.then(function (model) {
 
@@ -88269,9 +88870,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		onSubmit: function onSubmit() {
 			var _this2 = this;
 
-			var save = Account.update(this.id, this.form);
+			var save = null;
+			if (this.id) save = Account.update(this.id, this.form);else save = Account.store(this.form);
 
-			save.then(function (user) {
+			save.then(function () {
 				_this2.$emit('saved');
 				Helper.BusEmitOK('資料已存檔');
 			}).catch(function (error) {
@@ -88430,7 +89032,7 @@ var render = function() {
           _c("div", { staticClass: "row" }, [
             _c("div", { staticClass: "col-sm-3" }),
             _vm._v(" "),
-            _c("div", { staticClass: "col-sm-9" }, [
+            _c("div", { staticClass: "col-sm-3" }, [
               _c("div", { staticClass: "form-group" }, [
                 _c("label", [_vm._v("帳號")]),
                 _vm._v(" "),
@@ -88463,6 +89065,43 @@ var render = function() {
                         textContent: _vm._s(
                           _vm.form.errors.get("account.number")
                         )
+                      }
+                    })
+                  : _vm._e()
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("金資代碼")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.account.code,
+                      expression: "form.account.code"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "account.code" },
+                  domProps: { value: _vm.form.account.code },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.form.account, "code", $event.target.value)
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm.form.errors.has("account.code")
+                  ? _c("small", {
+                      staticClass: "text-danger",
+                      domProps: {
+                        textContent: _vm._s(_vm.form.errors.get("account.code"))
                       }
                     })
                   : _vm._e()
@@ -88568,7 +89207,26 @@ var render = function() {
           _vm._v(" "),
           _vm.readOnly
             ? _c("div", [
-                _vm.can_edit
+                _vm.canCreate
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-primary btn-sm",
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.beginEdit($event)
+                          }
+                        }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-plus" }),
+                        _vm._v(" 新增\r\n                ")
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.canEdit
                   ? _c(
                       "button",
                       {
@@ -88583,6 +89241,20 @@ var render = function() {
                       [
                         _c("i", { staticClass: "fa fa-edit" }),
                         _vm._v(" 編輯\r\n                ")
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.canDelete
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-danger btn-sm",
+                        on: { click: _vm.beginDelete }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-trash" }),
+                        _vm._v("  刪除\r\n                ")
                       ]
                     )
                   : _vm._e()
@@ -88606,7 +89278,7 @@ var render = function() {
                   }
                 })
               : _c("edit", {
-                  attrs: { id: _vm.account.id },
+                  attrs: { id: _vm.accountId, user_id: _vm.user_id },
                   on: { saved: _vm.onSaved, cancel: _vm.onEditCanceled }
                 })
           ],
@@ -88649,7 +89321,20 @@ var render = function() {
             1
           )
         ]
-      )
+      ),
+      _vm._v(" "),
+      _c("delete-confirm", {
+        attrs: {
+          showing: _vm.deleteConfirm.show,
+          message: _vm.deleteConfirm.msg
+        },
+        on: {
+          close: function($event) {
+            _vm.deleteConfirm.show = false
+          },
+          confirmed: _vm.deleteAccount
+        }
+      })
     ],
     1
   )
@@ -89508,7 +90193,11 @@ var render = function() {
                           _vm._v(" "),
                           _vm.activeIndex == 2
                             ? _c("bank-account", {
-                                attrs: { account: _vm.getBankAccount() },
+                                attrs: {
+                                  can_edit: _vm.teacher.canEdit,
+                                  account: _vm.getBankAccount(),
+                                  user_id: _vm.teacher.userId
+                                },
                                 on: { saved: _vm.reloadTeacher }
                               })
                             : _vm._e(),
@@ -91385,6 +92074,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 			form: null,
 
+			centerOptions: [],
+
 			submitting: false,
 
 			userSelector: {
@@ -91428,14 +92119,26 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 				if (_this.id) {
 					_this.form = new Form({
-						volunteer: _extends({}, model.volunteer)
+						volunteer: _extends({}, model.volunteer),
+						centerIds: []
 
 					});
 				} else {
 					_this.form = new Form({
 						volunteer: _extends({}, model.volunteer),
-						user: _extends({}, model.user)
+						user: _extends({}, model.user),
+						centerIds: []
 					});
+				}
+
+				if (model.centerOptions) {
+					_this.centerOptions = model.centerOptions.slice(0);
+
+					if (model.centerIds) {
+						_this.form.centerIds = model.centerIds.map(function (id) {
+							return parseInt(id);
+						});
+					}
 				}
 			}).catch(function (error) {
 				Helper.BusEmitError(error);
@@ -91443,8 +92146,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		},
 		getErrors: function getErrors() {
 			var errors = {};
-			// if(!this.form.user.phone) errors['user.phone']=['必須填寫手機'];
+			if (!this.form.user.phone) errors['user.phone'] = ['必須填寫手機'];
 
+			if (!this.form.user.profile.fullname) errors['user.profile.fullname'] = ['必須填寫姓名'];
 			if (!this.form.user.profile.sid) errors['user.profile.sid'] = ['必須填寫身分證號'];
 
 			return errors;
@@ -91599,6 +92303,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -91614,15 +92328,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         form: {
             type: Object,
             default: null
+        },
+        centers: {
+            type: Array,
+            default: null
         }
     },
     data: function data() {
         return {};
     },
 
-    computed: {},
+    computed: {
+        canEditCenters: function canEditCenters() {
+            if (!this.centers) return false;
+            return this.centers.length > 1;
+        }
+    },
     methods: {
         init: function init() {},
+        onCentersChanged: function onCentersChanged(values) {
+            this.form.centerIds = values.slice(0);
+            if (values.length) this.form.errors.clear('centerIds');
+        },
         onCanceled: function onCanceled() {
             this.$emit('canceled');
         }
@@ -91639,7 +92366,47 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _vm.form
     ? _c("div", [
-        _c("div", [_c("user-create-inputs", { attrs: { form: _vm.form } })], 1)
+        _c(
+          "div",
+          [
+            _c("user-create-inputs", { attrs: { form: _vm.form } }),
+            _vm._v(" "),
+            _vm.canEditCenters
+              ? _c("div", { staticClass: "form-group" }, [
+                  _c("label", { staticClass: "col-md-2 control-label" }, [
+                    _vm._v("所屬中心")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-md-10" },
+                    [
+                      _c("check-box-list", {
+                        attrs: {
+                          options: _vm.centers,
+                          default_values: _vm.form.centerIds
+                        },
+                        on: { "select-changed": _vm.onCentersChanged }
+                      }),
+                      _vm._v(" "),
+                      _vm.form.errors.has("centerIds")
+                        ? _c("small", {
+                            staticClass: "text-danger",
+                            domProps: {
+                              textContent: _vm._s(
+                                _vm.form.errors.get("centerIds")
+                              )
+                            }
+                          })
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ])
+              : _vm._e()
+          ],
+          1
+        )
       ])
     : _vm._e()
 }
@@ -92127,8 +92894,12 @@ var render = function() {
             },
             [
               _vm.id
-                ? _c("volunteer-inputs", { attrs: { form: _vm.form } })
-                : _c("volunteer-create-inputs", { attrs: { form: _vm.form } }),
+                ? _c("volunteer-inputs", {
+                    attrs: { form: _vm.form, centers: _vm.centerOptions }
+                  })
+                : _c("volunteer-create-inputs", {
+                    attrs: { form: _vm.form, centers: _vm.centerOptions }
+                  }),
               _vm._v(" "),
               _c("submit-buttons", {
                 attrs: { is_create: _vm.isCreate, submitting: _vm.submitting },

@@ -5,10 +5,13 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Profile;
+use App\ContactInfo;
+use App\Address;
 use App\Role;
 use App\Account;
 use App\Identity;
 use App\Core\Helper;
+use DB;
 
 class User extends Authenticatable
 {
@@ -141,7 +144,22 @@ class User extends Authenticatable
     public function getContactInfo()
 	{
 		return $this->contactInfoes->first();
-	}
+    }
+    public function setContactInfo(array $contactInfoValues , array $addressValues)
+	{
+		$exist=$this->getContactInfo();
+		if($exist){
+			$exist->address->update($addressValues);
+			$exist->update($contactInfoValues);
+		}else{
+			DB::transaction(function() use($contactInfoValues,$addressValues) {
+                $contactInfoValues['userId'] = $this->id;
+                $contactInfo =ContactInfo::create($contactInfoValues);
+				$contactInfo->address()->save(new Address($addressValues));
+			});
+		}
+    }
+    
 	public function loadContactInfo()
 	{
 		$this->contactInfo=$this->getContactInfo();

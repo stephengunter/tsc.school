@@ -44,7 +44,7 @@
             
         </div>
         <div class="form-group">
-            <label class="col-md-2 control-label">職稱</label>
+            <label class="col-md-2 control-label">現職</label>
             <div class="col-md-4">
                 <input type="text" name="teacher.jobtitle" class="form-control" v-model="form.teacher.jobtitle"  >
                 <small class="text-danger" v-if="form.errors.has('teacher.jobtitle')" v-text="form.errors.get('teacher.jobtitle')"></small>
@@ -71,8 +71,8 @@
                 
                 <small class="text-danger" v-if="form.errors.has('teacher.experiences')" v-text="form.errors.get('teacher.experiences')"></small>
             </div>
-            <label class="col-md-2 control-label">個人簡介</label>
-            <div class="col-md-4">
+            <label v-if="false" class="col-md-2 control-label">個人簡介</label>
+            <div v-if="false" class="col-md-4">
                 <textarea rows="6" cols="50" class="form-control" name="teacher.description"  v-model="form.teacher.description">
                 </textarea>
                 
@@ -93,12 +93,56 @@
 			</div>
         </div>
         <div class="form-group">
-            <label class="col-md-2 control-label">銀行帳號</label>
+            <label class="col-md-2 control-label">市話</label>
             <div class="col-md-4">
-                <input type="text" name="teacher.accountNumber" class="form-control" v-model="form.teacher.accountNumber"  >
-                <small class="text-danger" v-if="form.errors.has('teacher.accountNumber')" v-text="form.errors.get('teacher.accountNumber')"></small>
-			</div>
+                <input type="text"  name="contactInfo.tel" v-model="form.contactInfo.tel" class="form-control" >
+                     
+            </div>
+            
         </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">通訊地址</label>
+            <div class="col-md-10 form-inline">
+                <select v-model="form.contactInfo.address.cityId" @change="onCityChanged" style="width:auto;" class="form-control selectWidth">
+                    <option v-for="(city,index) in cities" :key="index" :value="city.id" v-text="city.name" >
+                    </option>
+                </select>
+                <select v-model="form.contactInfo.address.districtId" style="width:auto;" class="form-control selectWidth">
+                    <option v-for="(d,index) in districts" :key="index" :value="d.id" v-text="d.name">
+                    </option>
+                </select> 
+                <input type="text"  name="contactInfo.address.street" v-model="form.contactInfo.address.street" class="form-control" style="width:480px" >
+                <small class="text-danger" v-if="form.errors.has('contactInfo.address.street')" v-text="form.errors.get('contactInfo.address.street')"></small>
+                        
+            </div>
+            
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">第二地址</label>
+            <div class="col-md-10 form-inline">
+                <select v-model="ubeAddress.cityId" @change="onUbeCityChanged" style="width:auto;" class="form-control selectWidth">
+                    <option v-for="(city,index) in cities" :key="index" :value="city.id" v-text="city.name" >
+                    </option>
+                </select>
+                <select v-model="ubeAddress.districtId" style="width:auto;" class="form-control selectWidth">
+                    <option v-for="(d,index) in ubeDistricts" :key="index" :value="d.id" v-text="d.name">
+                    </option>
+                </select> 
+                <input type="text"  name="ubeAddress.street" v-model="ubeAddress.street" class="form-control" style="width:480px" >
+                     
+            </div>
+            
+        </div>
+        
+        <div  class="form-group">
+            <label class="col-md-2 control-label">備註</label>
+            <div class="col-md-10">
+                
+                <input type="text" name="teacher.ps" class="form-control" v-model="form.teacher.ps"  >
+            </div>
+            
+        </div>
+        
     </div>
 </div>    
 </template>
@@ -126,11 +170,23 @@ export default {
         wages:{
             type: Array,
             default: null
+        },
+        cities:{
+            type: Array,
+            default: null
         }
     },
     data(){
 		return {
-            isSpecialPay:false
+            isSpecialPay:false,
+            districts:[],
+            ubeDistricts:[],
+
+            ubeAddress:{
+                cityId:0,
+                districtId:0,
+                street:''
+            }
 		}
 	},
     computed:{
@@ -146,12 +202,21 @@ export default {
     methods:{
         init() {
             if(!this.group){
+               
                 let wage=this.wages.find(item=>{
                     return item.value==this.form.teacher.wageId;
                 });
 
                 this.isSpecialPay=Wage.isSpecial(wage);
+
+                this.onCityChanged();
+
+                this.ubeAddress.cityId=this.form.contactInfo.address.cityId;               
+                this.onUbeCityChanged();
+            
             }
+
+            
            
 
         },
@@ -160,6 +225,46 @@ export default {
             
             this.isSpecialPay= Wage.isSpecial(item);
             
+        },
+        onCityChanged(){
+            let getDistrictId=this.loadDistricts();	
+            getDistrictId.then(districtId => {
+                this.form.contactInfo.address.districtId=districtId;
+            })
+        },
+        onUbeCityChanged(){
+            let getDistrictId=this.loadUbeDistricts();	
+            getDistrictId.then(districtId => {
+                this.ubeAddress.districtId=districtId;
+            })
+        },
+        loadDistricts(){
+            return new Promise((resolve, reject) => {
+                
+                let cityId=this.form.contactInfo.address.cityId;
+                let city= this.cities.find((item)=>{
+                    return item.id == cityId;
+                });
+            
+                this.districts=city.districts.slice(0);
+                resolve(this.districts[0].id);
+                
+
+            })
+        },
+        loadUbeDistricts(){
+            return new Promise((resolve, reject) => {
+                
+                let cityId=this.ubeAddress.cityId;
+                let city= this.cities.find((item)=>{
+                    return item.id == cityId;
+                });
+            
+                this.ubeDistricts=city.districts.slice(0);
+                resolve(this.ubeDistricts[0].id);
+                
+
+            })
         },
         onCentersChanged(values){
             this.form.centerIds=values.slice(0);
@@ -171,6 +276,16 @@ export default {
         clearDOB(){
             this.dob.time=''
         },
+        getUbeAddress(){
+            if(!this.ubeAddress.street) return '';
+            let city= this.cities.find((item)=>{
+                    return item.id == this.ubeAddress.cityId;
+            });
+            let district= this.ubeDistricts.find((item)=>{
+                return item.id == this.ubeAddress.districtId;
+            });
+            return city.name + district.name + this.ubeAddress.street;
+        }
     }
 }
 </script>

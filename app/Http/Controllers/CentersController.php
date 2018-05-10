@@ -16,10 +16,12 @@ use App\Services\Files;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
+use App\Core\Addresses;
 use Illuminate\Support\Facades\Input;
 
 class CentersController extends Controller
 {
+    use Addresses;
     
     public function __construct(Centers $centers,Files $files)
     {
@@ -38,25 +40,7 @@ class CentersController extends Controller
         return $this->currentUser->admin->isHeadCenterAdmin();
     }
    
-    function areaOptions()
-    {
-        $areas=Area::all();
-
-        $options = $areas->map(function ($item) {
-            return [ 'text' => $item->name ,  'value' => $item->id ];
-        })->all();
-
-        array_unshift($options, ['text' => '----------' , 'value' =>'']);
-       
-
-        return $options;
-    }
-
-    function cityOptions()
-    {
-        $cities=City::with(['districts'])->get(); 
-        return $cities;
-    }
+    
 
     public function seedDiscountCenters()
     {

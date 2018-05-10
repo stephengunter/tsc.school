@@ -52,8 +52,24 @@ class TeacherRequest extends FormRequest
     public function getUserValues()
     {
         return $this->get('user');
-        
     }
+
+    
+    public function getContactInfoValues()
+    {
+        $values=$this->get('contactInfo');
+      
+       
+        return  array_except($values, ['address']);
+    }
+
+    public function getAddressValues()
+    {
+        
+        $values=array_only($this->get('contactInfo'), ['address']);
+        return $values['address'];
+    }
+    
 
     public function getCenterIds()
     {

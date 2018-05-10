@@ -166,10 +166,10 @@
                 
             },
             beginDelete(){
-                let id=this.contactInfo.id
-                this.deleteConfirm.msg='確定要刪除聯絡資訊嗎？'
-                this.deleteConfirm.id=id
-                this.deleteConfirm.show=true                
+                let id=this.contactInfo.id;
+                this.deleteConfirm.msg='確定要刪除聯絡資訊嗎?';
+                this.deleteConfirm.id=id;
+                this.deleteConfirm.show=true;                
             },
             closeConfirm(){
                 this.deleteConfirm.show=false;

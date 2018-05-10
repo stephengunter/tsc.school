@@ -16,6 +16,12 @@
                 <label class="label-title">通訊地址</label>
                 <p v-text="model.address.fullText"></p>                     
             </div>
+        </div> 
+        <div class="row">
+            <div class="col-sm-6">
+                <label class="label-title">第二地址</label>
+                <p v-text="model.address.ube"></p>                     
+            </div>
         </div>   
     </div> 
 </template>

@@ -21,6 +21,7 @@ class CreateAddressesTable extends Migration
            
             $table->integer('districtId')->unsigned()->nullable();
             $table->string('street')->nullable();
+            $table->string('ube')->nullable();
             $table->integer('updatedBy')->unsigned()->nullable();
             $table->timestamps();
         });

@@ -171,13 +171,10 @@ class Users
 		
 		$user->roles()->attach($role);
 	}
-	public function getContactInfo(User $user)
-	{
-		return $user->contactInfoes->first();
-	}
+	
 	public function setContactInfo(User $user, ContactInfo $contactInfo , Address $address)
 	{
-		$exist=$this->getContactInfo($user);
+		$exist=$user->getContactInfo();
 		if($exist){
 			$exist->address->update($address->toArray());
 			$exist->update($contactInfo->toArray());
@@ -266,6 +263,9 @@ class Users
 		
 
 		if($sid){
+			$isValid=Helper::checkSID($sid);
+			if(!$isValid) $errors['user.profile.sid'] = ['身分證號錯誤'];
+
 			$existUser=$this->findBySID($sid);
 			if($existUser && $existUser->id!=$id){
 				$errors['user.profile.sid'] = ['身分證號重複了'];

@@ -2,9 +2,9 @@
     <div>
 		<form v-if="form" :class="formStyle" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
 			
-			<volunteer-inputs v-if="id"  :form="form">
+			<volunteer-inputs v-if="id"  :form="form"  :centers="centerOptions" >
 			</volunteer-inputs>
-			<volunteer-create-inputs  v-else :form="form" >
+			<volunteer-create-inputs  v-else :form="form"  :centers="centerOptions" >
 			</volunteer-create-inputs> 
 			
 			
@@ -58,7 +58,9 @@ export default {
 	data(){
 		return {
 
-            form:null,
+			form:null,
+			
+			centerOptions:[],
             
 			submitting:false,
 			
@@ -104,7 +106,7 @@ export default {
 						volunteer:{
 							...model.volunteer
 						},
-						
+						centerIds:[]
 						
 					});
 				}else{
@@ -114,8 +116,20 @@ export default {
 						},
 						user:{
 							...model.user
-						}
+						},
+						centerIds:[]
 					});
+				}
+
+				if(model.centerOptions){
+					this.centerOptions=model.centerOptions.slice(0);
+					
+					if(model.centerIds){
+						this.form.centerIds=model.centerIds.map((id)=>{
+							return parseInt(id);
+						});
+					}
+					
 				}
 				
 			})
@@ -125,10 +139,10 @@ export default {
 		},
 		getErrors(){
 			let errors={ };
-			// if(!this.form.user.phone) errors['user.phone']=['必須填寫手機'];
+			if(!this.form.user.phone) errors['user.phone']=['必須填寫手機'];
 
+			if(!this.form.user.profile.fullname) errors['user.profile.fullname'] =['必須填寫姓名'];
 			if(!this.form.user.profile.sid) errors['user.profile.sid'] =['必須填寫身分證號'];
-			
 		
 			return errors;
 		},

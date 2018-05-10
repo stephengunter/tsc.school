@@ -34,6 +34,14 @@
             
                     </div>
                 </div> 
+                <div class="form-group">
+                    <label class="col-md-2 control-label" >第二地址</label>
+                    <div class="col-md-8">
+                        
+                        <input type="text"  name="contactInfo.address.ube" v-model="form.contactInfo.address.ube" class="form-control" style="width:480px" >
+                       
+                    </div>
+                </div> 
                 <div  class="form-group">
                     <div class="col-md-2">
                         

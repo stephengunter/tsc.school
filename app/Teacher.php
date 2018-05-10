@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Center;
+use App\ContactInfo;
 use App\Core\Centers;
 
 class Teacher extends Model
@@ -43,7 +44,7 @@ class Teacher extends Model
 
             'ps' => '',
             
-            'accountNumber' => '',
+           
 
 		];
     }  

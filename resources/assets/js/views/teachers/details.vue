@@ -58,7 +58,8 @@
                         @created="reloadTeacher" @deleted="reloadTeacher" >             
                     </contact-info> 
 
-                    <bank-account v-if="activeIndex==2" :account="getBankAccount()"
+                    <bank-account v-if="activeIndex==2" :can_edit="teacher.canEdit"
+                     :account="getBankAccount()" :user_id="teacher.userId"
                      @saved="reloadTeacher">
 
                     </bank-account>

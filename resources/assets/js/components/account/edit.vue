@@ -5,14 +5,7 @@
 		<div class="row">
 			<div class="col-sm-3">
 				<div class="text-center">
-					<!-- <photo :id="photo_id"></photo>
-					<h5>個人相片</h5>
-					<button @click.prevent="editPhoto(1)" title="編輯相片" class="btn btn-info btn-xs">                                 
-						<span class="glyphicon glyphicon-pencil"></span>
-					</button> 
-					<button v-show="photo_id" @click.prevent="editPhoto(0)" type="button" class="btn btn-danger btn-xs"  data-toggle="tooltip" title="刪除相片">
-						<span class="glyphicon glyphicon-trash"></span>
-					</button> -->
+					
 					
 				</div>
 			</div>
@@ -58,7 +51,7 @@
 				
 				
 			</div>
-			<div class="col-sm-9">
+			<div class="col-sm-3">
 				<div class="form-group">
 					
 					<label>帳號</label>
@@ -66,7 +59,17 @@
 					<small class="text-danger" v-if="form.errors.has('account.number')" v-text="form.errors.get('account.number')"></small>
 				</div>
 			</div>
-			
+			<div class="col-sm-3">
+				<div class="form-group">
+					
+					<label>金資代碼</label>
+					<input type="text" name="account.code" class="form-control" v-model="form.account.code" >
+					<small class="text-danger" v-if="form.errors.has('account.code')" v-text="form.errors.get('account.code')"></small>
+				</div>
+				
+				
+				
+			</div>
             
         
     	</div>
@@ -111,9 +114,9 @@ export default {
             type: Number,
             default: 0
 		},
-		role:{
-			type: String,
-            default: ''	
+		user_id:{
+			type: Number,
+			default: 0
 		}
 	},
 	components: {
@@ -144,27 +147,31 @@ export default {
 			this.$emit('cancel');
 		},
 		fetchData(){
-            let getData=Account.edit(this.id);
+			let getData=null;
+			if(this.id) getData=Account.edit(this.id);
+			else getData=Account.create(this.user_id);
 
 			getData.then(model => {
-				
-				this.form = new Form({
-					account:{
-						...model.account
-					}
 					
-				});
-				
-			})
-			.catch(error=> {
-				Helper.BusEmitError(error); 
-			})
+					this.form = new Form({
+						account:{
+							...model.account
+						}
+						
+					});
+					
+				})
+				.catch(error=> {
+					Helper.BusEmitError(error); 
+				})
+            
         },
 		onSubmit(){
-           
-            let save=Account.update(this.id,this.form);
+            let save=null;
+			if(this.id) save=Account.update(this.id,this.form);
+			else save=Account.store(this.form);
 
-			save.then(user => {
+			save.then(() => {
                     this.$emit('saved');
 					Helper.BusEmitOK('資料已存檔');
 				})

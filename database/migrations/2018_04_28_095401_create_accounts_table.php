@@ -22,6 +22,7 @@ class CreateAccountsTable extends Migration
             $table->string('branch')->nullable();
             $table->string('owner')->nullable();
             $table->string('number');
+            $table->string('code')->nullable();
             
             $table->integer('updatedBy')->unsigned()->nullable();
             $table->timestamps();

@@ -38,11 +38,15 @@
                     </div>    
                 </div> <!-- End Row -->
                 <div class="row">
-                    <div class="col-sm-12">
+                   
+                    <div class="col-sm-4">
                         <label class="label-title">銀行帳號</label>
                         <p> {{ account.number }} </p>
                     </div>  
-                    
+                    <div class="col-sm-4">
+                        <label class="label-title">金資代碼</label>
+                        <p> {{ account.code }} </p>                         
+                    </div> 
                 </div>  <!-- End Row -->
                 
                 

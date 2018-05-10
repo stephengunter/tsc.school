@@ -13,8 +13,8 @@ class Account {
     static showUrl(id){
         return `${this.source()}/${id}`;
     }
-    static createUrl() {
-        return this.source() + '/create';
+    static createUrl(user) {
+        return this.source() + '/create?user=' + user;
     }
     static storeUrl() {
         return this.source();
@@ -23,6 +23,9 @@ class Account {
         return `${this.source()}/${id}/edit`;
     }
     static updateUrl(id) {
+        return this.source() + `/${id}`;
+    }
+    static deleteUrl(id){
         return this.source() + `/${id}`;
     }
    
@@ -42,8 +45,8 @@ class Account {
     }
 
  
-    static create() {
-        let url = this.createUrl();
+    static create(user) {
+        let url = this.createUrl(user);
  
         return new Promise((resolve, reject) => {
             axios.get(url)

@@ -115,10 +115,23 @@ class VolunteersController extends Controller
         $volunteer=Volunteer::init();
         $user=User::init();
 
+        $centersCanAdmin= $this->centersCanAdmin();
+        $centerOptions = $centersCanAdmin->map(function ($item) {
+            return [ 'text' => $item->name ,  'value' => $item->id ];
+        })->all();
+
+        $centerIds=[];
+        if (count($centerOptions))
+        {
+            array_push($centerIds,$centerOptions[0]['value']);
+        }
       
         $form=[
             'volunteer' => $volunteer,
             'user' => $user,
+
+            'centerOptions' => $centerOptions,
+            'centerIds' => $centerIds,
 
         ];
 

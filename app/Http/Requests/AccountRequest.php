@@ -23,6 +23,17 @@ class AccountRequest extends FormRequest
         return $id;
     }
 
+    public function getUserId()
+    {
+        $values = $this->get('account');
+       
+        $userId=0;        
+        if(array_key_exists ( 'userId' ,$values)){
+            $userId=(int)$values['userId'];
+        }  
+        return $userId;
+    }
+
    
    
     public function rules()

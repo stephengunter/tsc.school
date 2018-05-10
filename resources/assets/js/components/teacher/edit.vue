@@ -5,7 +5,7 @@
 		<teacher-inputs v-if="id" :group="group"  :form="form" :centers="centerOptions"
 		   :wages="wageOptions">
 		</teacher-inputs>
-		<teacher-create-inputs  v-else :form="form" :group="group" :centers="centerOptions"
+		<teacher-create-inputs ref="createInputs" v-else :form="form" :group="group" :centers="centerOptions" :cities="cities"
 		 :wages="wageOptions">
 		</teacher-create-inputs> 
 		
@@ -66,6 +66,8 @@ export default {
 
 			centerOptions:[],
 			wageOptions:[],
+
+			cities:[],
 
             form:null,
             
@@ -143,13 +145,19 @@ export default {
 							user:{
 								...model.user
 							},
+							contactInfo:{
+								...model.contactInfo
+							},
 							centerIds:[]
 						});
+
+						this.cities=model.cityOptions.slice(0);
 					}
 					
 					this.form.teacher.experiences=Helper.replaceAll(this.form.teacher.experiences,'<br>' , '\n')
 					
 					this.wageOptions=model.wageOptions.slice(0);
+					
 					
 					this.form.teacher.pay=Helper.formatMoney(this.form.teacher.pay);
 					
@@ -278,10 +286,13 @@ export default {
 		},
 		submitTeacher(){
 			this.submitting=true;
+			
 
 			let save=null;
 			if(this.id) save=Teacher.update(this.id,this.form);
 			else{
+				let ubeAddress=this.$refs.createInputs.getUbeAddress();
+				this.form.contactInfo.address.ube=ubeAddress;
 				save=Teacher.store(this.form);
 				this.form.teacher.user={...this.form.user } ;
 			} 

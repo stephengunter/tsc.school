@@ -23,6 +23,24 @@ class ContactInfoesController extends Controller
         $this->contactInfoes=$contactInfoes;
      
     }
+
+    function canEdit(User $user)
+    {
+        if($this->currentUserIsDev()) return true;
+        if($user->teacher){
+            if(!count($user->teacher->centers)) return true;
+
+            return $this->canAdminCenters($user->teacher->centers);
+        }
+        if($user->admin){
+            if(!count($user->admin->centers)) return true;
+
+            return $this->canAdminCenters($user->admin->centers);
+        }
+        return true;
+    }
+
+
     function cityOptions()
     {
         $cities=City::with(['districts'])->get(); 
@@ -111,7 +129,7 @@ class ContactInfoesController extends Controller
         $contactInfo->update($contactInfoValues);
         $contactInfo->address->update($addressValues);
 
-        return response() ->json();
+        return response()->json();
     }
 
     public function destroy($id) 

@@ -64,7 +64,7 @@
     <div class="row">
         <div class="col-sm-4">
             <div class="form-group">                           
-                <label>職稱</label>
+                <label>現職</label>
                 <input type="text" name="teacher.jobtitle" class="form-control" v-model="form.teacher.jobtitle"  >
                 <small class="text-danger" v-if="form.errors.has('teacher.jobtitle')" v-text="form.errors.get('teacher.jobtitle')"></small>
             </div>
@@ -96,7 +96,7 @@
                 <small class="text-danger" v-if="form.errors.has('teacher.experiences')" v-text="form.errors.get('teacher.experiences')"></small>
             </div>
         </div>
-        <div class="col-sm-8">
+        <div v-if="false" class="col-sm-8">
             <div class="form-group">
                 <label>個人簡介</label>
                 <textarea rows="6" cols="50" class="form-control" name="teacher.description"  v-model="form.teacher.description">
@@ -105,12 +105,6 @@
                 <small class="text-danger" v-if="form.errors.has('teacher.description')" v-text="form.errors.get('teacher.description')"></small>
             </div>
         </div>
-        <div class="col-sm-4">
-           
-        </div>
-
-    </div>  <!-- end row-->
-    <div class="row">
         <div class="col-sm-4">
             <div class="form-group">                           
                 <label>薪酬標準</label>
@@ -127,11 +121,23 @@
                 <small class="text-danger" v-if="form.errors.has('teacher.pay')" v-text="form.errors.get('teacher.pay')"></small>
             </div>
         </div>
+
+    </div>  <!-- end row-->
+    <div v-if="false" class="row">
         <div class="col-sm-4">
             <div class="form-group">                           
-                <label>銀行帳號</label>
-                <input type="text" name="teacher.accountNumber" class="form-control" v-model="form.teacher.accountNumber"  >
-                <small class="text-danger" v-if="form.errors.has('teacher.accountNumber')" v-text="form.errors.get('teacher.accountNumber')"></small>
+                <label>薪酬標準</label>
+                <drop-down :items="wages" :selected="form.teacher.wageId"
+                    @selected="onWageSelected">
+                </drop-down>
+                
+            </div>
+        </div>
+        <div class="col-sm-4" v-if="isSpecialPay">
+            <div class="form-group">                           
+                <label>特殊講師鐘點費</label>
+                <input type="text" name="teacher.pay" class="form-control" v-model="form.teacher.pay"  >
+                <small class="text-danger" v-if="form.errors.has('teacher.pay')" v-text="form.errors.get('teacher.pay')"></small>
             </div>
         </div>
         <div class="col-sm-4">

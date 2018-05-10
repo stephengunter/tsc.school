@@ -78,14 +78,22 @@
                 <label class="label-title">經歷</label>
                 <p v-html="teacher.experiences"></p>                     
             </div>
-            <div class="col-sm-8">
+            <div class="col-sm-4">
+                <label class="label-title">薪酬標準</label>
+                <p>{{ teacher.wage.name }}</p>           
+            </div>
+            <div class="col-sm-4" v-if="specialPay(teacher)">
+                <label class="label-title">特殊講師鐘點費</label>
+                <p>{{ teacher.pay | formatMoney }}</p>           
+            </div>
+            <div v-if="false" class="col-sm-8">
                 <label class="label-title">個人簡介</label>
                 <p v-html="teacher.description"></p> 
             </div>
             
                 
         </div>   <!-- End row-->
-        <div class="row">
+        <div v-if="false" class="row">
             <div class="col-sm-4">
                 <label class="label-title">薪酬標準</label>
                 <p>{{ teacher.wage.name }}</p>           
@@ -95,8 +103,7 @@
                 <p>{{ teacher.pay | formatMoney }}</p>           
             </div>
             <div class="col-sm-4">
-                <label class="label-title">銀行帳號</label> 
-                 <p v-text="accountNumber(teacher)"></p>        
+                   
             </div>
         </div>  
         <div class="row">
@@ -155,9 +162,6 @@
             specialPay(teacher){
                 let pay=Number(teacher.pay);
                 return pay > 0;
-            },
-            accountNumber(teacher){
-                return Teacher.accountNumber(teacher);
             },
             centerNames(teacher){
               

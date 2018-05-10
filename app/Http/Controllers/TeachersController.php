@@ -9,6 +9,7 @@ use App\Http\Requests\TeacherRequest;
 use App\Teacher;
 use App\Wage;
 use App\User;
+use App\ContactInfo;
 use App\Profile;
 use App\Account;
 use App\Center;
@@ -23,11 +24,13 @@ use App\Services\Wages;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
+use App\Core\Addresses;
 use Illuminate\Support\Facades\Input;
 
 class TeachersController extends Controller
 {
-    
+    use Addresses;
+
     public function __construct(Teachers $teachers, TeacherGroups $teacherGroups ,Users $users,
         Centers $centers ,Courses $courses,Wages $wages,Files $files)
     {
@@ -40,6 +43,8 @@ class TeachersController extends Controller
         $this->files=$files;
        
     }
+
+    
 
     function canEdit($teacher)
     {
@@ -231,6 +236,9 @@ class TeachersController extends Controller
         $teacher=Teacher::init();
         $user=User::init();
 
+        $contactInfo = ContactInfo::init();
+        $cityOptions=$this->cityOptions();
+        $contactInfo['address']['cityId']=$cityOptions->first()->id;
     
         $centersCanAdmin= $this->centersCanAdmin();
         $centerOptions = $centersCanAdmin->map(function ($item) {
@@ -249,9 +257,11 @@ class TeachersController extends Controller
         $form=[
             'teacher' => $teacher,
             'user' => $user,
+            'contactInfo' => $contactInfo,
             'centerOptions' => $centerOptions,
             'centerIds' => $centerIds,
             'wageOptions' => $this->wages->options(),
+            'cityOptions' => $cityOptions
         ];
 
         return response() ->json($form);
@@ -279,8 +289,6 @@ class TeachersController extends Controller
                 if(!$pay) 	$errors['teacher.pay'] = ['必須填寫特殊講師鐘點費'];
             }
 
-            if(!$values['accountNumber']) 	$errors['teacher.accountNumber'] = ['必須填寫銀行帳號'];
-
         }
 
         return $errors;
@@ -288,11 +296,15 @@ class TeachersController extends Controller
 
     public function store(TeacherRequest $request)
     {
-
+        
         $teacherValues=$request->getTeacherValues();
         $userValues=$request->getUserValues();
         $profileValues= $userValues['profile'];
 
+        $contactInfoValues= $request->getContactInfoValues();
+        $addressValues= $request->getAddressValues();
+       
+        
         
         $errors=$this->users->validateUserInputs($userValues,Role::teacherRoleName());
         if($errors) return $this->requestError($errors);
@@ -313,6 +325,8 @@ class TeachersController extends Controller
         $teacherValues['updatedBy']=$updatedBy;
         $userValues['updatedBy']=$updatedBy;
         $profileValues['updatedBy']=$updatedBy;
+        $contactInfoValues['updatedBy']=$updatedBy;
+        $addressValues['updatedBy']=$updatedBy;
         
         $userValues=array_except($userValues,['profile']);
         $userId=$request->getUserId();
@@ -326,30 +340,25 @@ class TeachersController extends Controller
             
         }else{
           
-           $user=$this->users-> createUser(new User($userValues),new Profile($profileValues));
+           $user=$this->users->createUser(new User($userValues),new Profile($profileValues));
            $userId=$user->id;
          
         }
 
-        $accountValues=[
-            'number' => $teacherValues['accountNumber'],
-            'updatedBy' => $updatedBy,
-        ];
+        $user->setContactInfo($contactInfoValues,$addressValues);
 
         $teacher=Teacher::find($userId);
         if($teacher){
             $this->teachers->updateTeacher($teacher,$teacherValues);
-           
             $teacher->addRole();
-
-            $teacher->setAccount($accountValues);
+            $teacher->addToCentersByIds($centerIds);
 
         }else{
-            $teacher=$this->teachers->createTeacher($user,new Teacher($teacherValues), new Account($accountValues));
+            $teacher=$this->teachers->createTeacher($user,new Teacher($teacherValues),$centerIds);
             $teacher->userId=$userId;
         }
 
-        $teacher->centers()->sync($centerIds);
+        
        
         return response() ->json($teacher);
     }
@@ -438,13 +447,7 @@ class TeachersController extends Controller
         $values['updatedBy'] = $current_user->id;
 
         $this->teachers->updateTeacher($teacher,$values);
-
-        $accountValues=[
-            'number' => $values['accountNumber'],
-            'updatedBy' =>  $current_user->id
-        ];
-
-        $teacher->setAccount($accountValues);
+        
      
         $centerIds=$request->getCenterIds();
         if(!count($centerIds)){
@@ -454,7 +457,7 @@ class TeachersController extends Controller
 
         $teacher->centers()->sync($centerIds);
 
-        return response() ->json();
+        return response()->json();
     }
 
     public function review(Request $form)

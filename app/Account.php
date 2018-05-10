@@ -6,16 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Account extends Model
 {
-    protected $fillable = ['userId','photoId' ,'bank', 'branch', 'owner' ,
+    protected $fillable = ['userId','photoId' ,'bank', 'branch', 'owner' ,'code',
      'number', 'updatedBy' ];
 						 
 	public static function init()
 	{
 		return [
+			'userId' => '',
 			'bank' => '',
 			'branch' => '',
             'owner' => '',
-            'number' => '',
+			'number' => '',
+			'code' => ''
 
 		];
     }	
@@ -23,5 +25,11 @@ class Account extends Model
     public function user() 
 	{
 		return $this->hasOne('App\User', 'id' , 'userId');
-    }
+	}
+	
+	public function getPhoto()
+	{
+		if($this->photoId) return Photo::find($this->photoId);
+		return null;
+	}
 }

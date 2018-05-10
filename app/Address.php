@@ -8,7 +8,7 @@ class Address extends Model
 {
 	protected $primaryKey = 'contactInfoId';
 
-  	protected $fillable = [ 'districtId', 'street', 'updatedBy' ];
+  	protected $fillable = [ 'districtId', 'street', 'updatedBy','ube' ];
 	
 	public static function init()
 	{
@@ -16,7 +16,8 @@ class Address extends Model
 			'cityId' => 0,
 			'districtId' => 0,
 			'street' => '',
-			'zipCode' => ''
+			'zipCode' => '',
+			'ube' => ''
 		];
 	}
     
