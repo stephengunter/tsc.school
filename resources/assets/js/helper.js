@@ -87,9 +87,9 @@ class Helper {
 		return CommonService.formatMoney(money, wantInt);
 	}
 
-	static numberOptions(min, max, desc) {
+	static numberOptions(min, max, desc,space) {
 
-        return CommonService.numberOptions(min, max, desc)
+        return CommonService.numberOptions(min, max, desc,space)
 	}
 	static replaceAll(strVal, oldVal, newVal) {
         if (!strVal) return ''

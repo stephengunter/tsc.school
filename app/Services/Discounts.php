@@ -31,6 +31,19 @@ class Discounts
     {
         return $this->getAll()->where('code',$code)->first();
     }
+
+    public function fetchDiscounts($key,bool $active = true)
+    {
+        
+        $discounts=$this->getAll()->where('key',$key)->where('active',$active);
+
+        return $discounts;
+    }
+
+    public function getOrdered($discounts)
+    {
+        return $discounts;
+    }
         
     public function getIdentitiesOptions(Center $center)
     {

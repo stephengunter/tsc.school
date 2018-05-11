@@ -60,7 +60,6 @@ class Teachers
     {
       
         $user->teacher()->save($teacher);
-        //$user->setAccount($account);
 
         $teacher->userId=$user->id;
         if($centerIds) $teacher->centers()->sync($centerIds);

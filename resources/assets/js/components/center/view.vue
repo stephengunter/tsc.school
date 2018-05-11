@@ -14,6 +14,10 @@
                     <i class="fa fa-edit"></i> 
                     編輯
                 </button>
+                <button v-if="center.canDelete"  @click.prevent="beginDelete" class="btn btn-danger btn-sm" >
+                    <i class="fa fa-trash"></i> 
+                    刪除
+                </button>
             </div>
         </div> 
         <show v-if="readOnly"  :center="center">  
@@ -22,6 +26,10 @@
            @saved="onSaved"   @canceled="onEditCanceled" >                 
         </edit>
     </div>
+
+    <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
+      @close="deleteConfirm.show=false" @confirmed="deleteCenter">        
+    </delete-confirm>
 </div>
 </template>
 <script>
@@ -130,6 +138,33 @@
             },
             onEditCanceled(){
                 this.init();
+            },
+            beginDelete(){
+                let name=this.center.name;
+                let id= this.center.id;
+
+                this.deleteConfirm.msg='確定要刪除 ' + name + ' 嗎?'
+                this.deleteConfirm.id=id;
+                this.deleteConfirm.show=true;                
+            },
+            deleteCenter(){
+             
+                let id = this.deleteConfirm.id; 
+                let remove=Center.remove(id);
+                
+                this.deleteConfirm.show=false;
+
+                remove.then(() => {
+                    Helper.BusEmitOK('刪除成功')
+                    this.$emit('deleted')
+                })
+                .catch(error => {
+                    Helper.BusEmitError(error,'刪除失敗')
+                    this.closeConfirm()   
+                })
+
+                   
+                
             },
             onSaved(){
                 this.init();

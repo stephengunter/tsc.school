@@ -2,9 +2,11 @@
     <div>
 		<form v-if="form" :class="formStyle" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
 			
-			<volunteer-inputs v-if="id"  :form="form"  :centers="centerOptions" >
+			<volunteer-inputs v-if="id"  :form="form"  :centers="centerOptions" :weekdays="weekdayOptions"
+			:time_options="timeOptions">
 			</volunteer-inputs>
-			<volunteer-create-inputs  v-else :form="form"  :centers="centerOptions" >
+			<volunteer-create-inputs  v-else :form="form"  :centers="centerOptions" :cities="cities"
+			 :weekdays="weekdayOptions" :time_options="timeOptions">
 			</volunteer-create-inputs> 
 			
 			
@@ -61,6 +63,12 @@ export default {
 			form:null,
 			
 			centerOptions:[],
+
+			weekdayOptions:[],
+
+			timeOptions:Volunteer.timeOptions(),
+
+			cities:[],
             
 			submitting:false,
 			
@@ -106,7 +114,8 @@ export default {
 						volunteer:{
 							...model.volunteer
 						},
-						centerIds:[]
+						centerIds:model.centerIds.slice(0),
+						weekdayIds:model.weekdayIds.slice(0)
 						
 					});
 				}else{
@@ -117,8 +126,17 @@ export default {
 						user:{
 							...model.user
 						},
-						centerIds:[]
+						contactInfo:{
+							...model.contactInfo
+						},
+						centerIds:[],
+						weekdayIds:[]
 					});
+
+					this.cities=model.cityOptions.slice(0);
+					
+
+					this.form.volunteer.time=this.timeOptions[0].value;
 				}
 
 				if(model.centerOptions){
@@ -131,6 +149,8 @@ export default {
 					}
 					
 				}
+
+				this.weekdayOptions=model.weekdayOptions.slice(0);
 				
 			})
 			.catch(error=> {

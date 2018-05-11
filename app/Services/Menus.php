@@ -27,6 +27,11 @@ class Menus
                     'path' => '/manage/terms',
                     'active' => $current=='manage/terms'
                  ],
+                 [
+                    'text' => '折扣設定',
+                    'path' => '/manage/discounts',
+                    'active' => $current=='manage/discounts'
+                 ],
                  
              );
         } 

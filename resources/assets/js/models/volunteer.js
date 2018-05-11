@@ -165,6 +165,23 @@ class Volunteer {
         })
     }
 
+
+    static timeOptions() {
+        return [{
+            text: '---------',
+            value: '0',
+        }, {
+            text: '上午',
+            value: '1',
+        }, {
+            text: '下午',
+            value: '2'
+        }, {
+            text: '晚上',
+            value: '3'
+        }]
+    }
+
  
     
  }

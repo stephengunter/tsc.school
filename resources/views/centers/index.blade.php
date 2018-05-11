@@ -4,12 +4,13 @@
 @section('content')
 
 
-<centers-index v-show="indexMode" :init_model="model" :areas="areas" :can_edit="can_edit" :can_import="can_import" :version="version"
-    v-on:selected="onSelected"   v-on:create="onCreate" v-on:import="beginImport">
+<centers-index v-show="indexMode" :init_model="model" :keys="keys" :key_val="key" :can_edit="can_edit" 
+:can_import="can_import" :version="version" v-on:selected="onSelected"   v-on:create="onCreate" v-on:import="beginImport">
+    
 
 </centers-index>
 
-<centers-details v-if="selected" :id="selected"
+<centers-details v-if="selected" :id="selected" v-on:center-deleted="backToIndex"
      v-on:back="backToIndex" >
 
 </centers-details>
@@ -40,7 +41,10 @@
                     can_edit: false,
                     can_import: false,
 
-                    areas: [],
+                    areas:[],
+
+                    keys: [],
+                    key:'',
 
                     creating:false,
                     selected: 0,
@@ -61,6 +65,8 @@
             beforeMount() {
                 this.model = {!! json_encode($list) !!} ;
                 this.areas = {!! json_encode($areas) !!} ;
+                this.keys = {!! json_encode($keys) !!} ;
+                this.key = {!! json_encode($key) !!} ;
                 this.can_edit = Helper.isTrue('{!! $canEdit !!}');
                 this.can_import = Helper.isTrue('{!! $canImport !!}');  
 			},

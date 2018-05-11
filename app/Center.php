@@ -4,12 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\ContactInfo;
+use App\Core\Helper;
+use DB;
 
 class Center extends Model
 {
 	public static $snakeAttributes = false;
 	
-	protected $fillable = [  'head', 'east','oversea', 'areaId','importance',
+	protected $fillable = [  'head', 'key', 'areaId','importance',
 							 'name','code', 'courseTel','rule',
 							 'active','removed', 'updatedBy'
 						  ];
@@ -18,8 +20,7 @@ class Center extends Model
 	{
 		return [
 			'head' => 0,
-			'east' => 0,
-			'oversea' => 0,
+			'key' => 'west',
 			'areaId' => 0,
 			'name' => '',
 			'code' => '',
@@ -81,23 +82,62 @@ class Center extends Model
 	public function getContactInfo()
 	{
 		return $this->contactInfoes->first();
+    }
+    public function setContactInfo(array $contactInfoValues , array $addressValues)
+	{
+		
+		$exist=$this->getContactInfo();
+		if($exist){
+			$exist->address->update($addressValues);
+			$exist->update($contactInfoValues);
+		}else{
+			DB::transaction(function() use($contactInfoValues,$addressValues) {
+                $contactInfoValues['centerId'] = $this->id;
+                $contactInfo =ContactInfo::create($contactInfoValues);
+				$contactInfo->address()->save(new Address($addressValues));
+			});
+		}
 	}
+	
+	public function loadViewModel()
+    {
+        $this->loadContactInfo();
+        $this->keyText=$this->keyText();
+    }
+    
 	public function loadContactInfo()
 	{
 		$this->contactInfo=$this->getContactInfo();
 		if($this->contactInfo)  $this->contactInfo->address->fullText();
-	}
+    }
 
+	
 	public function  toOption()
     {
 		return [ 'text' => $this->name ,  'value' => $this->id ];
        
 	}
+
+	public function keyText()
+	{
+		if($this->key=='east') return '東部';
+		if($this->key=='west') return '西部';
+		if($this->key=='oversea') return '海外';
+		return '';
+	}
 	
 	public function isEast()
 	{
-		return $this->head;
+		return $this->key=='east';
 	}
 
-	
+	public function isWest()
+	{
+		return $this->key=='west';
+	}
+
+	public function isOversea()
+	{
+		return $this->key=='oversea';
+	}
 }

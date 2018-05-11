@@ -88,10 +88,11 @@ class CommonService {
         }]
     }
 
-    static numberOptions(min, max, desc) {
+    static numberOptions(min, max, desc,space) {
+        if(!space) space=1;
         let options = []
         if (desc) {
-            for (var i = max; i >= min; i--) {
+            for (var i = max; i >= min; i-=space) {
                 let option = {
                     text: i,
                     value: i
@@ -99,7 +100,7 @@ class CommonService {
                 options.push(option)
             }
         } else {
-            for (var i = min; i <= max; i++) {
+            for (var i = min; i <= max; i+=space) {
                 let option = {
                     text: i,
                     value: i

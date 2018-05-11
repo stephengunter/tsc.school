@@ -8,15 +8,11 @@
                 </div>
                 <div class="col-sm-6 form-inline" style="margin-top: 20px;">
                     <div v-show="params.active" class="form-group">
-						<drop-down :items="overseaOptions" :selected="params.oversea"
-							@selected="onOverseaSelected">
+						<drop-down :items="keys" :selected="params.key"
+							@selected="onKeySelected">
 						</drop-down>
 					</div>
-					<div v-show="params.active" class="form-group">
-						<drop-down v-show="!params.oversea" :items="areas" :selected="area.value"
-							@selected="onAreaSelected">
-						</drop-down>
-					</div>
+					
 					<div class="form-group" style="padding-left:1cm;">
 						<toggle :items="activeOptions"   :default_val="params.active" @selected="setActive"></toggle>
 					</div>
@@ -79,9 +75,13 @@
                 type:Boolean,
                 default:false
             },
-            areas:{
+            keys:{
                 type:Array,
                 default:null
+            },
+            key_val:{
+                type:String,
+                default:''
             },
             version:{
                 type:Number,
@@ -97,18 +97,18 @@
                 model:null,
                 
                 params:{
-                    oversea:false,
-                    area:0,
+                  
+                    key:'',
                     active:true,
                     page:1,
                     pageSize:10
                 },
 
-                overseaOptions:Center.overseaOptions(),
+               
 
                 activeOptions:Helper.activeOptions(),
                 
-                area:null,
+              
             }
         },
         watch: {
@@ -121,10 +121,7 @@
                     this.params.pageSize=this.init_model.pageSize;
             }
                 
-            if(this.areas){
-                this.setArea(this.areas[0]);
-                
-            }	
+            this.setKey(this.key_val);
         },
         computed:{
            
@@ -182,17 +179,13 @@
 					return b.importance- a.importance;
 				})
             },
-            onOverseaSelected(item){
-                this.params.oversea=item.value;
+            
+            onKeySelected(item){
+                this.setKey(item.value);
                 this.fetchData();
             },
-            onAreaSelected(area){
-                this.setArea(area);
-                this.fetchData();
-            },
-            setArea(area){
-                this.area=area;
-                this.params.area=area.value;
+            setKey(val){
+                this.params.key=val;
             },
             setActive(val) {
                 this.params.active = val;

@@ -7,15 +7,29 @@ use App\ContactInfo;
 use App\Address;
 use App\District;
 use App\Area;
+use App\Services\Import;
 use DB;
 use Excel;
 
 class Centers 
 {
+    use Import;
+
     public function __construct()
     {
-        
         $this->with=['area','contactInfoes.address.district.city'];
+    }
+
+    public function getKeyOptions($withOversea=true)
+    {
+        $options = array(
+            ['value'=> 'west' , 'text' => '西部'],
+            ['value'=> 'east', 'text' => '東部']
+           
+        );
+
+        if($withOversea) array_push($options,['value'=> 'oversea', 'text' => '海外']);
+        return $options;
     }
 
     public function getAll()
@@ -29,17 +43,22 @@ class Centers
 
     public function getEastCenters()
     {
-        return $this->getAll()->where('oversea',false)->where('east',true);
+        return $this->getAll()->where('key','east');
         
     }
 
     public function getWestCenters()
     {
-        return $this->getAll()->where('oversea',false)->where('east',false);
+        return $this->getAll()->where('key','west');
+    }
+
+    public function getOverseaCenters(bool $active = true)
+    {
+        return $this->getAll()->where('key','oversea')->where('active',$active);
     }
     
 
-    public function createCenter(Center $center, ContactInfo $contactInfo=null,Address $address=null)
+    public function createCenter(Center $center, array $contactInfoValues=[],array $addressValues=[])
     {
         if($center->code=='A') $center->head=true;
         
@@ -52,26 +71,22 @@ class Centers
 
         $center->save();
 
-        if($contactInfo) $this->setContactInfo($center,$contactInfo,$address);
+        if($contactInfoValues) $center->setContactInfo($contactInfoValues,$addressValues);
         
     }
     
-    public function fetchCenters(bool $oversea = false, int $areaId = 0,bool $active = true)
+    public function fetchCenters($key,bool $active = true)
     {
-        $centers=$this->getAll()->where('oversea',$oversea)->where('active',$active);
-        if($areaId) $centers=$centers->where('areaId',$areaId);
+        
+        $centers=$this->getAll()->where('key',$key)->where('active',$active);
+       
 
         return $centers;
     }
     public function  getLocalCenters(bool $active = true)
     {
-        return $this->getAll()->where('oversea',false)->where('active',$active);
+        return $this->getAll()->whereIn('key',['east','west'])->where('active',$active);
     }
-    public function  getOverseaCenters(bool $active = true)
-    {
-        return $this->getAll()->where('oversea',true)->where('active',$active);
-    }
-    
 
     public function getCenterByCode($code)
     {
@@ -115,23 +130,6 @@ class Centers
         return $min;
     }
 
-    public function getContactInfo(Center $center)
-	{
-		return $center->getContactInfo();
-	}
-	public function setContactInfo(Center $center, ContactInfo $contactInfo , Address $address)
-	{
-		$exist=$this->getContactInfo($center);
-		if($exist){
-			$exist->address->update($address->toArray());
-			$exist->update($contactInfo->toArray());
-		}else{
-			DB::transaction(function() use($center,$contactInfo,$address) {
-				$center->contactInfoes()->save($contactInfo);
-				$contactInfo->address()->save($address);
-			});
-		}
-	}
     
     public function importCenters($file,$updatedBy)
     {
@@ -188,67 +186,69 @@ class Centers
 
             $importance=(int)trim($row['importance']);
             $course_tel=trim($row['course_tel']);
+           
 
-            $tel=trim($row['tel']);
-            $fax=trim($row['fax']);
-
-            $zipcode=trim($row['zipcode']);
-            $street=trim($row['street']);
-
-
-            $center=new Center([
+            $centerValues=[
                 'name' => $name,
                 'code' => $code,
-                'east' => $east,
-                'oversea' => $oversea,
+                'key' => '',
                 'courseTel' => $course_tel,
                 'importance' => $importance,
 
                 'active' => true,
                 'updatedBy' => $updatedBy
-            ]);
+            ];
+
+            
+
+
+            $center=new Center($centerValues);
 
             if($oversea){
-                $contactInfo=new ContactInfo([
+                dd($oversea);
+                $tel=trim($row['tel']);
+		        $fax=trim($row['fax']);
+                $street=trim($row['street']);
+
+                $contactInfoValues=[
                     'tel'=>$tel,
                     'fax' => $fax,
                     'updatedBy' => $updatedBy
-                ]);
+                ];
 
-                $address=new Address([
+                $addressValues=[
                     'street' => $street,
                     'updatedBy' => $updatedBy
-                ]);
+                ];
 
-                $this->createCenter($center,$contactInfo,$address);    
+                $centerValues['key'] = 'oversea';
+
+                $this->createCenter($center,$contactInfoValues,$addressValues);    
                 continue;
             }
+
+            
 
             $center->areaId=$area_id;
-            $district=null;
-            if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
-            if(!$district){
-                $err_msg .= '郵遞區號' . $zipcode . '錯誤';
-                continue;
-            }
-          
-            
-           
-            $address=new Address([
-                'districtId'=>$district->id,
-                'street' => $street,
-                'updatedBy' => $updatedBy
-            ]);
-            
-           
+            if($east) $center->key = 'east';
+            else $center->key = 'west';
 
-            $contactInfo=new ContactInfo([
-                'tel'=>$tel,
-                'fax' => $fax,
-                'updatedBy' => $updatedBy
-            ]);
+
+            $contactInfoValues=null;
+            $addressValues=null;
+
+            $getContactInfo=$this->getContactInfo($row,$updatedBy);
+           
+            if(array_key_exists('err',$getContactInfo)){
+                $err_msg .= $getContactInfo['err'] ;	
+                continue;	
+            }
+
+            $contactInfoValues=$getContactInfo['contactInfoValues'];
+            $addressValues=$getContactInfo['addressValues'];
+
             
-            $this->createCenter($center,$contactInfo,$address);    
+            $this->createCenter($center,$contactInfoValues,$addressValues);    
 
         }  //end for  
 

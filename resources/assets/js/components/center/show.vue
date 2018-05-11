@@ -23,6 +23,10 @@
                     </div>
                 </div>    <!-- End Row -->     
                 <div class="row">
+                    <div class="col-sm-4">
+                        <label class="label-title">分類</label>
+                        <p> {{ center.keyText }} </p>
+                    </div> 
                     <div v-if="!isOverSea" class="col-sm-4">
                         <label class="label-title">區域</label>
                         <p> {{ center.area.name }} </p>
@@ -70,7 +74,7 @@
         computed:{
             isOverSea(){
                
-                if(this.center) return Helper.isTrue(this.center.oversea);
+                if(this.center) return this.center.key == 'oversea' ;
                 return false;
             }
            

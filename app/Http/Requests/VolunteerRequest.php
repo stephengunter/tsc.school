@@ -49,6 +49,37 @@ class VolunteerRequest extends FormRequest
         return array_except($values, ['user']);
         
     }
+
+    public function getContactInfoValues()
+    {
+        $values=$this->get('contactInfo');
+      
+       
+        return  array_except($values, ['address']);
+    }
+
+    public function getAddressValues()
+    {
+        
+        $values=array_only($this->get('contactInfo'), ['address']);
+        return $values['address'];
+    }
+
+    public function getCenterIds()
+    {
+        $values=$this->get('centerIds');
+       
+        return $values;
+    }
+
+    public function getWeekdayIds()
+    {
+        $values=$this->get('weekdayIds');
+       
+        return $values;
+    }
+
+
     public function getUserValues()
     {
         return $this->get('user');

@@ -303,7 +303,6 @@ class TeachersController extends Controller
 
         $contactInfoValues= $request->getContactInfoValues();
         $addressValues= $request->getAddressValues();
-       
         
         
         $errors=$this->users->validateUserInputs($userValues,Role::teacherRoleName());
@@ -430,7 +429,7 @@ class TeachersController extends Controller
     public function update(TeacherRequest $request, $id)
     {
         $teacher = Teacher::findOrFail($id);
-        if(!$this->canEdit($teacher)) $this->unauthorized();
+        if(!$this->canEdit($teacher)) return $this->unauthorized();
        
         $values=$request->getTeacherValues();
      
@@ -448,13 +447,6 @@ class TeachersController extends Controller
 
         $this->teachers->updateTeacher($teacher,$values);
         
-     
-        $centerIds=$request->getCenterIds();
-        if(!count($centerIds)){
-            $errors['centerIds'] = ['請選擇所屬中心'];
-            return $this->requestError($errors);
-        }
-
         $teacher->centers()->sync($centerIds);
 
         return response()->json();
@@ -487,7 +479,7 @@ class TeachersController extends Controller
     public function destroy($id) 
     {
         $teacher = Teacher::findOrFail($id);
-        if(!$this->canDelete($teacher)) $this->unauthorized();
+        if(!$this->canDelete($teacher)) return $this->unauthorized();
 
         $this->teachers->deleteTeacher($teacher, $this->currentUserId());
        

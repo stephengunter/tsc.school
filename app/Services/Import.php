@@ -56,26 +56,19 @@ trait Import
 			'updatedBy' => $updatedBy
 		]; 
 
-		
-		$street=trim($row['street']);
-		$district=null;
-		$zipcode=trim($row['zipcode']);
+		$contactInfoValues=null;
+		$addressValues=null;
 
-		if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
-		if(!$district){
-			$err_msg .= '郵遞區號' . $zipcode . '錯誤';			
+		$getContactInfo=$this->getContactInfo($row,$updatedBy);
+		if(array_key_exists('err',$getContactInfo)){
+			$err_msg .= $getContactInfo['err'] . ',';		
+		}else{
+			$contactInfoValues=$getContactInfo['contactInfoValues'];
+			$addressValues=$getContactInfo['addressValues'];
 		}
+
 		
-		$addressValues=[
-			'districtId'=>$district->id,
-			'street' => $street,
-			'updatedBy' => $updatedBy
-		];
 		
-		$contactInfoValues=[
-			'tel'=>'',
-			'fax' => '',
-		];
 
 		$identityNames=explode(',', trim($row['identities']));
         $identities=[];
@@ -101,7 +94,42 @@ trait Import
 			'identities' => $identities
 		];
 
-    }
+	}
+	
+	public function getContactInfo($row,$updatedBy)
+	{
+		$tel=trim($row['tel']);
+		$fax=trim($row['fax']);
+		$street=trim($row['street']);
+		$district=null;
+		$zipcode=trim($row['zipcode']);
+
+		if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
+		if(!$district){
+			
+			return [
+				'err' => '郵遞區號' . $zipcode . '錯誤'
+			];		
+		}
+		
+		$addressValues=[
+			'districtId'=>$district->id,
+			'street' => $street,
+			'updatedBy' => $updatedBy
+		];
+		
+		$contactInfoValues=[
+			'tel'=>$tel,
+			'fax' => $fax,
+			'updatedBy' => $updatedBy
+		];
+
+		return [
+			'addressValues'=>$addressValues,
+			'contactInfoValues'=>$contactInfoValues,
+		];
+
+	}
     
     public function getCenters($row)
     {

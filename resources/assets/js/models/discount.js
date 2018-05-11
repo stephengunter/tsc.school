@@ -1,4 +1,4 @@
-class Center {
+class Discount {
     constructor(data) {
  
         for (let property in data) {
@@ -8,7 +8,7 @@ class Center {
     }
  
     static source() {
-        return '/manage/centers';
+        return '/manage/discounts';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;
@@ -28,9 +28,6 @@ class Center {
     static deleteUrl(id){
         return this.source() + `/${id}`;
     }
-    static importancesUrl(id) {
-        return this.source() + '/importances';
-    }
 
     static show(id) {
         return new Promise((resolve, reject) => {
@@ -46,35 +43,8 @@ class Center {
         })
     }
 
-    static import(form){
-        let url = this.source() + '/import';
-        return new Promise((resolve, reject) => {
-            axios.post(url, form)
-                .then(response => {
-                    resolve(response.data);
-                })
-                .catch(error => {
-                   
-                    reject(error);
-                })
-
-        })
-    }
-
-    static upload(form){
-        let url = this.source() + '/upload';
-        return new Promise((resolve, reject) => {
-            axios.post(url, form)
-                .then(response => {
-                    resolve(response.data);
-                })
-                .catch(error => {
-                   
-                    reject(error);
-                })
-
-        })
-    }
+    
+   
  
     static index(params){
         let url = this.source();
@@ -93,34 +63,9 @@ class Center {
         })
     }
      
-    static create() {
-        let url = this.createUrl();
- 
-        return new Promise((resolve, reject) => {
-            axios.get(url)
-                .then(response => {
-                        resolve(response.data);
-                })
-                .catch(error => {
-                        reject(error);
-                })
- 
-        })
-    }
+   
      
-    static store(form){
-        let url = this.storeUrl();
-        let method = 'post';
-        return new Promise((resolve, reject) => {
-            form.submit(method, url)
-                    .then(data => {
-                        resolve(data);
-                    })
-                    .catch(error => {
-                        reject(error);
-                    })
-        })
-    }
+    
  
     static edit(id) {
         let url = this.editUrl(id);
@@ -167,35 +112,10 @@ class Center {
         })
     }
 
-    static importances(form){
-        let url = this.importancesUrl();
-        let method = 'post';
-        return new Promise((resolve, reject) => {
-            form.submit(method, url)
-                .then(data => {
-                    resolve(data);
-                })
-                .catch(error => {
-                    reject(error);
-                })
-        })
-    }
-
-    static overseaOptions(){
-        return [{
-            text: '台灣',
-            value: false
-        }, {
-            text: '海外',
-            value: true
-        }]
-    }
-    
-    
     
  
     
  }
  
  
- export default Center;
+ export default Discount;

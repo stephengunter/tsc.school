@@ -22,9 +22,14 @@
 				<small class="text-danger" v-if="form.errors.has('center.name')" v-text="form.errors.get('center.name')"></small>
 			</div>
             <div class="form-group">
-                <label>所在地</label>
+                <label>分類</label>
                 <div>
-                    <toggle :items="overseaOptions"   :default_val="form.center.oversea" @selected="setOversea"></toggle>
+                    <select v-model="form.center.key" class="form-control">
+                        <option v-for="(item,index) in key_options" :key="index" :value="item.value" v-text="item.text" >
+                        </option>
+                    </select>
+
+                   
                 </div>
             
             </div>
@@ -40,7 +45,7 @@
 				<small class="text-danger" v-if="form.errors.has('center.code')" v-text="form.errors.get('center.code')"></small>
 				
             </div>
-            <div v-show="!form.center.oversea" class="form-group">
+            <div v-show="!oversea" class="form-group">
                 <label>區域</label>
 
                 <select v-model="form.center.areaId" class="form-control">
@@ -89,16 +94,23 @@
             area_options:{
                 type: Array,
                 default: null
+            },
+            key_options:{
+                type: Array,
+                default: null
             }
         },
         data() {
             return {
-                overseaOptions:Center.overseaOptions(),
+                
                 activeOptions:Helper.activeOptions()
             }
         },
         computed:{
-            
+            oversea(){
+                if(!this.form) return false;
+                return this.form.center.key=='oversea'; 
+            }
             
         },
         watch:{
@@ -111,16 +123,7 @@
             init() {
                 
             },
-            setOversea(val){
-                this.form.center.oversea=val;
-                if(!Helper.isTrue(val)){
-                    let areaId=Helper.tryParseInt(this.form.center.areaId);
-                   
-                    if(areaId < 1){
-                        this.form.center.areaId=this.area_options[0].value;
-                    }
-                }
-            },
+           
             setActive(val){
                 this.form.center.active=val;
             },

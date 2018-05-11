@@ -35,11 +35,12 @@
 				</div>
             </div>
             <div class="form-group">
-                    <label class="col-md-2 control-label">所在地</label>
+                    <label class="col-md-2 control-label">分類</label>
                     <div class="col-md-4">
-                        <div>
-                            <toggle :items="overseaOptions"   :default_val="form.center.oversea" @selected="setOversea"></toggle>
-                        </div>
+                        <select v-model="form.center.key" class="form-control">
+							<option v-for="(item,index) in keyOptions" :key="index" :value="item.value" v-text="item.text" >
+							</option>
+						</select>
                     </div>
                     <label v-show="!oversea" class="col-md-2 control-label">區域</label>
                     <div v-show="!oversea" class="col-md-4">
@@ -122,9 +123,7 @@ export default {
 		return {
 			
             title:'新增開課中心',
-            oversea:false,
-            overseaOptions:Center.overseaOptions(),
-
+           
             areaOptions:[],
 
             cities:[],
@@ -138,8 +137,12 @@ export default {
 		}
 	},
 	computed:{
-		
-	},
+        oversea(){
+            if(!this.form) return false;
+                return this.form.center.key=='oversea'; 
+            }
+            
+        },
 	beforeMount() {
 		this.init();
 	}, 
@@ -161,7 +164,8 @@ export default {
 					}
 				});
 
-                this.areaOptions=model.areaOptions.slice(0);
+				this.areaOptions=model.areaOptions.slice(0);
+				this.keyOptions=model.keyOptions.slice(0);
                 
                 this.cities=model.cityOptions.slice(0);
 

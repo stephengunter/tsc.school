@@ -103,6 +103,8 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/admins/import', 'AdminsController@import');
     Route::post('/manage/admins/upload', 'AdminsController@upload');
 
+    Route::resource('/manage/discounts', 'DiscountsController');
+
     Route::resource('/manage/teachers', 'TeachersController');
     Route::post('/manage/teachers/import', 'TeachersController@import');
     Route::post('/manage/teachers/upload', 'TeachersController@upload');

@@ -25,7 +25,8 @@ class Volunteer extends Model
 			'joinDate' => '',
             'updatedBy' => '',
             'time' => '',
-            'ps' => ''
+            'ps' => '',
+            'time' => '0'
 
 		];
     }	

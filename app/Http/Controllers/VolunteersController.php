@@ -8,6 +8,7 @@ use App\Http\Requests\VolunteerRequest;
 
 use App\Volunteer;
 use App\User;
+use App\ContactInfo;
 use App\Profile;
 use App\Center;
 use App\Role;
@@ -21,11 +22,13 @@ use App\Services\Files;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
+use App\Core\Addresses;
 use Illuminate\Support\Facades\Input;
 
 class VolunteersController extends Controller
 {
-    
+    use Addresses;
+
     public function __construct(Volunteers $volunteers ,Users $users,
         Centers $centers ,Courses $courses,CourseInfoes $courseInfoes,Files $files)
     {
@@ -37,7 +40,14 @@ class VolunteersController extends Controller
         $this->files=$files;
        
     }
+    function canEdit($volunteer)
+    {
+        if($this->currentUserIsDev()) return true;
+        if(!count($volunteer->centers)) return true;
 
+        return $this->canAdminCenters($volunteer->centers);
+
+    }
     function canImport()
     {
         return $this->currentUserIsDev();
@@ -115,6 +125,11 @@ class VolunteersController extends Controller
         $volunteer=Volunteer::init();
         $user=User::init();
 
+        $contactInfo = ContactInfo::init();
+        $cityOptions=$this->cityOptions();
+        $contactInfo['address']['cityId']=$cityOptions->first()->id;
+    
+
         $centersCanAdmin= $this->centersCanAdmin();
         $centerOptions = $centersCanAdmin->map(function ($item) {
             return [ 'text' => $item->name ,  'value' => $item->id ];
@@ -129,10 +144,11 @@ class VolunteersController extends Controller
         $form=[
             'volunteer' => $volunteer,
             'user' => $user,
-
+            'contactInfo' => $contactInfo,
             'centerOptions' => $centerOptions,
             'centerIds' => $centerIds,
-
+            'cityOptions' => $cityOptions,
+            'weekdayOptions' => $this->courseInfoes->weekdayOptions(),
         ];
 
         return response() ->json($form);
@@ -153,11 +169,22 @@ class VolunteersController extends Controller
         $userValues=$request->getUserValues();
         $profileValues= $userValues['profile'];
 
+        $contactInfoValues= $request->getContactInfoValues();
+        $addressValues= $request->getAddressValues();
+
         
         $errors=$this->users->validateUserInputs($userValues,Role::volunteerRoleName());
         if($errors) return $this->requestError($errors);
 
         $errors=$this->validateVolunteerInputs($volunteerValues);
+
+        $centerIds=$request->getCenterIds();
+        if(!count($centerIds)){
+            $errors['centerIds'] = ['請選擇所屬中心'];
+        }
+
+        $weekdayIds=$request->getWeekdayIds();
+
         if($errors) return $this->requestError($errors);
 
         $current_user=$this->currentUser();
@@ -166,9 +193,12 @@ class VolunteersController extends Controller
         $volunteerValues['updatedBy']=$updatedBy;
         $userValues['updatedBy']=$updatedBy;
         $profileValues['updatedBy']=$updatedBy;
+        $contactInfoValues['updatedBy']=$updatedBy;
+        $addressValues['updatedBy']=$updatedBy;
         
         $userValues=array_except($userValues,['profile']);
         $userId=$request->getUserId();
+
         $user=null;
         if($userId){
             $user = User::find($userId);
@@ -178,23 +208,29 @@ class VolunteersController extends Controller
             
         }else{
           
-           $user=$this->users-> createUser(new User($userValues),new Profile($profileValues));
+           $user=$this->users->createUser(new User($userValues),new Profile($profileValues));
            $userId=$user->id;
          
         }
 
+        $user->setContactInfo($contactInfoValues,$addressValues);
 
+        
+        $volunteerValues['time']=$this->volunteers->getTimeText($volunteerValues['time']);
         $volunteer=Volunteer::find($userId);
         if($volunteer){
             $volunteer->update($volunteerValues);
             $volunteer->addRole();
 
+            $volunteer->weekdays()->sync($weekdayIds);
+
         }else{
-            $volunteer=$this->volunteers->createVolunteer($user,new Volunteer($volunteerValues));
+            $volunteer=$this->volunteers->createVolunteer($user,new Volunteer($volunteerValues),$centerIds,$weekdayIds);
             $volunteer->userId=$userId;
+            
         }
 
-      
+        
        
         return response() ->json($volunteer);
     }
@@ -204,23 +240,36 @@ class VolunteersController extends Controller
         $volunteer = $this->volunteers->getById($id);
         if(!$volunteer) abort(404);
 
-        $current_user=$this->currentUser();
+        $volunteer->loadViewModel();
         $volunteer->user->loadContactInfo();
 
-        $volunteer->canEdit=true;
-        $volunteer->canDelete=true;
+        $volunteer->canEdit=$this->canEdit($volunteer);
+        $volunteer->canDelete=$volunteer->canEdit;
 
-        return response() ->json($volunteer);
+        return response()->json($volunteer);
         
     }
 
     public function edit($id)
     {
         $volunteer = Volunteer::findOrFail($id);   
-       
+
+        $centerIds=$volunteer->centers()->pluck('id')->toArray();
+        $weekdayIds=$volunteer->weekdays()->pluck('id')->toArray();
+
+        $centersCanAdmin= $this->centersCanAdmin();
+        $centerOptions = $centersCanAdmin->map(function ($item) {
+            return [ 'text' => $item->name ,  'value' => $item->id ];
+        })->all();
+
+        $volunteer->time=$this->volunteers->getTimeValue($volunteer->time);
        
         $form=[
-            'volunteer' => $volunteer
+            'volunteer' => $volunteer,
+            'centerOptions' => $centerOptions,
+            'centerIds' => $centerIds,
+            'weekdayOptions' => $this->courseInfoes->weekdayOptions(),
+            'weekdayIds' => $weekdayIds,
         ];
 
         return response() ->json($form);
@@ -232,16 +281,29 @@ class VolunteersController extends Controller
     public function update(VolunteerRequest $request, $id)
     {
         $volunteer = Volunteer::findOrFail($id);
+        if(!$this->canEdit($volunteer)) return $this->unauthorized();
        
         $values=$request->getVolunteerValues();
      
         $errors=$this->validateVolunteerInputs($values);
+
+        $centerIds=$request->getCenterIds();
+        if(!count($centerIds)){
+            $errors['centerIds'] = ['請選擇所屬中心'];
+        }
+
+        $weekdayIds=$request->getWeekdayIds();
+
         if($errors) return $this->requestError($errors);
 
         $current_user=$this->currentUser();
         $values['updatedBy'] = $current_user->id;
 
+        $values['time']=$this->volunteers->getTimeText($values['time']);
+
         $volunteer->update($values);
+        $volunteer->centers()->sync($centerIds);
+        $volunteer->weekdays()->sync($weekdayIds);
 
         return response() ->json();
     }

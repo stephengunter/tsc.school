@@ -29,18 +29,29 @@ class CentersController extends Controller
         $this->files=$files;
     }
 
+    function keyOptions()
+    {
+        return $this->centers->getKeyOptions();
+
+    }
+
     function canEdit()
     {
         if($this->currentUserIsDev()) return true;
         return $this->currentUser->admin->isHeadCenterAdmin();
     }
+    function canDelete(Center $center)
+    {
+        if(!$this->canEdit()) return false;
+        if($center->active) return false;
+        return true;
+    }
+
     function canImport()
     {
         return $this->currentUserIsDev();
         return $this->currentUser->admin->isHeadCenterAdmin();
     }
-   
-    
 
     public function seedDiscountCenters()
     {
@@ -95,17 +106,18 @@ class CentersController extends Controller
        
         $request=request();
 
-        $oversea=false;
-        if($request->oversea)  $oversea=Helper::isTrue($request->oversea);
-
-        $area=0;
-        if($request->area)  $area=(int)$request->area;
+        
+        $key='';
+        if($request->key)  $key = $request->key;
 
         $active=true;
         if($request->active)  $active=Helper::isTrue($request->active);
 
+        $keys=['west','east','oversea'];
+        if(!in_array($key,$keys)) $key=$keys[0];
+
         if(!$active) $centers=$this->centers->getAll()->where('active',$active);
-        else $centers=$this->centers->fetchCenters($oversea,$area,$active);
+        else $centers=$this->centers->fetchCenters($key);
         
        
         $centers=$this->centers->getOrdered($centers);
@@ -127,6 +139,8 @@ class CentersController extends Controller
         return view('centers.index')->with([
             'title' => '開課中心管理',
             'menus' => $menus,
+            'key' => $key,
+            'keys' => $this->keyOptions(),
             'areas' => $this->areaOptions(),
             'canEdit' => $this->canEdit(),
             'canImport' => $this->canImport(),
@@ -136,6 +150,7 @@ class CentersController extends Controller
 
     public function create()
     {
+        $keyOptions=$this->keyOptions();
         $areaOptions=$this->areaOptions();
         $cityOptions=$this->cityOptions();
         $center=Center::init();
@@ -145,6 +160,7 @@ class CentersController extends Controller
       
         $form=[
             'center' => $center,
+            'keyOptions' => $keyOptions,
             'areaOptions' => $areaOptions,
             'cityOptions' => $cityOptions,
         ];
@@ -156,18 +172,20 @@ class CentersController extends Controller
     public function store(CenterRequest $request)
     {
         $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
+        if(!$this->canEdit()) return $this->unauthorized();
 
         $center=new Center($request->getCenterValues());
-        $contactInfo=new ContactInfo($request->getContactInfoValues());
-        $address=new Address($request->getAddressValues());
+        $contactInfoValues=$request->getContactInfoValues();
+        $addressValues=$request->getAddressValues();
         
         $updatedBy=$current_user->id;
         $center->updatedBy=$updatedBy;
-        $contactInfo->updatedBy=$updatedBy;
-        $address->updatedBy=$updatedBy;
+        $contactInfoValues['updatedBy']=$updatedBy;
+        $addressValues['updatedBy']=$updatedBy;
 
-        $center = $this->centers->createCenter($center,$contactInfo,$address);
+        if($center->key =='oversea')  $center->areaId = null;
+
+        $center = $this->centers->createCenter($center,$contactInfoValues,$addressValues);
         return response() ->json($center);
     }
 
@@ -177,10 +195,11 @@ class CentersController extends Controller
         if(!$center) abort(404);
 
         $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
+        if(!$this->canEdit()) return $this->unauthorized();
 
-        $center->loadContactInfo();
+        $center->loadViewModel();
         $center->canEdit=$this->canEdit();
+        $center->canDelete=$this->canDelete($center);
 
         if($center->contactInfo)  $center->contactInfo->canEdit= $center->canEdit;
        
@@ -192,17 +211,20 @@ class CentersController extends Controller
     public function edit($id)
     {
         $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
+        if(!$this->canEdit()) return $this->unauthorized();
 
         $center = Center::findOrFail($id);
 
         $areaOptions= $this->areaOptions();
         $cityOptions=$this->cityOptions();
+        $keyOptions=$this->keyOptions();
+        
       
         $form=[
             'center' => $center,
             'areaOptions' => $areaOptions,
             'cityOptions' => $cityOptions,
+            'keyOptions' => $keyOptions,
         ];
 
         return response() ->json($form);
@@ -214,15 +236,29 @@ class CentersController extends Controller
     public function update(CenterRequest $request, $id)
     {
         $current_user=$this->currentUser();
-        if(!$this->canEdit()) $this->unauthorized();
+        if(!$this->canEdit()) return $this->unauthorized();
 
         $center = Center::findOrFail($id);
        
         $values=$request->getCenterValues();
 
+        if($values['key']=='oversea')  $values['areaId'] = null;
+
         $values['updatedBy'] = $current_user->id;
         
         $center->update($values);
+        return response() ->json();
+    }
+
+    public function destroy($id) 
+    {
+        $center = Center::findOrFail($id);
+        if(!$this->canDelete($center)) return $this->unauthorized();
+
+        $center->updatedBy=$this->currentUserId();
+        $center->removed=true;
+        $center->save();
+       
         return response() ->json();
     }
 

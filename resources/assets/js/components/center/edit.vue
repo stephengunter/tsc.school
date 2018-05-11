@@ -2,7 +2,7 @@
     
     <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
         
-		<center-inputs :form="form" :area_options="areaOptions" >
+		<center-inputs :form="form" :area_options="areaOptions" :key_options="keyOptions">
 		</center-inputs>
 		
 		
@@ -58,7 +58,8 @@ export default {
 
             form:null,
 
-            areaOptions:[],
+			areaOptions:[],
+			keyOptions:[],
             
             submitting:false,
 			
@@ -90,7 +91,8 @@ export default {
 					
                 });
                 
-                this.areaOptions=model.areaOptions.slice(0);
+				this.areaOptions=model.areaOptions.slice(0);
+				this.keyOptions=model.keyOptions.slice(0);
 				
 			})
 			.catch(error=> {

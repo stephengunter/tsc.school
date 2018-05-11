@@ -16,12 +16,12 @@ class CreateCentersTable extends Migration
         Schema::create('centers', function (Blueprint $table) {
             $table->increments('id');
             $table->boolean('head')->default(false);
-            $table->boolean('east')->default(false);
-            $table->boolean('oversea')->default(false);
-            $table->integer('areaId')->unsigned()->nullable();
-
+            $table->string('key')->nullable(); //east , west ,oversea
             $table->string('name')->nullable();
             $table->string('code')->nullable();
+
+            $table->integer('areaId')->unsigned()->nullable();
+           
             $table->string('courseTel')->nullable();
 
             $table->text('rule')->nullable();

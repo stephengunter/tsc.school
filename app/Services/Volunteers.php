@@ -130,6 +130,23 @@ class Volunteers
         })->all();
     }
 
+    public function getTimeText($val)
+    {
+        $val=(int)$val;
+        if($val==1) return '上午';
+        if($val==2) return '下午';
+        if($val==3) return '晚上';
+        return '';
+    }
+    public function getTimeValue($text)
+    {
+       
+        if($text=='上午') return '1';
+        if($text=='下午') return '2';
+        if($text=='晚上') return '3';
+        
+        return '0';
+    }
     
     
     public function importVolunteers($file,$updatedBy)

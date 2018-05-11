@@ -12,6 +12,7 @@ class CreateDiscountsTable extends Migration
     {
         Schema::create('discounts', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('key');  //east , west ,oversea
             $table->string('name');
             $table->string('code');
             $table->integer('min')->default(1);
@@ -21,6 +22,8 @@ class CreateDiscountsTable extends Migration
             $table->string('ps')->nullable();
             $table->boolean('active');
             $table->boolean('removed')->default(false);
+            $table->integer('updatedBy')->unsigned()->nullable();
+            
             $table->timestamps();
         });
     }

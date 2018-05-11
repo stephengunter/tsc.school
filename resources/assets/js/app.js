@@ -42,6 +42,8 @@ Vue.component('centers-import', require('./views/centers/import'));
 Vue.component('categories-index', require('./views/categories/index'));
 Vue.component('categories-import', require('./views/categories/import'));
 
+Vue.component('discounts-index', require('./views/discounts/index'));
+
 Vue.component('terms-index', require('./views/terms/index'));
 Vue.component('terms-create', require('./views/terms/create'));
 Vue.component('terms-details', require('./views/terms/details'));

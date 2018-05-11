@@ -6,11 +6,31 @@
                 <label class="label-title">姓名</label>
                 <p v-text="volunteer.user.profile.fullname"></p>                      
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-8">
+                <label class="label-title">所屬中心</label>
+                <p v-text="volunteer.centersText">
+                 
+                </p>                   
+            </div>
+            <div v-if="false" class="col-sm-4">
                 <label class="label-title">加入日期</label>
                 <p v-if="volunteer.joinDate">
                     {{  volunteer.joinDate  }}
                 </p>                   
+            </div>
+            
+        </div>  <!-- End row--> 
+        <div class="row" >
+            <div class="col-sm-4">
+                <label class="label-title">可服務時段</label>
+                <p v-text="volunteer.time"></p>                    
+            </div>
+            <div class="col-sm-8">
+                <label class="label-title">可服務時間</label>
+                <p v-text=" volunteer.weekdaysText">
+                 
+                </p> 
+                                    
             </div>
             
         </div>  <!-- End row--> 

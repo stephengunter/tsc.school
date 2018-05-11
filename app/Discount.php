@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Discount extends Model
 {
-    protected $fillable = [  'name', 'code', 'min',
+    protected $fillable = [  'key','name', 'code', 'min',
         'pointOne','pointTwo','prove', 'ps',
         'active','removed', 'updatedBy'
     ];

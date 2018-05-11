@@ -3,10 +3,10 @@
     <form v-if="form" :class="formStyle" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
         
 		<teacher-inputs v-if="id" :group="group"  :form="form" :centers="centerOptions"
-		   :wages="wageOptions">
+		   	:wages="wageOptions">
 		</teacher-inputs>
-		<teacher-create-inputs ref="createInputs" v-else :form="form" :group="group" :centers="centerOptions" :cities="cities"
-		 :wages="wageOptions">
+		<teacher-create-inputs ref="createInputs" v-else :form="form" :group="group" :centers="centerOptions" 
+			:cities="cities" :wages="wageOptions">
 		</teacher-create-inputs> 
 		
 		
