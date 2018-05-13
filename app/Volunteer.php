@@ -95,5 +95,6 @@ class Volunteer extends Model
     {
         $this->weekdaysText=$this->weekdaysText();
         $this->centersText=$this->centersText();
+        $this->user->loadIdentityNames();
     }
 }

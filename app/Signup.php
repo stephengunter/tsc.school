@@ -26,7 +26,8 @@ class Signup extends Model
 			'costs' => 0,
 			'discount' => '',
             'status' => 0,
-            'ps' => ''
+            'ps' => '',
+            'details' => []
 
 		];
 	}	

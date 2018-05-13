@@ -16,37 +16,11 @@
 		</form>
 
 		<modal :showbtn="false"  :show.sync="courseSelector.show"  @closed="courseSelector.show=false" 
-			effect="fade" :width="600">
-			<div slot="modal-header" class="modal-header">
-				
-				<button id="close-button" type="button" class="close"  @click="courseSelector.show=false">
-						x
-				</button>
-				<h3>
-					選擇課程
-				</h3>
-			</div>
-		
+			effect="fade" :width="1200">
 			<div slot="modal-body" class="modal-body">
-				<form  v-if="courseSelector.show"  class="form-horizontal" @submit.prevent="onSubmitCourseToAdd">
-					<div class="form-group">
-						<label class="col-md-2 control-label">選擇課程</label>
-						<div class="col-md-4">
-							<drop-down v-if="courseSelector.show" :items="courseOptions" :selected="courseSelector.selected"
-									@selected="onCourseSelected">
-							</drop-down>
-						</div>
-						<div class="col-md-4">
-							<button type="submit" class="btn btn-success">
-								確認
-							</button> 
-						</div>
-					</div>
-					
-					
-					
-				</form>
-				
+				<course-selector v-if="courseSelector.show" :centers="centerOptions" :center_id="centerId"
+				   @submit="onSubmitCoursesToAdd">
+				</course-selector>
 			</div>
 		</modal>
     </div>
@@ -54,7 +28,8 @@
 
 <script>
 import SignupCreateInputs from './create-inputs.vue';
-import SubmitButtons from './submit-buttons.vue'
+import SubmitButtons from './submit-buttons.vue';
+import CourseSelector from './course-selector.vue'
 
 export default {
     name:'EditSignup',
@@ -63,19 +38,20 @@ export default {
             type: Number,
             default: 0
 		},
-		course_id: {
-            type: Number,
-            default: 0
+		params: {
+            type:Object,
+            default: null
 		}
 	},
 	components: {
-		
 		'signup-create-inputs':SignupCreateInputs,
-		'submit-buttons':SubmitButtons
+		'submit-buttons':SubmitButtons,
+		'course-selector':CourseSelector
 	},
 	data(){
 		return {
-			
+			centerId:0,
+			centerOptions:[],
 			courseOptions:[],
 			identityOptions:[],
 
@@ -116,7 +92,7 @@ export default {
 		},
 		fetchData(){
             let getData=null;
-            if(this.isCreate) getData=Signup.create(this.course_id);
+            if(this.isCreate) getData=Signup.create(this.params);
             else  getData=Signup.edit(this.id);
 
 			getData.then(model => {
@@ -140,7 +116,8 @@ export default {
 
 					this.identityOptions=model.identityOptions.slice(0);
 
-					
+					this.centerOptions=model.centerOptions.slice(0);
+					this.centerId=model.centerId;
 					
 				}else{
 					this.form = new Form({
@@ -180,21 +157,15 @@ export default {
 		onAddDetail(){
 			this.courseSelector.show=true;
 		},
-		onSubmitCourseToAdd(){
-			let courseId=this.courseSelector.selected;
-			let getData=Course.show(courseId);
-               
-			getData.then(data => {
-				
-				let course={ ...data };
-				this.addDetail(course);
-			})
-			.catch(error=> {
-				Helper.BusEmitError(error);
-			})
+		onSubmitCoursesToAdd(courses){
 			this.courseSelector.show=false;
+			courses.forEach(course=>{
+				this.addDetail(course);
+			});
+			
 		},
 		addDetail(course){
+			
 			let exist=this.form.courseIds.includes(course.id);
 			if(exist) return;
 
@@ -210,12 +181,8 @@ export default {
 
 			this.clearErrorMsg('courseIds');
 		},
-		onCourseSelected(item){
-			this.courseSelector.selected=item.value;
-		},
 		onSubmit(){
 			if(!this.isCreate){
-				
 				this.submit();
 				return;
 			}
@@ -226,10 +193,7 @@ export default {
 				this.submit();
 				return;
 			}
-
-			if(!user.email && !user.phone ){
-
-			}
+			
 
 			let find=User.find(user.email,user.phone,user.profile.sid);
 

@@ -155,11 +155,11 @@ class Volunteers
 
         $excel=Excel::load($file, function($reader) {             
             $reader->limitColumns(20);
-            $reader->limitRows(100);
+            $reader->limitRows(500);
         })->get();
 
         $volunteerList=$excel->toArray()[0];
-       
+
         for($i = 1; $i < count($volunteerList); ++$i) {
             $row=$volunteerList[$i];
 

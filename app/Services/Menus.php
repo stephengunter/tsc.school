@@ -44,11 +44,6 @@ class Menus
                         'active' => $current =='manage/users'
                     ],
                     [
-                        'text' => '教師管理',
-                        'path' => '/manage/teachers',
-                        'active' => $current=='manage/teachers'
-                    ],
-                    [
                         'text' => '權限管理',
                         'path' => '/manage/admins',
                         'active' => $current=='manage/admins'
@@ -57,6 +52,11 @@ class Menus
                         'text' => '志工管理',
                         'path' => '/manage/volunteers',
                         'active' => $current=='manage/volunteers'
+                    ],
+                    [
+                        'text' => '身分管理',
+                        'path' => '/manage/identities',
+                        'active' => $current=='manage/identities'
                     ],
                     
                 );
@@ -78,11 +78,7 @@ class Menus
                         'path' => '/manage/lessons',
                         'active' => $current=='manage/lessons'
                     ],
-                    [
-                        'text' => '教師鐘點費',
-                        'path' => '/manage/payrolls',
-                        'active' => $current=='manage/payrolls'
-                    ]
+                    
                 );
         } 
         if($key=='SignupsAdmin'){
@@ -101,6 +97,25 @@ class Menus
                         'text' => '退費管理',
                         'path' => '/manage/quits',
                         'active' => $current =='manage/quits'
+                    ],
+                );
+        } 
+        if($key=='TeachersAdmin'){
+            return array(
+                    [
+                        'text' => '教師管理',
+                        'path' => '/manage/teachers',
+                        'active' => $current =='manage/teachers'
+                    ],
+                    [
+                        'text' => '薪酬標準',
+                        'path' => '/manage/wages',
+                        'active' => $current=='manage/wages'
+                    ],
+                    [
+                        'text' => '教師鐘點費',
+                        'path' => '/manage/payrolls',
+                        'active' => $current=='manage/payrolls'
                     ],
                 );
         } 

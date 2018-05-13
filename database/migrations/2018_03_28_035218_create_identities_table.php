@@ -12,10 +12,11 @@ class CreateIdentitiesTable extends Migration
         Schema::create('identities', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->string('code');
-            $table->boolean('member');
+            $table->string('code')->nullable();
+            $table->boolean('member')->default(false);
             $table->string('ps')->nullable();
             $table->boolean('removed')->default(false);
+            $table->integer('updatedBy')->unsigned()->nullable();
             $table->timestamps();
         });
     }

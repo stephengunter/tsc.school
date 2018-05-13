@@ -40,6 +40,11 @@ class Discounts
         return $discounts;
     }
 
+    public function getDiscoutsByCenter(Center $center)
+    {
+        return $this->getAll()->where('key',$center->key)->where('active',true);
+    }
+
     public function getOrdered($discounts)
     {
         return $discounts;
@@ -47,8 +52,9 @@ class Discounts
         
     public function getIdentitiesOptions(Center $center)
     {
+        $discounts=$this->getDiscoutsByCenter($center)->get();
         $identityIds=[];
-        foreach($center->discounts as $discount)
+        foreach($discounts as $discount)
         {
             $identityIds=array_merge($identityIds,$discount->identities->pluck('id')->toArray());
          

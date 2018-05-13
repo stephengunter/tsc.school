@@ -48,12 +48,16 @@
         },
         computed:{
             disabled(){
-                let user=this.form.user;
                
-                if(user.email) return false;
-                if(user.phone) return false;
+                return !this.canSubmit;
+            },
+            canSubmit(){
+                let user=this.form.user;
+                if(!user.profile.sid) return false;
 
-                return true;
+                if(!this.form.courseIds.length) return false;
+
+                 return true;
             }
 
         },

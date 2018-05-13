@@ -41,15 +41,21 @@ class Centers
         return $this->getAll()->where('id',$id)->first();
     }
 
+    public function getCentersByKey($key)
+    {
+        return $this->getAll()->where('key',$key);
+        
+    }
+
     public function getEastCenters()
     {
-        return $this->getAll()->where('key','east');
+        return $this->getCentersByKey('east');
         
     }
 
     public function getWestCenters()
     {
-        return $this->getAll()->where('key','west');
+        return $this->getCentersByKey('west');
     }
 
     public function getOverseaCenters(bool $active = true)
@@ -99,16 +105,21 @@ class Centers
         return $centers->orderBy('importance','desc');
     }
 
-    public function centerOptions($withEmpty=true)
+    public function mapToOptions($centers,$withEmpty=false)
     {
-        $localCenters= $this->getLocalCenters(true)->get();
-        $options = $localCenters->map(function ($center) {
+        $options = $centers->map(function ($center) {
             return $center->toOption();
         })->all();
 
         if($withEmpty) array_unshift($options, ['text' => '所有中心' , 'value' =>'0']);
         
         return $options;
+    }
+
+    public function centerOptions($withEmpty=true)
+    {
+        $localCenters= $this->getLocalCenters(true)->get();
+        return $this->mapToOptions($localCenters,$withEmpty);
     }
     public function options($withEmpty=false)
     {

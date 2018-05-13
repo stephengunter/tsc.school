@@ -95,7 +95,7 @@
             canRemove(){
                 if(!this.can_edit) return false;
                 if(!this.signup) return false;
-                return  this.signup.details.length > 1;
+                return  true;
 
             },
             title(){

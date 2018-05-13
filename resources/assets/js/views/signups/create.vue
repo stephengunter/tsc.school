@@ -1,6 +1,6 @@
 <template>
 
-    <signup :id="id" :course_id="course" :can_edit="can_edit" :can_back="can_back"  
+    <signup :id="id" :params="params" :can_edit="can_edit" :can_back="can_back"  
         @back="onBack" @saved="onSaved"> 
     </signup>  
     
@@ -21,9 +21,9 @@
               type: Number,
               default: 0
             },
-            course: {
-              type: Number,
-              default: 0
+            params:{
+               type:Object,
+               default: null
             },
             can_edit: {
               type: Boolean,

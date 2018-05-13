@@ -166,6 +166,16 @@ class User extends Authenticatable
 		if($this->contactInfo)  $this->contactInfo->address->fullText();
     }
 
+    public function loadIdentityNames()
+    {
+        if(count($this->identities)){
+            $this->identityNames=join(',',$this->identities->pluck('name')->toArray());
+        }else{
+            $this->identityNames='';
+        }
+    
+    } 
+
     public function updateProfile(array $profileValues)
     {
         $sid=strtoupper($profileValues['sid']);

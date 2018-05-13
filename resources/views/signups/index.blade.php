@@ -11,7 +11,7 @@
 <signups-details v-if="selected" :id="selected" :payways="counter_payways" 
                  v-on:back="backToIndex" v-on:signup-deleted="backToIndex">
 </signups-details>
-<signups-create v-if="creating" :course="courseId" v-on:cancel="backToIndex" v-on:saved="onCreated">
+<signups-create v-if="creating" :params="params"  v-on:cancel="backToIndex" v-on:saved="onCreated">
 </signups-create>
 
 
@@ -40,7 +40,7 @@
 
                     counter_payways:[],
 
-                    courseId:0,
+                    params:{},
 
                     creating:false,
                     selected: 0,
@@ -71,9 +71,9 @@
 
 			},
             methods: {
-                onCreate(courseId) {
+                onCreate(params) {
                     this.creating = true;
-                    this.courseId = parseInt(courseId);
+                    this.params = { ...params }
                 },
                 onSelected(id,group) {
                     this.selected = id;

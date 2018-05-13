@@ -116,8 +116,9 @@ class CoursesController extends Controller
     function setCategories($course)
     {
         $categories=$course->categories;
+       
         $course->categoryName=join(',',$categories->pluck('name')->toArray());
-
+       
         $course->categoryId =$categories->where('top',false)->first()->id;
     }
 

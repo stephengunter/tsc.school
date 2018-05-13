@@ -24,6 +24,14 @@ class Wages
     {
         return $this->getAll()->where('code',$code)->first();
     }
+
+    public function fetchWages()
+    {
+        
+        $wages=$this->getAll()->where('key',$key)->where('active',$active);
+
+        return $wages;
+    }
    
     public function options()
     {

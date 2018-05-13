@@ -39,8 +39,7 @@
                 </searcher>
             </div>
             <div class="col-sm-1 pull-right" style="margin-top: 20px;">
-                
-                <a v-show="hasCourse" @click.prevent="onCreate" href="#" class="btn btn-primary">
+                <a @click.prevent="onCreate" href="#" class="btn btn-primary">
                     <i class="fa fa-plus-circle"></i> 新增
                 </a>
             </div>
@@ -199,7 +198,11 @@
 				this.fetchData();
 			},
             onCreate(){
-                this.$emit('create',this.params.course);
+                let params={
+                    course:this.params.course,
+                    center:this.params.center
+                };
+                this.$emit('create',params);
             },
             onSelected(id){
                this.$emit('selected',id);

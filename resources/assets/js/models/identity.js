@@ -1,4 +1,4 @@
-class Wage {
+class Identity {
     constructor(data) {
  
         for (let property in data) {
@@ -8,7 +8,7 @@ class Wage {
     }
  
     static source() {
-        return '/manage/wages';
+        return '/manage/identities';
     }
     static showUrl(id){
         return `${this.source()}/${id}`;
@@ -28,9 +28,6 @@ class Wage {
     static deleteUrl(id){
         return this.source() + `/${id}`;
     }
-    static reviewUrl(id) {
-        return this.source() + '/review';
-    }
 
     static show(id) {
         return new Promise((resolve, reject) => {
@@ -47,26 +44,12 @@ class Wage {
     }
 
     
+   
  
     static index(params){
         let url = this.source();
         if(params) url=Helper.buildQuery(url, params);
  
- 
-        return new Promise((resolve, reject) => {
-            axios.get(url)
-                .then(response => {
-                        resolve(response.data);
-                })
-                .catch(error => {
-                        reject(error);
-                })
- 
-        })
-    }
-     
-    static create() {
-        let url = this.createUrl();
  
         return new Promise((resolve, reject) => {
             axios.get(url)
@@ -93,6 +76,8 @@ class Wage {
                     })
         })
     }
+     
+    
  
     static edit(id) {
         let url = this.editUrl(id);
@@ -139,41 +124,10 @@ class Wage {
         })
     }
 
-    static review(form){
-        let url = this.reviewUrl();
-        let method = 'post';
-        return new Promise((resolve, reject) => {
-            form.submit(method, url)
-                .then(data => {
-                    resolve(data);
-                })
-                .catch(error => {
-                    reject(error);
-                })
-        })
-    }
-
-    static isSpecial(item){
-        if(item.code){
-            return item.code =='special';
-        }
-        if(item.name){
-            return item.name =='特殊講師';
-        }
-        if(item.text){
-            return item.text =='特殊講師';
-        }
-        return false;
-    }
-
-    
-
-    
-    
     
  
     
  }
  
  
- export default Wage;
+ export default Identity;

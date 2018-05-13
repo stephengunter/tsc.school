@@ -37,7 +37,7 @@
         </div>
             <div class="col-sm-3">
             
-            <div class="form-group">
+            <div v-if="false" class="form-group">
                 <label>性別</label>
                 <div>
                     <toggle :items="genderOptions"   :default_val="form.user.profile.gender" @selected="setGender"></toggle>

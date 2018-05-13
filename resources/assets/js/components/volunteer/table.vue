@@ -10,12 +10,13 @@
 							</check-box>
                         </th>
                         <th style="width:10%">姓名</th>
-                        <th style="width:20%">Email</th>
+                        <th style="width:15%">Email</th>
                         <th style="width:10%">手機</th>
-                        <th>所屬中心</th>
-                        <th style="width:15%">可服務時間</th>
+                        <th style="width:15%">所屬中心</th>
+                        <th style="width:10%">身分</th>
+                        <th style="width:10%">可服務時間</th>
                         <th style="width:10%">可服務時段</th>
-                        <th style="width:15%">備註</th>
+                        <th >備註</th>
                     </tr>
                 </thead>
                 <tbody v-if="hasData">
@@ -36,6 +37,9 @@
                         <td>{{  volunteer.user.phone }}</td>
                         <td>
                             {{  volunteer.centersText }}
+                        </td>
+                        <td>
+                            {{  volunteer.user.identityNames }}
                         </td>
                         <td>{{  volunteer.weekdaysText }}</td>
                         <td>{{  volunteer.time }}</td>

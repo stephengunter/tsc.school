@@ -14,10 +14,13 @@ class Menus {
                 html = '<i class="fa fa-envelope"></i>';
                 break;
             case 'teachers':
-                html = '<i class="fa fa-user-circle"></i>';
+                html = '<i class="fa fa-user"></i>';
                 break;
+            case 'teachersadmin':
+                html = '<i class="fa fa-user"></i>';
+                break;    
             case 'centers':
-                html = '<i class="fa fa-university" aria-hidden="true"></i>';
+                html = '<i class="fa fa-university" ></i>';
                 break;
             case 'categories':
                 html = '<i class="fa fa-th-list"></i>';
@@ -119,6 +122,9 @@ class Menus {
                 text= '使用者管理';
                 break;
             case 'teachers':
+                text= '教師管理';
+                break;
+           case 'teachersadmin':
                 text= '教師管理';
                 break;
             case 'terms':

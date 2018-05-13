@@ -8,7 +8,7 @@ class Identity extends Model
 {
     protected $fillable = [ 
         'name','code','member','ps',
-        'removed'
+        'removed','updatedBy'
     
     ];
 

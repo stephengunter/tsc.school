@@ -23,7 +23,7 @@ trait Centers
     }
     public function addToCenterById($centerId)
 	{
-        if($this->inCenterById($center->id)) return;
+        if($this->inCenterById($centerId)) return;
 		$this->centers()->attach($centerId);
     }
     public function addToCentersByIds(array $centerIds)

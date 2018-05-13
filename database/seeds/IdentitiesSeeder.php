@@ -8,12 +8,7 @@ class IdentitiesSeeder extends Seeder {
 	public function run() {
 
 		$identities = [
-			[
-                'name' => '舊生',
-                'code' => 'again',
-                'member' => false,
-
-			],
+			
 			[
 				'name' => '各級學校在校生',
                 'code' => 'student',
@@ -25,17 +20,6 @@ class IdentitiesSeeder extends Seeder {
                 'code' => 'amei',
                 'member' => false,
 			],
-			[
-				'name' => '65歲以上銀髮族',
-                'code' => 'over65',
-                'member' => false,
-			],
-			
-			[
-                'name' => '75歲以上銀髮族',
-                'code' => 'over75',
-                'member' => false,
-            ],
             [
                 'name' => '身心障礙朋友',
                 'code' => 'disability',
@@ -51,13 +35,18 @@ class IdentitiesSeeder extends Seeder {
                 'code' => 'religion',
                 'member' => false,
 			],
+            [
+                'name' => '慈濟志業體同仁',
+                'code' => 'staff',
+                'member' => false,
 
+			],
         ];
 
         $memberIdentities = [
 			[
-                'name' => '慈濟志業體同仁',
-                'code' => 'staff',
+				'name' => '會員',
+                'code' => 'member',
                 'member' => true,
 
 			],

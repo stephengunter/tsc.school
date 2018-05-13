@@ -4,7 +4,7 @@ namespace App\Services;
 use App\Term;
 use App\Center;
 use App\Course;
-use App\Identitiy;
+use App\Identity;
 use DB;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -14,7 +14,7 @@ class Identities
    
     public function getAll()
     {
-        return Identitiy::where('removed',false);
+        return Identity::where('removed',false);
     }
     public function getById($id)
     {   

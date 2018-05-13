@@ -11,6 +11,7 @@ use App\User;
 use App\Profile;
 use App\Role;
 use App\Term;
+use App\Category;
 use App\Center;
 use App\Course;
 use App\Signup;
@@ -411,32 +412,101 @@ class SignupsController extends Controller
 
         $course=0;
         if($request->course)  $course=(int)$request->course;
-        if(!$course) abort(404);
+        $selectedCourse=null;
+        if($course) $selectedCourse=$this->courses->getById($course);
 
-        $selectedCourse=$this->courses->getById($course);
-        if(!$selectedCourse) abort(404);
 
+        $selectedCenter=null;
+        $term=null;
+        if($selectedCourse){
+            $selectedCenter=$selectedCourse->center;
+            $term=$selectedCourse->term;
+        }else{
+            $center=0;
+            if($request->center)  $center=(int)$request->center;
+        
+            if($center) $selectedCenter=$this->centers->getById($center);
+            if(!$selectedCenter) abort(404);
+
+            $term = $this->terms->getActiveTerm();
+        }
+       
         $signup=Signup::init();
+        $courseIds=[];
+        
+        if($selectedCourse){
+            $signupDetails=SignupDetail::init($selectedCourse);
 
-        $signupDetails=SignupDetail::init($selectedCourse);
+            $selectedCourse->fullName();
+            $selectedCourse->loadClassTimes();
+            $signupDetails['course'] =$selectedCourse;
 
-        $selectedCourse->fullName();
-        $selectedCourse->loadClassTimes();
-        $signupDetails['course'] =$selectedCourse;
+            $signup['details']=[$signupDetails];
 
-        $signup['details']=[$signupDetails];
+            $courseIds = [$selectedCourse->id];
+        }else{
+
+        }
+
+        $centers=$this->centers->getCentersByKey($selectedCenter->key)->get();
+       
+        $centerOptions=$this->centers->mapToOptions($centers);
+        
+
+        //$courseOptions=$this->courses->options($term,$selectedCourse->center);
+
+        $identityOptions=$this->discounts->getIdentitiesOptions($selectedCenter);
+        
         $form=[
             'signup' => $signup,
             'user' => User::init(),
-            'courseOptions' => $this->courses->options($selectedCourse->term,$selectedCourse->center),
-            'identityOptions' => $this->discounts->getIdentitiesOptions($selectedCourse->center),
-            'courseIds' => [$selectedCourse->id],
+            'courseOptions' => [],
+            'identityOptions' => $identityOptions,
+            'courseIds' => $courseIds,
             'identityIds' => [],
-            'lotus' => false
+            'lotus' => false,
+            'centerId' => $selectedCenter->id,
+            'centerOptions' => $centerOptions
         ];
 
         return response() ->json($form);
       
+    }
+
+    public function fetchCourses()
+    {
+        
+        $request=request();
+
+        $center=0;
+        if($request->center)  $center=(int)$request->center;
+
+        $keyword='';
+        if($request->keyword)  $keyword=$request->keyword;
+
+        $selectedCenter = Center::find($center);
+
+        $term = $this->terms->getActiveTerm();
+        $reviewed=true;
+        $selectedCategory=null;
+        
+        $courses=$this->courses->fetchCourses($term->id,$selectedCenter,$selectedCategory,$reviewed, $keyword)->get();
+
+        $courses = $courses->filter(function ($course) {
+            return $course->canSignup(false) && !$course->hasStarted();   
+        })->all();
+
+        
+
+        foreach($courses as $course){
+            $course->fullName();
+            $course->loadClassTimes();
+        } 
+
+        
+        return response() ->json($courses);
+
+        
     }
 
     public function store(SignupRequest $request)

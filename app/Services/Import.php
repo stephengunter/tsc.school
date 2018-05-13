@@ -11,6 +11,7 @@ use App\ContactInfo;
 use App\Address;
 use App\District;
 use App\Core\Helper;
+use Exception;
 
 trait Import
 {
@@ -38,13 +39,23 @@ trait Import
 		}
 
 		$gender=Helper::getGenderFromSID($sid);
-
 		$dob=trim($row['dob']);
+		
 		if($dob){
-			$pieces=explode('/', $dob);
-			$year = (int)$pieces[0] + 1911;
-			$dob= $year . '/'.$pieces[1]. '/'.$pieces[2];                
+		
+			try {  
+				$pieces=explode('/', $dob);
+				$year = (int)$pieces[0] + 1911;
+				$dob= $year . '/'.$pieces[1]. '/'.$pieces[2];   
+		
+			}catch (Exception $e) {  
+				$err_msg .=  $fullname . '生日錯誤';			
+			}  
+			             
 		}
+		
+		
+		
 
 		
 		$profileValues=[
@@ -61,7 +72,7 @@ trait Import
 
 		$getContactInfo=$this->getContactInfo($row,$updatedBy);
 		if(array_key_exists('err',$getContactInfo)){
-			$err_msg .= $getContactInfo['err'] . ',';		
+			$err_msg .= $fullname . $getContactInfo['err'] . ',';		
 		}else{
 			$contactInfoValues=$getContactInfo['contactInfoValues'];
 			$addressValues=$getContactInfo['addressValues'];
@@ -98,9 +109,45 @@ trait Import
 	
 	public function getContactInfo($row,$updatedBy)
 	{
-		$tel=trim($row['tel']);
-		$fax=trim($row['fax']);
+		$tel='';
+		if(array_key_exists ( 'tel' ,$row)){
+			$tel=trim($row['tel']);
+		}  
+		
+		$fax='';
+		if(array_key_exists ( 'fax' ,$row)){
+			$tel=trim($row['fax']);
+		}  
+
+
+
 		$street=trim($row['street']);
+		if(!$street){
+			$district=District::where('zipcode','100')->first();
+			$addressValues=[
+				'districtId'=>$district->id,
+				'street' => $street,
+				'updatedBy' => $updatedBy
+			];
+			
+			$contactInfoValues=[
+				'tel'=>$tel,
+				'fax' => $fax,
+				'updatedBy' => $updatedBy
+			];
+	
+			return [
+				'addressValues'=>$addressValues,
+				'contactInfoValues'=>$contactInfoValues,
+			];
+		}
+
+
+		
+		
+
+
+
 		$district=null;
 		$zipcode=trim($row['zipcode']);
 

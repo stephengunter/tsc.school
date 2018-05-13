@@ -85,7 +85,7 @@ class DiscountSeeder extends Seeder {
                 'ps' => '',
                 'active' => true
             ]),
-            ["again",  "student","staff","committee","director"]
+            [ "student","staff","committee","director"]
 
         );
 
@@ -114,8 +114,7 @@ class DiscountSeeder extends Seeder {
                 'prove' => false,
                 'ps' => '',
                 'active' => true
-            ]),
-            ["over65"]
+            ])
         );
 
         $this->createDiscount(
@@ -209,8 +208,7 @@ class DiscountSeeder extends Seeder {
                 'prove' => false,
                 'ps' => '',
                 'active' => true
-            ]),
-            ["over65"]
+            ])
 
         );
 
@@ -225,8 +223,7 @@ class DiscountSeeder extends Seeder {
                 'prove' => false,
                 'ps' => '',
                 'active' => true
-            ]),
-            ["over75"]
+            ])
 
         );
 

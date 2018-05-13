@@ -6,6 +6,7 @@ use App\Role;
 use App\Category;
 use App\TeacherGroup;
 use App\Teacher;
+use App\Volunteer;
 use App\CoursesTeachers;
 use App\Profile;
 use App\Term;
@@ -18,6 +19,7 @@ use App\District;
 use App\Services\Users;
 use App\Services\Teachers;
 use App\Services\Volunteers;
+use App\Services\Categories;
 use DB;
 use Carbon\Carbon;
 use Excel;
@@ -27,11 +29,13 @@ use App\Events\CourseShutDown;
 
 class Courses 
 {
-    public function __construct(Users $users, Teachers $teachers, Volunteers $volunteers)
+    public function __construct(Users $users, Teachers $teachers, Volunteers $volunteers,
+                                Categories $categories)
     {
         $this->users=$users;
         $this->teachers=$teachers;
         $this->volunteers=$volunteers;
+        $this->categories=$categories;
       
         $this->with=['teacherGroup','term','center','classTimes.weekday'];
     }
@@ -60,8 +64,20 @@ class Courses
         $course->save();
         $course->categories()->attach($categoryIds);
 
-        if(count($teacherIds)) $course->teachers()->attach($teacherIds);
-        if(count($volunteerIds)) $course->volunteers()->attach($volunteerIds);
+        if(count($teacherIds)){
+            $course->teachers()->attach($teacherIds);
+            foreach($teacherIds as $teacherId){
+                $teacher=Teacher::find($teacherId);
+                if($teacher) $teacher->addToCenterById($course->centerId);
+            }
+        } 
+        if(count($volunteerIds)){
+            $course->volunteers()->attach($volunteerIds);
+            foreach($volunteerIds as $volunteerId){
+                $volunteer=Volunteer::find($volunteerId);
+                if($volunteer) $volunteer->addToCenterById($course->centerId);
+            }
+        } 
 
         return $course;
         
@@ -271,7 +287,7 @@ class Courses
             $center_code=trim($row['center']);
             $termNumber=(int)trim($row['term']);
 
-            $categoryId=(int)trim($row['categories']);
+            $categoryCode=trim($row['categories']);
             $teacherSIDs= trim($row['teachers']);  
             $teacherGroupId= trim($row['group']);
           
@@ -335,11 +351,11 @@ class Courses
             }
 
             $category=null;
-            if(!$categoryId){
+            if(!$categoryCode){
                 $err_msg .= '課程分類不可空白' . ',';
                 continue;
             }else{
-                $category=Category::find($categoryId);
+                $category=$this->categories->getCategoryByCode($categoryCode);
                 if(!$category){
                     $err_msg .= '課程分類錯誤' . ',';
                     continue;
@@ -411,7 +427,7 @@ class Courses
 
             if($teacherGroup) $course->teacherGroupId=$teacherGroup->id;
 
-            $course=$this->createCourse($course,[$categoryId],$teacherIds,$volunteerIds);
+            $course=$this->createCourse($course,[$category->id],$teacherIds,$volunteerIds);
 
             
             

@@ -31,7 +31,7 @@
 
             <show v-if="readOnly"  :signup="signup" @edit-ps="onEditPS" @unPay="beginUnpay">  
             </show> 
-            <edit v-else ref="editComponent"  :id="id" :course_id="course_id" :user="userSelector.user"
+            <edit v-else ref="editComponent"  :id="id" :params="params" :user="userSelector.user"
                     @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" @user-saved="loadUser">                 
             </edit>
             
@@ -96,9 +96,9 @@
               type: Number,
               default: 0
             },
-            course_id: {
-              type: Number,
-              default: 0
+            params:{
+               type:Object,
+               default: null
             },
             payways: {
               type: Array,

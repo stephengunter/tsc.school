@@ -61,7 +61,7 @@ Route::group(['middleware' => 'admin'], function()
 {
     Route::get('/manage', function () {
         $current='manage';
-        $keys=[ 'CoursesAdmin','SignupsAdmin','UsersAdmin','MainSettings' ];
+        $keys=[ 'CoursesAdmin','SignupsAdmin', 'TeachersAdmin','UsersAdmin','MainSettings' ];
         $systems=[];
     
         foreach ($keys as $key) {
@@ -104,6 +104,8 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/admins/upload', 'AdminsController@upload');
 
     Route::resource('/manage/discounts', 'DiscountsController');
+    Route::resource('/manage/identities', 'IdentitiesController');
+    Route::resource('/manage/wages', 'WagesController');
 
     Route::resource('/manage/teachers', 'TeachersController');
     Route::post('/manage/teachers/import', 'TeachersController@import');
@@ -151,6 +153,7 @@ Route::group(['middleware' => 'admin'], function()
 
     //Signups
     Route::get('/manage/signups/report', 'SignupsController@report');
+    Route::get('/manage/signups/courses', 'SignupsController@fetchCourses');
     Route::resource('/manage/signups', 'SignupsController');
     Route::post('/manage/signups/updatePS', 'SignupsController@updatePS');
 

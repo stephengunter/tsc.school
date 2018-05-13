@@ -57,16 +57,19 @@ class Course extends Model
     }
     public static function initCourseNumber($serial ,Category $category,Center $center ,Term $term )
     {
-        // 8A1071-001
+        // A1074-03001
         $serial = (int)$serial;
         if (!$serial) return '';
 
+        $categoryString = '';
+        if ((int)$category->code < 10) $categoryString = '0' . $category->code;
+        else   $categoryString = $category->code;
+
         $numString = '';
-        if ($serial < 10) $numString = '00' .(string)$serial;
-        else if ($serial < 100) $numString = '0' . (string)$serial;
+        if ($serial < 10) $numString = '0' .(string)$serial;
         else $numString = (string)$serial;
 
-        return $category->code . $center->code . (string)$term->number .'-' . $numString;
+        return $center->code . (string)$term->number .'-' . $categoryString .$numString;
 
     }
     

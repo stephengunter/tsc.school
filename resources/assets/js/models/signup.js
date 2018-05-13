@@ -15,8 +15,9 @@ class Signup {
     static showUrl(id){
         return `${this.source()}/${id}`;
     }
-    static createUrl() {
-        return this.source() + '/create';
+    static createUrl(params) {
+        let url = this.source() + '/create';
+        return Helper.buildQuery(url, params);
     }
     static storeUrl() {
         return this.source();
@@ -63,6 +64,23 @@ class Signup {
         })
     }
 
+    static courses(params){
+        let url = this.source() + '/courses';
+        url=Helper.buildQuery(url, params);
+ 
+ 
+        return new Promise((resolve, reject) => {
+            axios.get(url)
+                .then(response => {
+                        resolve(response.data);
+                })
+                .catch(error => {
+                        reject(error);
+                })
+ 
+        })
+    }
+
     static report(params){
         let url = this.source() + '/report';
         url=Helper.buildQuery(url, params);
@@ -80,9 +98,8 @@ class Signup {
         })
     }
      
-    static create(course) {
-        let url = this.createUrl();
-        url += `?course=${course}`;
+    static create(params) {
+        let url = this.createUrl(params);
  
         return new Promise((resolve, reject) => {
             axios.get(url)

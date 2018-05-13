@@ -43,6 +43,8 @@ Vue.component('categories-index', require('./views/categories/index'));
 Vue.component('categories-import', require('./views/categories/import'));
 
 Vue.component('discounts-index', require('./views/discounts/index'));
+Vue.component('identities-index', require('./views/identities/index'));
+Vue.component('wages-index', require('./views/wages/index'));
 
 Vue.component('terms-index', require('./views/terms/index'));
 Vue.component('terms-create', require('./views/terms/create'));

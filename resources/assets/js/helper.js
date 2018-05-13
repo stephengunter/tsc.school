@@ -48,6 +48,11 @@ class Helper {
 
 		return false;
 	}
+
+	static (val){
+		let number = parseFloat(val);
+		return number > 0;
+	}
 	static buildQuery(url, searchParams) {
 		url += '?';
 		for (let field in searchParams) {
