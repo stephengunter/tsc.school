@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="panel panel-default" style="height:850px">
+                <div class="panel panel-default" :style="getStyle">
                     <div class="panel-heading">
                         <h4>報名課程</h4>
                     </div>   
@@ -160,6 +160,10 @@
             sevenCodes(){
                 if(!this.signup.bill.sevenCodes) return [];
                 return this.signup.bill.sevenCodes.split(',');
+            },
+            getStyle(){
+                if(this.payed) return 'height:350px';
+                return 'height:820px';
             }
         }, 
         beforeMount() {

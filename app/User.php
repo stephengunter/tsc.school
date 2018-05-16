@@ -159,11 +159,18 @@ class User extends Authenticatable
 			});
 		}
     }
+
+    
     
 	public function loadContactInfo()
 	{
 		$this->contactInfo=$this->getContactInfo();
 		if($this->contactInfo)  $this->contactInfo->address->fullText();
+    }
+
+    public function getAge()
+    {
+        return $this->profile->getAge();
     }
 
     public function loadIdentityNames()

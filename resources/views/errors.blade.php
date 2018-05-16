@@ -3,8 +3,11 @@
 
 @section('content')
 
-<test></test>
-
+    @if (isset($msg))
+        <h1 style="color:red"> {{ $msg }}</h1>
+    @else
+        <h1 style="color:red"> 系統目前無回應,請稍候再試. </h1>
+    @endif
 
 @endsection
 

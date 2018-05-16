@@ -225,11 +225,9 @@ class Volunteers
                 $user->addIdentity($identity->id);
             }
 
-            $contactInfo=new ContactInfo($contactInfoValues);
-            $address=new Address($addressValues);
-            
+           
 
-            $this->users->setContactInfo($user,$contactInfo,$address);
+            $user->setContactInfo($contactInfoValues , $addressValues);
             
 
             $weekdayValues=trim($row['weekdays']);

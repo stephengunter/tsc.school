@@ -2,11 +2,11 @@
 
 Auth::routes();
 
-//Route::get('/test', 'BillsController@test');
+Route::get('/test', 'BillsController@test');
 
-Route::get('/test', function(){
-   
-});
+// Route::get('/test', function(){
+//     return view('errors')->with(['msg' => 'yyhyh']);
+// });
 
 
 
@@ -79,7 +79,7 @@ Route::group(['middleware' => 'admin'], function()
     });
 
     //test
-    Route::get('/manage/SeedDiscountCenters', 'CentersController@seedDiscountCenters');
+    Route::get('/manage/SeedUsers', 'UsersController@seed');
     Route::get('/manage/SeedSignups', 'SignupsController@seed');
     Route::get('/manage/seedPays', 'BillsController@seedPays');
     Route::get('/manage/seedQuits', 'QuitsController@seedQuits');
@@ -172,11 +172,11 @@ Route::group(['middleware' => 'admin'], function()
     Route::get('/manage/files/download/{name}', 'FilesController@download');
     
     Route::resource('/manage/quits', 'QuitsController');
-    Route::post('/manage/quits/review', 'QuitsController@review');
-    Route::post('/manage/quits/finish', 'QuitsController@finish');
+    Route::post('/manage/quits/updateStatuses', 'QuitsController@updateStatuses');
     Route::post('/manage/quits/updatePS', 'QuitsController@updatePS');
 
     Route::get('/manage/reports/courses', 'ReportsController@courses');
+    Route::get('/manage/reports/quits', 'ReportsController@quits');
 
     Route::resource('/manage/lessons', 'LessonsController');
     Route::post('/manage/lessons/init', 'LessonsController@init');

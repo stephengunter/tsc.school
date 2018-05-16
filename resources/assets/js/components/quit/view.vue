@@ -69,6 +69,10 @@
                 type: Object,
                 default: null
             },
+            mode:{
+                type: String,
+                default: ''
+            },
             can_edit:{
                type: Boolean,
                default: true
@@ -152,7 +156,7 @@
            
         },
         beforeMount(){
-            this.init()
+            if(this.mode=='create') this.beginCreate();
         },
         watch: {
             'version':'init'

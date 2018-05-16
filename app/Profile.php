@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Profile extends Model
 {
@@ -32,6 +33,14 @@ class Profile extends Model
 	public function setsidAttribute($value) 
 	{
 		$this->attributes['sid'] = strtoupper($value);
+	}
+
+	public function getAge()
+	{
+		$today=Carbon::today();
+		$dob=new Carbon($this->dob);
+
+		return $dob->diffInYears(Carbon::today());
 	}
     
 	

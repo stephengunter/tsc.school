@@ -24,6 +24,8 @@ class CreateSignupsTable extends Migration
             $table->string('discount')->nullable(); 
             $table->integer('status');
 
+            $table->string('identity_ids')->nullable(); 
+
             $table->integer('updatedBy')->unsigned()->nullable();
             $table->string('ps')->nullable(); 
             $table->timestamps();

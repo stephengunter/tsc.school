@@ -98,10 +98,14 @@ class SignupsController extends Controller
         $users=User::all();
         $index = 0;
         $active = true;
-        $term=\App\Term::where('active',true)->first();
-        $center=\App\Center::where('head',true)->first();
         
-        $courses= $this->courses->fetchCourses($term->id,$center)->get();
+
+        $term = $this->terms->getActiveTerm();
+        $reviewed=true;
+        $selectedCenter=null;
+        $selectedCategory=null;
+        
+        $courses=$this->courses->fetchCourses($term->id,$selectedCenter,$selectedCategory,$reviewed)->get();
 
         $updatedBy=$this->currentUserId();
        
@@ -109,30 +113,37 @@ class SignupsController extends Controller
         for ($i = 0; $i < 50; $i++)
         {
             $user = $userList[$i];
+
+            $exist=Signup::where('userId',$user->id)->first();
+            if($exist) continue;
+
             $signup = new Signup();
 
             $countCount = ($i % 2) == 0 ? 1 : 2;
             $selectedCourses =[];
-            
-            
+
             array_push($selectedCourses , $courses->random());
+
+            $selectedCenter=$selectedCourses[0]->center;
             
             if ($countCount > 1)
             {
                 $firstCourse = $selectedCourses[0];
                 
                 $coursesCanSelect = $courses->where('id','!=', $firstCourse->id);
+                $coursesCanSelect = $coursesCanSelect->filter(function ($course) use($selectedCenter) {
+                    return $course->center->key==$selectedCenter->key;
+                })->all();   
                 
                 if(count($coursesCanSelect)){
-                    array_push($selectedCourses , $coursesCanSelect->random() ); 
+                    array_push($selectedCourses , array_random($coursesCanSelect) ); 
                 }
 
             }
 
-            
-
-            $identities = $this->discounts->getIdentitiesOptions($center);
-            $identity = array_random($identities, 1)[0];
+            $identityOptions=$this->discounts->getIdentitiesOptions($selectedCenter);
+          
+            $identity = array_random($identityOptions);
             $identityIds=[$identity['value']];
 
             $signupDetails=[];
@@ -143,7 +154,7 @@ class SignupsController extends Controller
                 $detail = new SignupDetail([
                     'courseId' => $selectedCourse->id,
                     'tuition' => $selectedCourse->tuition,
-                    'cost' => $selectedCourse->cost,
+                    'cost' => $selectedCourse->cost ? $selectedCourse->cost : 0,
                     'updatedBy' => $updatedBy
 
                 ]);
@@ -153,14 +164,14 @@ class SignupsController extends Controller
             $lotus = ($i % 5) == 0 ? true : false;
             $net = ($i % 2) == 0 ? true : false;
 
-            $signup=new Signup(['userId' => $user->id , 'net'=> $net , 'updatedBy' => $updatedBy ]);
+            $signup=new Signup(['userId' => $user->id , 'identity_ids'=> join(',', $identityIds),'net'=> false , 'updatedBy' => $updatedBy ]);
 
            
-            $this->setSignupMoney($signup, $signupDetails ,collect($selectedCourses), $identityIds, $lotus);
+            $this->setSignupMoney($signup,$user, $signupDetails ,collect($selectedCourses), $identityIds, $lotus);
 
             
             $signup=$this->signups->createSignup($signup,$signupDetails);
-
+          
          
 
 
@@ -451,9 +462,6 @@ class SignupsController extends Controller
         $centers=$this->centers->getCentersByKey($selectedCenter->key)->get();
        
         $centerOptions=$this->centers->mapToOptions($centers);
-        
-
-        //$courseOptions=$this->courses->options($term,$selectedCourse->center);
 
         $identityOptions=$this->discounts->getIdentitiesOptions($selectedCenter);
         
@@ -493,7 +501,8 @@ class SignupsController extends Controller
         $courses=$this->courses->fetchCourses($term->id,$selectedCenter,$selectedCategory,$reviewed, $keyword)->get();
 
         $courses = $courses->filter(function ($course) {
-            return $course->canSignup(false) && !$course->hasStarted();   
+            $net=false;
+            return $course->canSignup($net) && !$course->hasStarted();   
         })->all();
 
         
@@ -514,8 +523,14 @@ class SignupsController extends Controller
        
         $updatedBy=$this->currentUserId();
 
+        $courseIds=$request['courseIds'];
+        if(!count($courseIds))
+        {
+            $errors['courseIds'] = ['請選擇報名課程'];
+            return $this->requestError($errors);
+        }
+
         $userId=$request->getUserId();
-        $identityIds = $request['identityIds'];
         if(!$userId){
             //New User
             $userValues=$request->getUserValues();
@@ -539,20 +554,8 @@ class SignupsController extends Controller
         }
 
         $user=User::find($userId);
-
         $identityIds = $request['identityIds'];
-        if(count($identityIds)){
-           $this->users->addIdentitiesToUser($user,$identityIds);
-        }
       
-
-        $courseIds=$request['courseIds'];
-        if(!count($courseIds))
-        {
-            $errors['courseIds'] = ['請選擇報名課程'];
-            return $this->requestError($errors);
-        }
-
         $signupDetails=[];
 
         $selectedCourses=$this->courses->getByIds($courseIds)->get();
@@ -579,32 +582,33 @@ class SignupsController extends Controller
             array_push($signupDetails,$detail);
         }
 
-        $signup=new Signup(['userId' => $userId , 'net'=> false , 'updatedBy' => $updatedBy ]);
+        $signup=new Signup(['userId' => $userId , 'identity_ids'=> join(',', $identityIds),'net'=> false , 'updatedBy' => $updatedBy ]);
 
-        $this->setSignupMoney($signup, $signupDetails ,$selectedCourses, $identityIds,  $request['lotus']);
+        $this->setSignupMoney($signup, $user,$signupDetails ,$selectedCourses, $identityIds,  $request['lotus']);
 
        
         $signup=$this->signups->createSignup($signup,$signupDetails);
         
-        return response() ->json($signup);
+        return response()->json($signup);
        
     }
 
-    function setSignupMoney(Signup $signup, array $signupDetails ,$courses, $identityIds, $lotus)
+    function setSignupMoney(Signup $signup, User $user,array $signupDetails ,$courses, $identityIds, $lotus)
     {
         
         $terms= $courses->pluck('termId')->all();
         //課程必須在同一學期
         if(count(array_unique($terms)) > 1) abort(500);
-        //課程必須在同一中心
-        $centers= $courses->pluck('centerId')->all();
-        if(count(array_unique($centers)) > 1) abort(500);
+        //課程必須在同一中心分類
+        $centerIds= $courses->pluck('centerId')->all();
+        $centerKeys=$this->centers->getByIds($centerIds)->pluck('key')->toArray();
+        if(count(array_unique($centerKeys)) > 1) abort(500);
         
      
         $center = $courses[0]->center;
         $term = $courses[0]->term;
 
-        $bestDiscount=$this->discounts->findBestDiscount($center,$term,$identityIds,$lotus, count($courses));
+        $bestDiscount=$this->discounts->findBestDiscount($center,$term,$user,$identityIds,$lotus, count($courses));
         
         
         if($term->canBird(Carbon::today())){

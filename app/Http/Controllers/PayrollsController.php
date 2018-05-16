@@ -186,7 +186,7 @@ class PayrollsController extends Controller
         
         $model=[
             'title' => '教師鐘點費',
-            'menus' => $this->adminMenus('CoursesAdmin'),
+            'menus' => $this->adminMenus('TeachersAdmin'),
 
             
             'centers' => $centerOptions,

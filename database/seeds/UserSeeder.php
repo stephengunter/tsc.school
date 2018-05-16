@@ -73,51 +73,6 @@ class UserSeeder extends Seeder
 	public function run()
 	{
 		$this->addDev();
-		
-		return;
-
-        $roads=[ '中正','中華','民生','建國','忠孝', '仁愛','信義','和平'];
-        
-        $districts=District::all()->pluck('id')->toArray();
-
-        $faker = Factory::create();
-		
-		foreach(range(1, 50) as $i) {
-			$gender=( $i %2 == 0 );
-			$sid= $faker->randomLetter();
-			$sid .= $gender ? '1' : '2' ;
-			$sid .= mt_rand(1, 99999999);
-            $user = new User([
-                
-                'email' => $faker->unique()->safeEmail,
-				'phone' =>  '093' . mt_rand(1, 9999999)
-            ]);
-
-            $profile=new Profile([
-				'fullname'=> $faker->name,
-				'sid' => $sid,
-                'dob' => mt_rand(1945, 1995) . '-' .mt_rand(1, 12).'-'.mt_rand(1, 28),
-                'gender' => ( $i %2 == 0 ),
-            ]);
-
-			$user=$this->users->createUser($user,$profile);
-			
-            
-            $address=new Address([
-                'districtId' => array_rand($districts, 1),
-                'street' => $roads[array_rand($roads, 1)] . '路' . mt_rand(1, 300) . '號',
-            ]);
-
-            $contactInfo=new ContactInfo([
-                'tel' => $faker->tollFreePhoneNumber     
-            ]);
-
-            $this->users->setContactInfo($user,$contactInfo,$address);
-            
-		}  
-		
-
-
 				
 	}
 

@@ -23,12 +23,13 @@ class CreateQuitsTable extends Migration
             $table->decimal('fee', 8, 2)->default(0)->nullable();
 
             $table->integer('paywayId');
-            $table->string('account')->nullable();
             $table->integer('status')->default(0); 
-           
 
-            $table->boolean('reviewed')->default(false);
-            $table->integer('reviewedBy')->unsigned()->nullable();
+            $table->string('account_bank')->nullable();
+            $table->string('account_branch')->nullable();
+            $table->string('account_owner')->nullable();
+            $table->string('account_number')->nullable();
+            $table->string('account_code')->nullable();
             
             $table->boolean('auto')->default(false); //系統自動產生的
             

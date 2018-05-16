@@ -22,8 +22,10 @@ class Quits
         $this->payways=$payways;
 
         $this->statuses=array(
-            ['value'=> 0 , 'text' => '未完成'],
-            ['value'=> 1 , 'text' => '已結案']
+            ['value'=> -1 , 'text' => '待處理'],
+            ['value'=> 0 , 'text' => '審核中'],
+            ['value'=> 1 , 'text' => '已審核'],
+            ['value'=> 2 , 'text' => '已完成'],
         );
 
         $this->with=['signup.user.profile','details','payway'];
@@ -55,6 +57,17 @@ class Quits
     public function getById($id)
     {   
         return Quit::with($this->with)->find($id);
+    }
+    public function fetchQuits(Center $center=null,Payway $payway=null,int $status)
+    {
+      
+        $quits = [];
+        if($center) $quits = $this->fetchQuitsByCenter($center);
+        else $quits = $this->getAll();
+
+        if($payway) $quits = $quits->where('paywayId' , $payway->id);
+
+        return $quits->where('status' , $status);
     }
 
     public function fetchQuitsByCenter(Center $center)
@@ -220,11 +233,13 @@ class Quits
        
     }
 
+    
+
     public function reviewOK(array $ids, $reviewedBy)
     {
         $quits=$this->getByIds($ids)->get();
         foreach($quits as $quit){
-            $quit->reviewed=true;
+            $quit->status=1;
             $quit->reviewedBy=$reviewedBy;
             $quit->updatedBy=$reviewedBy;
             $quit->save();
@@ -235,8 +250,8 @@ class Quits
     {
         $quits=$this->getByIds($ids)->get();
         foreach($quits as $quit){
-            if(!$quit->reviewed) abort(500);
-            $quit->status=1;
+            if(!$quit->status==1) abort(500);
+            $quit->status=2;
             $quit->updatedBy=$updatedBy;
             $quit->save();
         } 
@@ -263,13 +278,13 @@ class Quits
     public function  updateReview($id,bool $reviewed,int $reviewedBy)
     {
         $quit=Quit::findOrFail($id);
-        $quit->reviewed=$reviewed;
+       
         $quit->updatedBy=$reviewedBy;
 
         if($reviewed){
-            $quit->reviewedBy=$reviewedBy;
+            $quit->status=1;
         }else{
-            $quit->reviewedBy='';
+            $quit->status=0;
         }
 
         $quit->save();

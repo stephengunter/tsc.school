@@ -55,6 +55,7 @@ export default {
 	},
     methods:{
 		init(){
+           
 			this.quitDetails=this.signup.details.map(item=>{
                 return {
                     'course':item.course,
@@ -65,7 +66,7 @@ export default {
                 }
             });
            
-            let fetchData=Quit.create();
+            let fetchData=Quit.create(this.signup.id);
             fetchData.then(data => {
                     this.form = new Form({
                         quit:{

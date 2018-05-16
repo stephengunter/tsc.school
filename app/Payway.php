@@ -20,11 +20,9 @@ class Payway extends Model
     }
     public function  toOption()
     {
-        return [ 'text' => $this->name ,  'value' => $this->id ];
+        return [ 'text' => $this->name ,  'value' => $this->id , 'need_account' => $this->need_account];
         
     }
-
-    
 
     public function  needAccount()
     {

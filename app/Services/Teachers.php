@@ -220,7 +220,6 @@ class Teachers
             $education=trim($row['education']);
             $specialty=trim($row['specialty']);
             $jobtitle=trim($row['jobtitle']);
-            $description=trim($row['description']);
             $ps=trim($row['ps']);
 
             $experiences='';               
@@ -233,7 +232,6 @@ class Teachers
                 'wageId' => $wage->id,
                 'education' => $education,
                 'specialty' => $specialty,
-                'description' => $description,
                 'experiences' => $experiences,
                 'jobtitle' => $jobtitle,
                 'ps' => $ps,
@@ -252,14 +250,6 @@ class Teachers
                 } 
                 
             }
-
-
-            // $account=new Account([
-            //     'number' => $accountNumber,
-            //     'updatedBy' => $updatedBy,
-            // ]);
-
-
 
 
             $getCenters=$this->getCenters($row);

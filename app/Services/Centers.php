@@ -41,6 +41,11 @@ class Centers
         return $this->getAll()->where('id',$id)->first();
     }
 
+    public function getByIds(array $ids)
+    {
+        return $this->getAll()->whereIn('id',$ids);
+    }
+
     public function getCentersByKey($key)
     {
         return $this->getAll()->where('key',$key);

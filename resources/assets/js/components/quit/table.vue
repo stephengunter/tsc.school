@@ -10,15 +10,16 @@
 							 @selected="onCheckAll" @unselected="unCheckAll">
 							</check-box>
                         </th>
-                        
-                        <th style="width:10%">姓名</th>
+                        <th style="width:8%" v-if="!center">開課中心</th>
+                        <th style="width:8%">姓名</th>
+                        <th style="width:8%">原因</th>
                         <th style="width:10%">申請日期</th>
                         <th>明細</th>
-                        <th style="width:10%">退還學費</th>
-                        <th style="width:10%">手續費</th>
+                        <th style="width:8%">退還學費</th>
+                        <th style="width:8%">手續費</th>
                         <th style="width:10%">退款方式</th>
                         <th style="width:10%">應退金額</th>
-                        <th style="width:10%">狀態</th>
+                        <th style="width:7%">狀態</th>
                     </tr>
                     
                 </thead>
@@ -29,10 +30,15 @@
 								@selected="onChecked" @unselected="unChecked">
 							</check-box>
                         </td>
-                      
+                        <td v-if="!center">
+                            {{ quit.center.name }}
+                        </td>
                         <td> 
                             <a  href="#" @click.prevent="onSelected(quit.signupId)" v-text="quit.signup.user.profile.fullname"> </a> 
                          
+                        </td>
+                        <td>
+                            {{ quit.reason }} 
                         </td>
                         <td> 
                             {{ quit.date }} 
@@ -53,7 +59,7 @@
                              {{ quit.amount | formatMoney }} 
                         </td>
                         
-                        <td v-html="getStatusLabels(quit)" ></td>
+                        <td v-html="getStatusLabel(quit)" ></td>
                       
                        
                        
@@ -98,15 +104,7 @@ export default {
         center: {
             type: Boolean,
             default: false
-        },
-        show_teachers: {
-            type: Boolean,
-            default: true
-        },
-        show_categories: {
-            type: Boolean,
-            default: true
-        },
+        }
 	},
 	data() {
 		return {
@@ -118,7 +116,7 @@ export default {
 	},
 	computed:{
 		canCheck(){
-           
+            if(!this.can_checked) return false;
             if(this.can_review) return true;
             return this.can_checked;
         },
@@ -148,10 +146,10 @@ export default {
             })
             return html;
         },
-        getStatusLabels(quit){
-            let reviewedLabel=Helper.reviewedLabel(quit.reviewed);
+        getStatusLabel(quit){
+          
             let statusLabel=Quit.statusLabel(quit.status);
-            return reviewedLabel + '&nbsp;' +  statusLabel;
+            return statusLabel;
         },
         onSelected(id){
             

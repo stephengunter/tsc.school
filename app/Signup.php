@@ -10,7 +10,7 @@ class Signup extends Model
 	
     protected $fillable = [  
                             'userId', 'net', 'points', 'discount' ,
-                            'tuitions', 'costs', 'status',
+                            'tuitions', 'costs', 'status','identity_ids',
                             'updatedBy', 'removed','ps'
                           ];
                           
@@ -26,6 +26,7 @@ class Signup extends Model
 			'costs' => 0,
 			'discount' => '',
             'status' => 0,
+            'identity_ids' => '',
             'ps' => '',
             'details' => []
 

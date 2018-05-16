@@ -53,53 +53,8 @@ class CentersController extends Controller
         return $this->currentUser->admin->isHeadCenterAdmin();
     }
 
-    public function seedDiscountCenters()
-    {
-       
-        if(!$this->currentUserIsDev()) return;
+    
 
-        $eastCenters = $this->centers->getEastCenters()->get();
-        
-        $eastDiscountCodes=[
-            "new" , "multi" , "member" , "lotus", "over65", "poor", "religion"
-        ];
-        foreach($eastCenters as $eastCenter){
-           
-            foreach($eastDiscountCodes as $eastDiscountCode){
-           
-                $discount=\App\Discount::where('code' , $eastDiscountCode)->first();
-                
-                $eastCenter->discounts()->attach($discount->id);
-            }
-        }
-        
-
-
-        $westDiscountCodes = [
-            "one-west", "multi-west", "over65-west" ,"helf-west" ,"lotus-west"
-        ];
-
-
-        $westCenters =$this->centers->getWestCenters()->get();
-        foreach ($westCenters as  $westCenter)
-        {
-            foreach($westDiscountCodes as $westDiscountCode){
-                $discount=\App\Discount::where('code' , $westDiscountCode)->first();
-                $westCenter->discounts()->attach($discount->id);
-            }
-        }
-
-        dd('done');
-    }
-
-    public function test()
-    {
-        $codes=[ 'A','B','WH','LZ','BC','TY','HC',
-          'FY','TC','CS','CH','CY','TN','GS','KH'
-        ];
-
-        dd(Helper::array_has_dupes($codes));
-    }
     
     public function index()
     {

@@ -57,7 +57,7 @@
 
         
         <signup-table :model="model" :can_review="canReview" :payed="payed"
-            @selected="onSelected" @check-changed="onCheckIdsChanged">
+            @selected="onSelected" @quit="onQuit"  @check-changed="onCheckIdsChanged">
             <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
                 <page-controll   :model="model" @page-changed="onPageChanged"
                     @pagesize-changed="onPageSizeChanged">
@@ -237,6 +237,9 @@
             onCourseSelected(item){
                 this.params.course = item.value;
                 this.fetchData();
+            },
+            onQuit(id){
+               this.$emit('quit',id);
             },
             setReviewed(val) {
                 this.params.reviewed = val;

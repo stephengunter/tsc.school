@@ -68,8 +68,12 @@ class Quit {
         })
     }
      
-    static create() {
+    static create(signupId) {
         let url = this.createUrl();
+        let params={
+            signup:signupId
+        };
+        url=Helper.buildQuery(url, params);
       
         return new Promise((resolve, reject) => {
             axios.get(url)
@@ -126,23 +130,11 @@ class Quit {
         })
     }
 
-    static review(form){
-        let url = this.reviewUrl();
-        let method = 'post';
-        return new Promise((resolve, reject) => {
-            form.submit(method, url)
-                .then(data => {
-                    resolve(data);
-                })
-                .catch(error => {
-                    reject(error);
-                })
-        })
-    }
 
 
-    static finish(form){
-        let url = this.finishUrl();
+
+    static updateStatuses(form){
+        let url = this.source() + '/updateStatuses';
         let method = 'post';
         return new Promise((resolve, reject) => {
             form.submit(method, url)
@@ -193,17 +185,39 @@ class Quit {
         ];
     }
 
+    static statusOptions() {
+        
+        return [{
+                text: '待處理',
+                value: -1
+            }, {
+                text: '審核中',
+                value: 0
+            }, {
+                text: '已審核',
+                value: 1
+            }, {
+                text: '已完成',
+                value: 2
+            }
+        ];
+    }
+
     static getStatusText(status){
         status=parseInt(status);
-        if(status==0) return '未完成';
-        if(status==1) return '已結案';
+        if(status==-1) return '待處理';
+        if(status==0) return '審核中';
+        if(status==1) return '已審核';
+        if(status==2) return '已完成';
       
             return '';
     }
     static getStatusStyle(status){
         status=parseInt(status);
-        if(status==0) return 'default';
+        if(status==-1) return 'default';
+        if(status==0) return 'warning';
         if(status==1) return 'info';
+        if(status==2) return 'success';
       
 
         return ''

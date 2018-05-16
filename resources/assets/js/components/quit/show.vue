@@ -14,20 +14,14 @@
                     {{ quit.amount | formatMoney  }}
                 </p>                      
             </div>
-            <div class="col-sm-3">
-                <label class="label-title">資料審核</label>
-                <p>
-                    <span v-html="$options.filters.reviewedLabel(quit.reviewed)"></span>
-                    &nbsp;
-                    <button class="btn btn-primary btn-xs" @click.prevent="editReview">
-                        <i class="fa fa-edit"></i>
-                    </button>
-                </p>                   
-            </div>
+            
             <div  class="col-sm-3">
                 <label class="label-title">狀態</label>
-                <p v-html="$options.filters.quitStatusLabel(quit.status)"></p>    
-                                 
+                <p v-html="$options.filters.quitStatusLabel(quit.status)"></p>   
+                &nbsp; 
+                <button class="btn btn-primary btn-xs" @click.prevent="editStatus">
+                    <i class="fa fa-edit"></i>
+                </button>                
             </div>
         </div>  <!-- End row--> 
         
@@ -60,13 +54,38 @@
                 </p>    
             </div>
         </div>  <!-- End row--> 
-        
-        
-        <div  class="row">
+        <div v-if="hasAccount" class="row">
+            <div class="col-sm-3">
+                <label class="label-title">銀行名稱</label>
+                <p >
+                   {{ quit.account_bank }}
+                </p>                      
+            </div>
+            <div class="col-sm-3">
+                <label class="label-title">分行</label>
+                <p >
+                   {{ quit.account_branch }}
+                </p>                      
+            </div>
+            <div class="col-sm-3">
+                <label class="label-title">戶名</label>
+                <p >
+                   {{ quit.account_owner }}
+                </p>                      
+            </div>
             <div class="col-sm-3">
                 <label class="label-title">銀行帳號</label>
                 <p >
-                   {{ quit.account }}
+                   {{ quit.account_number }}
+                </p>                      
+            </div>
+        </div>   <!-- End row-->
+        
+        <div  class="row">
+            <div v-if="hasAccount" class="col-sm-3">
+                <label class="label-title">金資代碼</label>
+                <p >
+                   {{ quit.account_code }}
                 </p>                      
             </div>
             <div class="col-sm-9">
@@ -133,6 +152,11 @@
                 if(this.user) return this.user.profile.fullname;
                 if(this.quit.signup) return this.quit.signup.user.profile.fullname;
                 return '';
+            },
+            hasAccount(){
+                if(!this.quit) return false;
+                if(this.quit.account_number) return true;
+                return false;
             }
             
         }, 
@@ -143,7 +167,7 @@
             },
             editReview(){
                
-                this.$emit('edit-review')
+                this.$emit('edit-status')
             },
             editPS(){
                

@@ -19,6 +19,7 @@
                         <th style="width:25%">折扣</th>
                         <th style="width:10%">應繳金額</th>
                         <th v-if="payed" style="width:10%">繳費方式</th>
+                        <th v-if="payed" style="width:7%"></th>
                     </tr>
                     
                 </thead>
@@ -44,11 +45,14 @@
                         <td v-html="courseNames(signup)">
 
                         </td>
-                        <td>
+                        <td v-if="hasDiscount(signup)">
                              {{ signup.discount }} 
-                            <span v-if="signup.points">
+                            <span>
                                &nbsp; {{ signup.pointsText }}
                             </span>  
+
+                        </td>
+                        <td v-else>
 
                         </td>
                         <td>
@@ -58,6 +62,11 @@
                             <span v-if="signup.bill.payway" >
                             {{ signup.bill.payway.name }} 
                            </span>
+                        </td>
+                        <td v-if="payed" >
+                            <button @click.prevent="quit(signup)" class="btn btn-warning btn-xs" >
+                               我要退費
+                            </button>
                         </td>
                     </tr>
                     
@@ -182,6 +191,12 @@ export default {
         },
         isTrue(val){
             return Helper.isTrue(val);
+        },
+        hasDiscount(signup){
+            return Signup.hasDiscount(signup);
+        },
+        quit(signup){
+            this.$emit('quit',signup.id);
         }
         
    }

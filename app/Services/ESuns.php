@@ -65,14 +65,18 @@ class ESuns
        
         $dateString=Helper::getMonthDayString($deadlineDate->month,$deadlineDate->day);
 
-        $serialString=Helper::intToStringLength($serial,4);
         
+        $serialString=Helper::intToStringLength($serial,4);
+       
        
         // 銷帳編號
         $code=$this->shopId . $dateString . $serialString;
+
+        
         
         //檢查碼
         $checkCode=$this->initCheckCode($code,$amount);
+        dd($checkCode);
        
         return $code . $checkCode;
     }

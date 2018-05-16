@@ -49,6 +49,49 @@ class UsersController extends Controller
        
         
     }
+
+    public function seed()
+    {
+        $roads=[ '中正','中華','民生','建國','忠孝', '仁愛','信義','和平'];
+        
+        $districts=\App\District::all()->pluck('id')->toArray();
+
+        $faker = \Faker\Factory::create();
+		
+		foreach(range(1, 50) as $i) {
+			$gender=( $i %2 == 0 );
+			$sid= $faker->randomLetter();
+			$sid .= $gender ? '1' : '2' ;
+			$sid .= mt_rand(1, 99999999);
+            $user = new User([
+                
+                'email' => $faker->unique()->safeEmail,
+				'phone' =>  '093' . mt_rand(1, 9999999)
+            ]);
+
+            $profile=new \App\Profile([
+				'fullname'=> $faker->name,
+				'sid' => $sid,
+                'dob' => mt_rand(1945, 1995) . '-' .mt_rand(1, 12).'-'.mt_rand(1, 28),
+                'gender' => ( $i %2 == 0 ),
+            ]);
+
+			$user=$this->users->createUser($user,$profile);
+			
+            
+            $address=new \App\Address([
+                'districtId' => array_rand($districts, 1),
+                'street' => $roads[array_rand($roads, 1)] . '路' . mt_rand(1, 300) . '號',
+            ]);
+
+            $contactInfo=new \App\ContactInfo([
+                'tel' => $faker->tollFreePhoneNumber     
+            ]);
+
+            $this->users->setContactInfo($user,$contactInfo,$address);
+            
+		}  
+    }
     
     public function index()
     {
@@ -182,7 +225,7 @@ class UsersController extends Controller
         } 
         
         
-        return response() ->json($pageList);
+        return response()->json($pageList);
     }
 
     

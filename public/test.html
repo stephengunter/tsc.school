@@ -1,0 +1,113 @@
+<div id="daai-news-content">
+    <div class="module module-special self">
+
+
+        <div class="md_middle">
+            <div class="mm_03">
+                <div class="mm_02">
+                    <div class="mm_01">
+                        <table summary="list" cellspacing="0" cellpadding="0" border="0" width="100%" class="baseTB list_TIDY">
+                            <tbody id="daai-news-table-body">
+
+                            </tbody>
+                        </table>
+                        <div class="readmore">
+                            <a href="http://www.tcust.edu.tw/files/40-1000-67-1.php"> </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="md_bottom">
+            <div class="mb_03">
+                <div class="mb_02">
+                    <div class="mb_01"><img src="/images/clear.gif" alt=""></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        getDaaiNews();
+
+
+
+
+    });
+
+    function getDaaiNews() {
+
+        var uri = 'http://api.tcust.edu.tw/posts/GetDaAiNews?pageSize=6';
+        $.ajax({
+            url: uri,
+            cache: false,
+            dataType: "json",
+            success: function(data) {
+                var tr = '<tr>';
+                tr += '<td class="tl"><div class="tl"><img src="/images/clear.gif" border="0" alt="" width="2px" height="2px"></div></td>';
+                tr += '<td class="tc"><div class="tc"><img src="/images/clear.gif" border="0" alt="" width="2px" height="2px"></div></td>';
+                tr += '<td class="tr"><div class="tr"><img src="/images/clear.gif" border="0" alt="" width="2px" height="2px"></div></td>';
+
+                tr += '<td class="tl"><div class="tl"><img src="/images/clear.gif" border="0" alt="" width="2px" height="2px"></div></td>';
+                tr += '<td class="tc"><div class="tc"><img src="/images/clear.gif" border="0" alt="" width="2px" height="2px"></div></td>';
+                tr += '<td class="tr"><div class="tr"><img src="/images/clear.gif" border="0" alt="" width="2px" height="2px"></div></td>';
+                tr += '</tr>';
+                $('#daai-news-table-body').append(tr);
+
+                var posts = data.viewList;
+                $('#daai-news-table-body').append(getDaaiRow(posts[0], posts[1]));
+                $('#daai-news-table-body').append(getDaaiRow(posts[2], posts[3]));
+                $('#daai-news-table-body').append(getDaaiRow(posts[4], posts[5]));
+
+
+            },
+            error: function(request, status, error) {
+                console.log(error);
+            }
+        });
+
+    }
+
+    function getDaaiRow(postA, postB) {
+        tr = '<tr>';
+        tr += getNewsItem(postA);
+        tr += getNewsItem(postB);
+        tr += '</tr>';
+
+        return tr;
+    }
+
+
+
+
+    function getNewsItem(post) {
+        var tr = '';
+
+        var imgSrc = post.cover.previewPath;
+        var linkUrl = post.url;
+        var title = post.title;
+
+
+        tr += '<td class="ml"><div class="ml"><img src="/images/clear.gif" border="0" alt="" width="2px" height="2px"></div></td>';
+        tr += '<td class="mc" width="50%"><img src="';
+        tr += imgSrc;
+        tr += '" width="240" height="135" alt="">';
+
+        tr += '<div class="h5 title-noicon title-center"><span class="ptname "><a href="';
+        tr += linkUrl;
+        tr += '">';
+        tr += title;
+        tr += '</a></span></div></td>';
+        tr += '<td class="mr"><div class="mr"><img src="/images/clear.gif" border="0" alt="" width="2px" height="2px"></div></td>';
+
+        return tr;
+    }
+</script>

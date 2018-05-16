@@ -532,6 +532,7 @@ class CoursesController extends Controller
 
 
     }
+    
     public function active(Request $form)
     {
         //批次停開/恢復開課

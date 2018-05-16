@@ -39,7 +39,7 @@
                         
                     </div>
 
-                    <quit-view v-if="activeIndex==1"  :signup="signup"  :can_back="false"
+                    <quit-view v-if="activeIndex==1"  :signup="signup"  :can_back="false" :mode="quitViewMode"
                         @saved="reloadSignup" @deleted="reloadSignup"> 
 
                     </quit-view>
@@ -74,6 +74,10 @@
               type: Number,
               default: 0
             },
+            mode:{
+              type: String,
+              default: ''
+            },
             payways: {
               type: Array,
               default: null
@@ -101,6 +105,8 @@
                
                 
                 activeIndex:0,
+
+                quitViewMode:''
             }
         },
         computed:{
@@ -108,15 +114,20 @@
                if(!this.signup) return false;
                return Helper.isTrue(this.signup.bill.payed);
             }
+            
         },
         beforeMount(){
-           this.init()
+           if(this.mode=='quit'){
+               this.activeIndex=1;
+               this.quitViewMode='create';
+           } 
         },
         watch: {
             'id': 'init'
         },
         methods:{
             init(){
+                this.quitViewMode='';
                
             },
             onSignupLoaded(signup){
@@ -136,7 +147,7 @@
                 
             },
             reloadSignup(){
-                
+                this.init();
                 this.signup=null;
                 this.$refs.signupView.init();
             },

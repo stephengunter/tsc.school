@@ -124,7 +124,18 @@ class Bills
           
         });
 
-        event(new SignupPayed($bill->signup));
+        $signup=$bill->signup;
+        if($signup->identity_ids){
+            
+            $identity_ids=explode(',', $signup->identity_ids);
+            foreach($identity_ids as $identity_id){
+                $signup->user->addIdentity($identity_id);
+            }
+          
+        }
+        
+
+        event(new SignupPayed($signup));
         
         return $bill;
     }
@@ -164,7 +175,7 @@ class Bills
 
     public function createBillCode(Signup $signup)
     {
-       
+      
         $bill=$signup->bill;
         $this->setBillCode($bill);
     }
@@ -177,25 +188,15 @@ class Bills
         $deadLineDate = $date->addDays(10);
 
         $serial = $this->getMaxSerial($deadLineDate);
-             
-        $ok=false;
-        while(!$ok){
-            $serial+=1;
-           
-            if($serial > 9999) abort(500);
+       
 
+        for($i=$serial+1; $i<=9999; $i++){
             $exist=Bill::whereDate('deadLine', $deadLineDate->toDateString())
-                        ->where('serial', $serial)->first();
-
-                         
+                        ->where('serial', $i)->first();
             if(!$exist){
-                $bill->update([
-                    'serial' => $serial
-                ]);
-
-                $ok=true;
-               
-            }            
+                $serial =$i;
+                break;
+            }  
         }
         
         $code = $this->ESuns->initBillCode($deadLineDate, $bill->amount, $serial);
@@ -203,6 +204,7 @@ class Bills
 
 
         $bill->update([
+            'serial' => $serial,
             'code' => $code,
             'deadLine' => $deadLineDate,
             'sevenCodes' => implode(',', $sevenCodes)

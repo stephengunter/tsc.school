@@ -172,7 +172,7 @@ class TeachersController extends Controller
         }
        
      
-        $menus=$this->adminMenus('UsersAdmin');
+        $menus=$this->adminMenus('TeachersAdmin');
 
         $centers=$this->centers->centerOptions();
        

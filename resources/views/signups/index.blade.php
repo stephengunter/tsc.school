@@ -6,9 +6,9 @@
 
 <signups-index v-show="indexMode" :init_model="model" :summary_model="summary" :terms="terms" :centers="centers" :courses="courses" :statuses="statuses"
                :payways="payways" :version="version"
-               v-on:selected="onSelected" v-on:create="onCreate" >
+               v-on:selected="onSelected" v-on:quit="onQuit" v-on:create="onCreate" >
 </signups-index>
-<signups-details v-if="selected" :id="selected" :payways="counter_payways" 
+<signups-details v-if="selected" :id="selected" :payways="counter_payways" :mode="detailsMode"
                  v-on:back="backToIndex" v-on:signup-deleted="backToIndex">
 </signups-details>
 <signups-create v-if="creating" :params="params"  v-on:cancel="backToIndex" v-on:saved="onCreated">
@@ -45,7 +45,7 @@
                     creating:false,
                     selected: 0,
 
-                    
+                    detailsMode:''
 
                 }
             },
@@ -77,16 +77,27 @@
                 },
                 onSelected(id,group) {
                     this.selected = id;
+
+                    this.detailsMode='';
                 },
                 backToIndex() {
                     this.version += 1;
 
                     this.selected = 0;
                     this.creating = false;
+
+                    this.detailsMode='';
                 },
                 onCreated(signup) {
                     this.selected = signup.id;
                     this.creating = false;
+                    this.detailsMode='create';
+                },
+                onQuit(id){
+                  
+                    this.selected = id;
+                    this.creating = false;
+                    this.detailsMode='quit';
                 }
 
 

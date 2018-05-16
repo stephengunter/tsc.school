@@ -35,16 +35,12 @@ class BillsController extends Controller
     public function test()
     {
 
-        $arr=[''];
-
-
-        $signup=Signup::find(4);
-        $this->bills->createBillCode($signup);
+        
        
 
-        $deadlineDate=new Carbon('2018/5/12');
-        $amount = 3400;
-        $serial=1;
+        $deadlineDate=new Carbon('2018/5/24');
+        $amount = 650;
+        $serial=5;
         dd($this->ESuns->initBillCode($deadlineDate, $amount,$serial));
        
     }

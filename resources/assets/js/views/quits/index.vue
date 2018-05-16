@@ -11,6 +11,7 @@
                     <drop-down :items="centers" :selected="params.center"
                         @selected="onCenterSelected">
                     </drop-down>
+                   
                 </div>
 
                 <div  class="form-group" style="padding-left:1em;">
@@ -18,11 +19,6 @@
                     <drop-down :items="payways" :selected="params.payway"
                         @selected="onPaywaySelected">
                     </drop-down>
-                </div>
-                
-                <div class="form-group" style="padding-left:1em;">
-                    <toggle :items="reviewedOptions"   :default_val="params.reviewed" @selected="setReviewed"></toggle>
-                    
                 </div>
 
                 <div class="form-group" style="padding-left:1em;">
@@ -32,23 +28,24 @@
                 </div>
                 
             </div>
-           
-            <div class="col-sm-4 pull-right" align="right" style="margin-top: 20px;">
-                <a v-if="canReview" v-show="showReviewBtn" :disabled="!canSubmitReview" @click.prevent="onReviewOk" href="#" class="btn btn-success">
-                    <i class="fa fa-check-circle"></i>
-                    審核通過
-                </a>
-                <a v-if="canFinish" v-show="showFinishBtn" :disabled="!canSubmitFinish" @click.prevent="onFinishOk" href="#" class="btn btn-primary">
-                    <i class="fa fa-check-circle"></i>
-                    結案
-                </a>
+            <div class="col-sm-3" style="margin-top: 20px;">
+                <searcher @search="onSearch">
+                </searcher>
             </div>
+            <div class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
+               
+                <drop-down :items="actions" :selected="action" btn_style="primary"
+                    @selected="onActionSelected">
+                </drop-down>
+                <small class="text-danger" v-if="error" v-text="error"></small>
+            </div>
+            
         </div>
             
         
         <hr>
         
-        <quit-table :model="model" :can_review="canReview"  ref="quitTable" 
+        <quit-table :model="model" :can_review="canReview" :can_checked="canChecked"  ref="quitTable" :center="center!=null"
             @selected="onSelected" @check-changed="onCheckIdsChanged">
             <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
                 <page-controll   :model="model" @page-changed="onPageChanged"
@@ -81,15 +78,15 @@
                 type: Object,
                 default: null
             },
+            init_params: {
+                type: Object,
+                default: null
+            },
             summary_model: {
                 type: Object,
                 default: null
             },
             can_review:{
-                type:Boolean,
-                default:false
-            },
-            can_finish:{
                 type:Boolean,
                 default:false
             },
@@ -117,30 +114,38 @@
                 model:null,
 
                 summary:null,
+
+                center:null,
                 
                 params:{
                     
                     center:'0',
-                    status:'0',
+                    status:-1,
                     payway:'0',
-                    reviewed:false,
+                    keyword:'',
                     
                     page:1,
                     pageSize:10
                 },
 
                 canReview:false,
-                reviewedOptions:Helper.reviewedOptions(),
                 
-                canFinish:false,
                
-                checkedIds:[]
+                checkedIds:[],
+
+                action:'none',
+
+                error:''
             }
         },
         watch: {
             'version':'fetchData',
 	    },
         beforeMount() {
+            if(this.init_params){
+                this.params={ ...this.init_params };
+            }  
+
             if(this.init_model){
                 this.model={...this.init_model };
                 this.summary={...this.summary_model };
@@ -149,28 +154,64 @@
                 this.params.pageSize=this.init_model.pageSize;
             }  
 
+            
+
            
             this.params.center=this.centers[0].value;
             	
-            this.canReview=this.can_review;	 
-            this.canFinish=this.can_finish;	 		
+            this.canReview=this.can_review;	 	
         },
         computed:{
-            showReviewBtn(){
-                if(parseInt(this.params.status)) return false;
-                return !this.params.reviewed;
+            showExportBtn(){
+               
+                if(!this.canReview) return false;
+                return parseInt(this.params.status) == -1;
               
             },
-            canSubmitReview(){
-                return this.checkedIds.length > 0;
+            showReviewBtn(){
+
+                if(!this.canReview) return false;
+                return parseInt(this.params.status) == 0;
+              
             },
             showFinishBtn(){
-                if(this.showReviewBtn) return false;
-                return !parseInt(this.params.status);
+
+                if(!this.canReview) return false;
+                return parseInt(this.params.status) == 1;
               
             },
-            canSubmitFinish(){
-                return this.checkedIds.length > 0;
+            canChecked(){
+                if(this.showReviewBtn) return true;
+                if(this.showFinishBtn) return true;
+                return false;
+            },
+            actions(){
+                let actions=[{
+                    value:'none' , text:'執行'
+                }];
+
+                if(this.showExportBtn){
+                    actions.push({
+                      value:'report' , text:'匯出審核報表'
+                   });
+                }
+
+                if(this.showReviewBtn){
+                    actions.push({
+                      value:'review' , text:'審核通過'
+                   });
+                }
+                
+
+                if(this.showFinishBtn){
+                    actions.push({
+                      value:'finish' , text:'結案'
+                    });
+                }
+
+               
+
+                return actions;
             }
         }, 
         methods:{
@@ -191,9 +232,18 @@
                 this.params.pageSize=this.model.pageSize;
 				this.fetchData();
             },
-            onCenterSelected(item){
-                this.params.center = item.value;
+            onCenterSelected(center){
+                this.setCenter(center);
                 this.fetchData();
+            },
+            setCenter(center){
+                if(parseInt(center.value)>0){
+                    this.center={ ...center };
+                    this.params.center = center.value;
+                }else{
+                    this.center=null;
+                    this.params.center = '0';
+                }
             },
             onPaywaySelected(item){
                 this.params.payway = item.value;
@@ -203,10 +253,11 @@
                 this.params.status = item.value;
                 this.fetchData();
             },
-            setReviewed(val) {
-                this.params.reviewed = val;
-                this.fetchData();
-            },
+            onSearch(keyword){
+               
+				this.params.keyword=keyword;
+				this.fetchData();
+			},
             fetchData() {
                 
                 let getData = Quit.index(this.params);
@@ -227,23 +278,29 @@
             },
             onCheckIdsChanged(ids){
                 this.checkedIds=ids.slice(0);
+                this.error='';
             },
-            onReviewOk(){
-                
-                if(!this.checkedIds.length) return;
-
+            onActionSelected(item){
+                let action=item.value;
+                if(action=='report') this.exportReports();
+                else if(action=='review') this.updateStatuses(1);
+                else if(action=='finish') this.updateStatuses(2);
+            },
+            updateStatuses(status){
+                if(!this.checkedIds.length){
+                    this.error='您沒有勾選任何一筆退費申請';
+                    return;
+                }
                 let quits= this.checkedIds.map((item)=>{
                    return {
                        id:item,
-                       reviewed:true
+                       status:status
                    };
                 })
-
                 let form=new Form({
                     quits:quits
                 });
-
-                let save=Quit.review(form);
+                let save=Quit.updateStatuses(form);
 				save.then(() => {
                     Helper.BusEmitOK('資料已存檔');
                     this.fetchData();
@@ -253,31 +310,11 @@
 					Helper.BusEmitError(error,'存檔失敗');
 				})
             },
-            onFinishOk(){
-                
-                if(!this.checkedIds.length) return;
-
-                let quits= this.checkedIds.map((item)=>{
-                   return {
-                       id:item,
-                       finish:true
-                   };
-                })
-
-                let form=new Form({
-                    quits:quits
-                });
-
-                let save=Quit.finish(form);
-				save.then(() => {
-                    Helper.BusEmitOK('資料已存檔');
-                    this.fetchData();
-                    this.$refs.quitTable.unCheckAll();
-				})
-				.catch(error => {
-					Helper.BusEmitError(error,'存檔失敗');
-				})
-            },
+            
+            exportReports(){
+                let url = '/manage/reports/quits';
+                window.open(url);
+            }
             
         }
     }

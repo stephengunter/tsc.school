@@ -35,25 +35,15 @@ class AdminsController extends Controller
     {
         if($this->currentUserIsDev()) return true;
         if(!count($admin->centers)) return true;
-      
-        $centersCanAdmin= $this->centersCanAdmin();
-        $intersect = $centersCanAdmin->intersect($admin->centers);
 
-        if(count($intersect)) return true;
-        return false;
+        return $this->canAdminCenters($admin->centers);
 
 
     }
     function canEditCenter(Center $center)
     {
         if($this->currentUserIsDev()) return true;
-        
-      
-        $centersCanAdmin= $this->centersCanAdmin();
-        $intersect = $centersCanAdmin->intersect([$center]);
-
-        if(count($intersect)) return true;
-        return false;
+        return $this->canAdminCenter($center);
 
     }
     function canDelete($admin)

@@ -22,7 +22,7 @@ class CreateSignupDetailsTable extends Migration
             $table->integer('courseId')->unsigned();
 			
             $table->decimal('tuition', 8, 2);  
-            $table->decimal('cost', 8, 2);  
+            $table->decimal('cost', 8, 2)->default(0); 
 
 			$table->integer('updatedBy')->unsigned()->nullable();
 			$table->timestamps();

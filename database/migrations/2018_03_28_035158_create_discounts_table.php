@@ -16,6 +16,7 @@ class CreateDiscountsTable extends Migration
             $table->string('name');
             $table->string('code');
             $table->integer('min')->default(1);
+            $table->integer('age')->default(0);
             $table->integer('pointOne');
             $table->integer('pointTwo');
             $table->boolean('prove');

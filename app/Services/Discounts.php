@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Term;
 use App\Center;
 use App\Course;
+use App\User;
 use App\Discount;
 use App\Identity;
 use DB;
@@ -77,26 +78,33 @@ class Discounts
     public  function getLotusDiscount(Center $center)
     {
         if($center->isEast()) return $this->getByCode("lotus");
-        return $this->getByCode("lotus-west");
+        if($center->isWest()) return $this->getByCode("lotus-west");
+        return null;
     }
 
-    public function findBestDiscount(Center $center, Term $term, array $identityIds, bool $lotus, int $courseCount)
+    public function findBestDiscount(Center $center, Term $term, User $user,array $identityIds, bool $lotus, int $courseCount)
     {
         $validDiscounts = [];
        
         $lotusDiscount = $this->getLotusDiscount($center);
           
 		//此中心擁有的折扣
-        $discountsInCenter = $center->discounts;
+        $discountsInCenter = $this->getDiscoutsByCenter($center);
+        
         $discountsInCenter = $discountsInCenter->where('active',true)->where('min','<=', $courseCount);
        
         if (!$lotus)
         {
-            $discountsInCenter =$discountsInCenter->where('id','!=',$lotusDiscount->id);
+            if($lotusDiscount) $discountsInCenter =$discountsInCenter->where('id','!=',$lotusDiscount->id);
+            
         }
-        
+
+        $age=$user->getAge();
+        $discountsInCenter =$discountsInCenter->where('age','<=',$age);
+        $discountsInCenter =$discountsInCenter->get();
         foreach ($discountsInCenter as $discountInCenter)
         {
+          
             //是否需要身分
             $needIdentityIds = $discountInCenter->identities->pluck('id')->toArray();
             if(count($needIdentityIds)){

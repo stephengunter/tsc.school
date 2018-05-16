@@ -4,8 +4,8 @@
 @section('content')
 
 
-<quits-index v-show="indexMode" :init_model="model"  :centers="centers"  :statuses="statuses" :payways="payways"
-    :can_review="can_review" :can_finish="can_finish" :version="version"
+<quits-index v-show="indexMode" :init_model="model" :init_params="params" :centers="centers"  :statuses="statuses" :payways="payways"
+    :can_review="can_review" :version="version"
     v-on:selected="onSelected" >
 </quits-index>
 <quits-details v-if="selected" :id="selected"
@@ -27,6 +27,8 @@
                     version: 0,
 
                     model: {},
+
+                    params:{},
                     
                     centers: [],
 
@@ -34,7 +36,6 @@
                     payways:[],
 
                     can_review: false,
-                    can_finish: false,
                    
                     selected: 0,
 
@@ -52,14 +53,13 @@
             },
             beforeMount() {
                 this.model = {!! json_encode($list) !!} ;
-                
-                
+                this.params = {!! json_encode($params) !!} ;
+
                 this.centers = {!! json_encode($centers) !!} ;
                 this.statuses = {!! json_encode($statuses) !!} ;
                 this.payways = {!! json_encode($payways) !!} ;
 
-                this.can_review = Helper.isTrue('{!! $canReview !!}');  
-                this.can_finish = Helper.isTrue('{!! $canFinish !!}');  
+                this.can_review = Helper.isTrue('{!! $canReview !!}'); 
 
 			},
             methods: {

@@ -6,8 +6,15 @@ use Illuminate\Database\Seeder;
 class IdentitiesSeeder extends Seeder {
     
 	public function run() {
+        $identities = [
+			
+			[
+				'name' => '社區志工',
+                'member' => false,
 
-		$identities = [
+            ],
+        ];
+		$discountIdentities = [
 			
 			[
 				'name' => '各級學校在校生',
@@ -63,8 +70,11 @@ class IdentitiesSeeder extends Seeder {
 			]
 
         ];
-
-		foreach ($identities as $identity) {
+        
+        foreach ($identities as $identity) {
+			Identity::create($identity);
+        }
+		foreach ($discountIdentities as $identity) {
 			Identity::create($identity);
         }
         
