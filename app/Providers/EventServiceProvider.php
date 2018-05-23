@@ -14,13 +14,16 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         'App\Events\CourseShutDown' => [
-            'App\Listeners\CreateQuitsByCourse',  //產生全額退費
+            'App\Listeners\OnCourseShutDown',  //產生全額退費
         ],
         'App\Events\SignupPayed' => [
-            'App\Listeners\CreateStudentsBySignup',  //產生學員
+            'App\Listeners\OnSignupPayed',  
         ],
         'App\Events\SignupUnPayed' => [
             'App\Listeners\RemoveStudentsBySignup',  //刪除學員
+        ],
+        'App\Events\StudentTrans' => [
+            'App\Listeners\OnStudentTrans',  //學員轉班, 將報名狀態設為"已取消"
         ],
     ];
 

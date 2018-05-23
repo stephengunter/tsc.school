@@ -117,17 +117,19 @@
             
         },
         beforeMount(){
-           if(this.mode=='quit'){
-               this.activeIndex=1;
-               this.quitViewMode='create';
-           } 
+            if(this.mode=='quit'){
+                this.activeIndex=1;
+                this.quitViewMode='create';
+            }else{
+                this.quitViewMode='table';
+            } 
         },
         watch: {
             'id': 'init'
         },
         methods:{
             init(){
-                this.quitViewMode='';
+                this.quitViewMode='table';
                
             },
             onSignupLoaded(signup){

@@ -159,7 +159,7 @@
                 let getData = Signup.courses(this.params);
 
                 getData.then(courses => {
-
+                    console.log(courses);
                     this.courses=courses.slice(0);
 
                 })

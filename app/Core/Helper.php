@@ -2,6 +2,7 @@
 
 namespace App\Core;
 use Illuminate\Database\Eloquent\Collection;
+use Carbon\Carbon;
 
 class Helper
 {
@@ -82,6 +83,14 @@ class Helper
             if($second=='A' || $second=='C') return true;
             return false;
         }
+    }
+
+    public static function isSameDate(Carbon $dateA, Carbon $dateB)
+    {
+        if($dateA->year != $dateB->year) return false;
+        if($dateA->month != $dateB->month) return false;
+        if($dateA->day != $dateB->day) return false;
+        return true;
     }
 
     public static function  str_starts_with($haystack, $needle)

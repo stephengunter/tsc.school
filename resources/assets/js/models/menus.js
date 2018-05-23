@@ -83,6 +83,9 @@ class Menus {
             case 'students':
                 html = '<i class="fa fa-user-circle" aria-hidden="true"></i>';
                 break;
+            case 'studentsadmin':
+                html = '<i class="fa fa-user-circle" aria-hidden="true"></i>';
+                break;    
             case 'leaves':
                 html = '<i class="fa fa-calendar-o" aria-hidden="true"></i>';
                 break;
@@ -142,6 +145,9 @@ class Menus {
             case 'students':
                 text = '學員管理';
                 break;
+            case 'studentsadmin':
+                text = '學員管理';
+                break;    
             case 'signupsadmin':
                 text=  '報名管理';
                 break;    

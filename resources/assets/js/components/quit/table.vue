@@ -26,7 +26,7 @@
                 <tbody>
                     <tr v-for="(quit,index) in getViewList()" :key="index">
                         <td v-if="canCheck">
-							<check-box :value="quit.signupId" :default="beenChecked(quit.signupId)"
+							<check-box :value="quit.id" :default="beenChecked(quit.id)"
 								@selected="onChecked" @unselected="unChecked">
 							</check-box>
                         </td>
@@ -34,7 +34,7 @@
                             {{ quit.center.name }}
                         </td>
                         <td> 
-                            <a  href="#" @click.prevent="onSelected(quit.signupId)" v-text="quit.signup.user.profile.fullname"> </a> 
+                            <a  href="#" @click.prevent="onSelected(quit.id)" v-text="quit.signup.user.profile.fullname"> </a> 
                          
                         </td>
                         <td>

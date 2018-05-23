@@ -46,7 +46,7 @@
                         <th style="width:5%">週數</th>
                         <th style="width:5%">時數</th>
                         <th style="width:8%">學費</th>
-                        <th>材料費</th>
+                        <th>教材費</th>
                         <th style="width:8%">人數上限</th>
                         <th style="width:8%">最低人數</th>
 

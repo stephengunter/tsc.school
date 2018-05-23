@@ -39,6 +39,9 @@
                         <th style="width:10%">
                             材料費
                         </th>
+                        <th style="width:10%">
+                            備註
+                        </th>
                         <th v-if="can_edit" style="width:8%"></th>
                     </tr>
                 </thead>

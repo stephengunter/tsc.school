@@ -50,12 +50,7 @@ class SignupsController extends Controller
         $this->payways=$payways;
     }
 
-    function canEdit($signup)
-    {
-        if($this->currentUserIsDev()) return true;
-
-        return $this->canAdminCenter($signup->getCenter());
-    }
+    
     function canEditCenter($center)
     {
         if($this->currentUserIsDev()) return true;
@@ -65,15 +60,18 @@ class SignupsController extends Controller
 
     function canDelete($signup)
     {
-        if($signup->status>0) return false;
-        return $this->canEdit($signup);
+        if(!$signup->canDelete()) return false;
+
+        if($this->currentUserIsDev()) return true;
+
+        return $this->canAdminCenter($signup->getCenter());
 
     }
     function canQuit($signup)
     {
-        if($signup->status < 1) return false;
+        if(!$signup->canQuit()) return false;
 
-        return $this->canEdit($signup);
+        return $this->canEditCenter($signup->getCenter());
 
     }
     function canReviewCenter(Center $center)
@@ -161,16 +159,30 @@ class SignupsController extends Controller
                 array_push($signupDetails,$detail);
             }
 
+            
+
             $lotus = ($i % 5) == 0 ? true : false;
             $net = ($i % 2) == 0 ? true : false;
 
-            $signup=new Signup(['userId' => $user->id , 'identity_ids'=> join(',', $identityIds),'net'=> false , 'updatedBy' => $updatedBy ]);
-
+            $userCanAddDetailSignup=$this->signups->getUserCanAddDetailSignup($term, $selectedCenter,$user);
            
-            $this->setSignupMoney($signup,$user, $signupDetails ,collect($selectedCourses), $identityIds, $lotus);
+            if($userCanAddDetailSignup){
+                $userCanAddDetailSignup->identity_ids=join(',', $identityIds);
+                $userCanAddDetailSignup->net=false;
+                $userCanAddDetailSignup->updatedBy=$updatedBy;
 
+                $this->signups->updateSignup($userCanAddDetailSignup,$signupDetails);
+            }else{
+                $signup=new Signup(Signup::init());
+                $signup->userId=$user->id;
+                $signup->identity_ids=join(',', $identityIds);
+                $signup->net=false;
+                $signup->updatedBy=$updatedBy;
             
-            $signup=$this->signups->createSignup($signup,$signupDetails);
+                $signup=$this->signups->createSignup($signup,$signupDetails,$user,$lotus);
+                
+               
+            };
           
          
 
@@ -186,6 +198,7 @@ class SignupsController extends Controller
    
     public function index()
     {
+        
         $request=request();
 
         $term=0;
@@ -203,11 +216,11 @@ class SignupsController extends Controller
         $status=0;
         if($request->status)  $status=(int)$request->status;
 
-        $payway=0;
-        if($request->payway)  $payway=(int)$request->payway;
+        // $payway=0;
+        // if($request->payway)  $payway=(int)$request->payway;
 
-        $selectedPayway=null;
-        if($payway)   $selectedPayway = Payway::find($payway);
+        // $selectedPayway=null;
+        // if($payway)   $selectedPayway = Payway::find($payway);
         
        
 
@@ -219,7 +232,7 @@ class SignupsController extends Controller
 
        
         if($this->isAjaxRequest()){
-            return $this->fetchSignups($term, $center, $course, $keyword,  $status , $payway ,$page , $pageSize);
+            return $this->fetchSignups($term, $center, $course, $keyword,  $status , $page , $pageSize);
         }
 
         $termOptions = $this->terms->options();
@@ -281,30 +294,37 @@ class SignupsController extends Controller
 
         $signups = $signups->where('status' , $status);
         
-        if($selectedPayway){
-            $signups = $signups->whereHas('bill', function($q) use($selectedPayway){
-                $q->where('paywayId', $selectedPayway->id);
-            });
-        } 
+        // if($selectedPayway){
+        //     $signups = $signups->whereHas('bill', function($q) use($selectedPayway){
+        //         $q->where('paywayId', $selectedPayway->id);
+        //     });
+        // } 
 
        
        
         $summary=$this->signups->getSignupSummary($selectedTerm, $selectedCenter, $selectedCourse);
+          
+        $canQuit=false;
+        if($status==1){
+            if($selectedCenter) $canQuit=$this->canEditCenter($selectedCenter);
+        }
 
-        $pageList =$this->getPageList($signups,$page,$pageSize);
-
+        $pageList =$this->getPageList($signups,$canQuit,$page,$pageSize);
 
         $courseOptions=$this->courses->options($selectedTerm,$selectedCenter,true);
 
-        $paywayOptions=$this->payways->paywayOptions();
-        array_unshift($paywayOptions, ['text' => '所有繳費方式' , 'value' =>'0']);
+        // $paywayOptions=$this->payways->paywayOptions();
+        // array_unshift($paywayOptions, ['text' => '所有繳費方式' , 'value' =>'0']);
 
         $counterPayways=$this->payways->counterPayways();
         $counterPaywayOptions=$counterPayways->map(function ($payway) {
             return $payway->toOption();
         })->all();
 
+        
 
+       
+     
         $model=[
             'title' => '報名管理',
             'menus' => $this->adminMenus('SignupsAdmin'),
@@ -313,8 +333,11 @@ class SignupsController extends Controller
             'centers' => $centerOptions,
             'courses' => $courseOptions,                
             'statuses' => $this->signups->statusOptions(),
+
+            'canQuit' => $canQuit,
+           
             
-            'payways' => $paywayOptions,
+            //'payways' => $paywayOptions,
             'counterPayways' => $counterPaywayOptions,
 
             'summary' => $summary,
@@ -326,18 +349,22 @@ class SignupsController extends Controller
     }
 
     
-    function getPageList($signups,$page,$pageSize)
+    function getPageList($signups,$canQuit,$page,$pageSize)
     {
         $pageList = new PagedList($signups,$page,$pageSize);
+      
         foreach($pageList->viewList as $signup){
             $signup->loadViewModel();
+          
+            if($canQuit)  $signup->canQuit=$this->canQuit($signup);
+            
         }  
 
         return $pageList;
     }
 
     //Ajax
-    function fetchSignups(int $term = 0, int $center = 0, int $course = 0, string $keyword='',int $status = 0,int $payway = 0, int $page=1 ,int $pageSize=999)
+    function fetchSignups(int $term = 0, int $center = 0, int $course = 0, string $keyword='',int $status = 0, int $page=1 ,int $pageSize=999)
     {
        
         $selectedCenter = null;
@@ -390,25 +417,28 @@ class SignupsController extends Controller
 
         $signups = $signups->where('status' , $status);
 
-        $selectedPayway=null;
-        if($payway)   $selectedPayway = Payway::find($payway);
-
-        if($selectedPayway){
-            $signups = $signups->whereHas('bill', function($q) use($selectedPayway){
-                $q->where('paywayId', $selectedPayway->id);
-            });
-        } 
+        
 
         $summary=$this->signups->getSignupSummary($selectedTerm, $selectedCenter, $selectedCourse);
+
+        $canQuit=false;
+        if($status==1){
+            if($selectedCenter) $canQuit=$this->canEditCenter($selectedCenter);
+        }
+
         
-        $pageList =$this->getPageList($signups,$page,$pageSize);
+        $pageList =$this->getPageList($signups,$canQuit,$page,$pageSize);
 
         $courseOptions=$this->courses->options($selectedTerm,$selectedCenter,true);
+
+        
+     
 
         $model=[
             'courseOptions' => $courseOptions,
             'summaryModel' => $summary,
-            'model' => $pageList
+            'model' => $pageList,
+            'canQuit' => $canQuit
         ];
 
         return response() ->json($model);
@@ -502,10 +532,8 @@ class SignupsController extends Controller
 
         $courses = $courses->filter(function ($course) {
             $net=false;
-            return $course->canSignup($net) && !$course->hasStarted();   
-        })->all();
-
-        
+            return $course->canSignup($net);   
+        })->values();
 
         foreach($courses as $course){
             $course->fullName();
@@ -516,6 +544,82 @@ class SignupsController extends Controller
         return response() ->json($courses);
 
         
+    }
+
+    function createUser(SignupRequest $request)
+    {
+        $userValues=$request->getUserValues();
+            
+        $roleName=Role::studentRoleName();
+        $errors=$this->users->validateUserInputs($userValues,$roleName);
+
+        if($errors) return $this->requestError($errors);
+        
+        $profileValues= $userValues['profile'];
+        
+        $userValues=$request->getClearUserValues();
+
+        $user=$this->users->createUser(
+            new User($userValues),
+            new Profile($profileValues)
+        );
+
+        return $user;
+    }
+
+    function initSignupDetails(User $user,$selectedCourses, $updatedBy)
+    {
+        $errors=[];
+        $signupDetails=[];
+
+          //User報名過的課程記錄
+        $coursesSignupedIds = [];
+        $userSignupDetailRecords = $this->signups->getSignupDetailsByUser($user);
+        $coursesSignupedIds = $userSignupDetailRecords->pluck('courseId')->toArray();
+        foreach ($selectedCourses as $selectedCourse)
+        {
+          
+            if (in_array($selectedCourse->id, $coursesSignupedIds)){
+                $errors['courseIds'] = ['此學員已經報名過課程' . $selectedCourse->fullName() ];
+                break;
+            }else{
+                $detail = new SignupDetail([
+                    'courseId' => $selectedCourse->id,
+                    'tuition' => $selectedCourse->tuition,
+                    'cost' => $selectedCourse->cost,
+                    'updatedBy' => $updatedBy
+    
+                ]);
+                array_push($signupDetails,$detail);
+            }
+
+            
+        }
+
+        return [
+            'signupDetails' => $signupDetails,
+            'errors' => $errors
+        ];
+        
+       
+    }
+
+    function checkSelectedCourses($selectedCourses)
+    {
+        $errors=[];
+        $termIds=array_unique($selectedCourses->pluck('termId')->all());
+        if(count($termIds) > 1)
+        {
+            $errors['courseIds'] = ['報名課程必須在同一學期'];
+            return $errors;
+        }  
+       
+        //課程必須在同一中心分類
+        $centerIds= $selectedCourses->pluck('centerId')->all();
+        $centerKeys=$this->centers->getByIds($centerIds)->pluck('key')->toArray();
+        if(count(array_unique($centerKeys)) > 1) $errors['courseIds'] = ['報名課程必須在同一開課中心分類'];
+
+        return $errors;
     }
 
     public function store(SignupRequest $request)
@@ -533,21 +637,7 @@ class SignupsController extends Controller
         $userId=$request->getUserId();
         if(!$userId){
             //New User
-            $userValues=$request->getUserValues();
-            
-            $roleName=Role::studentRoleName();
-            $errors=$this->users->validateUserInputs($userValues,$roleName);
-
-            if($errors) return $this->requestError($errors);
-          
-            $profileValues= $userValues['profile'];
-           
-            $userValues=$request->getClearUserValues();
-
-            $user=$this->users->createUser(
-                new User($userValues),
-                new Profile($profileValues)
-            );
+            $user=$this->createUser($request);
 
             $userId=$user->id;
 
@@ -555,101 +645,51 @@ class SignupsController extends Controller
 
         $user=User::find($userId);
         $identityIds = $request['identityIds'];
-      
-        $signupDetails=[];
 
         $selectedCourses=$this->courses->getByIds($courseIds)->get();
-
-          //User報名過的課程記錄
-        $coursesSignupedIds = [];
-        $userSignupDetailRecords = $this->signups->getSignupDetailsByUser($user);
-        $coursesSignupedIds = $userSignupDetailRecords->pluck('courseId')->toArray();
-        foreach ($selectedCourses as $selectedCourse)
-        {
-
-            if (in_array($selectedCourse->id, $coursesSignupedIds)){
-                $errors['courseIds'] = ['此學員已經報名過課程' . $selectedCourse->fullName() ];
-                return $this->requestError($errors);
-            }
-
-            $detail = new SignupDetail([
-                'courseId' => $selectedCourse->id,
-                'tuition' => $selectedCourse->tuition,
-                'cost' => $selectedCourse->cost,
-                'updatedBy' => $updatedBy
-
-            ]);
-            array_push($signupDetails,$detail);
-        }
-
-        $signup=new Signup(['userId' => $userId , 'identity_ids'=> join(',', $identityIds),'net'=> false , 'updatedBy' => $updatedBy ]);
-
-        $this->setSignupMoney($signup, $user,$signupDetails ,$selectedCourses, $identityIds,  $request['lotus']);
-
+        $errors=$this->checkSelectedCourses($selectedCourses);
+        if($errors)  return $this->requestError($errors);
+        
+        
+        
+        $center = $selectedCourses[0]->center;
+        $term = $selectedCourses[0]->term;
+      
+        $result=$this->initSignupDetails($user,$selectedCourses,$updatedBy);
        
-        $signup=$this->signups->createSignup($signup,$signupDetails);
-        
-        return response()->json($signup);
-       
-    }
+        $errors=$result['errors'];
+        if($errors)  return $this->requestError($errors);
 
-    function setSignupMoney(Signup $signup, User $user,array $signupDetails ,$courses, $identityIds, $lotus)
-    {
-        
-        $terms= $courses->pluck('termId')->all();
-        //課程必須在同一學期
-        if(count(array_unique($terms)) > 1) abort(500);
-        //課程必須在同一中心分類
-        $centerIds= $courses->pluck('centerId')->all();
-        $centerKeys=$this->centers->getByIds($centerIds)->pluck('key')->toArray();
-        if(count(array_unique($centerKeys)) > 1) abort(500);
-        
-     
-        $center = $courses[0]->center;
-        $term = $courses[0]->term;
+        $signupDetails=$result['signupDetails'];
 
-        $bestDiscount=$this->discounts->findBestDiscount($center,$term,$user,$identityIds,$lotus, count($courses));
+        $lotus=Helper::isTrue($request['lotus']);
         
-        
-        if($term->canBird(Carbon::today())){
-        
-           
-            $signup->points = $bestDiscount->pointOne;
 
-            if ($signup->points < 100)
-            {
-                $signup->discount = $bestDiscount->name;
-            }
+        $userCanAddDetailSignup=$this->signups->getUserCanAddDetailSignup($term, $center,$user);
+        if($userCanAddDetailSignup){
+            $userCanAddDetailSignup->identity_ids=join(',', $identityIds);
+            $userCanAddDetailSignup->net=false;
+            $userCanAddDetailSignup->updatedBy=$updatedBy;
 
-            if ($bestDiscount->bird())
-            {
-                $signup->discount .= " - 早鳥優惠";
-            }
-
+            $this->signups->updateSignup($userCanAddDetailSignup,$signupDetails);
         }else{
-        
-            if ($signup->points < 100)
-            {
-                $signup->discount = $bestDiscount->name;
-            }
+            $signup=new Signup(Signup::init());
+            $signup->userId=$userId;
+            $signup->identity_ids=join(',', $identityIds);
+            $signup->net=false;
+            $signup->updatedBy=$updatedBy;
+           
+            $signup=$this->signups->createSignup($signup,$signupDetails,$user,$lotus);
+            
+            return response()->json($signup);
+        };
 
-            $signup->points = $bestDiscount->pointTwo;
-        }
-
-        $tuitions = 0;
-        foreach($signupDetails as $signupDetail) {
-            $tuitions += $signupDetail['tuition'];
-        }
 
        
-        
-        $signup->tuitions = $tuitions * $signup->points / 100;
-        $signup->costs = 0;
-        foreach($signupDetails as $signupDetail) {
-            if($signupDetail->cost)  $signup->costs += $signupDetail->cost;
-        }
-
+       
     }
+
+    
 
 
     public function show($id)
@@ -659,9 +699,13 @@ class SignupsController extends Controller
 
         $signup->loadViewModel();
 
-        $signup->canEdit = $this->canEdit($signup);
+        $signup->canEdit = $this->canEditCenter($signup->getCenter());
         $signup->canDelete = $this->canDelete($signup);
         $signup->canQuit = $this->canQuit($signup);
+
+        foreach($signup->details as $signupDetail){
+            
+        }
 
         return response()->json($signup);
         

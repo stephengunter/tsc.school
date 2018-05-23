@@ -85,7 +85,7 @@ class CentersController extends Controller
         } 
 
         if($this->isAjaxRequest()){
-            return response() ->json($pageList);
+            return response()->json($pageList);
         }
        
 

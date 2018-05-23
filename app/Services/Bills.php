@@ -9,6 +9,7 @@ use App\Profile;
 use App\Course;
 use App\Signup;
 use App\Bill;
+use App\Pay;
 use App\Payway;
 use App\SignupDetail;
 use App\Services\ESuns;
@@ -23,7 +24,7 @@ class Bills
     public function __construct(ESuns $ESuns)
     {
         $this->ESuns=$ESuns;
-        $this->with=['signup','payway'];
+        $this->with=['signup','pays'];
 
     }
    
@@ -67,91 +68,50 @@ class Bills
         event(new SignupUnPayed($bill->signup));
     }
 
-   
-    public function payBill(Payway $payway, $code, $amount , $date='')
+    function payBill(Bill $bill,Payway $payway, $amount , $date='')
     {
         if(!$date) $date=Carbon::now();
 
-        $bill = $this->getBillByCode($code);
-      
-        if ($bill->amount != $amount){
-            abort(500);
+        $pay=new Pay([
+            'amount' => $amount,
+            'paywayId' => $payway->id,
+            'date' => $date
+        ]);
+
+        $bill->pays()->save($pay);
+
+        $signup=$bill->signup;
+        $signup->updateStatus();
+
+        if($signup->status==1)
+        {
+            event(new SignupPayed($bill->signup));
         }
-
-        $bill->payed=true;
-        $bill->payDate=$date;
-        $bill->paywayId=$payway->id;
-       
-
-        DB::transaction(function() use($bill) {
-            $bill->save();
-
-            $signup=$bill->signup;
-            $signup->status = 1;
-           
-            $signup->save();
-          
-        });
-       
-        event(new SignupPayed($bill->signup));
         
         return $bill;
+
+    }
+
+   
+    public function payBillByCode(Payway $payway, $code, $amount , $date='')
+    {
+        $bill = $this->getBillByCode($code);
+      
+        return $this->payBill($bill,$payway,$amount , $date);
     }
     
     public function payBillById(int $id, Payway $payway, $amount, $date='')
     {
-       
         $bill = $this->getById($id);
+        return $this->payBill($bill,$payway,$amount , $date);
         
-        if ($bill->amount != $amount){
-            abort(500);
-        }
-
-        if(!$date) $date=Carbon::now();
-
-        $bill->payed=true;
-        $bill->payDate=$date;
-        $bill->paywayId=$payway->id;
-       
-
-        DB::transaction(function() use($bill) {
-            $bill->save();
-
-            $signup=$bill->signup;
-            $signup->status = 1;
-           
-            $signup->save();
-          
-        });
-
-        $signup=$bill->signup;
-        if($signup->identity_ids){
-            
-            $identity_ids=explode(',', $signup->identity_ids);
-            foreach($identity_ids as $identity_id){
-                $signup->user->addIdentity($identity_id);
-            }
-          
-        }
-        
-
-        event(new SignupPayed($signup));
-        
-        return $bill;
     }
 
-    public function initBill(Signup $signup)
+    public function initBill()
     {
-        
-        $date = Carbon::today();
-        $amount=$signup->amount();
-      
-
         return new Bill([
            
-            'amount' => $amount,
             'payed' => false,
-            'payway' => 0,
            
         ]);
         
@@ -198,9 +158,11 @@ class Bills
                 break;
             }  
         }
+
+        $amount=$bill->getAmount();
         
-        $code = $this->ESuns->initBillCode($deadLineDate, $bill->amount, $serial);
-        $sevenCodes=$this->ESuns->initSevenCodes($deadLineDate, $code,$bill->amount);
+        $code = $this->ESuns->initBillCode($deadLineDate, $amount, $serial);
+        $sevenCodes=$this->ESuns->initSevenCodes($deadLineDate, $code,$amount);
 
 
         $bill->update([

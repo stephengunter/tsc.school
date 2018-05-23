@@ -17,8 +17,6 @@ class CreateBillsTable extends Migration
             $table->integer('signupId')->unsigned();
 			$table->primary('signupId');
             $table->foreign('signupId')->references('id')->on('signups')->onDelete('cascade');
-            
-            $table->decimal('amount', 8, 2);
 
             $table->integer('serial')->unsigned()->nullable();
             $table->string('code')->nullable();  //虛擬帳號
@@ -26,8 +24,7 @@ class CreateBillsTable extends Migration
             $table->date('deadLine')->nullable();
 
             $table->dateTime('payDate')->nullable();
-            $table->boolean('payed');
-            $table->integer('paywayId')->unsigned()->nullable();
+            $table->boolean('payed')->default(false); 
 			
 
 			$table->integer('updatedBy')->unsigned()->nullable();

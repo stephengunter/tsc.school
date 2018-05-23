@@ -12,21 +12,19 @@ use App\QuitDetail;
 use App\Course;
 use App\Payway;
 use App\Services\Payways;
+use App\Services\Signups;
 use DB;
 use Carbon\Carbon;
 
 class Quits 
 {
-    public function __construct(Payways $payways)
+    public function __construct(Payways $payways,Signups $signups)
     {
+        
         $this->payways=$payways;
+        $this->signups=$signups;
 
-        $this->statuses=array(
-            ['value'=> -1 , 'text' => '待處理'],
-            ['value'=> 0 , 'text' => '審核中'],
-            ['value'=> 1 , 'text' => '已審核'],
-            ['value'=> 2 , 'text' => '已完成'],
-        );
+        $this->statuses=Quit::statuses();
 
         $this->with=['signup.user.profile','details','payway'];
     }
@@ -51,7 +49,7 @@ class Quits
 
     public function getByIds(array $ids)
     {   
-        return $this->getAll()->whereIn('signupId', $ids);
+        return $this->getAll()->whereIn('id', $ids);
     }
     
     public function getById($id)
@@ -82,19 +80,46 @@ class Quits
 
     }
 
+    public function getUserCanAddDetailQuit(User $user)
+    {
+                                
+        $signupIds=$this->signups->fetchSignupsByUser($user)->pluck('id')->toArray();
+
+        $userQuits=$this->getAll()->whereIn('signupId',$signupIds)->get();
+       
+        
+        $userQuits = $userQuits->filter(function ($quit) {
+            return $quit->canAddDetail();
+        });
+        
+        return  $userQuits->first();
+    }
+
+    public function undoCreateQuitsByCourse(Course $course)
+    {
+
+    }
+
     public function createQuitsByCourse(Course $course, $percents)
     {
-        //為每個學生產生退費
-        $studentsInCourse=Student::where('courseId',$course->id);
-        $studntUserIds= $studentsInCourse->pluck('userId')->toArray();
+        
+        //為每個"Active"學生產生退費
+        $studentsInCourse=Student::where('courseId',$course->id)->get();
+        $activeStudents = $studentsInCourse->filter(function ($student) {
+            return !$student->hasQuit();
+        });
+
+        $studntUserIds= $activeStudents->pluck('userId')->toArray();
+       
         
         $signups=Signup::whereIn('userId',$studntUserIds)->get();
+       
         $date=Carbon::today()->toDateString();  
 
         foreach($signups as $signup){
-            if($signup->quit) continue;  //之前已經退費
-
             $signupDetail=$signup->details()->where('courseId',$course->id)->first();
+            if($signupDetail->canceled) continue;
+
             $actualTuition=$signupDetail->actualTuition();
 
             $tuition=round($actualTuition * $percents /100);
@@ -105,6 +130,11 @@ class Quits
                 'tuition' => $tuition,
             ]);
 
+            $userCanAddDetailQuit=$this->getUserCanAddDetailQuit($signup->user);
+            if($userCanAddDetailSignup){
+
+            }
+
             $payway=$this->payways->initQuitPaywayBySignup($signup);
               
             $quit=new Quit([
@@ -113,58 +143,33 @@ class Quits
                 'fee' => 0, // 手續費
                 'paywayId' => $payway->id,
                 'auto' => true,  
-                'ps' =>  $date . '課程停開'
+               
             ]);
 
-            DB::transaction(function() use($signup,$quit,$quitDetail) {
-            
-                $signup->quit()->save($quit);
-            
-                $quit=Quit::find($signup->id);
-            
-                $quit->details()->save($quitDetail);
-               
-                $signup->update([
-                    'status' => -1,
-                   
-                ]);
-                
-            });
+            $this->createQuit($signup,$quit, [$quitDetail]);
             
         }
-        foreach($studentsInCourse->get() as $student){
-            $student->update([
-                'status' => -1, 
-                'quitDate' => $date
-            ]);
-        }
+        
         
     }
 
     public function createQuit(Signup $signup,Quit $quit, array $quitDetails)
     {
+       
         $quit = DB::transaction(function() use($signup,$quit,$quitDetails) {
             
-            $tuitions = 0;
-            foreach($quitDetails as $quitDetail) {
-                $tuitions += $quitDetail['tuition'];
-            }
-
-            $quit->tuitions=$tuitions;
-            $quit->fee=$this->countFee($quit->paywayId,$tuitions);
-          
-            $signup->quit()->save($quit);
-
-           
-            
-            $quit=Quit::find($signup->id);
+            $signup->quits()->save($quit);
            
             $quit->details()->saveMany($quitDetails);
 
+            $quit=Quit::find($quit->id);
+
+            $quit->updateMoney();
+
+            $signup=Signup::find($quit->signupId);
+            $signup->updateStatus();
            
-            $signup->update([
-                'status' => -1
-            ]);
+            
 
             $signupDetailIds=collect($quitDetails)->pluck('signupDetailId')->toArray();
             
@@ -192,45 +197,46 @@ class Quits
         return  Payway::find($paywayId)->getFee($amount);
     }
 
-    public function updateQuit(Quit $quit ,array $quitValues, array $detailsValues)
+    public function updateQuit(Quit $quit, array $details=[])
     {
-        $date=$quitValues['date'];
-        DB::transaction(function() use($quit,$quitValues,$detailsValues) {
-           
-            foreach($detailsValues as $detail){
-                $quitDetail=QuitDetail::find($detail['id']);
+       
+        DB::transaction(function() use($quit,$details) {
+            $quit->save();
 
-                $percents=(int)$detail['percents'];
-               
-                if(!$percents){
-                    $signupDetail=SignupDetail::find($detail['signupDetailId']);
-                    $student= $signupDetail->getStudent();
-                    $student->update([
-                        'status' => 1, 
-                        'quitDate' => $date
-                    ]);
-                    $quitDetail->delete();
+            foreach($details as $detail){
+                $exist=$quit->details()->where('signupDetailId',$detail['signupDetailId'])
+                                        ->first();
+                if($exist){
+                    $exist->update($detail->toArray());
                 }else{
-                    $quitDetail->update($detail);
-                } 
+                    $quit->details()->save($detail);
+                }                        
             }
 
-            $quitDetails=QuitDetail::where('signupId',$quit->signupId)->get();
-            $tuitions = 0;
-            foreach($quitDetails as $quitDetail) {
-                $tuitions += $quitDetail->tuition;
-            }
+            $quit=Quit::find($quit->id);
+            $quit->updateMoney();
 
-            $quitValues['tuitions']=$tuitions;
-            $quitValues['fee']=$this->countFee($quitValues['paywayId'],$tuitions);
-            $quit->update($quitValues);
-
-            
-           
-		});
-    
+            $signup=Signup::find($quit->signupId);
+            $signup->updateStatus();
+        });
 
        
+        
+    }
+
+    public function addQuitDetails(Quit $quit, array $newDetails=[])
+    {
+       
+        DB::transaction(function() use($quit,$newDetails) {
+            $quit->save();
+            $quit->details()->saveMany($newDetails);
+
+            $quit=Quit::find($quit->id);
+            $quit->updateMoney();
+        });
+
+       
+        
     }
 
     
@@ -305,12 +311,13 @@ class Quits
                 ]);
             }
 
-            $quit->signup->update([
-                'status' => 1,
-                'updatedBy' => $updatedBy
-            ]);
+            $signupId=$quit->signupId;
 
             $quit->delete();
+
+            $signup=Signup::find($quit->signupId);
+            $signup->updateStatus();
+           
            
 		});
     

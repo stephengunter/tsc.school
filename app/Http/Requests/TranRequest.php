@@ -29,18 +29,12 @@ class TranRequest extends FormRequest
 
     public function rules()
     {
-        return [
-            'tran.tuition' => 'required|numeric'
-        ];
+        return [];
         
     }
     public function messages()
     {
-        return [
-            'tran.tuition.required' => '請填寫金額',
-            'tran.tuition.numeric' => '必須是數字'
-            
-        ];
+        return [];
     }
 
     public function getTranValues()

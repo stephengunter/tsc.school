@@ -20,6 +20,7 @@ class CreateSignupDetailsTable extends Migration
 
 
             $table->integer('courseId')->unsigned();
+            $table->boolean('canceled')->default(false); 
 			
             $table->decimal('tuition', 8, 2);  
             $table->decimal('cost', 8, 2)->default(0); 

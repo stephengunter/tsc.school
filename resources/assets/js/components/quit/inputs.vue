@@ -19,7 +19,14 @@
                     </drop-down>
                 </div>
             </div>  
-             
+            <div class="col-sm-6">
+                <div class="form-group">                           
+                    <label>學員有特殊原因須退出</label>
+                    <div>
+                        <toggle :items="boolOptions"   :default_val="form.quit.special" @selected="setSpecial"></toggle>
+                    </div>
+                </div>
+            </div>   
         </div>
         <div class="row" v-if="need_account">
             <div class="col-sm-3">
@@ -90,7 +97,8 @@ export default {
 	},
     data(){
 		return {
-			need_account:false
+            need_account:false,
+            boolOptions:Helper.boolOptions()
 		}
 	},
     computed:{
@@ -111,6 +119,9 @@ export default {
         },
 		setDate(val){
 			this.form.quit.date=val;
+        },
+        setSpecial(val){
+            this.form.quit.special=val;
         },
         onPaywaySelected(item){
             this.form.quit.paywayId=item.value;

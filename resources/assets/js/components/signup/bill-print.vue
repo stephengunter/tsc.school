@@ -8,23 +8,29 @@
                 <h3 v-else>{{ title }}</h3>
             </div>
             <div class="row">
-                <div class="col-sm-4" >
-                    <h3>
-                    應繳金額：
-                    {{ signup.bill.amount | formatMoney }} 
-                    </h3> 
+                <div class="col-sm-3" >
+                    <h4>
+                    學員姓名：
+                    {{ signup.user.profile.fullname  }} 
+                    </h4> 
                 </div>
-                <div class="col-sm-4" >
-                    <h3>
+                <div class="col-sm-3" >
+                    <h4>
+                    應繳金額：
+                    {{ signup.amount | formatMoney }} 
+                    </h4> 
+                </div>
+                <div class="col-sm-3" >
+                    <h4>
                     報名日期：
                      {{ signup.date }}
-                    </h3> 
+                    </h4> 
                 </div>
-                <div class="col-sm-4 text-right">  
-                    <h3 v-if="!payed">
+                <div class="col-sm-3 text-right">  
+                    <h4 v-if="!payed">
                     繳費期限：
                        {{ signup.bill.deadLine }}
-                    </h3>     
+                    </h4>     
                 </div>
             </div>
             <div class="row">
@@ -67,7 +73,7 @@
                             </div>
                             <div class="col-sm-4">
                                 <label class="label-title">應繳金額：</label>
-                                {{ signup.bill.amount | formatMoney }} 
+                                {{ signup.amount | formatMoney }} 
                             </div>
                         </div>
                     
@@ -109,7 +115,7 @@
                                     {{ signup.date }}
                                 </td>
                                 <td>
-                                    {{ signup.bill.amount | formatMoney }} 
+                                    {{ signup.amount | formatMoney }} 
                                 </td>
                             </tr>
                         </tbody>

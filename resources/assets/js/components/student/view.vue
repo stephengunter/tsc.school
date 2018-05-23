@@ -25,17 +25,26 @@
             </show>
             <div v-else >
            
-                <tran-edit v-if="trans" :student_id="this.id"  @saved="onSaved"   @cancel="onEditCanceled" > 
+                <tran-edit v-if="trans" :model="tranCreate.model" :student_id="student.id"  @saved="onSaved"   @cancel="onEditCanceled" > 
 
                 </tran-edit>
-                <edit  v-else :id="id"
+                <edit v-else :id="id"
                     @saved="onSaved"   @cancel="onEditCanceled" >                 
                 </edit>
             </div>
         </div>
         
     </div>
-   
+    <modal :showbtn="false"  :show.sync="courseSelector.show"  @closed="courseSelector.show=false" 
+			effect="fade" :width="1200">
+        <div slot="modal-body" class="modal-body">
+            <tran-course-selector v-if="courseSelector.show" :student_id="student.id"
+                :centers="courseSelector.centerOptions" 
+                :center_id="courseSelector.center_id" :init_courses="courseSelector.init_courses"
+                @submit="onSubmitCoursesToTran">
+            </tran-course-selector>
+        </div>
+	</modal>
    
 </div>
 </template>
@@ -43,12 +52,14 @@
     import Show from './show.vue';
     import Edit from './edit.vue';
     import TranEdit from '../tran/edit.vue';
+    import TranCourseSelector from '../tran/course-selector.vue';
     export default {
         name:'Student',
         components: {
             Show,
             Edit,
-            'tran-edit':TranEdit
+            'tran-edit':TranEdit,
+            'tran-course-selector':TranCourseSelector
         },
         props: {
             id: {
@@ -78,6 +89,21 @@
                 readOnly:true,
                 trans:false,
                 student:null,
+
+                tranCreate:{
+                    model:null,
+                    tran:null
+                },
+
+                courseSelector:{
+                    show:false,
+                    course:null,
+
+
+                    center_id:0,
+                    centerOptions:[],
+                    init_courses:[]
+                },
 
             }
         },
@@ -109,10 +135,6 @@
             'version':'init'
         },
         methods: {
-            getStudentId(){
-                if(this.student.userId) return  this.student.userId;
-                return this.student.id;
-            },
             init() {
                 if(this.id){
                     this.fetchData();
@@ -132,6 +154,11 @@
                         ...student
                     }; 
 
+                    if(student.tran){
+                        this.tranCreate.tran={
+                            ...student.tran
+                        }
+                    }
 
                     this.$emit('loaded',this.student);
                 })
@@ -148,8 +175,37 @@
                 this.trans=false;
             },
             beginTrans(){
+                let params={
+                    student:this.student.id
+                };
+                let create=Tran.create(params);
+                create.then(data => {
+                   this.courseSelector.centerOptions=data.centerOptions.slice(0);
+                   this.courseSelector.init_courses=data.courses.slice(0);
+                   this.courseSelector.center_id=data.centerId;
+
+                   this.courseSelector.show=true;
+                    
+                })
+                .catch(error=> {
+                    Helper.BusEmitError(error)
+                })
+               
+               
+            },
+            onSubmitCoursesToTran(course){
+
+                this.tranCreate.model={
+                    tran:{ ...this.tranCreate.tran },
+                    student:{ ...this.student },
+                    course:{ ...course}
+                };
+              
+                this.courseSelector.show=false;
+
                 this.readOnly=false;
                 this.trans=true;
+                
             },
             onEditCanceled(){
 

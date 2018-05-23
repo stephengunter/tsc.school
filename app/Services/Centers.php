@@ -17,6 +17,7 @@ class Centers
 
     public function __construct()
     {
+        $this->keys=['west','east','oversea'];
         $this->with=['area','contactInfoes.address.district.city'];
     }
 
@@ -30,6 +31,11 @@ class Centers
 
         if($withOversea) array_push($options,['value'=> 'oversea', 'text' => '海外']);
         return $options;
+    }
+
+    public function isKeyValid($key)
+    {
+        return in_array($key,$this->keys);
     }
 
     public function getAll()

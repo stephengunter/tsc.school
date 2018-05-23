@@ -5,12 +5,10 @@
 			<div class="col-sm-4">
 				<div class="form-group">                           
 					<label>目標課程</label>
-					<drop-down :items="courseOptions" :selected="form.tran.courseId"
-                        @selected="onCourseSelected">
-                    </drop-down>
+					<input readonly type="text" class="form-control" :value="course.fullName">
 				</div>
 			</div>  
-			<div class="col-sm-4">
+			<div v-if="false" class="col-sm-4">
 				<div class="form-group">                           
 					<label>應繳/應退</label>
 					<div>
@@ -18,7 +16,7 @@
 					</div>
 				</div>
 			</div>  
-            <div class="col-sm-4">
+            <div  v-if="false" class="col-sm-4">
 				<div class="form-group">                           
 					<label>金額</label>
 					<input type="text" name="tran.tuition" class="form-control" v-model="form.tran.tuition">
@@ -71,15 +69,15 @@ export default {
         id: {
             type: Number,
             default: 0
-        },
-        student_id:{
-            type: Number,
-            default: 0
-        }
+		},
+		model:{
+			type: Object,
+            default: null
+		}
 	},
 	data(){
 		return {
-			courseOptions:[],
+			course:null,
 
 			isPayOptions:[{
 				text: '應繳',
@@ -100,9 +98,7 @@ export default {
 		}
 	},
 	computed:{
-		isCreate(){
-			return this.id < 1;
-		}
+		
 	},
 	beforeMount() {
 		this.init();
@@ -112,52 +108,19 @@ export default {
 			this.$emit('cancel');
 		},
 		init(){
-			this.fetchData();
-		},
-		fetchData(){
-            let getData=null;
-            if(this.isCreate){
-                let params={
-                    student:this.student_id
-                };
-                getData=Tran.create(params);
-            }else{
-                getData=Tran.edit(this.id);
-            } 
+			this.course={ ...this.model.course  };
+			this.student={ ...this.model.student  };
+			this.form = new Form({
+						tran:{
+							...this.model.tran
+						}
+						
+					});
+
+			this.form.tran.courseId=this.course.id;		
+			this.form.tran.studentId=this.student.id;	
+		
 			
-			getData.then(model => {
-				this.student={ ...model.student  };
-				this.courseOptions=model.courseOptions.slice(0);
-
-
-				this.form = new Form({
-							tran:{
-								...model.tran
-							}
-							
-						});
-				
-				this.onDataFetched();
-				
-			})
-			.catch(error=> {
-				Helper.BusEmitError(error); 
-			})
-		},
-		onDataFetched(){
-			if(this.isCreate){
-				let courseId=this.student.courseId;
-				let index= this.courseOptions.findIndex((item)=>{
-					return item.value==courseId;
-				});
-				if(index >= 0)  this.courseOptions.splice(index, 1); 
-
-				this.form.tran.courseId=this.courseOptions[0].value;
-			}
-			
-		},
-		onCourseSelected(item){
-			this.form.tran.courseId = item.value;
 		},
 		setIsPay(val){
 			this.form.tran.isPay=val;
@@ -168,17 +131,11 @@ export default {
 		onSubmit(){
 			this.submitting=true;
 
-            let save=null;
-            if(this.isCreate){
-				
-                save=Tran.store(this.form);
-            }else{
-                save=Tran.update(this.id,this.form);
-            } 
+            let save=Tran.store(this.form);
 
 			save.then(() => {
 					this.submitting=false;
-                    this.$emit('saved');
+                    //this.$emit('saved');
 					Helper.BusEmitOK('資料已存檔');
 				})
 				.catch(error => {

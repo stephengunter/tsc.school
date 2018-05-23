@@ -81,6 +81,8 @@ Vue.component('signups-create', require('./views/signups/create'));
 Vue.component('quits-index', require('./views/quits/index'));
 Vue.component('quits-details', require('./views/quits/details'));
 
+Vue.component('trans-index', require('./views/trans/index'));
+
 Vue.component('students-index', require('./views/students/index'));
 Vue.component('students-details', require('./views/students/details'));
 

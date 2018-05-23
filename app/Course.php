@@ -57,7 +57,7 @@ class Course extends Model
     }
     public static function initCourseNumber($serial ,Category $category,Center $center ,Term $term )
     {
-        // A1074-03001
+        // A1074-0301
         $serial = (int)$serial;
         if (!$serial) return '';
 
@@ -158,6 +158,15 @@ class Course extends Model
         foreach($this->classTimes as $classTime){
             $classTime->fullText=$classTime->fullText();            
         }
+    }
+
+    public function getLessonMinutes()
+    {
+        $minutes=0;
+        foreach($this->lessons as $lesson){
+            $minutes+=$lesson->getMinutes();          
+        }
+        return $minutes;
     }
 
     public function toOption()

@@ -325,6 +325,14 @@ class CoursesController extends Controller
         return $errors;
     }
 
+    function testActive($course)
+    {
+        $percents=100;
+        $reviewedBy=1;
+
+        $this->courses->shutDownCourse($course, $percents,$reviewedBy);
+    }
+
     public function store(CourseRequest $request)
     {
         $courseValues=$request->getValues();
@@ -386,6 +394,8 @@ class CoursesController extends Controller
     {
         $course = $this->courses->getById($id);
         if(!$course) abort(404);
+
+        $this->testActive($course);
 
         $course->fullName();
         $course->loadClassTimes();

@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\Students;
 use Carbon\Carbon;
 
-class CreateStudentsBySignup
+class OnSignupPayed
 {
     /**
      * Create the event listener.
@@ -37,6 +37,16 @@ class CreateStudentsBySignup
         foreach($signup->details as $detail){
             
             $this->students->createStudent($detail->courseId, $signup->userId, $joinDate);
+        }
+
+        
+        if($signup->identity_ids){
+            
+            $identity_ids=explode(',', $signup->identity_ids);
+            foreach($identity_ids as $identity_id){
+                $signup->user->addIdentity($identity_id);
+            }
+          
         }
         
     }

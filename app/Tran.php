@@ -4,9 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Course;
 
 class Tran extends Model
 {
+	public static $snakeAttributes = false;
+
     protected $fillable = [
         'date', 'signupDetailId', 'courseId' , 'tuition',
         'ps', 'updatedBy'
@@ -35,5 +38,24 @@ class Tran extends Model
     public function course() 
 	{
 		return $this->hasOne('App\Course', 'id' ,'courseId');
-    }
+	}
+
+	public function  getUser()
+	{
+		return $this->signupDetail->signup->user;
+	}
+	
+	public function  loadViewModel()
+	{
+		$this->course->fullName();
+
+		$this->formCourse=$this->signupDetail->course;
+		$this->formCourse->fullName();
+
+		$this->user=$this->getUser();
+		$this->user->profile;
+
+
+	}
+	
 }

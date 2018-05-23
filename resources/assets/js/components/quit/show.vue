@@ -14,21 +14,30 @@
                     {{ quit.amount | formatMoney  }}
                 </p>                      
             </div>
-            
+            <div  class="col-sm-3">
+                <label class="label-title">原因</label>
+                <p>
+                    {{ quit.reason }} 
+                </p>                      
+            </div>
             <div  class="col-sm-3">
                 <label class="label-title">狀態</label>
                 <p v-html="$options.filters.quitStatusLabel(quit.status)"></p>   
-                &nbsp; 
-                <button class="btn btn-primary btn-xs" @click.prevent="editStatus">
-                    <i class="fa fa-edit"></i>
-                </button>                
+                          
             </div>
         </div>  <!-- End row--> 
         
     </div>
-    <quit-details :quit_details="quit.details" :can_edit="false"  >
-       
-    </quit-details>
+    <div class="show-data">
+        <div class="row" >
+            <div class="col-sm-12">
+                <label class="label-title">明細</label>
+                <p v-html="getDetails(quit)">
+                    
+                </p>                      
+            </div>
+        </div>    
+    </div>    
     <div class="show-data">
         <div class="row" >
             <div  class="col-sm-3">
@@ -54,7 +63,7 @@
                 </p>    
             </div>
         </div>  <!-- End row--> 
-        <div v-if="hasAccount" class="row">
+        <div  class="row">
             <div class="col-sm-3">
                 <label class="label-title">銀行名稱</label>
                 <p >
@@ -82,7 +91,7 @@
         </div>   <!-- End row-->
         
         <div  class="row">
-            <div v-if="hasAccount" class="col-sm-3">
+            <div class="col-sm-3">
                 <label class="label-title">金資代碼</label>
                 <p >
                    {{ quit.account_code }}
@@ -161,6 +170,14 @@
             
         }, 
         methods: { 
+            getDetails(quit){
+                let withNumber=true;
+                let html='';
+                quit.details.forEach(item=>{
+                    html += Quit.detailSummary(item,withNumber) + '<br>'
+                })
+                return html;
+            },
             statusLable(){
               
                 return Quit.statusLabel(this.quit.status);

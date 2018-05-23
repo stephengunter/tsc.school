@@ -18,8 +18,8 @@
                         <th>報名課程</th>
                         <th style="width:25%">折扣</th>
                         <th style="width:10%">應繳金額</th>
-                        <th v-if="payed" style="width:10%">繳費方式</th>
-                        <th v-if="payed" style="width:7%"></th>
+                        <th style="width:10%">已繳金額</th>
+                        <th v-if="can_quit" style="width:7%"></th>
                     </tr>
                     
                 </thead>
@@ -58,12 +58,12 @@
                         <td>
                              {{ signup.amount | formatMoney }} 
                         </td>
-                        <td v-if="payed" >
-                            <span v-if="signup.bill.payway" >
-                            {{ signup.bill.payway.name }} 
-                           </span>
+                        <td>
+                           
+                            {{ signup.bill.amountPayed | formatMoney }} 
+                           
                         </td>
-                        <td v-if="payed" >
+                        <td v-if="canQuit(signup)">
                             <button @click.prevent="quit(signup)" class="btn btn-warning btn-xs" >
                                我要退費
                             </button>
@@ -106,6 +106,10 @@ export default {
             type: Boolean,
             default: false
         },
+        can_quit:{
+            type: Boolean,
+            default: false
+        },
         payed:{
             type: Boolean,
             default: false
@@ -142,7 +146,8 @@ export default {
             let viewList=this.getViewList();
             if(!viewList) return 0;
             return viewList.length;
-        }
+        },
+        
 		
     }, 
 	watch: {
@@ -154,7 +159,11 @@ export default {
         getViewList(){
 			if(this.model) return this.model.viewList;
 			return this.signups;
-		},
+        },
+        canQuit(signup){
+            if(!this.can_quit) return false;
+            return signup.canQuit;
+        },
         onSelected(id){
             
            this.$emit('selected',id);

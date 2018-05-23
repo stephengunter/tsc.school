@@ -32,9 +32,16 @@ class Payways
 
     }
 
+    public function defaultQuitPayway()
+    {
+        return $this->getByCode('account');
+    }
+
     public function initQuitPaywayBySignup($signup)
     {
-        $sourcePayway = $signup->bill->payway;
+        return $this->defaultQuitPayway();
+
+        $sourcePayway = $signup->bill->pays[0]->payway;
         $code='account';
 
         

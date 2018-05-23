@@ -1,7 +1,7 @@
 <template>
     <div>
-        <quit-details :quit_details="quitDetails" :percents_options="percentsOptions"  :editting_id="edittingId"
-           @cancel-edit="edittingId=0" @edit="beginEditRow">
+        <quit-details v-if="form" :quit_details="quitDetails" :special="isSpecial" :percents_options="percentsOptions"  :editting_id="edittingId"
+           @cancel-edit="edittingId=0" @edit="beginEditRow" @remove-row="onRemoveDetail">
         </quit-details>
         <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
             <quit-inputs :form="form" :payway_options="paywayOptions"></quit-inputs>
@@ -48,24 +48,18 @@ export default {
 		}
 	},
     computed:{
-		
+		isSpecial(){
+            if(this.form){
+                return Helper.isTrue(this.form.quit.special);
+            }else return false;
+        }
 	},
     beforeMount() {
 		this.init();
 	},
     methods:{
 		init(){
-           
-			this.quitDetails=this.signup.details.map(item=>{
-                return {
-                    'course':item.course,
-                    'signupDetailId':item.id,
-                    'percents' : 0,
-                    'tuition' : '',
-                    'ps' : ''
-                }
-            });
-           
+            
             let fetchData=Quit.create(this.signup.id);
             fetchData.then(data => {
                     this.form = new Form({
@@ -74,6 +68,9 @@ export default {
                         },
                         details:[]
                     })
+                    this.quitDetails=data.details.slice(0);
+
+
                     let paywayExist=data.paywayOptions.find(item=>{
                         return Helper.tryParseInt(item.value)==Helper.tryParseInt(this.signup.bill.paywayId);
                     })
@@ -93,11 +90,14 @@ export default {
         cancel(){
 			this.$emit('cancel');
         },
+        onRemoveDetail(index){
+            this.quitDetails.splice(index, 1);
+        },
         beginEditRow(item){
             this.errorText='';
             this.edittingId = item.signupDetailId;
         },
-		onSubmit(){
+		submitSpecial(){
             this.submitting=true;
 
             let validDetails=this.quitDetails.filter(item=>{
@@ -112,6 +112,27 @@ export default {
 
             this.form.details=validDetails.slice(0);
             this.submitQuit();
+            
+			
+        },
+        onSubmit(){
+
+            if(this.isSpecial){
+                this.submitSpecial();
+            }else{
+                this.submitting=true;
+
+                if(!this.quitDetails.length){
+                    this.errorText='您沒有選擇任何一個退費課程';
+                    this.submitting=false;
+                    return;
+                }
+
+                this.form.details=this.quitDetails.slice(0);
+                this.submitQuit();
+            }
+
+            
             
 			
         },

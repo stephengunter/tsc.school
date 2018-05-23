@@ -14,7 +14,7 @@ use App\Term;
 use App\Center;
 use App\Course;
 use App\Student;
-use App\StudentDetail;
+use App\Tran;
 
 use App\Services\Students;
 use App\Services\Bills;
@@ -61,6 +61,7 @@ class StudentsController extends Controller
     function canTrans($student)
     {
         if($student->hasQuit()) return false;
+        if($student->tran_id_from) return false;
         return $this->canEdit($student);
         
 
@@ -143,24 +144,36 @@ class StudentsController extends Controller
         if (!$selectedCenter) abort(404);
 
         $courseOptions = $this->courses->options($selectedTerm,$selectedCenter);
-
        
 
         if (!$selectedCourse  && count($courseOptions))
         {
             $selectedCourse = $this->courses->getById($courseOptions[0]['value']);
         }
-        
-        $students = $this->students->getStudentsByCourse($selectedCourse); 
+
+        if($selectedCourse){
+            $students = $this->students->getStudentsByCourse($selectedCourse); 
        
-        $students = $students->orderBy('status','desc');
+            $students = $students->orderBy('status','desc');
+
+            $canEditScores=$this->canEditCourse($selectedCourse);
+            
+        }else{
+            $coursesIds=$this->courses->fetchCourses($selectedTerm->id, $selectedCenter)
+                                      ->pluck('id')->toArray();
+
+            $students = $this->students->getAll()->whereIn('courseId',$coursesIds);
+
+            $canEditScores=false;
+                             
+        }
 
         $pageList = new PagedList($students);
         foreach($pageList->viewList as $student){
             $student->absenceCount=$student->absenceRecords()->count();
         }  
        
-        $canEditScores=$this->canEditCourse($selectedCourse);
+        
 
         if($this->isAjaxRequest()){
             $model['model'] = $pageList;
@@ -171,7 +184,7 @@ class StudentsController extends Controller
 
         $model['title'] = '學生管理';
         $model['list'] = $pageList;
-        $model['menus'] = $this->adminMenus('CoursesAdmin');
+        $model['menus'] = $this->adminMenus('StudentsAdmin');
         $model['courses'] = $courseOptions;
         $model['canEditScores'] = $canEditScores;
        
@@ -191,7 +204,11 @@ class StudentsController extends Controller
         $student->canEdit = $this->canEdit($student);
         $student->canTrans = $this->canTrans($student);
 
-        return response() ->json($student);
+        if($student->canTrans){
+            $student->tran=Tran::init();
+        }
+
+        return response()->json($student);
         
     }
 

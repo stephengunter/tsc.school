@@ -2,11 +2,14 @@
 
 Auth::routes();
 
-Route::get('/test', 'BillsController@test');
+//Route::get('/test', 'BillsController@test');
 
-// Route::get('/test', function(){
-//     return view('errors')->with(['msg' => 'yyhyh']);
-// });
+Route::get('/test', function(){
+    $banks=['第一銀行','國泰世華','中國信託','玉山銀行'];
+    $random_key=array_rand($banks,1);
+
+    dd($banks[$random_key]);
+});
 
 
 
@@ -61,7 +64,7 @@ Route::group(['middleware' => 'admin'], function()
 {
     Route::get('/manage', function () {
         $current='manage';
-        $keys=[ 'CoursesAdmin','SignupsAdmin', 'TeachersAdmin','UsersAdmin','MainSettings' ];
+        $keys=[ 'CoursesAdmin','SignupsAdmin', 'TeachersAdmin','StudentsAdmin','UsersAdmin','MainSettings' ];
         $systems=[];
     
         foreach ($keys as $key) {
@@ -158,12 +161,14 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/signups/updatePS', 'SignupsController@updatePS');
 
     Route::get('/manage/bills/{id}/print', 'BillsController@print');
-    Route::put('/manage/bills/{id}/pay', 'BillsController@pay');
-    Route::put('/manage/bills/{id}/unpay', 'BillsController@unpay');
+
+    Route::resource('/manage/pays', 'PaysController');
 
     Route::resource('/manage/students', 'StudentsController');
     Route::post('/manage/students/scores/update', 'StudentsController@updateScores');
 
+   
+    Route::get('/manage/trans/courses', 'TransController@fetchCourses');
     Route::resource('/manage/trans', 'TransController');
 
     Route::resource('/manage/notices', 'NoticesController');

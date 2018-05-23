@@ -16,6 +16,8 @@ class CreateStudentsTable extends Migration
             $table->integer('status'); 
             $table->decimal('score', 8, 2)->nullable(); 
             
+            $table->integer('tran_id_from')->nullable();
+            $table->integer('tran_id_to')->nullable();
             $table->date('joinDate');
             $table->date('quitDate')->nullable();
             

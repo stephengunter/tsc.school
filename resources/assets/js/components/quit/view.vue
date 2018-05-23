@@ -26,14 +26,72 @@
             </div>
         </div>  
         <div class="panel-body">
-            <show :quit="signup.quit" :user="signup.user"  v-if="readOnly"  :signup="signup"
-               @edit-review="onEditReview"  @edit-ps="onEditPS" >  
-            </show>
+            <div v-if="readOnly"  >
+                <show v-if="quit" :quit="quit" :user="quit.signup.user"  
+                    @edit-review="onEditReview"  @edit-ps="onEditPS" >  
+                </show>
+                <table v-if="showTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            
+                            
+                            <th style="width:8%">姓名</th>
+                            <th style="width:8%">原因</th>
+                            <th style="width:10%">申請日期</th>
+                            <th>明細</th>
+                            <th style="width:8%">退還學費</th>
+                            <th style="width:8%">手續費</th>
+                            <th style="width:10%">退款方式</th>
+                            <th style="width:10%">應退金額</th>
+                            <th style="width:7%">狀態</th>
+                        </tr>
+                        
+                    </thead>
+                    <tbody>
+                        <tr v-for="(quit,index) in signup.quits" :key="index">
+                            
+                            <td v-text="signup.user.profile.fullname"> 
+                               
+                            </td>
+                            <td>
+                                {{ quit.reason }} 
+                            </td>
+                            <td> 
+                                {{ quit.date }} 
+                            </td>
+                            <td v-html="getDetails(quit)">
+                            
+                            </td>
+                            <td>
+                                {{ quit.tuitions | formatMoney }}    
+                            </td>
+                            <td>
+                                {{ quit.fee | formatMoney }}    
+                            </td>
+                            <td>
+                                {{ quit.payway.name }} 
+                            </td>
+                            <td>
+                                {{ quit.amount | formatMoney }} 
+                            </td>
+                            
+                            <td v-html="getStatusLabel(quit)" ></td>
+                        
+                        
+                        
+                        </tr>
+                        
+                    </tbody>
+               
+
+                </table>
+            </div>
+           
             <div v-else>
-                <create v-if="creating"  :signup="signup"
+                <create v-if="false"  :signup="signup"
                     @saved="onSaved"   @cancel="onEditCanceled" >                 
                 </create>
-                <edit  v-else :id="signup.id"  
+                <edit  :quit="quit" :signup="signup"  
                     @saved="onSaved"   @cancel="onEditCanceled" >                 
                 </edit>
             </div>
@@ -65,6 +123,10 @@
            
         },
         props: {
+            quit:{
+                type: Object,
+                default: null
+            },
             signup:{
                 type: Object,
                 default: null
@@ -127,17 +189,16 @@
             },
             canEdit(){
                 if(!this.can_edit) return false;
-                if(!this.signup.quit)  return false;
-                if( Helper.isTrue(this.signup.quit.reviewed))  return false;
-                return true;
+                if(!this.quit)  return false;
+                return Helper.isTrue(this.quit.canEdit)
             },
             canDelete(){
                 return this.canEdit;
             },
             quitId(){
-                if(!this.signup) return 0;
-                if(!this.signup.quit) return 0;
-                return this.signup.quit.signupId;
+                if(!this.quit) return 0;
+              
+                return this.quit.id;
             },
             creating(){
                 if(this.readOnly) return false;
@@ -152,11 +213,17 @@
 
                 return '編輯退費申請';
                 
+            },
+            showTable(){
+                if(!this.mode=='table') return false;
+                if(!this.signup) return false;
+                if(!this.signup.quits) return false;
+                return this.signup.quits.length > 0;
             }
            
         },
         beforeMount(){
-            if(this.mode=='create') this.beginCreate();
+            if(this.mode=='create') this.beginCreate();            
         },
         watch: {
             'version':'init'
@@ -170,6 +237,19 @@
             },  
             beginEdit() {
                 this.readOnly=false;
+            },
+            getDetails(quit){
+          
+                let html='';
+                quit.details.forEach(item=>{
+                    html += Quit.detailSummary(item) + '<br>'
+                })
+                return html;
+            },
+            getStatusLabel(quit){
+            
+                let statusLabel=Quit.statusLabel(quit.status);
+                return statusLabel;
             },
             onEditCanceled(){
                 this.readOnly=true;
@@ -205,9 +285,9 @@
             onEditPS(){
                
                 this.psEditor.id=this.quitId;
-                this.psEditor.text=this.signup.quit.ps;
+                this.psEditor.text=this.quit.ps;
                
-                this.$refs.psEditor.init(this.signup.quit.ps);
+                this.$refs.psEditor.init(this.quit.ps);
 
                 this.psEditor.show=true;
             },

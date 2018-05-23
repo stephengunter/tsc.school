@@ -5,7 +5,7 @@
 
 
 <signups-index v-show="indexMode" :init_model="model" :summary_model="summary" :terms="terms" :centers="centers" :courses="courses" :statuses="statuses"
-               :payways="payways" :version="version"
+               :version="version" :can_quit="canQuit"
                v-on:selected="onSelected" v-on:quit="onQuit" v-on:create="onCreate" >
 </signups-index>
 <signups-details v-if="selected" :id="selected" :payways="counter_payways" :mode="detailsMode"
@@ -36,7 +36,8 @@
                     courses: [],
 
                     statuses:[],
-                    payways:[],
+
+                    canQuit:false,
 
                     counter_payways:[],
 
@@ -65,7 +66,9 @@
                 this.centers = {!! json_encode($centers) !!} ;
                 this.courses = {!! json_encode($courses) !!} ;
                 this.statuses = {!! json_encode($statuses) !!} ;
-                this.payways = {!! json_encode($payways) !!} ;
+               
+
+                this.canQuit = {!! json_encode($canQuit) !!} ;
               
                 this.counter_payways = {!! json_encode($counterPayways) !!} ;
 

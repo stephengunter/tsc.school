@@ -27,7 +27,7 @@
                         @selected="setStatus">
                     </drop-down>
                 </div>
-                <div v-show="payed" class="form-group" style="padding-left:1em;">
+                <div v-if="false" class="form-group" style="padding-left:1em;">
                     <drop-down :items="payways" :selected="params.payway"
                         @selected="setPayway">
                     </drop-down>
@@ -56,7 +56,7 @@
         </div>  
 
         
-        <signup-table :model="model" :can_review="canReview" :payed="payed"
+        <signup-table :model="model" :payed="payed" :can_quit="canQuit"
             @selected="onSelected" @quit="onQuit"  @check-changed="onCheckIdsChanged">
             <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
                 <page-controll   :model="model" @page-changed="onPageChanged"
@@ -97,7 +97,7 @@
                 type:Boolean,
                 default:false
             },
-            can_import:{
+            can_quit:{
                 type:Boolean,
                 default:false
             },
@@ -136,6 +136,8 @@
 
                 summary:null,
 
+                canQuit:false,
+
                 courseOptions:[],
                 
                 params:{
@@ -144,7 +146,6 @@
                     course:'0',
                     status:'0',
                     keyword:'',
-                    payway:'0',
                     
                     page:1,
                     pageSize:999
@@ -172,7 +173,7 @@
             this.params.term=this.terms[0].value;
             this.params.center=this.centers[0].value;
             	
-            this.canReview=this.can_review;	 	
+            this.canQuit=this.can_quit;	 	
         },
         computed:{
             hasCourse(){
@@ -255,6 +256,8 @@
                     this.summary={ ...model.summaryModel };
                     this.courseOptions=model.courseOptions.slice(0);
 
+                    this.canQuit=model.canQuit;
+
                 })
                 .catch(error => {
                     Helper.BusEmitError(error);
@@ -263,31 +266,6 @@
             },
             onCheckIdsChanged(ids){
                 this.checkedIds=ids.slice(0);
-            },
-            onReviewOk(){
-                
-                if(!this.checkedIds.length) return;
-
-                let signups= this.checkedIds.map((item)=>{
-                   return {
-                       id:item,
-                       reviewed:true
-                   };
-                })
-
-                let form=new Form({
-                    signups:signups
-                });
-
-                let save=Signup.review(form);
-				save.then(() => {
-                    Helper.BusEmitOK('資料已存檔');
-                    this.fetchData();
-                    this.checkedIds=[];
-				})
-				.catch(error => {
-					Helper.BusEmitError(error,'存檔失敗');
-				})
             },
             
         }

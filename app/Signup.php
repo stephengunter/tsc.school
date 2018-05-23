@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tran;
 
 class Signup extends Model
 {
@@ -76,27 +77,101 @@ class Signup extends Model
 	{
 		return $this->hasOne(Bill::class,'signupId');
     }
-    public function quit() 
+    public function quits() 
 	{
-		return $this->hasOne(Quit::class,'signupId');
+		return $this->hasMany(Quit::class,'signupId');
+    }
+
+    
+
+    public function  canDelete()
+    {
+        if(!$this->canAddDetail()) return false;
+        if(count($this->quits)) return false;
+
+        return true;
+    }
+
+    public function canAddDetail()
+    {
+       
+        if($this->hasCanceled()) return false;
+        if($this->bill->code) return false;
+        if($this->bill->getPaysTotalMoney() > 0) return false;
+
+        return true;
+    }
+    public function  canQuit()
+    {
+        return $this->status == 1;
+    }
+
+    public function updateMoney()
+    {
+        $tuitions = 0;
+        foreach($this->details as $signupDetail){
+            $tuitions += $signupDetail->tuition;
+        } 
+
+        $points= $this->getPoints();
+        $this->tuitions = $tuitions * $points / 100;
+
+        $costs = 0;
+        foreach($this->details as $signupDetail){
+            if($signupDetail->cost)  $costs += $signupDetail->cost;
+        }
+
+        $this->costs=$costs;
+        $this->save();
+
+
+    }
+
+    public function updateStatus()
+    {
+        $this->bill->updateStatus();
+      
+        foreach($this->details as $detail){
+            $detail->updateStatus();
+        }
+
+        $validDetail=$this->details()->where('canceled',false)->first();
+
+        if($validDetail){
+            if($this->bill->payed) $this->status=1;
+            else $this->status=0;
+
+        }else{
+            $this->status=-1;
+        } 
+
+        $this->save();
+        
+
     }
 
     public function hasDiscount()
     {
-        $points=(int)$this->points;
+        $points=$this->getPoints();
         if($points==100) return false;
         if($points==0) return false;
 
         return true;
     }
 
-   
+    public function getPoints()
+    {
+        $points=(int)$this->points;
+        if(!$points) $points = 100;
+
+        return $points;
+    }
 
     public function pointsText()
     {
         if(!$this->hasDiscount()) return '';
 
-        $points=(int)$this->points;
+        $points= $this->getPoints();
        
         if($points % 10 == 0){
             return $points/10 . '折';
@@ -109,7 +184,7 @@ class Signup extends Model
 
     public function hasCanceled()
     {
-        return $this->status < 1;
+        return $this->status == -1;
     }
 
     public function hasPayed()
@@ -117,7 +192,11 @@ class Signup extends Model
         return $this->bill->payed;
     }
     
-  
+    public function getTranRecords()
+    {
+        $detailIds=$this->details()->pluck('id')->toArray();
+        return Tran::whereIn('signupDetailId',$detailIds)->orderBy('date')->get();
+    }
 
     public function loadViewModel()
     {
@@ -126,12 +205,20 @@ class Signup extends Model
 
         $this->pointsText=$this->pointsText();
 
+       
 
         foreach($this->details as $signupDetail){
-            $signupDetail->course->fullName();
+            $signupDetail->loadViewModel();
         } 
 
-        if($this->quit) $this->quit->loadViewModel();
+        foreach($this->quits as $quit){
+            $quit->loadViewModel();
+        } 
+
+        $this->bill->loadViewModel();
+
+
+        
     }
 
     

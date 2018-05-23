@@ -106,6 +106,23 @@ class Tran {
 
         })
     }
+
+    static courses(params){
+        let url = this.source() + '/courses';
+        url=Helper.buildQuery(url, params);
+ 
+ 
+        return new Promise((resolve, reject) => {
+            axios.get(url)
+                .then(response => {
+                        resolve(response.data);
+                })
+                .catch(error => {
+                        reject(error);
+                })
+ 
+        })
+    }
  
     static update(id,form){
         let url = this.updateUrl(id);

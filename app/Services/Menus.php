@@ -61,6 +61,7 @@ class Menus
                     
                 );
         } 
+
         if($key=='CoursesAdmin'){
             return array(
                     [
@@ -68,11 +69,7 @@ class Menus
                         'path' => '/manage/courses',
                         'active' => $current =='manage/courses'
                     ],
-                    [
-                        'text' => '學員管理',
-                        'path' => '/manage/students',
-                        'active' => $current=='manage/students'
-                    ],
+                    
                     [
                         'text' => '課堂紀錄',
                         'path' => '/manage/lessons',
@@ -117,6 +114,23 @@ class Menus
                         'path' => '/manage/payrolls',
                         'active' => $current=='manage/payrolls'
                     ],
+                );
+        } 
+
+        if($key=='StudentsAdmin'){
+            return array(
+                    [
+                        'text' => '學員管理',
+                        'path' => '/manage/students',
+                        'active' => $current=='manage/students'
+                    ],
+                    [
+                        'text' => '轉班紀錄',
+                        'path' => '/manage/trans',
+                        'active' => $current=='manage/trans'
+                    ],
+                    
+                    
                 );
         } 
         if($key=='Reports'){

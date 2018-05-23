@@ -23,6 +23,7 @@ use App\Services\Quits;
 use App\Services\Bills;
 use App\Services\Payways;
 
+use App\Core\CourseQuitPercent;
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -30,7 +31,8 @@ use Illuminate\Support\Facades\Input;
 
 class QuitsController extends Controller
 {
-    
+    use CourseQuitPercent;
+
     public function __construct(Centers $centers,Bills $bills,Quits $quits,Payways $payways,
                 Courses $courses,Signups $signups)             
     {
@@ -44,9 +46,7 @@ class QuitsController extends Controller
 
     function canEdit(Quit $quit)
     {
-        if($quit->reviewed) return false;
-        if($quit->hasDone()) return false;
-
+        if(!$quit->canEdit()) return false;
         return $this->canAdminCenter($quit->getCenter());
       
     }
@@ -54,7 +54,6 @@ class QuitsController extends Controller
     function canQuits(Signup $signup)
     {
         if($signup->status < 1) return false;
-        if($signup->quit) return false;
 
         return $this->canAdminCenter($signup->getCenter());
 
@@ -77,8 +76,6 @@ class QuitsController extends Controller
    
     function canDelete(Quit $quit)
     {
-        if($quit->hasDone()) return false;
-        if($quit->reviewed) return false;
         return $this->canEdit($quit);
     }
 
@@ -96,7 +93,9 @@ class QuitsController extends Controller
         $percentsOptions=$this->quits->percentsOptions();
         $paywayOptions=$this->backPaywayOptions();
         
-
+        $banks=['第一銀行','國泰世華','中國信託','玉山銀行'];
+        $branches=['信義分行','仁愛分行','和平分行','忠孝分行'];
+        
         $ids = Signup::where('status',1)->pluck('id')->toArray();
        
         $keys = (array_rand($ids,(int)ceil(count($ids)/3 )));
@@ -107,20 +106,28 @@ class QuitsController extends Controller
             $signupId=$ids[$key];
 
             $signup=$this->signups->getById($signupId);
+           
+            $special= ($num % 2) == 0;
 
             $quitDetails=[];
             foreach($signup->details as $signupDetail){
-                $percents=(int)$percentsOptions[array_rand($percentsOptions)]['value']; 
-                if(!$percents) continue;
+                if($signupDetail->canQuit()){
+                    
+                    $percents=0;
+                    if($special)   $percents=(int)$percentsOptions[array_rand($percentsOptions)]['value']; 
+                    else $percents= $this->initQuitPercent($signupDetail->course);
 
-                $actualTuition=$signupDetail->actualTuition();
-                $tuition=round($actualTuition * $percents /100);
-               
-                $quitDetail=new QuitDetail([
-                    'signupDetailId' => $signupDetail->id,
-                    'percents' => $percents,
-                    'tuition' => $tuition,
-                ]);
+                    $actualTuition=$signupDetail->actualTuition();
+                    $tuition=round($actualTuition * $percents /100);
+
+                    $quitDetail=new QuitDetail([
+                        'signupDetailId' => $signupDetail->id,
+                        'percents' => $percents,
+                        'tuition' => $tuition,
+                    ]);
+                
+
+                }
                
                 array_push($quitDetails,$quitDetail);
             }
@@ -129,23 +136,24 @@ class QuitsController extends Controller
 
             $quitValues=Quit::init();
 
-            $paywayId = $paywayOptions[array_rand($paywayOptions)]['value'];
-            $payway=Payway::findOrFail($paywayId);
-            if($payway->needAccount()){
-                $quitValues['account_number'] = '01345679' . rand(100,100000);
-                $quitValues['account_bank'] = '第一銀行';
-                $quitValues['account_branch'] = '信義分行';
-                $quitValues['account_owner'] = $signup->user->profile->fullname;
-                $quitValues['account_code'] = '98754' . rand(100,100000);
-            }
-            $quitValues['paywayId']=$paywayId;
+            $payway=$this->payways->defaultQuitPayway();
+            
+            $quitValues['account_number'] = '01345679' . rand(100,100000);
+
+            $random_key=array_rand($banks,1);
+            $quitValues['account_bank'] = $banks[$random_key];
+            $random_key=array_rand($branches,1);
+            $quitValues['account_branch'] = $branches[$random_key];
+            $quitValues['account_owner'] = $signup->user->profile->fullname;
+            $quitValues['account_code'] = '98754' . rand(100,100000);
+           
+            $quitValues['paywayId']=$payway->id;
 
             $date=new Carbon('2018-4-2'); 
             $date= $date->addDays(rand(0 ,45));
             $quitValues['date']=$date;
 
             $quit=new Quit($quitValues);
-
             $quit=$this->quits->createQuit($signup, $quit,$quitDetails);
            
         }
@@ -285,10 +293,13 @@ class QuitsController extends Controller
         $selectedSignup=$this->signups->getById($signup);
         if(!$selectedSignup) abort(404);
 
-        $payway=$this->payways->initQuitPaywayBySignup($selectedSignup);
+        $payway=$this->payways->defaultQuitPayway();
+
+        $paywayOptions=[$payway->toOption()];
 
         $quit=Quit::init();
         $quit['paywayId'] = $payway->id;
+        $quit['signupId'] = $selectedSignup->id;
 
         if($payway->needAccount()){
             $userAccount=$selectedSignup->user->getAccount();
@@ -301,16 +312,25 @@ class QuitsController extends Controller
             }
 
         }
+
+        $quitDetails=[];
+        foreach($selectedSignup->details as $signupDetail){
+            if($signupDetail->canQuit()){
+                $signupDetail->course->fullName();
+                array_push($quitDetails, QuitDetail::init($signupDetail));
+            }
+        }
         
         
         $percentsOptions=$this->quits->percentsOptions();
         $form=[
             'quit' => $quit,
-            'paywayOptions' => $this->backPaywayOptions(),
+            'details' => $quitDetails,
+            'paywayOptions' => $paywayOptions,
             'percentsOptions' => $percentsOptions
         ];
 
-        return response() ->json($form);
+        return response()->json($form);
       
     }
 
@@ -331,11 +351,17 @@ class QuitsController extends Controller
         return $errors;
     }
 
+   
+
     public function store(QuitRequest $request)
     {
         $updatedBy=$this->currentUserId();
-        $quitValues=$request->getQuitValues();
-        $detailsValues=$request->getQuitDetailValues();
+        $quitValues=$request->getQuitValues(); 
+
+        $signup=$this->signups->getById($quitValues['signupId']);
+        if(!$this->canQuits($signup)) return $this->unauthorized();
+       
+        $special=Helper::isTrue($quitValues['special']);
 
         $payway=Payway::findOrFail($quitValues['paywayId']);      
 
@@ -343,11 +369,33 @@ class QuitsController extends Controller
        
         if($errors) return $this->requestError($errors);
 
-        $signup=null;
+        $quitDetails=$this->getQuitDetailsFromRequest($request,$special,$updatedBy);
+
+        $quitValues['updatedBy']=$updatedBy;
+
+        
+        $quit=new Quit($quitValues);
+
+        $quit=$this->quits->createQuit($signup, $quit,$quitDetails);
+        
+        return response()->json($quit);
+       
+    }
+
+    function getQuitDetailsFromRequest(QuitRequest $request,$special,$updatedBy)
+    {
+        $detailsValues=$request->getQuitDetailValues();
+       
+
         $quitDetails=[];
         foreach($detailsValues as $detail){
-            $percents=(int)$detail['percents'];
             $signupDetail=SignupDetail::findOrFail($detail['signupDetailId']);
+
+            $percents=0;
+            if($special)   $percents=(int)$detail['percents'];
+            else $percents= $this->initQuitPercent($signupDetail->course);
+           
+            
             $actualTuition=$signupDetail->actualTuition();
 
             
@@ -362,42 +410,23 @@ class QuitsController extends Controller
            
             array_push($quitDetails,$quitDetail);
 
-            $signup=$signupDetail->signup;
+           
         }
 
-        if(!$this->canQuits($signup)) return $this->unauthorized();
-
-        $quitValues['updatedBy']=$updatedBy;
-        $quitValues['auto']=false;
-        $quitValues['status']=-1;
-
-        if(!$payway->needAccount()){
-            $quitValues['account_bank'] = '';
-            $quitValues['account_branch'] = '';
-            $quitValues['account_owner'] = '';
-            $quitValues['account_number'] = '';
-            $quitValues['account_code'] = '';
-        }
-        $quit=new Quit($quitValues);
-
-        $quit=$this->quits->createQuit($signup, $quit,$quitDetails);
-        
-        return response()->json($quit);
-       
+        return $quitDetails;
     }
 
     public function show($id)
     {
         $quit = Quit::findOrFail($id);
-        $signup=Signup::findOrFail($id);
 
-        $signup->user->profile;
-        $signup->quit->loadViewModel();
+        $quit->signup->user->profile;
+        $quit->loadViewModel();
 
-        $signup->quit->canEdit = $this->canEdit($quit);
-        $signup->quit->canDelete = $this->canDelete($quit);
+        $quit->canEdit = $this->canEdit($quit);
+        $quit->canDelete = $this->canDelete($quit);
 
-        return response() ->json($signup);
+        return response()->json($quit);
         
     }
 
@@ -412,11 +441,15 @@ class QuitsController extends Controller
         }
 
         $percentsOptions=$this->quits->percentsOptions();
-      
 
+        $payway=$this->payways->defaultQuitPayway();
+
+        $paywayOptions=[$payway->toOption()];
+      
         $form=[
             'quit' => $quit,
-            'paywayOptions' => $this->backPaywayOptions(),
+            'details' => $quit->details,
+            'paywayOptions' => $paywayOptions,
             'percentsOptions' => $percentsOptions
         ];
 
@@ -428,42 +461,35 @@ class QuitsController extends Controller
     public function update(QuitRequest $request, $id)
     {
         $quit = $this->quits->getById($id);   
+        
         if(!$quit) abort(404);   
         if(!$this->canEdit($quit)) $this->unauthorized();
 
+        $updatedBy=$this->currentUserId();
+        $quitValues=$request->getQuitValues(); 
        
-        $quitValues=$request->getQuitValues();
-        $detailsValues=$request->getQuitDetailValues();
+        $special=Helper::isTrue($quitValues['special']);
 
         $payway=Payway::findOrFail($quitValues['paywayId']);      
 
         $errors=$this->validateQuitInputs($quitValues,$payway);
+       
         if($errors) return $this->requestError($errors);
 
-        $updatedBy=$this->currentUserId();
+
+
+
+        $quitDetails=$this->getQuitDetailsFromRequest($request,$special,$updatedBy);
+
         $quitValues['updatedBy']=$updatedBy;
 
-       
-       
-        foreach($detailsValues as $detail){
-            $percents=(int)$detail['percents'];
-            $detail['percents'] = $percents;
-            if($percents){
-                $signupDetail=SignupDetail::findOrFail($detail['signupDetailId']);
-                $actualTuition=$signupDetail->actualTuition();
-               
-                $tuition=round($actualTuition * $percents /100);
-
-                $detail['tuition'] = $tuition;
-                $detail['updatedBy'] = $updatedBy;
-            }
-           
-        }
-
         
-        $this->quits->updateQuit($quit,$quitValues,$detailsValues);
+        $quit->fill($quitValues);
 
+        $quit=$this->quits->updateQuit($quit,$quitDetails);
+        
         return response()->json();
+       
     }
 
     public function updateStatuses(Request $form)
@@ -506,7 +532,7 @@ class QuitsController extends Controller
         ]);
         
 
-        return response() ->json();
+        return response()->json();
 
 
     }

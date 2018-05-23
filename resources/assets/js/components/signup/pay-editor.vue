@@ -10,10 +10,18 @@
         <div slot="modal-body" class="modal-body">
             <form v-if="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)" class="form-horizontal">
                 <div class="form-group">
+                    <label class="col-md-2 control-label">日期</label>
+                    <div class="col-md-4">
+                       <datetime-picker :date="form.date" :can_clear="false" @selected="setDate"></datetime-picker>
+                
+                    </div>
+                   
+                </div>
+                <div class="form-group">
                     <label class="col-md-2 control-label">繳費金額</label>
                     <div class="col-md-4">
                        
-                        <input readonly type="text" name="bill.amount" class="form-control" :value="amount"  >
+                        <input readonly type="text" name="amount" class="form-control" v-model="form.amount"  >
                        
                     </div>
                    
@@ -77,25 +85,36 @@
         },
         data() {
             return {
-                signupId:0,
-                amount:0,
+               
+              
                 form:null,
             
                 submitting:false,
             }
         },
         beforeMount() {
-            if(this.signup) this.init(this.signup.bill);
+            
         },
         methods: {
             
-            init(bill){
-                this.form=new Form({
-                    paywayId : this.payways[0].value
-                })
-
-                this.amount=Helper.formatMoney(bill.amount);
-                this.signupId=bill.signupId;
+            init(){
+               
+                let fetchData=Pay.create(this.signup.id);
+                fetchData.then(data => {
+                    this.form = new Form({...data });
+                    
+                    this.form.paywayId=this.payways[0].value
+				})
+				.catch(error => {
+					
+					Helper.BusEmitError(error);
+				})
+               
+            },
+            setDate(val){
+                if(!this.form) return;
+                if(!this.form.quit) return;
+                this.form.quit.date=val;
             },
             cancel(){
                 this.$emit('close');
@@ -105,7 +124,7 @@
             },
             onSubmit(){
                 
-                let save=Bill.pay(this.signupId,this.form);
+                let save=Pay.store(this.form);
 				save.then(() => {
                     this.$emit('saved');
                     Helper.BusEmitOK('資料已存檔');

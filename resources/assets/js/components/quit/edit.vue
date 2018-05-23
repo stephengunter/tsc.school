@@ -1,13 +1,13 @@
 <template>
-    <div v-if="form">
-        <quit-details :quit_details="form.details" :percents_options="percentsOptions"  :editting_id="edittingId"
-           @cancel-edit="edittingId=0" @edit="beginEditRow">
+    <div>
+        <quit-details v-if="form" :quit_details="quitDetails" :special="isSpecial" :percents_options="percentsOptions"  :editting_id="edittingId"
+           @cancel-edit="edittingId=0" @edit="beginEditRow" @remove-row="onRemoveDetail">
         </quit-details>
         <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
             <quit-inputs :form="form" :payway_options="paywayOptions"></quit-inputs>
+              
             <submit-buttons :form="form" :submitting="submitting" :error_text="errorText"
-                @cancel="cancel">
-
+             @cancel="cancel">
             </submit-buttons>
         </form>
     </div>
@@ -18,20 +18,20 @@ import QuitDetails from './details.vue';
 import QuitInputs from './inputs.vue';
 import SubmitButtons from './submit-buttons.vue';
 export default {
-    name:'EditQuit',
+    name:'QuitEdit',
     props: {
-        id:{
-            type: Number,
-            default: 0
-        },
-        percents_options:{
-            type: Array,
+        quit:{
+            type: Object,
             default: null
         },
+        signup:{
+            type: Object,
+            default: null
+        }
 	},
     components: {
-		'quit-details':QuitDetails,
-		'quit-inputs':QuitInputs,
+        'quit-details':QuitDetails,
+        'quit-inputs':QuitInputs,
         'submit-buttons':SubmitButtons
     },
     data(){
@@ -42,6 +42,8 @@ export default {
 			form:null,
 
             edittingId:0,
+
+            quitDetails:[],
             
             submitting:false,
 
@@ -50,24 +52,37 @@ export default {
 		}
 	},
     computed:{
-		
+        isCreate(){
+            if(this.quit) return false;
+            return true;
+        },
+		isSpecial(){
+            if(this.form){
+                return Helper.isTrue(this.form.quit.special);
+            }else return false;
+        }
 	},
     beforeMount() {
 		this.init();
 	},
     methods:{
 		init(){
-
-            let fetchData=Quit.edit(this.id);
+            
+            let fetchData=null;
+            if(this.isCreate)  fetchData = Quit.create(this.signup.id);
+            else fetchData = Quit.edit(this.quit.id);
+            
             fetchData.then(data => {
                     this.form = new Form({
                         quit:{
                             ...data.quit
                         },
-                        details:data.quit.details.slice(0)
+                        details:[]
                     })
+                    this.quitDetails=data.details.slice(0);
                     
                     this.paywayOptions=data.paywayOptions.slice(0);
+                    
                     this.percentsOptions=data.percentsOptions.slice(0);
 				})
 				.catch(error => {
@@ -79,41 +94,57 @@ export default {
         cancel(){
 			this.$emit('cancel');
         },
+        onRemoveDetail(index){
+            this.quitDetails.splice(index, 1);
+        },
         beginEditRow(item){
             this.errorText='';
             this.edittingId = parseInt(item.signupDetailId);
         },
-		setDate(val){
-			this.form.quit.date=val;
-        },
-        onPaywaySelected(item){
-            this.form.quit.paywayId=item.value;
-        },
-		onSubmit(){
-            this.errorText='';
+		submitSpecial(){
             this.submitting=true;
 
-
-            let validDetails=0;
-            this.form.details.forEach(item=>{
-                if(Helper.tryParseInt(item.percents) > 0) validDetails+=1;
+            let validDetails=this.quitDetails.filter(item=>{
+                return  Helper.tryParseInt(item.percents) > 0;
             })
 
-           
-
-            if(validDetails<1){
+            if(!validDetails.length){
                 this.errorText='您沒有填寫任何一條退費比例';
                 this.submitting=false;
                 return;
             }
 
-          
+            this.form.details=validDetails.slice(0);
             this.submitQuit();
             
 			
         },
+        onSubmit(){
+
+            if(this.isSpecial){
+                this.submitSpecial();
+            }else{
+                this.submitting=true;
+
+                if(!this.quitDetails.length){
+                    this.errorText='您沒有選擇任何一個退費課程';
+                    this.submitting=false;
+                    return;
+                }
+
+                this.form.details=this.quitDetails.slice(0);
+                this.submitQuit();
+            }
+
+            
+            
+			
+        },
         submitQuit(){
-            let save= Quit.update(this.id,this.form);
+            let save=null;
+            if(this.isCreate)  save = Quit.store(this.form);
+            else save = Quit.update(this.quit.id,this.form);
+         
 			save.then(() => {
 					this.submitting=false;
                     this.$emit('saved');

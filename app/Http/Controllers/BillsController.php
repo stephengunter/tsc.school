@@ -67,6 +67,8 @@ class BillsController extends Controller
             $signupId=$ids[$key];
            
             $signup=$this->signups->getById($signupId);
+
+           
            
             $amount = $signup->bill->amount;
 
@@ -80,14 +82,16 @@ class BillsController extends Controller
 
                 $bill=$this->bills->getById($signup->id);
                 $code=$bill->code;
-                $amount=$bill->amount;
+                $amount=$signup->amount();
                 
-                $this->bills->payBill($payway, $code, $amount,$date);
+                $this->bills->payBillByCode($payway, $code, $amount,$date);
+                
+               
 
             }else{
                 $bill=$this->bills->getById($signup->id);
                 $code=$bill->code;
-                $amount=$bill->amount;
+                $amount=$signup->amount();
                 $this->bills->payBillById($signup->id,$payway,$amount,$date);
             } 
             

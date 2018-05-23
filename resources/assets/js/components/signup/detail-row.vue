@@ -8,6 +8,7 @@
         <td>{{ model.course.beginDate }}  ~  {{ model.course.endDate }}</td>
         <td> {{ model.course.tuition | formatMoney }}  </td>
         <td> {{ model.course.cost | formatMoney }}  </td>
+        <td> {{ model.ps }}  </td>
         <td v-if="can_edit" >
             <button @click.prevent="onRemove" class="btn btn-xs btn-danger">
                 <i class="fa fa-trash"></i> 

@@ -264,6 +264,12 @@ class Signup {
     static hasQuit(signup){
         return parseInt(signup.status) < 0;
     }
+
+    static hasPayRecords(signup){
+        if(!signup.bill) return false;
+        if(!signup.bill.pays) return false;
+        return signup.bill.pays.length > 0;
+    }
  
     
  }

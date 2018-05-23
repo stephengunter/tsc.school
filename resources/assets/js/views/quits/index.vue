@@ -274,6 +274,7 @@
                 })
             },
             onSelected(id){
+               
                this.$emit('selected',id);
             },
             onCheckIdsChanged(ids){

@@ -156,6 +156,9 @@ class Bill {
 
         })
     }
+
+    
+    
     
     static print(canvas){
         

@@ -29,7 +29,7 @@
         </div>  
         <div class="panel-body">
 
-            <show v-if="readOnly"  :signup="signup" @edit-ps="onEditPS" @unPay="beginUnpay">  
+            <show v-if="readOnly"  :signup="signup" @edit-ps="onEditPS" >  
             </show> 
             <edit v-else ref="editComponent"  :id="id" :params="params" :user="userSelector.user"
                     @saved="onSaved"   @cancel="onEditCanceled" @exist-user="onExistUser" @user-saved="loadUser">                 
@@ -71,9 +71,7 @@
       @close="closeConfirm" @confirmed="deleteSignup">        
     </delete-confirm>
 
-    <delete-confirm  :showing="unpayConfirm.show" :message="unpayConfirm.msg"
-      @close="closeUnpayConfirm" @confirmed="unpaySignup">        
-    </delete-confirm>
+   
 </div>
 </template>
 <script>
@@ -155,12 +153,7 @@
 
                 },
 
-                unpayConfirm:{
-                    id:0,
-                    show:false,
-                    msg:'',
-
-                }
+               
             }
         },
         computed:{
@@ -327,7 +320,7 @@
                 this.init();
             },  
             beginPay(){
-                this.$refs.payEditor.init(this.signup.bill);
+                this.$refs.payEditor.init();
                 this.payEditorSettings.showing=true;
             },
             beginDelete(){
@@ -341,16 +334,6 @@
             closeConfirm(){
                 this.deleteConfirm.show=false;
             },
-            beginUnpay(){
-                
-                let id=this.signup.id;
-                this.unpayConfirm.msg='確定要將狀態改為未繳費嗎?';
-                this.unpayConfirm.id=id;
-                this.unpayConfirm.show=true;       
-            },
-            closeUnpayConfirm(){
-                this.unpayConfirm.show=false;
-            },
             deleteSignup(){
                 this.closeConfirm();
                 
@@ -359,20 +342,6 @@
                 remove.then(() => {
                     Helper.BusEmitOK('刪除成功');
                     this.$emit('deleted');
-                })
-                .catch(error => {
-                    Helper.BusEmitError(error,'刪除失敗');
-                    this.closeConfirm();
-                })
-            },
-            unpaySignup(){
-
-                let id = this.unpayConfirm.id ;
-                let save= Bill.unpay(id);
-                save.then(() => {
-                    Helper.BusEmitOK('資料已存檔');
-                    this.init();
-                    this.unpayConfirm.show=false;       
                 })
                 .catch(error => {
                     Helper.BusEmitError(error,'刪除失敗');

@@ -9,14 +9,23 @@ class QuitDetail extends Model
 {
     protected $table = 'quitDetails';
 
-    protected $fillable = [ 'signupId', 'signupDetailId', 
+    protected $fillable = [ 'quitId', 'signupDetailId', 
     'percents' , 'tuition' , 'ps' ,'updatedBy'  ];
 
-    
+    public static function init(SignupDetail $signupDetail)
+    {
+        return [
+            'course' => $signupDetail->course,
+            'signupDetailId' => $signupDetail->id,
+            'percents' => 0,
+            'tuition' => '',
+            'ps' => ''
+        ];
+    }
 
     public function quit() 
 	{
-		return $this->hasOne('App\Quit', 'signupId' ,'signupId');
+		return $this->hasOne('App\Quit', 'id' ,'quitId');
     }
 
     public function percentsText()

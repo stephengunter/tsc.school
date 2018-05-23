@@ -76,7 +76,7 @@ class ESuns
         
         //檢查碼
         $checkCode=$this->initCheckCode($code,$amount);
-        dd($checkCode);
+       
        
         return $code . $checkCode;
     }

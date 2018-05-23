@@ -16,8 +16,8 @@ class CreateQuitDetailsTable extends Migration
         Schema::create('quitDetails', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->integer('signupId')->unsigned();
-            $table->foreign('signupId')->references('signupid')->on('quits')->onDelete('cascade');
+            $table->integer('quitId')->unsigned();
+            $table->foreign('quitId')->references('id')->on('quits')->onDelete('cascade');
 
             $table->integer('signupDetailId')->unsigned();
             $table->integer('percents')->unsigned();

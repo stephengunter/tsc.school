@@ -10,14 +10,18 @@ use App\Course;
 use App\Signup;
 use App\Bill;
 use App\SignupDetail;
+use App\Discount;
 use App\Services\Bills;
+use App\Services\Centers;
+use App\Services\Courses;
+use App\Services\Discounts;
 use DB;
 use Carbon\Carbon;
 use App\Core\Helper;
 
 class Signups 
 {
-    public function __construct(Bills $bills)
+    public function __construct(Bills $bills,Centers $centers,Discounts $discounts,Courses $courses)
     {
         $this->statuses=array(
             ['value'=> 0 , 'text' => '待繳費'],
@@ -25,9 +29,12 @@ class Signups
             ['value'=> -1 , 'text' => '已取消']
         );
         $this->shopId=config('app.bill.shopId');
-        $this->with=['bill.payway', 'quit.details' ,'details.course.center','user.profile'];
+        $this->with=['bill.pays.payway', 'quits.details' ,'details.course.center','user.profile'];
 
         $this->bills=$bills;
+        $this->centers=$centers;
+        $this->courses=$courses;
+        $this->discounts=$discounts;
 
     }
    
@@ -44,20 +51,75 @@ class Signups
     {   
         return $this->getAll()->whereIn('id', $ids);
     }
-        
-    public function createSignup(Signup $signup, array $details)
-    {
-       
-        if(!$signup->tuitions)   abort(500, '報名表課程費用錯誤');
-        $signup->status=0;
-        $bill=$this->bills->initBill($signup);
 
+    public function getUserCanAddDetailSignup(Term $term, Center $center,User $user)
+    {
+        $centerIds=$this->centers->getCentersByKey($center->key)->pluck('id')->toArray();
+        
+        $courseIds=$this->courses->fetchCourses($term->id)
+                                 ->whereIn('centerId',$centerIds)
+                                 ->pluck('id')->toArray();
+                                
+        $signupDetails=SignupDetail::whereIn('courseId',$courseIds);
+
+        $signupIds=array_unique($signupDetails->pluck('signupId')->toArray());
+
+
+        $userSignups=$this->getByIds($signupIds)->where('userId',$user->id)->get();
        
+        
+        $userSignups = $userSignups->filter(function ($signup) {
+            return $signup->canAddDetail();
+        });
+        
+        return  $userSignups->first();
+    }
+
+    function setSignupDiscount(Signup $signup,Term $term, Discount $discount)
+    {
+        if($term->canBird(Carbon::today())){
+        
+           
+            $signup->points = $discount->pointOne;
+
+            if ($signup->hasDiscount())
+            {
+                $signup->discount = $discount->name;
+            }
+
+            if ($discount->bird())
+            {
+                $signup->discount .= " - 早鳥優惠";
+            }
+
+        }else{
+        
+            if ($signup->hasDiscount())
+            {
+                $signup->discount = $discount->name;
+            }
+
+            $signup->points = $discount->pointTwo;
+        }
+    }
+        
+    public function createSignup(Signup $signup, array $details,User $user, bool $lotus=false)
+    {
+        $course=$this->courses->getById($details[0]['courseId']);
+       
+        $identityIds=explode(',', $signup['identity_ids']);
+
+        
+        $bestDiscount=$this->discounts->findBestDiscount($course->center,$course->term,$user,$identityIds,$lotus, count($details));
       
-        $signup=DB::transaction(function() use($signup,$details,$bill) {
+        $this->setSignupDiscount($signup,$course->term,$bestDiscount);
+       
+        $signup=DB::transaction(function() use($signup,$details) {
             $signup->save();
             $signup->details()->saveMany($details);
-            $signup->bill()->save($bill);
+            $signup->bill()->save(new Bill([]));
+
+            $signup->updateMoney();
 
             return $signup;
         });
@@ -66,37 +128,31 @@ class Signups
         
     }
 
-    public function updateSignup(Signup $signup, array $details)
+    public function updateSignup(Signup $signup, array $newDetails=[],bool $lotus=false)
     {
-        if(!$signup->tuitions)   abort(500, '報名表課程費用錯誤');
+       
+        $course=$this->courses->getById($signup->details[0]['courseId']);
+
+        $identityIds=explode(',', $signup['identity_ids']);
         
-        DB::transaction(function() use($signup,$details) {
-            
-            $ids= array_map(function($item){
-                if($item['id']) return $item['id'];
-                return 0;
-            },$details);
-
-            SignupDetail::where('signupId',$signup->id)->whereNotIn('id',$ids)->delete();
-
-            
-            
-            $newDetails=array_filter($details,function($item){
-                return !$item['id'];
-            });
-
+        $courseCount=count($signup->details) + count($newDetails);
+        
+        $bestDiscount=$this->discounts->findBestDiscount($course->center,$course->term,$signup->user,$identityIds,$lotus, $courseCount);
+      
+        $this->setSignupDiscount($signup,$course->term,$bestDiscount);
+       
+        DB::transaction(function() use($signup,$newDetails) {
             $signup->save();
             $signup->details()->saveMany($newDetails);
 
-            $signup->bill->update([
-                'amount' => $signup->amount(),
-                'deadLine' => Carbon::today()->addDays(10)
-            ]);
-
-            
+            $signup=Signup::find($signup->id);
+            $signup->updateMoney();
         });
+
+       
         
     }
+
     
 
     public function deleteSignup(Signup $signup,$updatedBy)

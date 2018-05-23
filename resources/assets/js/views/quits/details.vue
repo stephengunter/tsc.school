@@ -1,6 +1,6 @@
 <template>
-<div v-if="signup">
-    <quit-view :signup="signup" ref="quitView" 
+<div v-if="quit">
+    <quit-view :quit="quit" ref="quitView" 
         :can_edit="quitSettings.can_edit" :can_back="quitSettings.can_back"  
         @back="onBack" @saved="onQuitSaved"  
         @deleted="onQuitDeleted" >
@@ -40,7 +40,7 @@
         },
         data(){
             return{
-                signup:null,
+                quit:null,
 
                 quitSettings:{
                     can_edit:true,
@@ -53,10 +53,7 @@
             }
         },
         computed:{
-            quit(){
-               if(!this.signup) return null;
-               return this.signup.quit;
-            },
+            
             payed(){
                if(!this.quit) return false;
                return parseInt(this.quit.status)!=0;
@@ -77,10 +74,10 @@
               
                 let getData=Quit.show(this.id);
                
-                getData.then(signup => {
+                getData.then(quit => {
                    
-                    this.signup={
-                        ...signup
+                    this.quit={
+                        ...quit
                     };
                    
                 })

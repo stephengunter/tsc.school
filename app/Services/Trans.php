@@ -10,6 +10,7 @@ use App\Course;
 use App\Services\Users;
 use DB;
 use Carbon\Carbon;
+use App\Events\StudentTrans;
 
 class Trans 
 {
@@ -17,6 +18,11 @@ class Trans
     {
         $this->users=$users;
         $this->with=['signupDetail.signup','course.center'];
+    }
+
+    public function getAll()
+    {   
+        return Tran::with($this->with);
     }
     
     public function getById($id)
@@ -31,19 +37,24 @@ class Trans
        
         $tran= DB::transaction(function() use($tran,$student) {
             $tran->save();
-            $student->update([
-                'status' => -1, 
             
-            ]);
-            Student::create([
+            $newStudent =Student::create([
+                'tran_id_from' => $tran->id,
                 'status' => 1,
                 'userId' => $student->userId,
                 'courseId' => $tran->courseId,
                 'joinDate' => Carbon::today()
             ]);
+
+            $student->update([
+                'tran_id_to' => $tran->id,
+                'status' => -1, 
+            ]);
            
             return $tran;
-		});
+        });
+        
+        event(new StudentTrans($tran));
     
 
         return $tran;

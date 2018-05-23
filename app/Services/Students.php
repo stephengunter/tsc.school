@@ -18,10 +18,20 @@ class Students
         $this->users=$users;
         $this->with=['user.roles','user.profile','user.contactInfoes.address.district.city'];
     }
+
+    public function getAll()
+    {
+        return Student::with($this->with);
+    }
     
     public function getById($id)
     {   
         return Student::with($this->with)->find($id);
+    }
+
+    public function getByUserId($userId)
+    {   
+        return Student::with($this->with)->where('userId',$userId);
     }
 
     public function findStudent($courseId, $userId)
@@ -69,7 +79,7 @@ class Students
         return $student;
     }
 
-    
+   
     
     public function getStudentsByCourse(Course $course)
     {

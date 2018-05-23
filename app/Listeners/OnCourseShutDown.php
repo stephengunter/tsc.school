@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Services\Quits;
 
-class CreateQuitsByCourse
+class OnCourseShutDown
 {
     /**
      * Create the event listener.

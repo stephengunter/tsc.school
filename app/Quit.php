@@ -4,16 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-
+use \App\Payway;
 
 class Quit extends Model
 {
 	public static $snakeAttributes = false;
-	
-    protected $primaryKey = 'signupId';
 
     protected $fillable = [
-		'date', 'tuitions', 'fee', 'auto',
+		'signupId',
+		'date', 'tuitions', 'fee', 'auto', 'special',
 		'paywayId' , 'status',
 		'account_bank','account_branch','account_owner',
 		'account_number','account_code',
@@ -26,7 +25,7 @@ class Quit extends Model
 	public static function init()
 	{
 		return [
-			
+			'signupId' => 0, 
 			'date' =>Carbon::today()->toDateString(),
 			'fee' => 0,
 			'tuitions' => 0,
@@ -39,27 +38,38 @@ class Quit extends Model
 			
 			'paywayId' => 0,
 			'status' => -1,
+
+			'special' => 0,
 			'ps' => '',
 			'updatedBy' => '',
 
 		];
-    }	
+	}	
+	
+	public static function statuses()
+	{
+		return array(
+            ['value'=> -1 , 'text' => '待處理'],
+            ['value'=> 0 , 'text' => '審核中'],
+            ['value'=> 1 , 'text' => '已審核'],
+            ['value'=> 2 , 'text' => '已完成'],
+        );
+	}
     
     public function signup()
     {
-		return $this->belongsTo('App\Signup','signupId');
+		return $this->hasOne('App\Signup', 'id' ,'signupId');
 	}
 
 	public function payway() 
 	{
 		return $this->hasOne('App\Payway', 'id' ,'paywayId');
 	}
-	
 
 	public function details() 
 	{
-		return $this->hasMany('App\QuitDetail','signupId');
-    }
+		return $this->hasMany('App\QuitDetail','quitId');
+	}
 
 	public function getCenter()
 	{
@@ -92,8 +102,15 @@ class Quit extends Model
 	public function getReasonText()
 	{
 		if($this->auto) return '課程停開';
-		return '個人因素';
+		if($this->special) return '學員有特殊原因須退出';
+		return '';
 	}
+
+	public function countFee()
+    {
+       
+        return  Payway::find($this->paywayId)->getFee($this->tuitions);
+    }
 
 	public function amount()
 	{
@@ -102,13 +119,39 @@ class Quit extends Model
         return $total;
 
 	}
+
+	public function canEdit()
+	{
+		return $this->status < 0;
+	}
+
+	public function canAddDetail()
+    {
+       
+       return $this->status < 0;
+    }
+	
 	
 	public function hasDone()
 	{
 		return $this->status ==2;
 	}
 
-	
+	public function updateMoney()
+    {
+        $tuitions = 0;
+        foreach($this->details as $quitDetail){
+            $tuitions += $quitDetail->tuition;
+		} 
+		
+		$this->tuitions = $tuitions;
+
+		$this->fee=$this->countFee();
+       
+        $this->save();
+
+
+    }
 	
 	public function loadViewModel()
     {

@@ -3,13 +3,14 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tran;
 use Carbon\Carbon;
 
 class Student extends Model
 {
     protected $fillable = [
         'status', 'userId', 'courseId' , 'score',
-        'joinDate' , 'quitDate',
+        'joinDate' , 'quitDate', 'tran_id_from', 'tran_id_to',
         'updatedBy','ps'
     ];
 
@@ -30,8 +31,33 @@ class Student extends Model
 
     public function  loadViewModel()
     {
+        
+        $tranFrom=$this->getTranFrom();
+        if($tranFrom){
+            $this->ps ='(' . $tranFrom->date . '轉班加入' . ') ' .$this->ps;
+        }
+
+        $tranTo=$this->getTranTo();
+        if($tranTo){
+            $this->ps ='(' . $tranTo->date . '轉班退出' . ') ' .$this->ps;
+        }
+
         $this->course->fullName();
         $this->user->loadContactInfo();
+    }
+
+    public function  getTranFrom()
+    {
+        if(!$this->tran_id_from) return null;
+
+        return Tran::find($this->tran_id_from);
+    }
+
+    public function  getTranTo()
+    {
+        if(!$this->tran_id_to) return null;
+
+        return Tran::find($this->tran_id_to);
     }
 
     public function  mustInLesson(Carbon $lessonDate)
