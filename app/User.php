@@ -241,4 +241,10 @@ class User extends Authenticatable
         return [ 'text' => $this->profile->fullname ,  'value' => $this->id ];
     }
 
+    public function loadViewModel()
+    {
+      
+        $this->loadIdentityNames();
+    }
+
 }

@@ -22,6 +22,14 @@ class Discount extends Model
         return $this->belongsToMany(Center::class,'center_discount','discount_id','center_id');
     }
 
+    public function isLotus()
+    {
+        $code=$this->code;
+        if($code=='lotus') return true;
+        if($code=='lotus-west') return true;
+        return false;
+    }
+
     public function bird()
     {
         return $this->pointTwo > $this->pointOne;

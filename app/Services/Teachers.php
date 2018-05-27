@@ -193,12 +193,12 @@ class Teachers
             $pay=trim($row['pay']);
 
             if(!$wageName){
-                $err_msg .= '薪酬標準不可空白' . ',';
+                $err_msg .= $fullname . '薪酬標準不可空白' . ',';
                 continue;
             }else{
                 $wage=$this->wages->getByName($wageName);
                 if(!$wage){
-                    $err_msg .= '薪酬標準錯誤' . ',';
+                    $err_msg .= $fullname . '薪酬標準錯誤' . ',';
                     continue;
                 }
             }
@@ -271,6 +271,7 @@ class Teachers
 
             $userValues=$userDatas['userValues'];
             $profileValues=$userDatas['profileValues'];
+           
             $contactInfoValues=$userDatas['contactInfoValues'];
             $addressValues=$userDatas['addressValues'];
             $identities=$userDatas['identities'];

@@ -20,7 +20,7 @@ class Course extends Model
         'description','target',
         'tuition', 'cost' , 'materials','discount',
         'net' , 'openDate' , 'closeDate',
-        'reviewed', 'active',       
+        'reviewed', 'reviewedBy','active',       
         'removed' , 'updatedBy' , 'ps'
                             
     ];
@@ -124,11 +124,16 @@ class Course extends Model
     
     public function serial()
     {
-        $serial=0;
+        //A1072-0108
+        $serial='0';
         if($this->number){
             $arr=explode('-', $this->number); 
-            if($arr) $serial = (int)$arr[1];
+            if(count($arr)==2 ){
+                $serial = substr($arr[1],2,2);
+            } 
         }
+        $serial=(int)$serial;
+
         $this->serial=$serial;
         return $serial;
     }

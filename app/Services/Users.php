@@ -69,7 +69,11 @@ class Users
 
 		$sid=strtoupper($profile->sid);
         $profile->gender = Helper::getGenderFromSID($sid);
-		
+		if(Helper::isTaiwanSID($sid)){
+			$profile->gender = Helper::getGenderFromSID($sid);
+		}else{
+				
+		}
 		
 		$user= DB::transaction(function() use($user,$profile) {
             $user->save();
@@ -263,8 +267,11 @@ class Users
 		
 
 		if($sid){
-			$isValid=Helper::checkSID($sid);
-			if(!$isValid) $errors['user.profile.sid'] = ['身分證號錯誤'];
+			
+			if(Helper::isTaiwanSID($sid)){
+				$isValid=Helper::checkSID($sid);
+				if(!$isValid) $errors['user.profile.sid'] = ['身分證號錯誤'];
+			}
 
 			$existUser=$this->findBySID($sid);
 			if($existUser && $existUser->id!=$id){

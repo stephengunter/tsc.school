@@ -53,6 +53,11 @@ class Helper
 
     }
 
+    public static function isTaiwanSID($sid)
+    {
+        return is_numeric(substr($sid,1 ,1 ));
+    }
+
     public static function checkSID($pid)
     {
         $iPidLen = strlen($pid);

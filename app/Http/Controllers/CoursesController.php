@@ -395,8 +395,6 @@ class CoursesController extends Controller
         $course = $this->courses->getById($id);
         if(!$course) abort(404);
 
-        $this->testActive($course);
-
         $course->fullName();
         $course->loadClassTimes();
         $this->setTeachers($course);
@@ -489,7 +487,7 @@ class CoursesController extends Controller
         foreach($teacherIdValues as $item){
             if (Helper::isTrue($item['group']))
             {
-                //$courseValues['teacherGroupId'] = $item['value'];
+               
                 $groupId=$item['value'];
             }
             else
@@ -545,6 +543,7 @@ class CoursesController extends Controller
     
     public function active(Request $form)
     {
+       
         //批次停開/恢復開課
         $reviewedBy=$this->currentUserId();
 
@@ -556,14 +555,22 @@ class CoursesController extends Controller
 
         $course = $this->courses->getById($courseIds[0]); 
         if(!$this->canReview($course)) return $this->unauthorized();
-       
+
+        $course->update([
+            'active' => true,
+            'updatedBy' => 999
+            
+        ]);
 
         if(count($courseIds) > 1){
             $this->courses->setActives($courseIds,$active,$reviewedBy,$percents);
         }else{
            
             $this->courses->setActive($course , $active , $reviewedBy,$percents);
+            
         }
+
+       
 
         return response()->json();
     }
@@ -572,6 +579,8 @@ class CoursesController extends Controller
     {
         $course = $this->courses->getById($id); 
         if(!$this->canReview($course)) return $this->unauthorized();
+
+        
 
         $reviewedBy=$this->currentUserId();
         $percents=(int)$form['percents'];

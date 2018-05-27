@@ -22,9 +22,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\SignupUnPayed' => [
             'App\Listeners\RemoveStudentsBySignup',  //刪除學員
         ],
-        'App\Events\StudentTrans' => [
-            'App\Listeners\OnStudentTrans',  //學員轉班, 將報名狀態設為"已取消"
-        ],
+       
     ];
 
     /**

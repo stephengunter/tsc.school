@@ -55,6 +55,15 @@ class Quit extends Model
             ['value'=> 2 , 'text' => '已完成'],
         );
 	}
+
+	public static function isValidStatus($val)
+	{
+		$val=(int)$val;
+		if($val < -1 ) return false;
+		if($val > 2 )return false;
+		return true;
+
+	}
     
     public function signup()
     {
@@ -151,16 +160,19 @@ class Quit extends Model
         $this->save();
 
 
-    }
+	}
+	
+	
 	
 	public function loadViewModel()
     {
-		
+		$this->signup->user->profile;
+
 		$this->payway;
 		
 		$this->amount=$this->amount();
 		
-		$this->center=$this->getCenter();
+		$this->accountInfo=$this->getAccountInfo();
 
 		$this->reason=$this->getReasonText();
 

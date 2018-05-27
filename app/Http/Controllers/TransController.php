@@ -41,19 +41,26 @@ class TransController extends Controller
         $this->centers=$centers;
     }
 
-    function canEdit($tran)
+    function canEditStudent($student)
     {
-        if($this->currentUserIsDev()) return true;
-        return true;
-       
-
+        if($student->hasQuit()) return false;
+        return $this->canAdminCenter($student->getCenter());
     }
 
+    function canDelete($tran)
+    {
+        if(!$tran->canDelete()) return false;
+        return $this->canAdminCenter($tran->getCenter());
+    }
 
-    public function index()
+    function readIndexRequest()
     {
         $request=request();
 
+        $center=0;
+        if($request->center)  $center=(int)$request->center;
+
+      
         $term=0;
         if($request->term)  $term=(int)$request->term;
 
@@ -61,56 +68,108 @@ class TransController extends Controller
         if($request->key)  $key = $request->key;
 
         $keys=['west','east'];
-        if(!in_array($key,$keys)) $key=$keys[0];
+        if(!$key) $key=$keys[0];
+        else{
+            if(!in_array($key,$keys)) abort(404);
+        }
+        
         
         $keyword='';
         if($request->keyword)  $keyword=$request->keyword;
 
-       
+        $page=1;
+        if($request->page)  $page=(int)$request->page;
+
+        $pageSize=999;
+        if($request->pageSize)  $pageSize=(int)$request->pageSize;
+
+
         $selectedTerm = null;
         if($term) $selectedTerm=Term::findOrFail($term);
         else $selectedTerm=$this->terms->getActiveTerm();
-
-        $pageList = $this->fetchTrans($key,$selectedTerm->id);
-
         
 
-        $model['title'] = '轉班紀錄';
-        $model['list'] = $pageList;
-        $model['menus'] = $this->adminMenus('StudentsAdmin');
-        $model['terms'] = $this->terms->options();
-        $model['keys'] = $this->centers->getKeyOptions();
-        $model['params'] = [ 'term' => $selectedTerm->id , 'key'=>$key,  'keyword'=>$keyword ];
+        $termOptions = []; 
+        $keyOptions = []; 
+        if(!$this->isAjaxRequest()){
+            $termOptions = $this->terms->options();
+            $keyOptions =$this->centers->getKeyOptions();
+        }  
 
+       
+
+        $params=[
+            'term' => $selectedTerm->id,
+            'key' => $key,
+            'keyword' => $keyword,
+            'page' => $page,
+            'pageSize' => $pageSize
+
+        ];
+
+       
+        return [
+            'selectedTerm' => $selectedTerm,
+
+            'params' => $params,
+
+            'termOptions' => $termOptions,
+            'keyOptions' => $keyOptions,
+        ];
+    }
+
+
+    public function index()
+    {
+        $requestValues=$this->readIndexRequest();
+
+        $params=$requestValues['params'];
+
+        $selectedTerm=$requestValues['selectedTerm'];
+        $key=$params['key'];
+
+        $trans = $this->trans->fetchTrans($key,$selectedTerm->id);
+
+        $pageList =$this->getPageList($trans, $params['page'],$params['pageSize']);
         
-       
-       
+        if($this->isAjaxRequest()){
+           
+            $model=[
+                'model' => $pageList,
+            ];
+    
+            return response()->json($model);
+        }
+
+        $termOptions=$requestValues['termOptions'];
+        $keyOptions=$requestValues['keyOptions'];
+
+        $model=[
+            'title' => '轉班紀錄',
+            'menus' => $this->adminMenus('StudentsAdmin'),
+
+            'list' => $pageList,
+            
+            'terms' => $termOptions,               
+            'keys' => $keyOptions,
+
+            'params' => $params
+        ];
+
         return view('trans.index')->with($model);
+
+
+        
     }
    
-    public function fetchTrans($key,$termId)
+    function getPageList($trans,$page,$pageSize)
     {
-        $selectedCenterIds=$this->centers->getCentersByKey($key)
-                                         ->pluck('id')->toArray();
-        $courseIds=$this->courses->getByTerm($termId)
-                                ->whereIn('centerId', $selectedCenterIds)
-                                ->pluck('id')->toArray();
-
-
-        $tranIds = Student::whereIn('courseId', $courseIds)
-                            ->pluck('tran_id_from')->toArray(); 
-                            
-        $tranIds = array_filter($tranIds);
-      
-        $trans=$this->trans->getAll()->whereIn('id',$tranIds);
-       
-       
-       
-
-        $pageList = new PagedList($trans);
+        $trans = $trans->orderBy('date','desc');
+        $pageList = new PagedList($trans,$page,$pageSize);
+        
         foreach($pageList->viewList as $tran){
             $tran->loadViewModel();
-            $tran->canEdit=$this->canEdit($tran);
+            $tran->canDelete=$this->canDelete($tran);
         }  
 
         return $pageList;
@@ -154,6 +213,34 @@ class TransController extends Controller
       
     }
 
+    public function fetchCourses()
+    {
+        $request=request();
+
+        $student=0;
+        if($request->student)  $student=(int)$request->student;
+        if(!$student) abort(404);
+
+        $selectedStudent=$this->students->getById($student);
+        if(!$selectedStudent) abort(404);
+
+        $center=0;
+        if($request->center)  $center=(int)$request->center;
+
+        $keyword='';
+        if($request->keyword)  $keyword=$request->keyword;
+
+        $selectedCenter = Center::findOrFail($center);
+
+        $term = $this->terms->getActiveTerm();
+
+        $courses=$this->getCoursesCanTran($selectedCenter,$term,$selectedStudent);
+
+        return response()->json($courses);
+
+       
+    }
+
     function getCoursesCanTran($center,$term,$selectedStudent)
     {
         
@@ -176,16 +263,17 @@ class TransController extends Controller
     {
         $updatedBy=$this->currentUserId();
         $studentId=$request->getStudentId();
-      
-        //$isPay=$request->isPay();
+        
         $tranValues=$request->getTranValues();
 
         $student=$this->students->getById($studentId);
         
-        if(!$this->canEdit($student)) return $this->unauthorized();
+        if(!$this->canEditStudent($student)) return $this->unauthorized();
 
-        // $tuition=floatval($tranValues['tuition']);
-        // if(!$isPay) $tuition = 0 - $tuition ;
+
+        $tranValues['updatedBy']= $this->currentUserId();
+
+
         $courseId=$tranValues['courseId'];
         $newCourse=$this->courses->getById($courseId);
 
@@ -193,54 +281,14 @@ class TransController extends Controller
         $existStudent=$this->students->findStudent($courseId, $student->userId);
         if($existStudent) $errors['courseId'] = ['此學員已經是此課程的學員'];
         
-        $signupDetail=$this->signups->getSignupDetailsByUser($student->user)
-                                    ->where('courseId',$student->courseId)
-                                    ->first();
 
-        $signup=$this->updateSignup($newCourse,$signupDetail,$updatedBy);
-
-        dd($signup);
-
-        $tran=new Tran([
-            'date' => $tranValues['date'],
-            'signupDetailId' => $signupDetail->id,
-            'courseId' => $tranValues['courseId'],
-            'tuition' => $tuition,
-            'ps' => $tranValues['ps'],
-            'updatedBy' => $this->currentUserId(),
-
-        ]);
-
-        $tran=$this->trans->createTran($tran,$student);
+        $tran=$this->trans->createTran($student,$tranValues,$newCourse);
         
-        return response() ->json($tran);
+        return response()->json($tran);
        
     }
 
-    function updateSignup($newCourse,$signupDetail,$updatedBy)
-    {
-        $newDetail = new SignupDetail([
-            'courseId' => $newCourse->id,
-            'tuition' => $newCourse->tuition,
-            'cost' => $newCourse->cost,
-            'updatedBy' => $updatedBy
-        ]);
-
-        $signup= DB::transaction(function() use($signupDetail,$newDetail,$updatedBy) {
-            $signupDetail->tuition=0;
-            $signupDetail->cost=0;
-            $signupDetail->save();
-
-            $signup=$signupDetail->signup;
-            $signup->updatedBy=$updatedBy;
-            $signup->details()->save($newDetail);
-            $signup->updateMoney();
-        });
-            
-
-        return $signup;
-    }
- 
+    
 
 
     

@@ -28,26 +28,23 @@
                     <searcher @search="onSearch">
                     </searcher>
                 </div>
-                
-                <div v-if="showReviewBtn" class="col-sm-2 pull-right" align="right" style="margin-top: 20px;">
-                    
-                    <a v-if="canReview" v-show="!isGroup" :disabled="!canSubmitReview"  @click.prevent="onReviewOk" href="#" class="btn btn-success">
+                <div v-if="showReviewBtn" class="col-sm-1"  style="margin-top: 20px;">
+                    <a v-if="canReview " v-show="!isGroup" :disabled="!canSubmitReview"  @click.prevent="onReviewOk" href="#" class="btn btn-success">
                         <i class="fa fa-check-circle"></i>
                         審核通過
-                    </a>
+                    </a> 
                     
                 </div>
-                <div v-else class="col-sm-2 pull-right" align="right" style="margin-top: 20px;">
-                   
-                    <a  @click.prevent="onCreate" href="#" class="btn btn-primary">
-                        <i class="fa fa-plus-circle"></i> 新增
-                    </a>
-                    &nbsp;
-                    <a  @click.prevent="beginImport" href="#" class="btn btn-warning pull-right">
-                        <i class="fa fa-upload"></i>
-                        匯入
-                    </a>
+                <div  :class="showReviewBtn ? 'col-sm-1' : 'col-sm-2'" align="right" style="margin-top: 20px;">
+                
+                  
+                    <drop-down :items="actions" :selected="action" btn_style="primary"
+                        @selected="onActionSelected">
+                    </drop-down>
+                    
                 </div>
+                
+                
             </div>
 
             <hr/>
@@ -141,7 +138,9 @@
                 
                 center:null,
 
-                checkedIds:[]
+                checkedIds:[],
+
+                action:'none'
             }
         },
         watch: {
@@ -159,6 +158,26 @@
             	
         },
         computed:{
+            showImportBtn(){
+                return this.can_import;
+            },
+            actions(){
+                let actions=[{
+                    value:'none' , text:'執行'
+                }];
+                actions.push({
+                    value:'create' , text:'新增'
+                });
+
+                if(this.showImportBtn){
+                    actions.push({
+                      value:'import' , text:'匯入'
+                   });
+                }
+
+
+                return actions;
+            },
             isGroup(){
                 return this.params.group;
             },
@@ -186,6 +205,13 @@
             },
             onSelected(id){
                this.$emit('selected',id , this.isGroup);
+            },
+            onActionSelected(item){
+                let action=item.value;
+                if(action=='create') this.onCreate();
+                else if(action=='import') this.beginImport();
+
+               
             },
             onReviewedSelected(item){
                 this.params.reviewed=item.value;

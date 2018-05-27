@@ -67497,7 +67497,7 @@ var Quit = function () {
     }, {
         key: 'detailSummary',
         value: function detailSummary(detail) {
-            var withNumber = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var withNumber = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
             var courseName = detail.course.fullName;
             if (withNumber) courseName = detail.course.number + ' ' + courseName;
@@ -71239,6 +71239,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	name: 'UserTable',
@@ -71369,9 +71371,11 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("身分證號")]),
               _vm._v(" "),
-              _c("th", [_vm._v("Email")]),
+              _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Email")]),
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("手機")]),
+              _vm._v(" "),
+              _c("th", [_vm._v("身分")]),
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("角色")])
             ])
@@ -71418,6 +71422,14 @@ var render = function() {
                 _c("td", [_vm._v(_vm._s(user.email))]),
                 _vm._v(" "),
                 _c("td", [_vm._v(_vm._s(user.phone))]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    "\n                            " +
+                      _vm._s(user.identityNames) +
+                      "\n                        "
+                  )
+                ]),
                 _vm._v(" "),
                 _c("td", {
                   domProps: { innerHTML: _vm._s(_vm.roleLabels(user)) }
@@ -84316,9 +84328,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
-//
-//
-//
 
 
 
@@ -84377,7 +84386,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
             center: null,
 
-            checkedIds: []
+            checkedIds: [],
+
+            action: 'none'
         };
     },
 
@@ -84396,6 +84407,25 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     },
 
     computed: {
+        showImportBtn: function showImportBtn() {
+            return this.can_import;
+        },
+        actions: function actions() {
+            var actions = [{
+                value: 'none', text: '執行'
+            }];
+            actions.push({
+                value: 'create', text: '新增'
+            });
+
+            if (this.showImportBtn) {
+                actions.push({
+                    value: 'import', text: '匯入'
+                });
+            }
+
+            return actions;
+        },
         isGroup: function isGroup() {
             return this.params.group;
         },
@@ -84422,6 +84452,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         onSelected: function onSelected(id) {
             this.$emit('selected', id, this.isGroup);
+        },
+        onActionSelected: function onActionSelected(item) {
+            var action = item.value;
+            if (action == 'create') this.onCreate();else if (action == 'import') this.beginImport();
         },
         onReviewedSelected: function onReviewedSelected(item) {
             this.params.reviewed = item.value;
@@ -85150,9 +85184,8 @@ var render = function() {
           ? _c(
               "div",
               {
-                staticClass: "col-sm-2 pull-right",
-                staticStyle: { "margin-top": "20px" },
-                attrs: { align: "right" }
+                staticClass: "col-sm-1",
+                staticStyle: { "margin-top": "20px" }
               },
               [
                 _vm.canReview
@@ -85186,53 +85219,27 @@ var render = function() {
                   : _vm._e()
               ]
             )
-          : _c(
-              "div",
-              {
-                staticClass: "col-sm-2 pull-right",
-                staticStyle: { "margin-top": "20px" },
-                attrs: { align: "right" }
+          : _vm._e(),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            class: _vm.showReviewBtn ? "col-sm-1" : "col-sm-2",
+            staticStyle: { "margin-top": "20px" },
+            attrs: { align: "right" }
+          },
+          [
+            _c("drop-down", {
+              attrs: {
+                items: _vm.actions,
+                selected: _vm.action,
+                btn_style: "primary"
               },
-              [
-                _c(
-                  "a",
-                  {
-                    staticClass: "btn btn-primary",
-                    attrs: { href: "#" },
-                    on: {
-                      click: function($event) {
-                        $event.preventDefault()
-                        return _vm.onCreate($event)
-                      }
-                    }
-                  },
-                  [
-                    _c("i", { staticClass: "fa fa-plus-circle" }),
-                    _vm._v(" 新增\n                    ")
-                  ]
-                ),
-                _vm._v("\n                     \n                    "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "btn btn-warning pull-right",
-                    attrs: { href: "#" },
-                    on: {
-                      click: function($event) {
-                        $event.preventDefault()
-                        return _vm.beginImport($event)
-                      }
-                    }
-                  },
-                  [
-                    _c("i", { staticClass: "fa fa-upload" }),
-                    _vm._v(
-                      "\n                        匯入\n                    "
-                    )
-                  ]
-                )
-              ]
-            )
+              on: { selected: _vm.onActionSelected }
+            })
+          ],
+          1
+        )
       ]),
       _vm._v(" "),
       _c("hr"),
@@ -91439,25 +91446,23 @@ var render = function() {
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-3" }, [
-            false
-              ? _c("div", { staticClass: "form-group" }, [
-                  _c("label", [_vm._v("性別")]),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    [
-                      _c("toggle", {
-                        attrs: {
-                          items: _vm.genderOptions,
-                          default_val: _vm.form.user.profile.gender
-                        },
-                        on: { selected: _vm.setGender }
-                      })
-                    ],
-                    1
-                  )
-                ])
-              : _vm._e(),
+            _c("div", { staticClass: "form-group" }, [
+              _c("label", [_vm._v("性別")]),
+              _vm._v(" "),
+              _c(
+                "div",
+                [
+                  _c("toggle", {
+                    attrs: {
+                      items: _vm.genderOptions,
+                      default_val: _vm.form.user.profile.gender
+                    },
+                    on: { selected: _vm.setGender }
+                  })
+                ],
+                1
+              )
+            ]),
             _vm._v(" "),
             _c(
               "div",
@@ -102092,7 +102097,7 @@ var render = function() {
             _c(
               "div",
               {
-                staticClass: "col-sm-3",
+                staticClass: "col-sm-2",
                 staticStyle: { "margin-top": "20px" }
               },
               [_c("searcher", { on: { search: _vm.onSearch } })],
@@ -102103,9 +102108,8 @@ var render = function() {
               ? _c(
                   "div",
                   {
-                    staticClass: "col-sm-1 pull-right",
-                    staticStyle: { "margin-top": "20px" },
-                    attrs: { align: "right" }
+                    staticClass: "col-sm-1",
+                    staticStyle: { "margin-top": "20px" }
                   },
                   [
                     _vm.canReview
@@ -102132,25 +102136,27 @@ var render = function() {
                       : _vm._e()
                   ]
                 )
-              : _c(
-                  "div",
-                  {
-                    staticClass: "col-sm-1 pull-right",
-                    staticStyle: { "margin-top": "20px" },
-                    attrs: { align: "right" }
+              : _vm._e(),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                class: _vm.showReviewBtn ? "col-sm-1" : "col-sm-2",
+                staticStyle: { "margin-top": "20px" },
+                attrs: { align: "right" }
+              },
+              [
+                _c("drop-down", {
+                  attrs: {
+                    items: _vm.actions,
+                    selected: _vm.action,
+                    btn_style: "primary"
                   },
-                  [
-                    _c("drop-down", {
-                      attrs: {
-                        items: _vm.actions,
-                        selected: _vm.action,
-                        btn_style: "primary"
-                      },
-                      on: { selected: _vm.onActionSelected }
-                    })
-                  ],
-                  1
-                )
+                  on: { selected: _vm.onActionSelected }
+                })
+              ],
+              1
+            )
           ]),
           _vm._v(" "),
           _c("hr"),
@@ -104456,11 +104462,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'CourseActiveEditor',
     props: {
-        showing: {
-            type: Boolean,
-            default: true
+        course: {
+            type: Object,
+            default: null
         },
-        default_val: {
+        showing: {
             type: Boolean,
             default: true
         },
@@ -104472,8 +104478,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     data: function data() {
         return {
-            options: Course.activeOptions(),
-            active: false,
 
             courseId: 0,
             amount: 0,
@@ -104485,17 +104489,27 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
 
-    watch: {
-        'default_val': 'init'
+    computed: {
+        active: function active() {
+            if (!this.course) return true;
+            return !Helper.isTrue(this.course.active);
+        },
+        options: function options() {
+            if (!this.course) return [];
+            var active = Helper.isTrue(this.course.active);
+            if (active) return [{
+                text: '課程停開',
+                value: false
+            }];else return [{ text: '正常開課', value: true }];
+        }
     },
+    watch: {},
     beforeMount: function beforeMount() {
-        this.init(this.default_val);
+        this.init();
     },
 
     methods: {
-        init: function init(active) {
-            this.active = active;
-        },
+        init: function init() {},
         onClose: function onClose() {
             this.$emit('close');
         },
@@ -104883,20 +104897,22 @@ var render = function() {
         }
       }),
       _vm._v(" "),
-      _c("active-editor", {
-        attrs: {
-          showing: _vm.activeEditor.show,
-          default_val: _vm.activeEditor.active,
-          percents_options: _vm.percents_options
-        },
-        on: {
-          close: function($event) {
-            _vm.activeEditor.show = false
-          },
-          active: _vm.activeCourse,
-          "shut-down": _vm.onShutDown
-        }
-      }),
+      _vm.course
+        ? _c("active-editor", {
+            attrs: {
+              course: _vm.course,
+              showing: _vm.activeEditor.show,
+              percents_options: _vm.percents_options
+            },
+            on: {
+              close: function($event) {
+                _vm.activeEditor.show = false
+              },
+              active: _vm.activeCourse,
+              "shut-down": _vm.onShutDown
+            }
+          })
+        : _vm._e(),
       _vm._v(" "),
       _c("delete-confirm", {
         attrs: {
@@ -109947,9 +109963,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             type: Object,
             default: null
         },
-        can_review: {
-            type: Boolean,
-            default: false
+        init_params: {
+            type: Object,
+            default: null
         },
         can_quit: {
             type: Boolean,
@@ -110021,9 +110037,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             this.params.pageSize = this.init_model.pageSize;
         }
 
+        if (this.init_params) {
+            this.params = _extends({}, this.init_params);
+        }
+
         this.courseOptions = this.courses.slice(0);
-        this.params.term = this.terms[0].value;
-        this.params.center = this.centers[0].value;
 
         this.canQuit = this.can_quit;
     },
@@ -110422,9 +110440,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_signup_report_table___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_signup_report_table__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-//
-//
-//
 //
 //
 //
@@ -111056,34 +111071,6 @@ var render = function() {
                         _vm._v("\n                課程停開\n            ")
                       ]
                     )
-                  : _vm._e(),
-                _vm._v(" "),
-                _vm.canReview
-                  ? _c(
-                      "a",
-                      {
-                        directives: [
-                          {
-                            name: "show",
-                            rawName: "v-show",
-                            value: !_vm.params.active,
-                            expression: "!params.active"
-                          }
-                        ],
-                        staticClass: "btn btn-success",
-                        attrs: { disabled: !_vm.showReviewBtn, href: "#" },
-                        on: {
-                          click: function($event) {
-                            $event.preventDefault()
-                            return _vm.onSubmit($event)
-                          }
-                        }
-                      },
-                      [
-                        _c("i", { staticClass: "fa fa-check-circle" }),
-                        _vm._v("\n                恢復開課\n            ")
-                      ]
-                    )
                   : _vm._e()
               ]
             )
@@ -111234,6 +111221,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
 
 
 
@@ -111279,11 +111268,16 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
             },
 
+            quitViewSettings: {
+                read_mode: 'table',
+                init_mode: ''
+            },
+
             needPrint: false,
 
             activeIndex: 0,
 
-            quitViewMode: ''
+            quit: null
         };
     },
 
@@ -111296,9 +111290,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     beforeMount: function beforeMount() {
         if (this.mode == 'quit') {
             this.activeIndex = 1;
-            this.quitViewMode = 'create';
-        } else {
-            this.quitViewMode = 'table';
+            this.quitViewSettings.init_mode = 'create';
         }
     },
 
@@ -111307,7 +111299,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     },
     methods: {
         init: function init() {
-            this.quitViewMode = 'table';
+            this.initQuitView();
+        },
+        initQuitView: function initQuitView() {
+            this.quit = null;
+            this.quitViewSettings.read_mode = 'table';
         },
         onSignupLoaded: function onSignupLoaded(signup) {
             var _this = this;
@@ -111337,6 +111333,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         onBack: function onBack() {
             this.$emit('back');
         },
+        onQuitChanged: function onQuitChanged() {
+            this.reloadSignup();
+            this.quitViewSettings.init_mode = '';
+        },
         beginPrint: function beginPrint() {
             var _this2 = this;
 
@@ -111354,6 +111354,12 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                     Helper.BusEmitError(error);
                 });
             }
+        },
+        viewQuitDetails: function viewQuitDetails(id) {
+            this.quit = this.signup.quits.find(function (item) {
+                return item.id == id;
+            });
+            this.quitViewSettings.read_mode = 'details';
         }
     }
 
@@ -112027,16 +112033,12 @@ var render = function() {
                       _vm._v(" "),
                       _c("td", [
                         _vm._v(
-                          _vm._s(_vm._f("formatMoney")(item.course.tuition)) +
-                            "   "
+                          _vm._s(_vm._f("formatMoney")(item.tuition)) + "   "
                         )
                       ]),
                       _vm._v(" "),
                       _c("td", [
-                        _vm._v(
-                          _vm._s(_vm._f("formatMoney")(item.course.cost)) +
-                            "   "
-                        )
+                        _vm._v(_vm._s(_vm._f("formatMoney")(item.cost)) + "   ")
                       ]),
                       _vm._v(" "),
                       _c("td", [_vm._v(_vm._s(item.ps))])
@@ -115396,7 +115398,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             type: Object,
             default: null
         },
-        mode: {
+        init_mode: {
+            type: String,
+            default: ''
+        },
+        read_mode: {
             type: String,
             default: ''
         },
@@ -115421,6 +115427,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             icon: Menus.getIcon('quits'),
             readOnly: true,
+            readMode: '',
 
             reviewEditor: {
                 show: false,
@@ -115444,12 +115451,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
     computed: {
+        canBack: function canBack() {
+            if (!this.can_back) return false;
+            if (!this.quit) return false;
+            return true;
+        },
         canCreate: function canCreate() {
 
             if (!this.can_edit) return false;
             if (!this.signup) return false;
-
-            return !Signup.hasQuit(this.signup);
+            if (this.quit) return false;
+            return this.signup.canQuit;
         },
         canEdit: function canEdit() {
             if (!this.can_edit) return false;
@@ -115478,23 +115490,33 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return '編輯退費申請';
         },
         showTable: function showTable() {
-            if (!this.mode == 'table') return false;
+
             if (!this.signup) return false;
             if (!this.signup.quits) return false;
             return this.signup.quits.length > 0;
+        },
+        detailsMode: function detailsMode() {
+            return this.mode != 'table';
         }
     },
     beforeMount: function beforeMount() {
-        if (this.mode == 'create') this.beginCreate();
+        if (this.init_mode == 'create') this.beginCreate();
+        this.init();
     },
 
     watch: {
-        'version': 'init'
+        'version': 'init',
+        'read_mode': 'init'
     },
     methods: {
-        init: function init() {},
+        init: function init() {
+            this.readMode = this.read_mode;
+        },
         beginCreate: function beginCreate() {
             this.readOnly = false;
+        },
+        onSelected: function onSelected(id) {
+            this.$emit('selected', id);
         },
         beginEdit: function beginEdit() {
             this.readOnly = false;
@@ -115513,6 +115535,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return statusLabel;
         },
         onEditCanceled: function onEditCanceled() {
+            this.mode = this.init_mode;
             this.readOnly = true;
         },
         onEditReview: function onEditReview() {
@@ -115579,7 +115602,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         closeConfirm: function closeConfirm() {
             this.deleteConfirm.show = false;
         },
-        deleteSignup: function deleteSignup() {
+        deleteQuit: function deleteQuit() {
             var _this3 = this;
 
             this.closeConfirm();
@@ -117811,8 +117834,8 @@ var render = function() {
                       {
                         name: "show",
                         rawName: "v-show",
-                        value: _vm.can_back,
-                        expression: "can_back"
+                        value: _vm.canBack,
+                        expression: "canBack"
                       }
                     ],
                     staticClass: "btn btn-default btn-sm",
@@ -117893,111 +117916,125 @@ var render = function() {
             ? _c(
                 "div",
                 [
-                  _vm.quit
-                    ? _c("show", {
+                  _vm.readMode == "table"
+                    ? _c(
+                        "table",
+                        {
+                          directives: [
+                            {
+                              name: "show",
+                              rawName: "v-show",
+                              value: _vm.showTable,
+                              expression: "showTable"
+                            }
+                          ],
+                          staticClass: "table table-striped"
+                        },
+                        [
+                          _vm._m(0),
+                          _vm._v(" "),
+                          _c(
+                            "tbody",
+                            _vm._l(_vm.signup.quits, function(quit, index) {
+                              return _c("tr", { key: index }, [
+                                _c("td", [
+                                  _c("a", {
+                                    attrs: { href: "#" },
+                                    domProps: {
+                                      textContent: _vm._s(
+                                        _vm.signup.user.profile.fullname
+                                      )
+                                    },
+                                    on: {
+                                      click: function($event) {
+                                        $event.preventDefault()
+                                        _vm.onSelected(quit.id)
+                                      }
+                                    }
+                                  })
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    "\r\n                                " +
+                                      _vm._s(quit.reason) +
+                                      " \r\n                            "
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    " \r\n                                " +
+                                      _vm._s(quit.date) +
+                                      " \r\n                            "
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", {
+                                  domProps: {
+                                    innerHTML: _vm._s(_vm.getDetails(quit))
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    "\r\n                                " +
+                                      _vm._s(
+                                        _vm._f("formatMoney")(quit.tuitions)
+                                      ) +
+                                      "    \r\n                            "
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    "\r\n                                " +
+                                      _vm._s(_vm._f("formatMoney")(quit.fee)) +
+                                      "    \r\n                            "
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    "\r\n                                " +
+                                      _vm._s(quit.payway.name) +
+                                      " \r\n                            "
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    "\r\n                                " +
+                                      _vm._s(
+                                        _vm._f("formatMoney")(quit.amount)
+                                      ) +
+                                      " \r\n                            "
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", {
+                                  domProps: {
+                                    innerHTML: _vm._s(_vm.getStatusLabel(quit))
+                                  }
+                                })
+                              ])
+                            })
+                          )
+                        ]
+                      )
+                    : _c("show", {
                         attrs: { quit: _vm.quit, user: _vm.quit.signup.user },
                         on: {
                           "edit-review": _vm.onEditReview,
                           "edit-ps": _vm.onEditPS
                         }
                       })
-                    : _vm._e(),
-                  _vm._v(" "),
-                  _vm.showTable
-                    ? _c("table", { staticClass: "table table-striped" }, [
-                        _vm._m(0),
-                        _vm._v(" "),
-                        _c(
-                          "tbody",
-                          _vm._l(_vm.signup.quits, function(quit, index) {
-                            return _c("tr", { key: index }, [
-                              _c("td", {
-                                domProps: {
-                                  textContent: _vm._s(
-                                    _vm.signup.user.profile.fullname
-                                  )
-                                }
-                              }),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\r\n                                " +
-                                    _vm._s(quit.reason) +
-                                    " \r\n                            "
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  " \r\n                                " +
-                                    _vm._s(quit.date) +
-                                    " \r\n                            "
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", {
-                                domProps: {
-                                  innerHTML: _vm._s(_vm.getDetails(quit))
-                                }
-                              }),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\r\n                                " +
-                                    _vm._s(
-                                      _vm._f("formatMoney")(quit.tuitions)
-                                    ) +
-                                    "    \r\n                            "
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\r\n                                " +
-                                    _vm._s(_vm._f("formatMoney")(quit.fee)) +
-                                    "    \r\n                            "
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\r\n                                " +
-                                    _vm._s(quit.payway.name) +
-                                    " \r\n                            "
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\r\n                                " +
-                                    _vm._s(_vm._f("formatMoney")(quit.amount)) +
-                                    " \r\n                            "
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", {
-                                domProps: {
-                                  innerHTML: _vm._s(_vm.getStatusLabel(quit))
-                                }
-                              })
-                            ])
-                          })
-                        )
-                      ])
-                    : _vm._e()
                 ],
                 1
               )
             : _c(
                 "div",
                 [
-                  false
-                    ? _c("create", {
-                        attrs: { signup: _vm.signup },
-                        on: { saved: _vm.onSaved, cancel: _vm.onEditCanceled }
-                      })
-                    : _vm._e(),
-                  _vm._v(" "),
                   _c("edit", {
                     attrs: { quit: _vm.quit, signup: _vm.signup },
                     on: { saved: _vm.onSaved, cancel: _vm.onEditCanceled }
@@ -118037,7 +118074,7 @@ var render = function() {
           showing: _vm.deleteConfirm.show,
           message: _vm.deleteConfirm.msg
         },
-        on: { close: _vm.closeConfirm, confirmed: _vm.deleteSignup }
+        on: { close: _vm.closeConfirm, confirmed: _vm.deleteQuit }
       })
     ],
     1
@@ -118247,12 +118284,15 @@ var render = function() {
                         ? _c("quit-view", {
                             attrs: {
                               signup: _vm.signup,
-                              can_back: false,
-                              mode: _vm.quitViewMode
+                              quit: _vm.quit,
+                              read_mode: _vm.quitViewSettings.read_mode,
+                              init_mode: _vm.quitViewSettings.init_mode
                             },
                             on: {
-                              saved: _vm.reloadSignup,
-                              deleted: _vm.reloadSignup
+                              selected: _vm.viewQuitDetails,
+                              back: _vm.initQuitView,
+                              saved: _vm.onQuitChanged,
+                              deleted: _vm.onQuitChanged
                             }
                           })
                         : _vm._e()
@@ -118543,6 +118583,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
 
 
 
@@ -118576,10 +118617,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             type: Array,
             default: null
         },
-        payways: {
-            type: Array,
-            default: null
-        },
         version: {
             type: Number,
             default: 0
@@ -118599,7 +118636,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
                 center: '0',
                 status: -1,
-                payway: '0',
+
                 keyword: '',
 
                 page: 1,
@@ -118638,6 +118675,15 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     },
 
     computed: {
+        hasData: function hasData() {
+            if (!this.model) return false;
+            return this.model.viewList.length > 0;
+        },
+        showUnhadledBtn: function showUnhadledBtn() {
+
+            if (!this.canReview) return false;
+            return parseInt(this.params.status) == 0;
+        },
         showExportBtn: function showExportBtn() {
 
             if (!this.canReview) return false;
@@ -118662,6 +118708,14 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             var actions = [{
                 value: 'none', text: '執行'
             }];
+
+            if (!this.hasData) return actions;
+
+            if (this.showUnhadledBtn) {
+                actions.push({
+                    value: 'unhandled', text: '待處理'
+                });
+            }
 
             if (this.showExportBtn) {
                 actions.push({
@@ -118715,10 +118769,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 this.params.center = '0';
             }
         },
-        onPaywaySelected: function onPaywaySelected(item) {
-            this.params.payway = item.value;
-            this.fetchData();
-        },
         setStatus: function setStatus(item) {
             this.params.status = item.value;
             this.fetchData();
@@ -118736,6 +118786,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             getData.then(function (model) {
 
                 _this.model = _extends({}, model.model);
+                _this.summary = _extends({}, model.summary);
                 _this.canReview = model.canReview;
             }).catch(function (error) {
                 Helper.BusEmitError(error);
@@ -118750,33 +118801,36 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             this.error = '';
         },
         onActionSelected: function onActionSelected(item) {
+            this.error = '';
+
             var action = item.value;
-            if (action == 'report') this.exportReports();else if (action == 'review') this.updateStatuses(1);else if (action == 'finish') this.updateStatuses(2);
+            if (action == 'report') this.exportReports();else if (action == 'unhandled') this.updateStatuses(-1);else if (action == 'review') this.updateStatuses(1);else if (action == 'finish') this.updateStatuses(2);
+        },
+        checkError: function checkError() {
+            if (!this.checkedIds.length) {
+                return '您沒有勾選任何一筆退費申請';
+            }
+            return '';
         },
         updateStatuses: function updateStatuses(status) {
             var _this2 = this;
 
-            if (!this.checkedIds.length) {
-                this.error = '您沒有勾選任何一筆退費申請';
-                return;
-            }
-            var quits = this.checkedIds.map(function (item) {
-                return {
-                    id: item,
-                    status: status
-                };
-            });
             var form = new Form({
-                quits: quits
+                status: status
             });
             var save = Quit.updateStatuses(form);
             save.then(function () {
                 Helper.BusEmitOK('資料已存檔');
                 _this2.fetchData();
-                _this2.$refs.quitTable.unCheckAll();
             }).catch(function (error) {
                 Helper.BusEmitError(error, '存檔失敗');
+                _this2.resolveError(form);
             });
+        },
+        resolveError: function resolveError(form) {
+            if (form.errors.has('status')) {
+                this.error = form.errors.get('status');
+            }
         },
         exportReports: function exportReports() {
             var url = '/manage/reports/quits';
@@ -118940,10 +118994,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         can_checked: {
             type: Boolean,
             default: false
-        },
-        center: {
-            type: Boolean,
-            default: false
         }
     },
     data: function data() {
@@ -119048,7 +119098,7 @@ var render = function() {
         _c("table", { staticClass: "table table-striped" }, [
           _c("thead", [
             _c("tr", [
-              _vm.canCheck
+              false
                 ? _c(
                     "th",
                     { staticStyle: { width: "3%" } },
@@ -119073,27 +119123,27 @@ var render = function() {
                   )
                 : _vm._e(),
               _vm._v(" "),
-              !_vm.center
-                ? _c("th", { staticStyle: { width: "8%" } }, [
-                    _vm._v("開課中心")
-                  ])
-                : _vm._e(),
+              _c("th", { staticStyle: { width: "7%" } }, [_vm._v("姓名")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "8%" } }, [_vm._v("姓名")]),
-              _vm._v(" "),
-              _c("th", { staticStyle: { width: "8%" } }, [_vm._v("原因")]),
+              _c("th", { staticStyle: { width: "7%" } }, [_vm._v("原因")]),
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("申請日期")]),
               _vm._v(" "),
               _c("th", [_vm._v("明細")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "8%" } }, [_vm._v("退還學費")]),
+              _c("th", { staticStyle: { width: "7%" } }, [_vm._v("退還學費")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "8%" } }, [_vm._v("手續費")]),
+              _c("th", { staticStyle: { width: "7%" } }, [_vm._v("手續費")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("退款方式")]),
+              false
+                ? _c("th", { staticStyle: { width: "10%" } }, [
+                    _vm._v("退款方式")
+                  ])
+                : _vm._e(),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("應退金額")]),
+              _c("th", { staticStyle: { width: "7%" } }, [_vm._v("應退金額")]),
+              _vm._v(" "),
+              _c("th", [_vm._v("銀行帳號")]),
               _vm._v(" "),
               _c("th", { staticStyle: { width: "7%" } }, [_vm._v("狀態")])
             ])
@@ -119103,7 +119153,7 @@ var render = function() {
             "tbody",
             _vm._l(_vm.getViewList(), function(quit, index) {
               return _c("tr", { key: index }, [
-                _vm.canCheck
+                false
                   ? _c(
                       "td",
                       [
@@ -119120,16 +119170,6 @@ var render = function() {
                       ],
                       1
                     )
-                  : _vm._e(),
-                _vm._v(" "),
-                !_vm.center
-                  ? _c("td", [
-                      _vm._v(
-                        "\n                            " +
-                          _vm._s(quit.center.name) +
-                          "\n                        "
-                      )
-                    ])
                   : _vm._e(),
                 _vm._v(" "),
                 _c("td", [
@@ -119183,13 +119223,15 @@ var render = function() {
                   )
                 ]),
                 _vm._v(" "),
-                _c("td", [
-                  _vm._v(
-                    "\n                             " +
-                      _vm._s(quit.payway.name) +
-                      " \n                        "
-                  )
-                ]),
+                false
+                  ? _c("td", [
+                      _vm._v(
+                        "\n                             " +
+                          _vm._s(quit.payway.name) +
+                          " \n                        "
+                      )
+                    ])
+                  : _vm._e(),
                 _vm._v(" "),
                 _c("td", [
                   _vm._v(
@@ -119198,6 +119240,8 @@ var render = function() {
                       " \n                        "
                   )
                 ]),
+                _vm._v(" "),
+                _c("td", { domProps: { innerHTML: _vm._s(quit.accountInfo) } }),
                 _vm._v(" "),
                 _c("td", {
                   domProps: { innerHTML: _vm._s(_vm.getStatusLabel(quit)) }
@@ -119273,24 +119317,6 @@ var render = function() {
                   [
                     _c("drop-down", {
                       attrs: {
-                        items: _vm.payways,
-                        selected: _vm.params.payway
-                      },
-                      on: { selected: _vm.onPaywaySelected }
-                    })
-                  ],
-                  1
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  {
-                    staticClass: "form-group",
-                    staticStyle: { "padding-left": "1em" }
-                  },
-                  [
-                    _c("drop-down", {
-                      attrs: {
                         items: _vm.statuses,
                         selected: _vm.params.status
                       },
@@ -119308,7 +119334,12 @@ var render = function() {
                 staticClass: "col-sm-3",
                 staticStyle: { "margin-top": "20px" }
               },
-              [_c("searcher", { on: { search: _vm.onSearch } })],
+              [
+                _c("searcher", {
+                  attrs: { text: "姓名" },
+                  on: { search: _vm.onSearch }
+                })
+              ],
               1
             ),
             _vm._v(" "),
@@ -119340,7 +119371,28 @@ var render = function() {
             )
           ]),
           _vm._v(" "),
-          _c("hr"),
+          _vm.summary
+            ? _c("div", { staticClass: "row" }, [
+                _c(
+                  "div",
+                  {
+                    staticClass: "col-sm-6",
+                    staticStyle: { "margin-top": "3px", "font-size": "1.2em" }
+                  },
+                  [
+                    _c("div", { staticClass: "form-group" }, [
+                      _vm._v(
+                        "\n                 資料筆數：" +
+                          _vm._s(_vm.summary.count) +
+                          " 筆   總金額：" +
+                          _vm._s(_vm.summary.amount) +
+                          " 元\n            "
+                      )
+                    ])
+                  ]
+                )
+              ])
+            : _vm._e(),
           _vm._v(" "),
           _c(
             "quit-table",
@@ -119931,6 +119983,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'TranTable',
@@ -120010,9 +120068,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         isTrue: function isTrue(val) {
             return Helper.isTrue(val);
         },
-        hasDiscount: function hasDiscount(tran) {
-            return Tran.hasDiscount(tran);
-        },
         quit: function quit(tran) {
             this.$emit('quit', tran.id);
         }
@@ -120067,17 +120122,25 @@ var render = function() {
                   )
                 ]),
                 _vm._v(" "),
-                _c("td", [
-                  _vm._v(
-                    "\n                        應繳金額\n\n                    "
-                  )
-                ]),
+                tran.amountMustPay
+                  ? _c("td", [
+                      _vm._v(
+                        "\n                        \n                         " +
+                          _vm._s(_vm._f("formatMoney")(tran.amountMustPay)) +
+                          " \n\n                    "
+                      )
+                    ])
+                  : _c("td"),
                 _vm._v(" "),
-                _c("td", [
-                  _vm._v(
-                    "\n                        應退金額\n                    "
-                  )
-                ]),
+                tran.amountMustBack
+                  ? _c("td", [
+                      _vm._v(
+                        "\n                        " +
+                          _vm._s(_vm._f("formatMoney")(tran.amountMustBack)) +
+                          " \n                    "
+                      )
+                    ])
+                  : _c("td"),
                 _vm._v(" "),
                 _c("td")
               ])
@@ -121266,33 +121329,38 @@ var render = function() {
               staticStyle: { "margin-top": "20px" }
             }),
             _vm._v(" "),
-            _c(
-              "div",
-              {
-                staticClass: "col-sm-1 pull-right",
-                staticStyle: { "margin-top": "20px" },
-                attrs: { align: "right" }
-              },
-              [
-                _c(
-                  "a",
+            false
+              ? _c(
+                  "div",
                   {
-                    staticClass: "btn btn-success",
-                    attrs: { disabled: _vm.checkedIds.length < 1, href: "#" },
-                    on: {
-                      click: function($event) {
-                        $event.preventDefault()
-                        return _vm.onSubmitPrint($event)
-                      }
-                    }
+                    staticClass: "col-sm-1 pull-right",
+                    staticStyle: { "margin-top": "20px" },
+                    attrs: { align: "right" }
                   },
                   [
-                    _c("i", { staticClass: "fa fa-check-circle" }),
-                    _vm._v("\n                列印證書\n            ")
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn btn-success",
+                        attrs: {
+                          disabled: _vm.checkedIds.length < 1,
+                          href: "#"
+                        },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.onSubmitPrint($event)
+                          }
+                        }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-check-circle" }),
+                        _vm._v("\n                列印證書\n            ")
+                      ]
+                    )
                   ]
                 )
-              ]
-            )
+              : _vm._e()
           ]),
           _vm._v(" "),
           _vm.hasCourse
@@ -122551,7 +122619,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 			save.then(function () {
 				_this.submitting = false;
-				//this.$emit('saved');
+				_this.$emit('saved');
 				Helper.BusEmitOK('資料已存檔');
 			}).catch(function (error) {
 				_this.submitting = false;

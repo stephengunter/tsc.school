@@ -93,9 +93,9 @@
                 type: Object,
                 default: null
             },
-            can_review:{
-                type:Boolean,
-                default:false
+            init_params: {
+                type: Object,
+                default: null
             },
             can_quit:{
                 type:Boolean,
@@ -167,11 +167,13 @@
                 this.params.pageSize=this.init_model.pageSize;
             }  
 
+            if(this.init_params){
+                this.params={...this.init_params };
+            }
+
            
 
             this.courseOptions=this.courses.slice(0);
-            this.params.term=this.terms[0].value;
-            this.params.center=this.centers[0].value;
             	
             this.canQuit=this.can_quit;	 	
         },

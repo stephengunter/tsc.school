@@ -21,7 +21,8 @@ class CreateSignupsTable extends Migration
             $table->decimal('tuitions', 8, 2);  
             $table->decimal('costs', 8, 2);  
             $table->integer('points')->unsigned();
-            $table->string('discount')->nullable(); 
+            $table->string('discount')->nullable();
+            $table->integer('discountId')->nullable();
             $table->integer('status');
 
             $table->string('identity_ids')->nullable(); 

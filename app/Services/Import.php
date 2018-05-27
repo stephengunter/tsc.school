@@ -34,11 +34,20 @@ trait Import
 		$sid=strtoupper(trim($row['id']));
 		$fullname=trim($row['fullname']);
 
-		if(!Helper::checkSID($sid)){
-			$err_msg .=  $fullname . '身分證錯誤';			
+		if(Helper::isTaiwanSID($sid)){
+			if(!Helper::checkSID($sid)){
+				$err_msg .=  $fullname . '身分證錯誤';			
+			}
+			$gender=Helper::getGenderFromSID($sid);
+		}else{
+			$gender = trim($row['gender']);
+			if(!$gender) $err_msg .=  $fullname . '性別錯誤';
+			$gender = Helper::isTrue((int)$gender);			
 		}
 
-		$gender=Helper::getGenderFromSID($sid);
+		
+
+		
 		$dob=trim($row['dob']);
 		
 		if($dob){
@@ -53,6 +62,8 @@ trait Import
 			}  
 			             
 		}
+
+		
 		
 		
 		
@@ -62,7 +73,7 @@ trait Import
 			'fullname' => $fullname,
 			'sid' => $sid,
 			'gender' => $gender,
-			'dob' => $dob,
+			'dob' =>$dob,
 		   
 			'updatedBy' => $updatedBy
 		]; 

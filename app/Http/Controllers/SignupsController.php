@@ -194,11 +194,8 @@ class SignupsController extends Controller
           
     }
 
-    
-   
-    public function index()
+    function readIndexRequest()
     {
-        
         $request=request();
 
         $term=0;
@@ -209,6 +206,7 @@ class SignupsController extends Controller
 
         $course=0;
         if($request->course)  $course=(int)$request->course;
+       
 
         $keyword='';
         if($request->keyword)  $keyword=$request->keyword;
@@ -230,13 +228,12 @@ class SignupsController extends Controller
         $pageSize=999;
         if($request->pageSize)  $pageSize=(int)$request->pageSize;
 
-       
-        if($this->isAjaxRequest()){
-            return $this->fetchSignups($term, $center, $course, $keyword,  $status , $page , $pageSize);
+        $termOptions = [];
+        $centerOptions = [];
+        if(!$this->isAjaxRequest()){
+            $termOptions = $this->terms->options();
+            $centerOptions = $this->centers->options();
         }
-
-        $termOptions = $this->terms->options();
-        $centerOptions = $this->centers->options();
 
         $selectedCenter = null;
         $selectedTerm = null;
@@ -249,6 +246,11 @@ class SignupsController extends Controller
             {
                 $selectedCenter = $selectedCourse->center;
                 $selectedTerm = $selectedCourse->term;
+
+                $course=$selectedCourse->id;
+                $center=$selectedCenter->id;
+                $term=$selectedTerm->id;
+               
             }
         }
         else
@@ -257,51 +259,73 @@ class SignupsController extends Controller
             {
                 $selectedCenter = $this->centers->getById($center);
                 if (!$selectedCenter) abort(404);
-            }
-            else
-            {
-                $selectedCenter = $this->centers->getById($centerOptions[0]['value']); 
+            }else{
+                if(!$this->isAjaxRequest()){
+                    $selectedCenter = $this->centers->getById($centerOptions[0]['value']); 
+                    $center=$selectedCenter->id;
+                }
             }
 
             if ($term)
             {
                 $selectedTerm = $this->terms->getById($term);
                 if (!$selectedTerm)  abort(404);
-            }
-            else
-            {
-                $selectedTerm = $this->terms->getById($termOptions[0]['value']); 
+            }else{
+                if(!$this->isAjaxRequest()){
+                    $selectedTerm = $this->terms->getById($termOptions[0]['value']); 
+                    $term=$selectedTerm->id;
+                }
             }
 
         }
 
-        if (!$selectedCourse)
+        if ($selectedCourse)  $pageSize = 999;
+        else 
         {
-            $course = 0;
             if ($pageSize == 999) $pageSize = 10;
-        }
-        else
-        {
-            $pageSize = 999;
+          
         }
 
-        $signups = $this->signups->fetchSignups($selectedTerm, $selectedCenter, $selectedCourse);
-        
-        if($keyword){
-            $signups =$this->filterSignupsByKeyword($signups, $keyword);
-        }
+        $params=[
+            'term' => $term,
+            'center' => $center,
+            'course' =>  $course,
+            'keyword' => $keyword,
+            'status' => $status,
+            'page' => $page,
+            'pageSize' => $pageSize
 
-
-        $signups = $signups->where('status' , $status);
-        
-        // if($selectedPayway){
-        //     $signups = $signups->whereHas('bill', function($q) use($selectedPayway){
-        //         $q->where('paywayId', $selectedPayway->id);
-        //     });
-        // } 
+        ];
 
        
-       
+        return [
+            'selectedCenter' => $selectedCenter,
+            'selectedTerm' => $selectedTerm,
+            'selectedCourse' => $selectedCourse,
+
+            'params' => $params,
+
+            'termOptions' => $termOptions,
+            'centerOptions' => $centerOptions,
+        ];
+    }
+   
+    public function index()
+    {
+        
+
+        $requestValues=$this->readIndexRequest();
+
+        $selectedTerm=$requestValues['selectedTerm'];
+        $selectedCenter=$requestValues['selectedCenter'];
+        $selectedCourse=$requestValues['selectedCourse'];
+        
+        $params=$requestValues['params'];
+
+        $status = $params['status'];
+
+        $courseOptions=$this->courses->options($selectedTerm,$selectedCenter,true);
+
         $summary=$this->signups->getSignupSummary($selectedTerm, $selectedCenter, $selectedCourse);
           
         $canQuit=false;
@@ -309,12 +333,40 @@ class SignupsController extends Controller
             if($selectedCenter) $canQuit=$this->canEditCenter($selectedCenter);
         }
 
-        $pageList =$this->getPageList($signups,$canQuit,$page,$pageSize);
+        $signups = $this->signups->fetchSignups($selectedTerm, $selectedCenter, $selectedCourse);
 
-        $courseOptions=$this->courses->options($selectedTerm,$selectedCenter,true);
+        
+        if($params['keyword']){
+            $signups =$this->filterSignupsByKeyword($signups, $keyword);
+        }
+      
+        $signups = $signups->where('status' , $params['status']);
+        $pageList =$this->getPageList($signups,$canQuit,$params['page'],$params['pageSize']);
+        
 
+        if($this->isAjaxRequest()){
+            $model=[
+                'courseOptions' => $courseOptions,
+                'summaryModel' => $summary,
+                'model' => $pageList,
+                'canQuit' => $canQuit
+            ];
+    
+            return response()->json($model);
+        }
+
+        
+        
+        // if($selectedPayway){
+        //     $signups = $signups->whereHas('bill', function($q) use($selectedPayway){
+        //         $q->where('paywayId', $selectedPayway->id);
+        //     });
+        // } 
         // $paywayOptions=$this->payways->paywayOptions();
         // array_unshift($paywayOptions, ['text' => '所有繳費方式' , 'value' =>'0']);
+
+        $centerOptions=$requestValues['centerOptions'];
+        $termOptions=$requestValues['termOptions'];
 
         $counterPayways=$this->payways->counterPayways();
         $counterPaywayOptions=$counterPayways->map(function ($payway) {
@@ -328,16 +380,13 @@ class SignupsController extends Controller
         $model=[
             'title' => '報名管理',
             'menus' => $this->adminMenus('SignupsAdmin'),
-
+            'params' => $params,
             'terms' => $termOptions,
             'centers' => $centerOptions,
             'courses' => $courseOptions,                
             'statuses' => $this->signups->statusOptions(),
 
             'canQuit' => $canQuit,
-           
-            
-            //'payways' => $paywayOptions,
             'counterPayways' => $counterPaywayOptions,
 
             'summary' => $summary,
@@ -695,6 +744,7 @@ class SignupsController extends Controller
     public function show($id)
     {
         $signup = $this->signups->getById($id);
+      
         if(!$signup) abort(404);
 
         $signup->loadViewModel();
@@ -705,6 +755,13 @@ class SignupsController extends Controller
 
         foreach($signup->details as $signupDetail){
             
+        }
+
+        $canEditCenter=$this->canEditCenter($signup->getCenter());
+        foreach($signup->quits as $quit){
+            if($canEditCenter)  $quit->canEdit=$quit->canEdit();
+            else   $quit->canEdit=false;
+          
         }
 
         return response()->json($signup);

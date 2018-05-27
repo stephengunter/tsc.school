@@ -30,12 +30,12 @@
                 
             </div>
             
-            <div class="col-sm-3" style="margin-top: 20px;">
+            <div class="col-sm-2" style="margin-top: 20px;">
                 <searcher @search="onSearch">
                 </searcher>
             </div>
             
-            <div v-if="showReviewBtn" class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
+            <div v-if="showReviewBtn" class="col-sm-1"  style="margin-top: 20px;">
 
                 <a v-if="canReview" @click.prevent="onReviewOk" :disabled="!canSubmitReview"  href="#" class="btn btn-success">
                     <i class="fa fa-check-circle"></i>
@@ -43,7 +43,7 @@
                 </a>
                 
             </div>
-            <div v-else class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
+            <div :class="showReviewBtn ? 'col-sm-1' : 'col-sm-2'" align="right" style="margin-top: 20px;">
                
                 <drop-down :items="actions" :selected="action" btn_style="primary"
                     @selected="onActionSelected">

@@ -72,9 +72,14 @@ class SignupDetail extends Model
     public function updateStatus()
     {
         if($this->hasQuit()) $this->canceled=true;
-        else if($this->hasTran()) $this->canceled=true;
+        else if($this->hasTran()){
+            $this->canceled=true;
+            $this->tuition=0;
+            $this->cost=0;
+        } 
         else $this->canceled=false;
 
+        
         $this->save();
     }
 

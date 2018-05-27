@@ -30,14 +30,20 @@
                              {{ tran.course.fullName }} 
                         </td>
                        
-                        <td>
-                            應繳金額
+                        <td v-if="tran.amountMustPay">
+                            
+                             {{ tran.amountMustPay | formatMoney }} 
 
                         </td>
-                        <td>
-                            應退金額
+                        <td v-else>
+
                         </td>
-                        
+                        <td v-if="tran.amountMustBack">
+                            {{ tran.amountMustBack | formatMoney }} 
+                        </td>
+                        <td v-else>
+
+                        </td>
                        
                         <td>
                             
@@ -140,12 +146,10 @@ export default {
         isTrue(val){
             return Helper.isTrue(val);
         },
-        hasDiscount(tran){
-            return Tran.hasDiscount(tran);
-        },
         quit(tran){
             this.$emit('quit',tran.id);
-        }
+        },
+
         
    }
 }

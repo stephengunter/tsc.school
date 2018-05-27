@@ -6,7 +6,7 @@
                <h4 v-html="title"></h4>
             </span> 
             <div v-if="readOnly">
-                <button v-show="can_back"  @click.prevent="onBack" class="btn btn-default btn-sm" >
+                <button v-show="canBack"   @click.prevent="onBack" class="btn btn-default btn-sm" >
                     <i class="fa fa-arrow-circle-left"></i>
                     返回
                 </button>
@@ -27,10 +27,8 @@
         </div>  
         <div class="panel-body">
             <div v-if="readOnly"  >
-                <show v-if="quit" :quit="quit" :user="quit.signup.user"  
-                    @edit-review="onEditReview"  @edit-ps="onEditPS" >  
-                </show>
-                <table v-if="showTable" class="table table-striped">
+               
+                <table v-if="readMode=='table'" v-show="showTable" class="table table-striped">
                     <thead>
                         <tr>
                             
@@ -50,8 +48,9 @@
                     <tbody>
                         <tr v-for="(quit,index) in signup.quits" :key="index">
                             
-                            <td v-text="signup.user.profile.fullname"> 
-                               
+                            <td > 
+                               <a  href="#" @click.prevent="onSelected(quit.id)" v-text="signup.user.profile.fullname"> </a> 
+                         
                             </td>
                             <td>
                                 {{ quit.reason }} 
@@ -85,12 +84,13 @@
                
 
                 </table>
+                <show v-else  :quit="quit" :user="quit.signup.user"  
+                    @edit-review="onEditReview"  @edit-ps="onEditPS" >  
+                </show>
             </div>
            
             <div v-else>
-                <create v-if="false"  :signup="signup"
-                    @saved="onSaved"   @cancel="onEditCanceled" >                 
-                </create>
+                
                 <edit  :quit="quit" :signup="signup"  
                     @saved="onSaved"   @cancel="onEditCanceled" >                 
                 </edit>
@@ -106,7 +106,7 @@
       @close="psEditor.show=false" @save="updatePS">
     </ps-editor>
     <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
-      @close="closeConfirm" @confirmed="deleteSignup">        
+      @close="closeConfirm" @confirmed="deleteQuit">        
     </delete-confirm>
 </div>
 </template>
@@ -131,7 +131,11 @@
                 type: Object,
                 default: null
             },
-            mode:{
+            init_mode:{
+                type: String,
+                default: ''
+            },
+            read_mode:{
                 type: String,
                 default: ''
             },
@@ -156,8 +160,7 @@
             return {
                 icon:Menus.getIcon('quits') ,
                 readOnly:true,
-               
-                
+                readMode:'',
 
                 reviewEditor:{
                     show:false,
@@ -180,12 +183,17 @@
             }
         },
         computed:{
+            canBack(){
+                if(!this.can_back) return false;
+                if(!this.quit)  return false;
+                return true;
+            },
             canCreate(){
                
                 if(!this.can_edit) return false;
                 if(!this.signup)   return false;
-               
-                return !Signup.hasQuit(this.signup);
+                if(this.quit)   return false;
+                return this.signup.canQuit;
             },
             canEdit(){
                 if(!this.can_edit) return false;
@@ -215,26 +223,34 @@
                 
             },
             showTable(){
-                if(!this.mode=='table') return false;
+                
                 if(!this.signup) return false;
                 if(!this.signup.quits) return false;
                 return this.signup.quits.length > 0;
+            },
+            detailsMode(){
+                return this.mode!='table' ;
             }
            
         },
         beforeMount(){
-            if(this.mode=='create') this.beginCreate();            
+            if(this.init_mode=='create') this.beginCreate();  
+            this.init(); 
         },
         watch: {
-            'version':'init'
+            'version':'init',
+            'read_mode':'init',
         },
         methods: {
             init() {
-                
+                this.readMode=this.read_mode;
             },
             beginCreate(){
                 this.readOnly=false;
-            },  
+            }, 
+            onSelected(id){
+                this.$emit('selected',id);
+            }, 
             beginEdit() {
                 this.readOnly=false;
             },
@@ -252,7 +268,9 @@
                 return statusLabel;
             },
             onEditCanceled(){
+                this.mode=this.init_mode;
                 this.readOnly=true;
+                
             },
             onEditReview(){
                 this.reviewEditor.id=this.quitId;
@@ -320,7 +338,7 @@
             closeConfirm(){
                 this.deleteConfirm.show=false;
             },
-            deleteSignup(){
+            deleteQuit(){
                 this.closeConfirm();
                 
                 let id = this.deleteConfirm.id ;

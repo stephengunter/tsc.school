@@ -45,8 +45,8 @@
                         <tr v-for="(item,index) in signup.details" :key="index">
                             <td>{{ item.course.number }} </td>
                             <td>{{ item.course.fullName }} </td>
-                            <td>{{  item.course.tuition | formatMoney }}   </td>
-                            <td>{{  item.course.cost | formatMoney}}   </td>    
+                            <td>{{  item.tuition | formatMoney }}   </td>
+                            <td>{{  item.cost | formatMoney}}   </td>    
                             <td>{{ item.ps }}</td>
                         </tr>
                     </tbody>

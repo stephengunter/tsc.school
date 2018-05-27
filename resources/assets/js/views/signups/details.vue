@@ -39,8 +39,10 @@
                         
                     </div>
 
-                    <quit-view v-if="activeIndex==1"  :signup="signup"  :can_back="false" :mode="quitViewMode"
-                        @saved="reloadSignup" @deleted="reloadSignup"> 
+                    <quit-view v-if="activeIndex==1"  :signup="signup" :quit="quit"   
+                       :read_mode="quitViewSettings.read_mode" :init_mode="quitViewSettings.init_mode"
+                       @selected="viewQuitDetails" @back="initQuitView"
+                       @saved="onQuitChanged" @deleted="onQuitChanged"> 
 
                     </quit-view>
                      
@@ -101,12 +103,18 @@
                  
                 },
 
+                quitViewSettings:{
+                    read_mode:'table',
+                    init_mode:'',
+                },
+
                 needPrint:false,
                
                 
                 activeIndex:0,
 
-                quitViewMode:''
+               
+                quit:null
             }
         },
         computed:{
@@ -119,17 +127,20 @@
         beforeMount(){
             if(this.mode=='quit'){
                 this.activeIndex=1;
-                this.quitViewMode='create';
-            }else{
-                this.quitViewMode='table';
-            } 
+                this.quitViewSettings.init_mode ='create';
+                
+            }
         },
         watch: {
             'id': 'init'
         },
         methods:{
             init(){
-                this.quitViewMode='table';
+                this.initQuitView();
+            },
+            initQuitView(){
+                this.quit=null;
+                this.quitViewSettings.read_mode ='table';
                
             },
             onSignupLoaded(signup){
@@ -163,6 +174,10 @@
             onBack(){
                 this.$emit('back');
             },
+            onQuitChanged(){  
+                this.reloadSignup();   
+                  this.quitViewSettings.init_mode ='';
+            }, 
             beginPrint() {
                 if(this.payed){
                     this.$refs.billPrint.print();
@@ -182,6 +197,12 @@
                 }
                 
             },
+            viewQuitDetails(id){
+                this.quit=this.signup.quits.find((item) => {
+                    return item.id==id;
+                });
+                this.quitViewSettings.read_mode ='details';
+            }
             
         }
         

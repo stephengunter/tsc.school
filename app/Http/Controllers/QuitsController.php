@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\QuitRequest;
 
+use App\User;
 use App\Term;
 use App\Center;
 use App\Course;
@@ -19,6 +20,7 @@ use App\SignupDetail;
 use App\Services\Courses;
 use App\Services\Signups;
 use App\Services\Centers;
+use App\Services\Users;
 use App\Services\Quits;
 use App\Services\Bills;
 use App\Services\Payways;
@@ -34,11 +36,12 @@ class QuitsController extends Controller
     use CourseQuitPercent;
 
     public function __construct(Centers $centers,Bills $bills,Quits $quits,Payways $payways,
-                Courses $courses,Signups $signups)             
+                Courses $courses,Users $users,Signups $signups)             
     {
         $this->centers=$centers;
         $this->quits=$quits;
         $this->bills=$bills;
+        $this->users=$users;
         $this->courses=$courses;
         $this->signups=$signups;
         $this->payways=$payways;
@@ -59,7 +62,7 @@ class QuitsController extends Controller
 
     }
 
-    function canReview($quit=null)
+    function canReview()
     {
         if($this->currentUserIsDev()) return true;
         if(!$this->currentUser()->isBoss()) return false;
@@ -163,8 +166,7 @@ class QuitsController extends Controller
         
     }
 
-
-    public function index()
+    function readIndexRequest()
     {
         $request=request();
 
@@ -174,10 +176,6 @@ class QuitsController extends Controller
       
         $status=-1;  
         if($request->exists('status'))  $status=(int)$request->status;
-       
-
-        $payway=0;
-        if($request->payway)  $payway=(int)$request->payway;
 
         
         $keyword='';
@@ -189,43 +187,77 @@ class QuitsController extends Controller
         $pageSize=10;
         if($request->pageSize)  $pageSize=(int)$request->pageSize;
 
+        if(!Quit::isValidStatus($status)) abort(404);
        
-        if($this->isAjaxRequest()){
-            return $this->fetchQuits($center, $payway ,$status , $page , $pageSize);
-        }
-
-        
-        $centerOptions = $this->centers->options(true);
         $selectedCenter = null;
         if ($center)
         {
             $selectedCenter = Center::find($center);
             if (!$selectedCenter) abort(404);
+            
         }
 
-        $selectedPayway=null;
-        if($payway){
-            $selectedPayway = Payway::find($payway);
-            if (!$selectedPayway) abort(404);
-        }   
-        
-        $quits = $this->quits->fetchQuits($selectedCenter,$selectedPayway,$status);
-        
-        $pageList =$this->getPageList($quits,$page,$pageSize);
-
-        $paywayOptions=$this->backPaywayOptions();
-        array_unshift($paywayOptions, ['text' => '所有退款方式' , 'value' =>'0']);
-
-        $canReview= $this->canReview();
+        $centerOptions = []; 
+        $statusOptions = []; 
+        if(!$this->isAjaxRequest()){
+            $centerOptions = $this->centers->options($withEmpty=true);
+            $statusOptions = $this->quits->statusOptions();
+        }  
 
         $params=[
             'center' => $center,
-            'payway' => $payway,
             'status' => $status,
             'keyword' => $keyword,
+           
             'page' => $page,
             'pageSize' => $pageSize
+
         ];
+
+       
+        return [
+            'selectedCenter' => $selectedCenter,
+
+            'params' => $params,
+
+            'centerOptions' => $centerOptions,
+            'statusOptions' => $statusOptions,
+        ];
+    }
+
+    public function index()
+    {
+        $requestValues=$this->readIndexRequest();
+
+        $canReview= $this->canReview();
+
+        $selectedCenter=$requestValues['selectedCenter'];
+
+        $params=$requestValues['params'];
+        $status = $params['status'];
+        $selectedPayway=null;
+
+        $summary=$this->quits->getQuitSummary($selectedCenter,$selectedPayway,$status,$params['keyword']);
+      
+        $quits = $this->quits->fetchQuits($selectedCenter,$selectedPayway,$status,$params['keyword']);
+
+       
+       
+        $pageList =$this->getPageList($quits, $params['page'],$params['pageSize']);
+        
+        if($this->isAjaxRequest()){
+           
+            $model=[
+                'model' => $pageList,
+                'summary' => $summary,
+                'canReview' => $canReview
+            ];
+    
+            return response()->json($model);
+        }
+
+        $centerOptions=$requestValues['centerOptions'];
+        $statusOptions=$requestValues['statusOptions'];
 
         $model=[
             'title' => '退費管理',
@@ -233,11 +265,12 @@ class QuitsController extends Controller
 
             
             'centers' => $centerOptions,               
-            'statuses' => $this->quits->statusOptions(),
-            'payways' => $paywayOptions,
+            'statuses' => $statusOptions,
 
             'canReview' => $canReview,
             'list' => $pageList,
+
+            'summary' => $summary,
 
             'params' => $params
         ];
@@ -246,9 +279,11 @@ class QuitsController extends Controller
            
     }
 
+   
+
     function getPageList($quits,$page,$pageSize)
     {
-       
+        $quits = $quits->orderBy('date','desc');
         $pageList = new PagedList($quits,$page,$pageSize);
         
         foreach($pageList->viewList as $quit){
@@ -258,29 +293,35 @@ class QuitsController extends Controller
         return $pageList;
     }
 
-    //Ajax
-    function fetchQuits(int $center, int $payway ,int $status , int $page , int $pageSize)
+    
+
+    function initQuitAccountValues(array $quitValues , User $user)
     {
-        $selectedCenter = Center::find($center);
+        $userAccount=$user->getAccount();
+        if($userAccount){
+            $quitValues['account_bank'] = $userAccount->bank;
+            $quitValues['account_branch'] = $userAccount->branch;
+            $quitValues['account_owner'] = $userAccount->owner;
+            $quitValues['account_number'] = $userAccount->number;
+            $quitValues['account_code'] = $userAccount->code;
 
-        $selectedPayway=null;
-        if($payway)   $selectedPayway = Payway::find($payway);
-      
-        $quits = $this->quits->fetchQuits($selectedCenter,$selectedPayway,$status);
-        
+            return $quitValues;
+        }
 
-        $pageList =$this->getPageList($quits,$page,$pageSize);
+        $quit=$this->quits->getByUser($user)->orderBy('date','desc')->first();
 
-        $canReview= $this->canReview();
+       
 
-        $model=[
-            'model' => $pageList,
-            'canReview' => $canReview
-        ];
+        if($quit){
+          
+            $quitValues['account_bank'] = $quit['account_bank'];
+            $quitValues['account_branch'] = $quit['account_branch'];
+            $quitValues['account_owner'] = $quit['account_owner'];
+            $quitValues['account_number'] = $quit['account_number'];
+            $quitValues['account_code'] = $quit['account_code'];
+        } 
 
-        return response() ->json($model);
-
-        
+        return $quitValues;
     }
 
     public function create()
@@ -302,16 +343,10 @@ class QuitsController extends Controller
         $quit['signupId'] = $selectedSignup->id;
 
         if($payway->needAccount()){
-            $userAccount=$selectedSignup->user->getAccount();
-            if($userAccount){
-                $quit['account_bank'] = $userAccount->bank;
-                $quit['account_branch'] = $userAccount->branch;
-                $quit['account_owner'] = $userAccount->owner;
-                $quit['account_number'] = $userAccount->number;
-                $quit['account_code'] = $userAccount->code;
-            }
-
+            $quit= $this->initQuitAccountValues( $quit ,$selectedSignup->user);
         }
+
+       
 
         $quitDetails=[];
         foreach($selectedSignup->details as $signupDetail){
@@ -362,6 +397,7 @@ class QuitsController extends Controller
         if(!$this->canQuits($signup)) return $this->unauthorized();
        
         $special=Helper::isTrue($quitValues['special']);
+        $auto=false;
 
         $payway=Payway::findOrFail($quitValues['paywayId']);      
 
@@ -373,12 +409,20 @@ class QuitsController extends Controller
 
         $quitValues['updatedBy']=$updatedBy;
 
-        
-        $quit=new Quit($quitValues);
+        $userCanAddDetailQuit=$this->quits->getUserCanAddDetailQuit($signup->user,$auto,$special);
+        if($userCanAddDetailQuit){
+           
+            $userCanAddDetailQuit->fill($quitValues);
 
-        $quit=$this->quits->createQuit($signup, $quit,$quitDetails);
+            $this->quits->addQuitDetails($userCanAddDetailQuit,$quitDetails);
+        }else{
+            $quit=new Quit($quitValues);
+
+            $quit=$this->quits->createQuit($signup, $quit,$quitDetails);
+        };
         
-        return response()->json($quit);
+        
+        return response()->json();
        
     }
 
@@ -494,19 +538,19 @@ class QuitsController extends Controller
 
     public function updateStatuses(Request $form)
     {
+        
         if(!$this->canReview()) return $this->unauthorized();
 
         $updatedBy=$this->currentUserId();
-        
-       
-        $quitIds=array_pluck($form['quits'], 'id');
 
-        foreach($form['quits'] as $quitValues){
-            $quit=Quit::find($quitValues['id']);
-            $quit->status=$quitValues['status'];
-            $quit->updatedBy=$updatedBy;
-            $quit->save();
-        } 
+        $errors=[];
+
+        $status=(int)$form['status'];
+        if($status==-1) $errors =$this->quits->setUnHandled($updatedBy);
+        else if($status==1) $errors =$this->quits->reviewOK($updatedBy);
+        else if($status==2) $errors =$this->quits->finishOK($updatedBy);
+
+        if($errors) return $this->requestError($errors);
 
         return response()->json();
 

@@ -91,6 +91,7 @@ class CoursesController extends Controller
 
     function fetchCourses($term , $center)
     {
+        if(!$term) return Course::where('id' ,'<' , 0);
         $courses = $this->courses->fetchCourses($term->id ,$center);
         return $courses->where('active',true);
     }

@@ -37,6 +37,12 @@ class QuitDetail extends Model
 
     }
 
+    public function getSignupDetail()
+    {
+        return SignupDetail::find($this->signupDetailId);
+    }
+
+
     public function getCourse()
     {
         return SignupDetail::find($this->signupDetailId)->course;

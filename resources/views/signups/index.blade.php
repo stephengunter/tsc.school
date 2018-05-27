@@ -4,7 +4,8 @@
 @section('content')
 
 
-<signups-index v-show="indexMode" :init_model="model" :summary_model="summary" :terms="terms" :centers="centers" :courses="courses" :statuses="statuses"
+<signups-index v-show="indexMode" :init_model="model" :summary_model="summary" :init_params="params"  
+               :terms="terms" :centers="centers" :courses="courses" :statuses="statuses"
                :version="version" :can_quit="canQuit"
                v-on:selected="onSelected" v-on:quit="onQuit" v-on:create="onCreate" >
 </signups-index>
@@ -30,6 +31,8 @@
 
                     model: {},
                     summary:{},
+
+                    params:{},
 
                     terms: [],
                     centers: [],
@@ -61,6 +64,8 @@
             beforeMount() {
                 this.model = {!! json_encode($list) !!} ;
                 this.summary = {!! json_encode($summary) !!} ;
+
+                this.params = {!! json_encode($params) !!} ;
 
                 this.terms = {!! json_encode($terms) !!} ;
                 this.centers = {!! json_encode($centers) !!} ;

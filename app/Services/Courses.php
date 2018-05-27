@@ -140,20 +140,19 @@ class Courses
 
     }
     //單筆課程狀態重新開啟課程
-    public function setActive(Course $course, $active ,$reviewedBy, $percents=0)
+    public function setActive(Course $course, $active ,$reviewedBy, $percents=100)
     {
-        
+     
         if(!$active){
             
-            if(!$percents) abort(500);
-            else{
-                $this->shutDownCourse( $course, $percents,$reviewedBy);
-            }
+            $this->shutDownCourse( $course, $percents,$reviewedBy);
+            
         }else{
-            $course->active= $active;
+            $course->active= true;//$active;
             $course->reviewedBy=$reviewedBy;
             $course->updatedBy=$reviewedBy;
             $course->save();
+            
         }  
 
     }

@@ -33,7 +33,7 @@
     <review-editor :showing="reviewEditor.show" :reviewed="reviewEditor.reviewed" 
       @close="reviewEditor.show=false" @save="updateReview">
     </review-editor>
-    <active-editor :showing="activeEditor.show" :default_val="activeEditor.active" :percents_options="percents_options"
+    <active-editor v-if="course" :course="course" :showing="activeEditor.show"  :percents_options="percents_options"
       @close="activeEditor.show=false" @active="activeCourse" @shut-down="onShutDown">
     </active-editor>
     <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
@@ -247,7 +247,7 @@
                 let save = Course.active(form);
 				save.then(() => {
                     Helper.BusEmitOK('資料已存檔');
-                     this.init();
+                    this.init();
 				})
 				.catch(error => {
 					Helper.BusEmitError(error,'存檔失敗');

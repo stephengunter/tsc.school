@@ -11,9 +11,9 @@
                         </th>
                         <th style="width:10%">姓名</th>
                         <th style="width:10%">身分證號</th>
-                        <th >Email</th>
+                        <th style="width:20%">Email</th>
                         <th style="width:10%">手機</th>
-                        
+                        <th >身分</th>
                         <th style="width:10%">角色</th>
                         
                     </tr>
@@ -31,7 +31,9 @@
                         <td>{{  user.profile.sid }}</td>
                         <td>{{  user.email }}</td>
                         <td>{{  user.phone }}</td>
-                       
+                        <td>
+                            {{  user.identityNames }}
+                        </td>
                         <td v-html="roleLabels(user)">
                            
                         </td>

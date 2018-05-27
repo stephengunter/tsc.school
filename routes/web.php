@@ -5,10 +5,10 @@ Auth::routes();
 //Route::get('/test', 'BillsController@test');
 
 Route::get('/test', function(){
-    $banks=['第一銀行','國泰世華','中國信託','玉山銀行'];
-    $random_key=array_rand($banks,1);
-
-    dd($banks[$random_key]);
+   
+    $tran= \App\Tran::first();
+    $signup=$tran->getSignup();
+    dd($signup->bill->getAmountShorted());
 });
 
 

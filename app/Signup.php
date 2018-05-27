@@ -4,13 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Tran;
+use App\Discount;
 
 class Signup extends Model
 {
     public static $snakeAttributes = false;
 	
     protected $fillable = [  
-                            'userId', 'net', 'points', 'discount' ,
+                            'userId', 'net', 'points', 'discount' ,'discountId' ,
                             'tuitions', 'costs', 'status','identity_ids',
                             'updatedBy', 'removed','ps'
                           ];
@@ -25,7 +26,7 @@ class Signup extends Model
 			'points' => 0,
 			'tuitions' => 0,
 			'costs' => 0,
-			'discount' => '',
+            'discount' => '',
             'status' => 0,
             'identity_ids' => '',
             'ps' => '',
@@ -59,6 +60,14 @@ class Signup extends Model
         if(!count($this->details)) return null;
 
         return $this->details->first()->course->term;
+    }
+
+    public function getDiscount()
+	{
+        if(!$this->discountId) return null;
+
+        return Discount::find($this->discountId);
+        
     }
 
 
@@ -129,12 +138,16 @@ class Signup extends Model
 
     public function updateStatus()
     {
-        $this->bill->updateStatus();
-      
+       
         foreach($this->details as $detail){
             $detail->updateStatus();
         }
+        
+        $this->updateMoney();
 
+        $this->bill->updateStatus();
+      
+        
         $validDetail=$this->details()->where('canceled',false)->first();
 
         if($validDetail){
@@ -157,6 +170,11 @@ class Signup extends Model
         if($points==0) return false;
 
         return true;
+    }
+
+    public function  getValidCoursesCount()
+    {
+        return $this->details()->where('canceled',false)->count();
     }
 
     public function getPoints()

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Core\Helper;
 
 class Profile extends Model
 {
@@ -33,6 +34,15 @@ class Profile extends Model
 	public function setsidAttribute($value) 
 	{
 		$this->attributes['sid'] = strtoupper($value);
+	}
+
+	public function setGenderAttribute($value) 
+	{
+		$sid=$this->attributes['sid'];
+		if(Helper::isTaiwanSID($sid)){
+			$this->attributes['gender'] = Helper::getGenderFromSID($sid);
+		}else  $this->attributes['gender'] = $value;
+		
 	}
 
 	public function getAge()

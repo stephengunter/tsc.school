@@ -77,6 +77,8 @@ class Signups
 
     function setSignupDiscount(Signup $signup,Term $term, Discount $discount)
     {
+        $signup->discountId=$discount->id;
+
         if($term->canBird(Carbon::today())){
         
            
@@ -134,8 +136,10 @@ class Signups
         $course=$this->courses->getById($signup->details[0]['courseId']);
 
         $identityIds=explode(',', $signup['identity_ids']);
+
+        $courseCount=$signup->details()->where('canceled',false);
         
-        $courseCount=count($signup->details) + count($newDetails);
+        $courseCount= $signup->getValidCoursesCount() + count($newDetails);
         
         $bestDiscount=$this->discounts->findBestDiscount($course->center,$course->term,$signup->user,$identityIds,$lotus, $courseCount);
       
@@ -147,32 +151,24 @@ class Signups
 
             $signup=Signup::find($signup->id);
             $signup->updateMoney();
+            $signup->updateStatus();
         });
-
-       
         
     }
 
-    
+   
 
     public function deleteSignup(Signup $signup,$updatedBy)
     {
-        if($signup->status>0) abort(500);
+        if(!$signup->canDelete()) abort(500);
         $signup->delete();
         
     }
     
     public function fetchSignups(Term $term,Center $center, Course $course = null)
     {
-        $signups=null;
-        if($course){
-            $signups=$this->fetchSignupsByCourse($course);
-        }else{
-           
-            $signups=$this->fetchSignupsByTermCenter($term, $center);
-        }
-            
-        return $signups;
+        if($course) return $this->fetchSignupsByCourse($course);
+        else  return $this->fetchSignupsByTermCenter($term, $center);
 
     }
 

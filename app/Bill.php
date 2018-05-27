@@ -60,11 +60,16 @@ class Bill extends Model
     {
         $amount=$this->getAmount();
 
+        
+
         $payTotalMoney=$this->getPaysTotalMoney();
+      
         if($payTotalMoney >= $amount){
+            
             $this->payed=true;
             $this->payDate=$this->pays()->orderBy('date','desc')->first()->date;
         }else{
+           
             $this->payed=false;
             $this->payDate=null;
         }

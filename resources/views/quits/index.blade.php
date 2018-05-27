@@ -4,7 +4,7 @@
 @section('content')
 
 
-<quits-index v-show="indexMode" :init_model="model" :init_params="params" :centers="centers"  :statuses="statuses" :payways="payways"
+<quits-index v-show="indexMode" :init_model="model" :summary_model="summary" :init_params="params" :centers="centers"  :statuses="statuses" 
     :can_review="can_review" :version="version"
     v-on:selected="onSelected" >
 </quits-index>
@@ -26,14 +26,14 @@
                 return {
                     version: 0,
 
-                    model: {},
+                    model: {}, 
+                    summary:{},
 
                     params:{},
                     
                     centers: [],
 
                     statuses:[],
-                    payways:[],
 
                     can_review: false,
                    
@@ -53,11 +53,12 @@
             },
             beforeMount() {
                 this.model = {!! json_encode($list) !!} ;
+                this.summary = {!! json_encode($summary) !!} ;
                 this.params = {!! json_encode($params) !!} ;
 
                 this.centers = {!! json_encode($centers) !!} ;
                 this.statuses = {!! json_encode($statuses) !!} ;
-                this.payways = {!! json_encode($payways) !!} ;
+              
 
                 this.can_review = Helper.isTrue('{!! $canReview !!}'); 
 

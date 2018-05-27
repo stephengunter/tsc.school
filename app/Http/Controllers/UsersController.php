@@ -117,6 +117,7 @@ class UsersController extends Controller
         
 
         foreach($pageList->viewList as $user){
+            $user->loadViewModel();
             $this->loadRoleNames($user);
         } 
 

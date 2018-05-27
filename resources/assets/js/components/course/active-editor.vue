@@ -61,11 +61,11 @@
     export default {
         name:'CourseActiveEditor',
         props: {
+            course:{
+                type: Object,
+                default: null
+            },
             showing:{
-                type: Boolean,
-                default: true
-            },  
-            default_val:{
                 type: Boolean,
                 default: true
             },
@@ -77,8 +77,7 @@
         },
         data() {
             return {
-                options : Course.activeOptions(),
-                active:false,
+               
 
                 courseId:0,
                 amount:0,
@@ -89,16 +88,33 @@
                 submitting:false,
             }
         },
+        computed:{
+            active(){
+                if(!this.course) return true;
+                return !Helper.isTrue(this.course.active);
+            },
+            options(){
+                if(!this.course) return [];
+                let active=Helper.isTrue(this.course.active);
+                if(active) return [{
+                    text: '課程停開',
+                    value: false
+                }];
+                else return [{text: '正常開課', value: true}];
+            
+                
+            }
+        },
         watch: {
-            'default_val':'init',
+            
 	    },
         beforeMount() {
-           this.init(this.default_val);
+           this.init();
            
         },
         methods: {
-            init(active){
-                this.active=active;
+            init(){
+                
             },
             onClose(){
                 this.$emit('close');

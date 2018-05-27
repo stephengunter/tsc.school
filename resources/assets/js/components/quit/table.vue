@@ -5,34 +5,33 @@
                 <thead>
                     <tr>
                         
-                        <th style="width:3%" v-if="canCheck">
+                        <th style="width:3%" v-if="false">
                             <check-box v-show="dataCounts" :value="0" :default="checkAll"
 							 @selected="onCheckAll" @unselected="unCheckAll">
 							</check-box>
                         </th>
-                        <th style="width:8%" v-if="!center">開課中心</th>
-                        <th style="width:8%">姓名</th>
-                        <th style="width:8%">原因</th>
+                       
+                        <th style="width:7%">姓名</th>
+                        <th style="width:7%">原因</th>
                         <th style="width:10%">申請日期</th>
                         <th>明細</th>
-                        <th style="width:8%">退還學費</th>
-                        <th style="width:8%">手續費</th>
-                        <th style="width:10%">退款方式</th>
-                        <th style="width:10%">應退金額</th>
+                        <th style="width:7%">退還學費</th>
+                        <th style="width:7%">手續費</th>
+                        <th v-if="false" style="width:10%">退款方式</th>
+                        <th style="width:7%">應退金額</th>
+                        <th>銀行帳號</th>
                         <th style="width:7%">狀態</th>
                     </tr>
                     
                 </thead>
                 <tbody>
                     <tr v-for="(quit,index) in getViewList()" :key="index">
-                        <td v-if="canCheck">
+                        <td v-if="false">
 							<check-box :value="quit.id" :default="beenChecked(quit.id)"
 								@selected="onChecked" @unselected="unChecked">
 							</check-box>
                         </td>
-                        <td v-if="!center">
-                            {{ quit.center.name }}
-                        </td>
+                        
                         <td> 
                             <a  href="#" @click.prevent="onSelected(quit.id)" v-text="quit.signup.user.profile.fullname"> </a> 
                          
@@ -52,13 +51,14 @@
                         <td>
                              {{ quit.fee | formatMoney }}    
                         </td>
-                        <td>
+                        <td v-if="false">
                              {{ quit.payway.name }} 
                         </td>
                         <td>
                              {{ quit.amount | formatMoney }} 
                         </td>
-                        
+                        <td v-html="quit.accountInfo" ></td>
+                      
                         <td v-html="getStatusLabel(quit)" ></td>
                       
                        
@@ -98,10 +98,6 @@ export default {
             default: true
         },
         can_checked:{
-            type: Boolean,
-            default: false
-        },
-        center: {
             type: Boolean,
             default: false
         }

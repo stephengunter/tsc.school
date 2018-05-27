@@ -14,13 +14,6 @@
                    
                 </div>
 
-                <div  class="form-group" style="padding-left:1em;">
-                    
-                    <drop-down :items="payways" :selected="params.payway"
-                        @selected="onPaywaySelected">
-                    </drop-down>
-                </div>
-
                 <div class="form-group" style="padding-left:1em;">
                     <drop-down :items="statuses" :selected="params.status"
                         @selected="setStatus">
@@ -29,7 +22,7 @@
                 
             </div>
             <div class="col-sm-3" style="margin-top: 20px;">
-                <searcher @search="onSearch">
+                <searcher text="姓名" @search="onSearch">
                 </searcher>
             </div>
             <div class="col-sm-1 pull-right" align="right" style="margin-top: 20px;">
@@ -43,7 +36,15 @@
         </div>
             
         
-        <hr>
+        <div v-if="summary" class="row">
+           
+            <div class="col-sm-6" style="margin-top: 3px;font-size:1.2em"> 
+                <div class="form-group" >
+                     資料筆數：{{ summary.count }} 筆   總金額：{{ summary.amount }} 元
+                </div>
+               
+            </div>
+        </div> 
         
         <quit-table :model="model" :can_review="canReview" :can_checked="canChecked"  ref="quitTable" :center="center!=null"
             @selected="onSelected" @check-changed="onCheckIdsChanged">
@@ -98,10 +99,6 @@
                 type:Array,
                 default:null
             },
-            payways:{
-                type:Array,
-                default:null
-            },
             version:{
                 type:Number,
                 default:0
@@ -121,7 +118,7 @@
                     
                     center:'0',
                     status:-1,
-                    payway:'0',
+                 
                     keyword:'',
                     
                     page:1,
@@ -162,6 +159,16 @@
             this.canReview=this.can_review;	 	
         },
         computed:{
+            hasData(){
+                if(!this.model) return false;
+                return this.model.viewList.length > 0;
+            },
+            showUnhadledBtn(){
+               
+                if(!this.canReview) return false;
+                return parseInt(this.params.status) == 0;
+              
+            },
             showExportBtn(){
                
                 if(!this.canReview) return false;
@@ -189,6 +196,14 @@
                 let actions=[{
                     value:'none' , text:'執行'
                 }];
+
+                if(!this.hasData)  return actions;
+
+                if(this.showUnhadledBtn){
+                    actions.push({
+                      value:'unhandled' , text:'待處理'
+                   });
+                }
 
                 if(this.showExportBtn){
                     actions.push({
@@ -245,10 +260,6 @@
                     this.params.center = '0';
                 }
             },
-            onPaywaySelected(item){
-                this.params.payway = item.value;
-                this.fetchData();
-            },
             setStatus(item){
                 this.params.status = item.value;
                 this.fetchData();
@@ -265,6 +276,7 @@
                 getData.then(model => {
 
                     this.model={ ...model.model };
+                    this.summary={ ...model.summary };
                     this.canReview= model.canReview;
 
                 })
@@ -282,36 +294,40 @@
                 this.error='';
             },
             onActionSelected(item){
+                this.error='';
+
                 let action=item.value;
                 if(action=='report') this.exportReports();
+                else if(action=='unhandled') this.updateStatuses(-1);
                 else if(action=='review') this.updateStatuses(1);
                 else if(action=='finish') this.updateStatuses(2);
             },
-            updateStatuses(status){
+            checkError(){
                 if(!this.checkedIds.length){
-                    this.error='您沒有勾選任何一筆退費申請';
-                    return;
+                    return '您沒有勾選任何一筆退費申請';
+                    
                 }
-                let quits= this.checkedIds.map((item)=>{
-                   return {
-                       id:item,
-                       status:status
-                   };
-                })
+                return '';
+            },
+            updateStatuses(status){
                 let form=new Form({
-                    quits:quits
+                    status:status
                 });
                 let save=Quit.updateStatuses(form);
 				save.then(() => {
                     Helper.BusEmitOK('資料已存檔');
                     this.fetchData();
-                    this.$refs.quitTable.unCheckAll();
 				})
 				.catch(error => {
 					Helper.BusEmitError(error,'存檔失敗');
+                    this.resolveError(form);
 				})
             },
-            
+            resolveError(form){
+               if(form.errors.has('status')){
+                   this.error=form.errors.get('status');
+               }
+            },
             exportReports(){
                 let url = '/manage/reports/quits';
                 window.open(url);

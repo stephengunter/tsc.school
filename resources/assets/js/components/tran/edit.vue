@@ -135,7 +135,7 @@ export default {
 
 			save.then(() => {
 					this.submitting=false;
-                    //this.$emit('saved');
+                    this.$emit('saved');
 					Helper.BusEmitOK('資料已存檔');
 				})
 				.catch(error => {

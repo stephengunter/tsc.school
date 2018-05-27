@@ -13,17 +13,18 @@ use App\Course;
 use App\Payway;
 use App\Services\Payways;
 use App\Services\Signups;
+use App\Services\Users;
 use DB;
 use Carbon\Carbon;
 
 class Quits 
 {
-    public function __construct(Payways $payways,Signups $signups)
+    public function __construct(Payways $payways,Users $users,Signups $signups)
     {
         
         $this->payways=$payways;
         $this->signups=$signups;
-
+        $this->users=$users;
         $this->statuses=Quit::statuses();
 
         $this->with=['signup.user.profile','details','payway'];
@@ -56,7 +57,24 @@ class Quits
     {   
         return Quit::with($this->with)->find($id);
     }
-    public function fetchQuits(Center $center=null,Payway $payway=null,int $status)
+
+    public function getQuitSummary(Center $center=null,Payway $payway=null,int $status,$keyword='')
+    {
+        $quits=$this->fetchQuits($center,$payway,$status,$keyword)->get();
+        $amount=0;
+        foreach($quits as $quit){
+            $amount += $quit->amount();
+        }
+        
+        return [
+            'count' => $quits->count(),
+            'amount' => $amount
+        ];
+
+    } 
+
+
+    public function fetchQuits(Center $center=null,Payway $payway=null,int $status,$keyword='')
     {
       
         $quits = [];
@@ -65,7 +83,19 @@ class Quits
 
         if($payway) $quits = $quits->where('paywayId' , $payway->id);
 
-        return $quits->where('status' , $status);
+        $quits = $quits->where('status' , $status);
+
+        if($keyword)   $quits =$this->filterQuitsByKeyword($quits, $keyword);
+
+        return $quits;
+    }
+
+    function filterQuitsByKeyword($quits, $keyword)
+    {
+        $userIds=$this->users->getByKeyword($keyword)->pluck('id')->toArray();
+       
+        $signupIds= Signup::whereIn('userId',$userIds)->pluck('id')->toArray();
+        return $quits->whereIn('signupId',$signupIds);
     }
 
     public function fetchQuitsByCenter(Center $center)
@@ -80,29 +110,39 @@ class Quits
 
     }
 
-    public function getUserCanAddDetailQuit(User $user)
+    public function getByUser(User $user)
     {
-                                
-        $signupIds=$this->signups->fetchSignupsByUser($user)->pluck('id')->toArray();
+        $userSignupIds=$this->signups->fetchSignupsByUser($user)->pluck('id')->toArray();
 
-        $userQuits=$this->getAll()->whereIn('signupId',$signupIds)->get();
+        return $this->getAll()->whereIn('signupId',$userSignupIds);
        
+    }
+
+    public function getByStatus($status)
+    {
+       
+        return $this->getAll()->where('status',$status);
+       
+    }
+
+    public function getUserCanAddDetailQuit(User $user,bool $auto,bool $special)
+    {
+        $userQuitRecords=$this->getByUser($user)
+                            ->where('auto',$auto)->where('special',$special)
+                            ->orderBy('date','desc')->get();
         
-        $userQuits = $userQuits->filter(function ($quit) {
+        $userQuits = $userQuitRecords->filter(function ($quit) {
             return $quit->canAddDetail();
         });
         
         return  $userQuits->first();
     }
 
-    public function undoCreateQuitsByCourse(Course $course)
-    {
-
-    }
+   
 
     public function createQuitsByCourse(Course $course, $percents)
     {
-        
+       
         //為每個"Active"學生產生退費
         $studentsInCourse=Student::where('courseId',$course->id)->get();
         $activeStudents = $studentsInCourse->filter(function ($student) {
@@ -110,11 +150,15 @@ class Quits
         });
 
         $studntUserIds= $activeStudents->pluck('userId')->toArray();
-       
         
         $signups=Signup::whereIn('userId',$studntUserIds)->get();
        
         $date=Carbon::today()->toDateString();  
+
+        $auto=true;
+        $special=false;
+
+        $payway=$this->payways->defaultQuitPayway();
 
         foreach($signups as $signup){
             $signupDetail=$signup->details()->where('courseId',$course->id)->first();
@@ -130,27 +174,48 @@ class Quits
                 'tuition' => $tuition,
             ]);
 
-            $userCanAddDetailQuit=$this->getUserCanAddDetailQuit($signup->user);
-            if($userCanAddDetailSignup){
+            $quitDetails=[$quitDetail];
 
-            }
+            $quitValues=[
+                'date' =>$date,          
+            ];
 
-            $payway=$this->payways->initQuitPaywayBySignup($signup);
-              
-            $quit=new Quit([
-                'date' =>$date,
-                'tuitions' => $tuition,
-                'fee' => 0, // 手續費
-                'paywayId' => $payway->id,
-                'auto' => true,  
-               
-            ]);
+            $userCanAddDetailQuit=$this->getUserCanAddDetailQuit($signup->user,$auto,$special);
+            
+            if($userCanAddDetailQuit){
+           
+                $userCanAddDetailQuit->fill($quitValues);
+    
+                $this->addQuitDetails($userCanAddDetailQuit,$quitDetails);
 
-            $this->createQuit($signup,$quit, [$quitDetail]);
+            }else{
+                $quitValues['paywayId'] = $payway->id;
+                $quitValues['special'] = $special;
+                $quitValues['auto'] = $auto;
+                $quit=new Quit($quitValues);
+    
+                $this->createQuit($signup, $quit,$quitDetails);
+            };
+
+           
             
         }
         
         
+    }
+
+    public function setStudentsQuit(Quit $quit)
+    {
+        foreach($quit->details as $quitDetail){
+
+            $signupDetail=$quitDetail->getSignupDetail();
+            $student= $signupDetail->getStudent();
+            $student->update([
+                'status' => -1, 
+                'quitDate' => $quit->date
+            ]);
+            
+        }
     }
 
     public function createQuit(Signup $signup,Quit $quit, array $quitDetails)
@@ -168,25 +233,11 @@ class Quits
 
             $signup=Signup::find($quit->signupId);
             $signup->updateStatus();
-           
-            
-
-            $signupDetailIds=collect($quitDetails)->pluck('signupDetailId')->toArray();
-            
-            foreach($signup->details as $signupDetail){
-                if(in_array($signupDetail->id, $signupDetailIds)){
-                    $student= $signupDetail->getStudent();
-                    $student->update([
-                        'status' => -1, 
-                        'quitDate' => $quit->date
-                    ]);
-                } 
-               
-            }
             
             return $quit;
 		});
-    
+        
+        $this->setStudentsQuit($quit);
 
         return $quit;
     }
@@ -200,7 +251,7 @@ class Quits
     public function updateQuit(Quit $quit, array $details=[])
     {
        
-        DB::transaction(function() use($quit,$details) {
+        $quit = DB::transaction(function() use($quit,$details) {
             $quit->save();
 
             foreach($details as $detail){
@@ -218,49 +269,83 @@ class Quits
 
             $signup=Signup::find($quit->signupId);
             $signup->updateStatus();
+
+            return $quit;
         });
 
-       
+        
         
     }
 
     public function addQuitDetails(Quit $quit, array $newDetails=[])
     {
        
-        DB::transaction(function() use($quit,$newDetails) {
+        $quit = DB::transaction(function() use($quit,$newDetails) {
             $quit->save();
             $quit->details()->saveMany($newDetails);
 
             $quit=Quit::find($quit->id);
             $quit->updateMoney();
+
+            $signup=Signup::find($quit->signupId);
+            $signup->updateStatus();
+
+            return $quit;
         });
 
        
+        $this->setStudentsQuit($quit);
         
     }
 
-    
-
-    public function reviewOK(array $ids, $reviewedBy)
+    public function setUnHandled($updatedBy)
     {
-        $quits=$this->getByIds($ids)->get();
-        foreach($quits as $quit){
-            $quit->status=1;
-            $quit->reviewedBy=$reviewedBy;
-            $quit->updatedBy=$reviewedBy;
-            $quit->save();
-        } 
-    }
+        $quits = $this->getByStatus(0)->get();
 
-    public function finishOK(array $ids,  $updatedBy)
-    {
-        $quits=$this->getByIds($ids)->get();
         foreach($quits as $quit){
-            if(!$quit->status==1) abort(500);
-            $quit->status=2;
+            $quit->status = -1;
             $quit->updatedBy=$updatedBy;
             $quit->save();
         } 
+       
+    }
+
+    public function reviewOK($updatedBy)
+    {
+        
+        $status=1;
+        $errors=[];
+
+        $reviewOkQuitsCount=$this->getByStatus($status)->count();
+        if($reviewOkQuitsCount){
+            $errors['status'] = ['執行審核通過失敗.因為目前還有已審核的退費未結案.'];   
+            return $errors;
+        } 
+        
+        
+        $quits = $this->getByStatus(0)->get();
+        foreach($quits as $quit){
+            $quit->status = 1;
+            $quit->updatedBy=$updatedBy;
+            $quit->save();
+        } 
+
+        return [];
+    }
+
+    public function finishOK($updatedBy)
+    {
+        
+        $errors=[];
+        
+        $quits = $this->getByStatus(1)->get();
+        foreach($quits as $quit){
+            $quit->status = 2;
+            $quit->updatedBy=$updatedBy;
+            $quit->save();
+        } 
+
+        return $errors;
     }
 
     public function  updateFinish($id, bool $finish, $updatedBy)

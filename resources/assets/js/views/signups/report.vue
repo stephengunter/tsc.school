@@ -31,10 +31,7 @@
                     <i class="fa fa-times-circle"></i>
                     課程停開
                 </a>
-                <a v-if="canReview" v-show="!params.active" :disabled="!showReviewBtn" @click.prevent="onSubmit" href="#" class="btn btn-success">
-                    <i class="fa fa-check-circle"></i>
-                    恢復開課
-                </a>
+                
             </div>
         </div>
 

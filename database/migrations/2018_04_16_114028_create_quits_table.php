@@ -20,7 +20,7 @@ class CreateQuitsTable extends Migration
 			$table->foreign('signupId')->references('id')->on('signups')->onDelete('cascade');
 
             $table->date('date');
-            $table->decimal('tuitions', 8, 2);  
+            $table->decimal('tuitions', 8, 2)->default(0)->nullable();
             $table->decimal('fee', 8, 2)->default(0)->nullable();
 
             $table->integer('paywayId');

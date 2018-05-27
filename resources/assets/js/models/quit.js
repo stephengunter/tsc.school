@@ -230,7 +230,7 @@ class Quit {
         return `<span class="${style}" >${text}</span>`
     }
 
-    static detailSummary(detail,withNumber=false){
+    static detailSummary(detail,withNumber=true){
         let courseName=detail.course.fullName;
         if(withNumber) courseName = detail.course.number + ' ' + courseName;
         let tuition=Helper.formatMoney(detail.tuition);

@@ -11,7 +11,8 @@ class Tran extends Model
 	public static $snakeAttributes = false;
 
     protected $fillable = [
-        'date', 'signupDetailId', 'courseId' , 'tuition',
+		'date', 'signupDetailId', 'courseId' , 
+		'reviewed', 'reviewedBy',
         'ps', 'updatedBy'
     ];
 
@@ -21,7 +22,6 @@ class Tran extends Model
 			'date' =>Carbon::today()->toDateString(),
 			'signupDetailId' => 0,
 			'courseId' => 0,
-			'tuition' => 0,
 			'ps' => '',
             'isPay' => true,
             'studentId' => 0,
@@ -40,9 +40,24 @@ class Tran extends Model
 		return $this->hasOne('App\Course', 'id' ,'courseId');
 	}
 
+	public function getSignup()
+	{
+		return $this->signupDetail->signup;
+	}
+
 	public function  getUser()
 	{
 		return $this->signupDetail->signup->user;
+	}
+
+	public function getCenter()
+	{
+		return $this->course->center;
+	}
+
+	public function  canDelete()
+	{
+		return true;
 	}
 	
 	public function  loadViewModel()
@@ -55,6 +70,12 @@ class Tran extends Model
 		$this->user=$this->getUser();
 		$this->user->profile;
 
+		$this->amountMustPay=0;
+		$this->amountMustBack=0;
+		$signup=$this->getSignup();
+		$amount=$signup->bill->getAmountShorted();
+		if($amount>0) $this->amountMustPay = $amount;
+		if($amount<0) $this->amountMustBack = abs($amount);
 
 	}
 	
