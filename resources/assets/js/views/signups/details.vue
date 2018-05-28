@@ -120,7 +120,7 @@
         computed:{
             payed(){
                if(!this.signup) return false;
-               return Helper.isTrue(this.signup.bill.payed);
+               return Helper.isTrue(this.signup.payed);
             }
             
         },
@@ -185,7 +185,7 @@
                 } 
                 else{
                    
-                    let initPrint=Bill.initPrint(this.signup.id);
+                    let initPrint=Signup.initPrint(this.signup.id);
                     initPrint.then(() => {
                         this.needPrint=true;
                         this.reloadSignup();

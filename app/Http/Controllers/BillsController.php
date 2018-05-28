@@ -57,7 +57,7 @@ class BillsController extends Controller
         $date=$beginDate->subDays(5)->toDateString();
         
 
-        $ids = Bill::where('payed',false)->pluck('signupId')->toArray();
+        $ids = Signup::where('payed',false)->pluck('id')->toArray();
       
         $keys = (array_rand($ids,(int)ceil(count($ids)/3 )));
 
@@ -67,10 +67,9 @@ class BillsController extends Controller
             $signupId=$ids[$key];
            
             $signup=$this->signups->getById($signupId);
-
            
            
-            $amount = $signup->bill->amount;
+            $amount = $signup->getAmountShorted();
 
             $payways=\App\Payway::whereIn('code',['credit_net','seven'])->get();
             $num = rand(0 ,100);
@@ -78,21 +77,15 @@ class BillsController extends Controller
             
             if($payway->code=='seven'){
                
-                $this->bills->createBillCode($signup);
-
-                $bill=$this->bills->getById($signup->id);
-                $code=$bill->code;
-                $amount=$signup->amount();
+                $code=$this->bills->createBillCode($signup);
                 
-                $this->bills->payBillByCode($payway, $code, $amount,$date);
+                $this->bills->payBillByCode($payway, $code, $date);
                 
                
 
             }else{
-                $bill=$this->bills->getById($signup->id);
-                $code=$bill->code;
-                $amount=$signup->amount();
-                $this->bills->payBillById($signup->id,$payway,$amount,$date);
+                $bill=$signup->unPayedBills()->first();
+                $this->bills->payBill($bill,$payway,$date);
             } 
             
 
@@ -144,20 +137,6 @@ class BillsController extends Controller
         return response()->json();
     }
 
-    public function print($id)
-    {
-      
-        $signup = $this->signups->getById($id);
-        if(!$signup) abort(404);
-        
-
-        if($signup->bill->payed) about(404);
-
-        $this->bills->createBillCode($signup);
-
-        return response()->json();
-
-    }
     
 
    

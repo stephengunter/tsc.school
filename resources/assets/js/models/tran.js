@@ -138,6 +138,35 @@ class Tran {
         })
     }
 
+    static createQuit(params){
+        let url = '/manage/trans/create-quit';
+        url=Helper.buildQuery(url, params);
+        return new Promise((resolve, reject) => {
+            axios.get(url)
+                .then(response => {
+                        resolve(response.data);
+                })
+                .catch(error => {
+                        reject(error);
+                })
+ 
+        })
+    }
+
+    static storeQuit(form){
+        let url = '/manage/trans/store-quit';
+        let method = 'post';
+        return new Promise((resolve, reject) => {
+            form.submit(method, url)
+                    .then(data => {
+                        resolve(data);
+                    })
+                    .catch(error => {
+                        reject(error);
+                    })
+        })
+    }
+
     
  
     static remove(id) {

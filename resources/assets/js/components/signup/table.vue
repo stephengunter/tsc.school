@@ -60,7 +60,7 @@
                         </td>
                         <td>
                            
-                            {{ signup.bill.amountPayed | formatMoney }} 
+                            {{ signup.amountPayed | formatMoney }} 
                            
                         </td>
                         <td v-if="canQuit(signup)">

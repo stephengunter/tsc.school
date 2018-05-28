@@ -29,7 +29,7 @@
             
         <hr>
         
-        <tran-table :model="model" >
+        <tran-table :model="model" @edit-quit="editQuit">
           
             <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
                 <page-controll   :model="model" @page-changed="onPageChanged"
@@ -39,7 +39,22 @@
             </div>
         </tran-table>
         
+        <modal :showbtn="false"  :show.sync="quitEdit.show"  @closed="quitEdit.show=false" 
+            effect="fade" :width="1200">
+            <div slot="modal-header" class="modal-header modal-header-danger">
+                
+                <button id="close-button" type="button" class="close"  @click="quitEdit.show=false">
+                        x
+                </button>
+                 <h3> 轉班退費 </h3>
+            </div>
         
+            <div slot="modal-body" class="modal-body">
+                <quit-edit  v-if="quitEdit.show" :tran="quitEdit.tran" @saved="onQuitSaved">
+
+                </quit-edit>
+            </div>
+        </modal>
 
     </div>
 
@@ -51,11 +66,12 @@
 
 <script>
     import TranTable from '../../components/tran/table';
-    
+    import QuitEdit from '../../components/tran/quit-edit';
     export default {
         name:'TranIndexView',
         components: {
-            'tran-table':TranTable
+            'tran-table': TranTable,
+            'quit-edit' : QuitEdit
         },
         props: {
             init_model: {
@@ -103,7 +119,12 @@
                 },
               
                
-                checkedIds:[]
+                checkedIds:[],
+
+                quitEdit:{
+                    show:false,
+                    tran:null
+                }
             }
         },
         watch: {
@@ -172,6 +193,16 @@
                 
                 })
             },
+            editQuit(tran){
+               this.quitEdit.tran=tran;
+               this.quitEdit.show=true;
+            },
+            onQuitSaved(){
+                this.quitEdit.show=false;
+                this.quitEdit.tran=null;
+
+                this.fetchData();
+            }
             
         }
     }

@@ -88,6 +88,7 @@ class Student extends Model
     
     public function  hasQuit()
     {
+       
         return $this->status < 0;
     }
 }

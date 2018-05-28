@@ -28,7 +28,7 @@
         </div>  <!-- End row--> 
         
     </div>
-    <div class="show-data">
+    <div v-if="!quit.tranId" class="show-data">
         <div class="row" >
             <div class="col-sm-12">
                 <label class="label-title">明細</label>
@@ -171,6 +171,8 @@
         }, 
         methods: { 
             getDetails(quit){
+                 if(quit.tranId) return '';
+
                 let withNumber=true;
                 let html='';
                 quit.details.forEach(item=>{

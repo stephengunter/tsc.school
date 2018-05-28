@@ -10,9 +10,9 @@ class Payway extends Model
         'name'
     ];
 
-    public function pay() 
+    public function bills() 
 	{
-		return $this->hasMany('App\Pay','paywayId');
+		return $this->hasMany('App\Bill','paywayId');
     }
     public function quits() 
 	{

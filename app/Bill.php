@@ -3,14 +3,15 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Bill extends Model
 {
-    protected $primaryKey = 'signupId';
-
+   
     protected $fillable = [
-        'code',  'deadLine' , 'serial', 'sevenCodes',
-        'payed' ,'payDate',
+        'signupId','amount',
+        'serial', 'code',  'deadLine' ,  'sevenCodes',
+        'payDate', 'payed' , 'paywayId',
         'updatedBy'
     ];
 
@@ -18,71 +19,36 @@ class Bill extends Model
 	{
 		return [
     
-            'payed' => 0,
+           
         ];
         
     }
-    
-    public function signup()
-    {
-		return $this->belongsTo('App\Signup','signupId');
-    }
 
-    public function pays() 
+    public function signup() 
 	{
-		return $this->hasMany('App\Pay','signupId');
+		return $this->hasOne('App\Signup', 'id' ,'signupId');
+    }
+    public function payway() 
+	{
+		return $this->hasOne('App\Payway', 'id' ,'paywayId');
     }
 
     public function getAmount()
     {
-        return $this->signup->amount();
+        return $this->amount;
     }
 
-    public function getAmountShorted()
+    public function  loadViewModel()
     {
-        $amount=$this->getAmount();
-        $moneyPayed=$this->getPaysTotalMoney();
-        return $amount - $moneyPayed;
+        if($this->payDate){
+            $date=new Carbon($this->payDate);
+            $this->payDate = $date->toDateString();
+        } 
+         
     }
 
-    public function getPaysTotalMoney()
-    {
-        $total=0;
-        foreach($this->pays as $pay){
-            $total += $pay->amount;
-        }
 
-        return $total;
-    }
-    
-
-    public function updateStatus()
-    {
-        $amount=$this->getAmount();
-
-        
-
-        $payTotalMoney=$this->getPaysTotalMoney();
-      
-        if($payTotalMoney >= $amount){
-            
-            $this->payed=true;
-            $this->payDate=$this->pays()->orderBy('date','desc')->first()->date;
-        }else{
-           
-            $this->payed=false;
-            $this->payDate=null;
-        }
-
-        $this->save();
-
-    }
-
-    public function loadViewModel()
-    {
-        $this->amountPayed = $this->getPaysTotalMoney();
-        $this->amountShorted = $this->getAmountShorted();
-    }
+   
 
     
     

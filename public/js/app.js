@@ -66776,6 +66776,19 @@ var Signup = function () {
             });
         }
     }, {
+        key: 'initPrint',
+        value: function initPrint(id) {
+            var url = this.source() + '/' + id + '/print-bill';
+
+            return new Promise(function (resolve, reject) {
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
         key: 'print',
         value: function print(canvas) {
 
@@ -66861,11 +66874,17 @@ var Signup = function () {
             return parseInt(signup.status) < 0;
         }
     }, {
+        key: 'payRecords',
+        value: function payRecords(signup) {
+            return signup.bills.filter(function (item) {
+                return Helper.isTrue(item.payed);
+            });
+        }
+    }, {
         key: 'hasPayRecords',
         value: function hasPayRecords(signup) {
-            if (!signup.bill) return false;
-            if (!signup.bill.pays) return false;
-            return signup.bill.pays.length > 0;
+            var payRecords = this.payRecords(Signup);
+            return payRecords.length > 0;
         }
     }]);
 
@@ -67499,6 +67518,7 @@ var Quit = function () {
         value: function detailSummary(detail) {
             var withNumber = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
+
             var courseName = detail.course.fullName;
             if (withNumber) courseName = detail.course.number + ' ' + courseName;
             var tuition = Helper.formatMoney(detail.tuition);
@@ -67864,6 +67884,32 @@ var Tran = function () {
         value: function update(id, form) {
             var url = this.updateUrl(id);
             var method = 'put';
+            return new Promise(function (resolve, reject) {
+                form.submit(method, url).then(function (data) {
+                    resolve(data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'createQuit',
+        value: function createQuit(params) {
+            var url = '/manage/trans/create-quit';
+            url = Helper.buildQuery(url, params);
+            return new Promise(function (resolve, reject) {
+                axios.get(url).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'storeQuit',
+        value: function storeQuit(form) {
+            var url = '/manage/trans/store-quit';
+            var method = 'post';
             return new Promise(function (resolve, reject) {
                 form.submit(method, url).then(function (data) {
                     resolve(data);
@@ -109389,7 +109435,7 @@ var render = function() {
                 _c("td", [
                   _vm._v(
                     "\n                           \n                            " +
-                      _vm._s(_vm._f("formatMoney")(signup.bill.amountPayed)) +
+                      _vm._s(_vm._f("formatMoney")(signup.amountPayed)) +
                       " \n                           \n                        "
                   )
                 ]),
@@ -110521,7 +110567,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     },
     data: function data() {
         return {
-            title: Menus.getIcon('signups') + '  報名統計',
+            title: '學員統計',
 
             loaded: false,
 
@@ -111284,7 +111330,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     computed: {
         payed: function payed() {
             if (!this.signup) return false;
-            return Helper.isTrue(this.signup.bill.payed);
+            return Helper.isTrue(this.signup.payed);
         }
     },
     beforeMount: function beforeMount() {
@@ -111345,7 +111391,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 return;
             } else {
 
-                var initPrint = Bill.initPrint(this.signup.id);
+                var initPrint = Signup.initPrint(this.signup.id);
                 initPrint.then(function () {
                     _this2.needPrint = true;
                     _this2.reloadSignup();
@@ -111931,8 +111977,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (!this.signup.reviewedBy) return false;
             return true;
         },
-        hasPayRecords: function hasPayRecords() {
-            return Signup.hasPayRecords(this.signup);
+        payRecords: function payRecords() {
+            if (!this.signup) return [];
+            return Signup.payRecords(this.signup);
         }
     },
     methods: {
@@ -112021,7 +112068,19 @@ var render = function() {
           _c("div", { staticClass: "row" }, [
             _c("div", { staticClass: "col-sm-12" }, [
               _c("table", { staticClass: "table table-striped" }, [
-                _vm._m(0),
+                _c("thead", [
+                  _c("tr", { staticStyle: { "font-size": "15px" } }, [
+                    _c("th", [_vm._v("課程編號")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("課程名稱")]),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("課程費用")]),
+                    _vm._v(" "),
+                    false ? _c("th", [_vm._v("教材費用")]) : _vm._e(),
+                    _vm._v(" "),
+                    _c("th", [_vm._v("備註")])
+                  ])
+                ]),
                 _vm._v(" "),
                 _c(
                   "tbody",
@@ -112037,9 +112096,13 @@ var render = function() {
                         )
                       ]),
                       _vm._v(" "),
-                      _c("td", [
-                        _vm._v(_vm._s(_vm._f("formatMoney")(item.cost)) + "   ")
-                      ]),
+                      false
+                        ? _c("td", [
+                            _vm._v(
+                              _vm._s(_vm._f("formatMoney")(item.cost)) + "   "
+                            )
+                          ])
+                        : _vm._e(),
                       _vm._v(" "),
                       _c("td", [_vm._v(_vm._s(item.ps))])
                     ])
@@ -112083,7 +112146,7 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _vm.hasPayRecords
+            _vm.payRecords.length > 0
               ? _c("div", { staticClass: "col-sm-6" }, [
                   _c("label", { staticClass: "label-title" }, [
                     _vm._v("付款紀錄")
@@ -112091,13 +112154,13 @@ var render = function() {
                   _vm._v(" "),
                   _c("p", [
                     _c("table", { staticClass: "table table-striped" }, [
-                      _vm._m(1),
+                      _vm._m(0),
                       _vm._v(" "),
                       _c(
                         "tbody",
-                        _vm._l(_vm.signup.bill.pays, function(item, index) {
+                        _vm._l(_vm.payRecords, function(item, index) {
                           return _c("tr", { key: index }, [
-                            _c("td", [_vm._v(_vm._s(item.date) + " ")]),
+                            _c("td", [_vm._v(_vm._s(item.payDate) + " ")]),
                             _vm._v(" "),
                             _c("td", [
                               _vm._v(
@@ -112146,24 +112209,6 @@ var render = function() {
     : _vm._e()
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", { staticStyle: { "font-size": "15px" } }, [
-        _c("th", [_vm._v("課程編號")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("課程名稱")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("課程費用")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("教材費用")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("備註")])
-      ])
-    ])
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
@@ -114185,6 +114230,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             fetchData.then(function (data) {
                 _this.form = new Form(_extends({}, data));
 
+                _this.form.amount = Helper.formatMoney(data.amount);
+
                 _this.form.paywayId = _this.payways[0].value;
             }).catch(function (error) {
 
@@ -114193,8 +114240,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         setDate: function setDate(val) {
             if (!this.form) return;
-            if (!this.form.quit) return;
-            this.form.quit.date = val;
+
+            this.form.payDate = val;
         },
         cancel: function cancel() {
             this.$emit('close');
@@ -114309,7 +114356,7 @@ var render = function() {
                       { staticClass: "col-md-4" },
                       [
                         _c("datetime-picker", {
-                          attrs: { date: _vm.form.date, can_clear: false },
+                          attrs: { date: _vm.form.payDate, can_clear: false },
                           on: { selected: _vm.setDate }
                         })
                       ],
@@ -114916,6 +114963,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -114936,19 +114993,36 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
     computed: {
-        title: function title() {
-            return Bill.titleText(this.payed);
-        },
         payed: function payed() {
             if (!this.signup) return false;
-            return Helper.isTrue(this.signup.bill.payed);
+            return Helper.isTrue(this.signup.payed);
+        },
+        bill: function bill() {
+            if (!this.signup) return null;
+            if (this.payed) {
+                return null;
+            } else {
+                return this.signup.bills.find(function (item) {
+                    return !Helper.isTrue(item.payed);
+                });
+            }
+        },
+        validDetails: function validDetails() {
+            if (!this.signup) return [];
+            return this.signup.details.filter(function (item) {
+                return !Helper.isTrue(item.canceled);
+            });
+        },
+        title: function title() {
+            return Bill.titleText(this.payed);
         },
         hasDiscount: function hasDiscount() {
             return Signup.hasDiscount(this.signup);
         },
         sevenCodes: function sevenCodes() {
-            if (!this.signup.bill.sevenCodes) return [];
-            return this.signup.bill.sevenCodes.split(',');
+            if (!this.bill) return [];
+            if (!this.bill.sevenCodes) return [];
+            return this.bill.sevenCodes.split(',');
         },
         getStyle: function getStyle() {
             if (this.payed) return 'height:350px';
@@ -114996,15 +115070,17 @@ var render = function() {
           ])
         ]),
         _vm._v(" "),
-        _c("div", { staticClass: "col-sm-3" }, [
-          _c("h4", [
-            _vm._v(
-              "\n                應繳金額：\n                " +
-                _vm._s(_vm._f("formatMoney")(_vm.signup.amount)) +
-                " \n                "
-            )
-          ])
-        ]),
+        !_vm.payed
+          ? _c("div", { staticClass: "col-sm-3" }, [
+              _c("h4", [
+                _vm._v(
+                  "\n                應繳金額：\n                " +
+                    _vm._s(_vm._f("formatMoney")(_vm.signup.amountShorted)) +
+                    " \n                "
+                )
+              ])
+            ])
+          : _vm._e(),
         _vm._v(" "),
         _c("div", { staticClass: "col-sm-3" }, [
           _c("h4", [
@@ -115017,11 +115093,11 @@ var render = function() {
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "col-sm-3 text-right" }, [
-          !_vm.payed
+          !_vm.payed && _vm.bill
             ? _c("h4", [
                 _vm._v(
                   "\n                繳費期限：\n                   " +
-                    _vm._s(_vm.signup.bill.deadLine) +
+                    _vm._s(_vm.bill.deadLine) +
                     "\n                "
                 )
               ])
@@ -115035,11 +115111,21 @@ var render = function() {
           _vm._v(" "),
           _c("div", { staticClass: "panel-body" }, [
             _c("table", { staticClass: "table" }, [
-              _vm._m(1),
+              _c("thead", [
+                _c("tr", { staticStyle: { "font-size": "15px" } }, [
+                  _c("th", [_vm._v("課程編號")]),
+                  _vm._v(" "),
+                  _c("th", [_vm._v("課程名稱")]),
+                  _vm._v(" "),
+                  _c("th", [_vm._v("課程費用")]),
+                  _vm._v(" "),
+                  false ? _c("th", [_vm._v(" 教材費用")]) : _vm._e()
+                ])
+              ]),
               _vm._v(" "),
               _c(
                 "tbody",
-                _vm._l(_vm.signup.details, function(item, index) {
+                _vm._l(_vm.validDetails, function(item, index) {
                   return _c("tr", { key: index }, [
                     _c("td", [_vm._v(_vm._s(item.course.number) + " ")]),
                     _vm._v(" "),
@@ -115047,16 +115133,17 @@ var render = function() {
                     _vm._v(" "),
                     _c("td", [
                       _vm._v(
-                        _vm._s(_vm._f("formatMoney")(item.course.tuition)) +
-                          "   "
+                        _vm._s(_vm._f("formatMoney")(item.tuition)) + "   "
                       )
                     ]),
                     _vm._v(" "),
-                    _c("td", [
-                      _vm._v(
-                        _vm._s(_vm._f("formatMoney")(item.course.cost)) + "   "
-                      )
-                    ])
+                    false
+                      ? _c("td", [
+                          _vm._v(
+                            _vm._s(_vm._f("formatMoney")(item.cost)) + "   "
+                          )
+                        ])
+                      : _vm._e()
                   ])
                 })
               )
@@ -115065,7 +115152,7 @@ var render = function() {
             _c("hr"),
             _vm._v(" "),
             _c("div", { staticClass: "row" }, [
-              _c("div", { staticClass: "col-sm-8" }, [
+              _c("div", { staticClass: "col-sm-4" }, [
                 _vm.hasDiscount
                   ? _c("p", [
                       _c("label", { staticClass: "label-title" }, [
@@ -115090,14 +115177,48 @@ var render = function() {
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "col-sm-4" }, [
-                _c("label", { staticClass: "label-title" }, [
-                  _vm._v("應繳金額：")
-                ]),
-                _vm._v(
-                  "\n                            " +
-                    _vm._s(_vm._f("formatMoney")(_vm.signup.amount)) +
-                    " \n                        "
-                )
+                _vm.signup.amountPayed > 0
+                  ? _c("p", [
+                      _c("label", { staticClass: "label-title" }, [
+                        _vm._v("已繳金額：")
+                      ]),
+                      _vm._v(
+                        "\n                                " +
+                          _vm._s(
+                            _vm._f("formatMoney")(_vm.signup.amountPayed)
+                          ) +
+                          " \n                            "
+                      )
+                    ])
+                  : _vm._e()
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-4" }, [
+                _vm.bill
+                  ? _c(
+                      "p",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.signup.amountShorted > 0,
+                            expression: "signup.amountShorted > 0"
+                          }
+                        ]
+                      },
+                      [
+                        _c("label", { staticClass: "label-title" }, [
+                          _vm._v("待繳金額：")
+                        ]),
+                        _vm._v(
+                          "\n                                " +
+                            _vm._s(_vm._f("formatMoney")(_vm.bill.amount)) +
+                            " \n                            "
+                        )
+                      ]
+                    )
+                  : _vm._e()
               ])
             ])
           ])
@@ -115106,94 +115227,91 @@ var render = function() {
       _vm._v(" "),
       _c("hr", { staticStyle: { border: "1px dashed #000", height: "1px" } }),
       _vm._v(" "),
-      _vm.signup.bill.sevenCodes
-        ? _c(
-            "div",
-            {
-              directives: [
-                {
-                  name: "show",
-                  rawName: "v-show",
-                  value: !_vm.payed,
-                  expression: "!payed"
-                }
-              ],
-              staticClass: "row"
-            },
-            [
-              _c("div", { staticClass: "col-sm-6" }, [
-                _c("h4", [_vm._v("超商專用條碼")]),
-                _vm._v(" "),
-                _c(
-                  "p",
-                  [
-                    _c("barcode", {
-                      key: "1",
-                      attrs: { value: _vm.sevenCodes[0], options: _vm.options }
-                    })
-                  ],
-                  1
-                ),
-                _vm._v(" "),
-                _c(
-                  "p",
-                  [
-                    _c("barcode", {
-                      key: "2",
-                      attrs: { value: _vm.sevenCodes[1], options: _vm.options }
-                    })
-                  ],
-                  1
-                ),
-                _vm._v(" "),
-                _c(
-                  "p",
-                  [
-                    _c("barcode", {
-                      key: "3",
-                      attrs: { value: _vm.sevenCodes[2], options: _vm.options }
-                    })
-                  ],
-                  1
-                )
-              ]),
+      _vm.bill && !_vm.payed
+        ? _c("div", { staticClass: "row" }, [
+            _vm.sevenCodes.length
+              ? _c("div", { staticClass: "col-sm-6" }, [
+                  _c("h4", [_vm._v("超商專用條碼")]),
+                  _vm._v(" "),
+                  _c(
+                    "p",
+                    [
+                      _c("barcode", {
+                        key: "1",
+                        attrs: {
+                          value: _vm.sevenCodes[0],
+                          options: _vm.options
+                        }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "p",
+                    [
+                      _c("barcode", {
+                        key: "2",
+                        attrs: {
+                          value: _vm.sevenCodes[1],
+                          options: _vm.options
+                        }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "p",
+                    [
+                      _c("barcode", {
+                        key: "3",
+                        attrs: {
+                          value: _vm.sevenCodes[2],
+                          options: _vm.options
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ])
+              : _vm._e(),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-6" }, [
+              _c("h4", [_vm._v(_vm._s(_vm.title))]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-sm-6" }, [
-                _c("h4", [_vm._v(_vm._s(_vm.title))]),
-                _vm._v(" "),
-                _c(
-                  "table",
-                  {
-                    staticClass: "table table-bordered",
-                    staticStyle: { width: "90%" }
-                  },
-                  [
-                    _vm._m(2),
-                    _vm._v(" "),
-                    _c("tbody", [
-                      _c("tr", [
-                        _c("td", [
-                          _vm._v(
-                            "\n                                " +
-                              _vm._s(_vm.signup.date) +
-                              "\n                            "
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("td", [
-                          _vm._v(
-                            "\n                                " +
-                              _vm._s(_vm._f("formatMoney")(_vm.signup.amount)) +
-                              " \n                            "
-                          )
-                        ])
+              _c(
+                "table",
+                {
+                  staticClass: "table table-bordered",
+                  staticStyle: { width: "90%" }
+                },
+                [
+                  _vm._m(1),
+                  _vm._v(" "),
+                  _c("tbody", [
+                    _c("tr", [
+                      _c("td", [
+                        _vm._v(
+                          "\n                                " +
+                            _vm._s(_vm.signup.date) +
+                            "\n                            "
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          "\n                                " +
+                            _vm._s(_vm._f("formatMoney")(_vm.signup.amount)) +
+                            " \n                            "
+                        )
                       ])
                     ])
-                  ]
-                )
-              ])
-            ]
-          )
+                  ])
+                ]
+              )
+            ])
+          ])
         : _vm._e(),
       _vm._v(" "),
       _c("div", { staticClass: "row" }, [
@@ -115213,22 +115331,6 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "panel-heading" }, [
       _c("h4", [_vm._v("報名課程")])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", { staticStyle: { "font-size": "15px" } }, [
-        _c("th", [_vm._v("課程編號")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("課程名稱")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("課程費用")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("教材費用")])
-      ])
     ])
   },
   function() {
@@ -117280,6 +117382,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     methods: {
         getDetails: function getDetails(quit) {
+            if (quit.tranId) return '';
+
             var withNumber = true;
             var html = '';
             quit.details.forEach(function (item) {
@@ -117358,17 +117462,19 @@ var render = function() {
           ])
         ]),
         _vm._v(" "),
-        _c("div", { staticClass: "show-data" }, [
-          _c("div", { staticClass: "row" }, [
-            _c("div", { staticClass: "col-sm-12" }, [
-              _c("label", { staticClass: "label-title" }, [_vm._v("明細")]),
-              _vm._v(" "),
-              _c("p", {
-                domProps: { innerHTML: _vm._s(_vm.getDetails(_vm.quit)) }
-              })
+        !_vm.quit.tranId
+          ? _c("div", { staticClass: "show-data" }, [
+              _c("div", { staticClass: "row" }, [
+                _c("div", { staticClass: "col-sm-12" }, [
+                  _c("label", { staticClass: "label-title" }, [_vm._v("明細")]),
+                  _vm._v(" "),
+                  _c("p", {
+                    domProps: { innerHTML: _vm._s(_vm.getDetails(_vm.quit)) }
+                  })
+                ])
+              ])
             ])
-          ])
-        ]),
+          : _vm._e(),
         _vm._v(" "),
         _c("div", { staticClass: "show-data" }, [
           _c("div", { staticClass: "row" }, [
@@ -118584,6 +118690,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
 
 
 
@@ -119029,6 +119136,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return this.quits;
         },
         getDetails: function getDetails(quit) {
+            if (quit.tranId) return '';
 
             var html = '';
             quit.details.forEach(function (item) {
@@ -119700,8 +119808,25 @@ module.exports = Component.exports
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_tran_table__ = __webpack_require__(617);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_tran_table___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_tran_table__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_tran_quit_edit__ = __webpack_require__(911);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_tran_quit_edit___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__components_tran_quit_edit__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -119759,7 +119884,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'TranIndexView',
     components: {
-        'tran-table': __WEBPACK_IMPORTED_MODULE_0__components_tran_table___default.a
+        'tran-table': __WEBPACK_IMPORTED_MODULE_0__components_tran_table___default.a,
+        'quit-edit': __WEBPACK_IMPORTED_MODULE_1__components_tran_quit_edit___default.a
     },
     props: {
         init_model: {
@@ -119805,7 +119931,12 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 pageSize: 999
             },
 
-            checkedIds: []
+            checkedIds: [],
+
+            quitEdit: {
+                show: false,
+                tran: null
+            }
         };
     },
 
@@ -119868,6 +119999,16 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             }).catch(function (error) {
                 Helper.BusEmitError(error);
             });
+        },
+        editQuit: function editQuit(tran) {
+            this.quitEdit.tran = tran;
+            this.quitEdit.show = true;
+        },
+        onQuitSaved: function onQuitSaved() {
+            this.quitEdit.show = false;
+            this.quitEdit.tran = null;
+
+            this.fetchData();
         }
     }
 });
@@ -119925,6 +120066,15 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -120068,8 +120218,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         isTrue: function isTrue(val) {
             return Helper.isTrue(val);
         },
-        quit: function quit(tran) {
-            this.$emit('quit', tran.id);
+        editQuit: function editQuit(tran) {
+            this.$emit('edit-quit', tran);
         }
     }
 });
@@ -120135,10 +120285,25 @@ var render = function() {
                 tran.amountMustBack
                   ? _c("td", [
                       _vm._v(
-                        "\n                        " +
+                        "\n                       \n                      \n                            " +
                           _vm._s(_vm._f("formatMoney")(tran.amountMustBack)) +
-                          " \n                    "
-                      )
+                          " \n\n                             \n                            "
+                      ),
+                      !tran.quit
+                        ? _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-primary btn-xs",
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  _vm.editQuit(tran)
+                                }
+                              }
+                            },
+                            [_c("i", { staticClass: "fa fa-edit" })]
+                          )
+                        : _vm._e()
                     ])
                   : _c("td"),
                 _vm._v(" "),
@@ -120263,34 +120428,103 @@ var render = function() {
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _c("tran-table", { attrs: { model: _vm.model } }, [
-            _c(
-              "div",
-              {
-                directives: [
-                  {
-                    name: "show",
-                    rawName: "v-show",
-                    value: _vm.model.totalItems > 0,
-                    expression: "model.totalItems > 0"
-                  }
+          _c(
+            "tran-table",
+            { attrs: { model: _vm.model }, on: { "edit-quit": _vm.editQuit } },
+            [
+              _c(
+                "div",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.model.totalItems > 0,
+                      expression: "model.totalItems > 0"
+                    }
+                  ],
+                  staticClass: "panel-footer pagination-footer",
+                  attrs: { slot: "table-footer" },
+                  slot: "table-footer"
+                },
+                [
+                  _c("page-controll", {
+                    attrs: { model: _vm.model },
+                    on: {
+                      "page-changed": _vm.onPageChanged,
+                      "pagesize-changed": _vm.onPageSizeChanged
+                    }
+                  })
                 ],
-                staticClass: "panel-footer pagination-footer",
-                attrs: { slot: "table-footer" },
-                slot: "table-footer"
+                1
+              )
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "modal",
+            {
+              attrs: {
+                showbtn: false,
+                show: _vm.quitEdit.show,
+                effect: "fade",
+                width: 1200
               },
-              [
-                _c("page-controll", {
-                  attrs: { model: _vm.model },
-                  on: {
-                    "page-changed": _vm.onPageChanged,
-                    "pagesize-changed": _vm.onPageSizeChanged
-                  }
-                })
-              ],
-              1
-            )
-          ])
+              on: {
+                "update:show": function($event) {
+                  _vm.$set(_vm.quitEdit, "show", $event)
+                },
+                closed: function($event) {
+                  _vm.quitEdit.show = false
+                }
+              }
+            },
+            [
+              _c(
+                "div",
+                {
+                  staticClass: "modal-header modal-header-danger",
+                  attrs: { slot: "modal-header" },
+                  slot: "modal-header"
+                },
+                [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "close",
+                      attrs: { id: "close-button", type: "button" },
+                      on: {
+                        click: function($event) {
+                          _vm.quitEdit.show = false
+                        }
+                      }
+                    },
+                    [_vm._v("\n                        x\n                ")]
+                  ),
+                  _vm._v(" "),
+                  _c("h3", [_vm._v(" 轉班退費 ")])
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticClass: "modal-body",
+                  attrs: { slot: "modal-body" },
+                  slot: "modal-body"
+                },
+                [
+                  _vm.quitEdit.show
+                    ? _c("quit-edit", {
+                        attrs: { tran: _vm.quitEdit.tran },
+                        on: { saved: _vm.onQuitSaved }
+                      })
+                    : _vm._e()
+                ],
+                1
+              )
+            ]
+          )
         ],
         1
       )
@@ -129574,6 +129808,835 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 697 */,
+/* 698 */,
+/* 699 */,
+/* 700 */,
+/* 701 */,
+/* 702 */,
+/* 703 */,
+/* 704 */,
+/* 705 */,
+/* 706 */,
+/* 707 */,
+/* 708 */,
+/* 709 */,
+/* 710 */,
+/* 711 */,
+/* 712 */,
+/* 713 */,
+/* 714 */,
+/* 715 */,
+/* 716 */,
+/* 717 */,
+/* 718 */,
+/* 719 */,
+/* 720 */,
+/* 721 */,
+/* 722 */,
+/* 723 */,
+/* 724 */,
+/* 725 */,
+/* 726 */,
+/* 727 */,
+/* 728 */,
+/* 729 */,
+/* 730 */,
+/* 731 */,
+/* 732 */,
+/* 733 */,
+/* 734 */,
+/* 735 */,
+/* 736 */,
+/* 737 */,
+/* 738 */,
+/* 739 */,
+/* 740 */,
+/* 741 */,
+/* 742 */,
+/* 743 */,
+/* 744 */,
+/* 745 */,
+/* 746 */,
+/* 747 */,
+/* 748 */,
+/* 749 */,
+/* 750 */,
+/* 751 */,
+/* 752 */,
+/* 753 */,
+/* 754 */,
+/* 755 */,
+/* 756 */,
+/* 757 */,
+/* 758 */,
+/* 759 */,
+/* 760 */,
+/* 761 */,
+/* 762 */,
+/* 763 */,
+/* 764 */,
+/* 765 */,
+/* 766 */,
+/* 767 */,
+/* 768 */,
+/* 769 */,
+/* 770 */,
+/* 771 */,
+/* 772 */,
+/* 773 */,
+/* 774 */,
+/* 775 */,
+/* 776 */,
+/* 777 */,
+/* 778 */,
+/* 779 */,
+/* 780 */,
+/* 781 */,
+/* 782 */,
+/* 783 */,
+/* 784 */,
+/* 785 */,
+/* 786 */,
+/* 787 */,
+/* 788 */,
+/* 789 */,
+/* 790 */,
+/* 791 */,
+/* 792 */,
+/* 793 */,
+/* 794 */,
+/* 795 */,
+/* 796 */,
+/* 797 */,
+/* 798 */,
+/* 799 */,
+/* 800 */,
+/* 801 */,
+/* 802 */,
+/* 803 */,
+/* 804 */,
+/* 805 */,
+/* 806 */,
+/* 807 */,
+/* 808 */,
+/* 809 */,
+/* 810 */,
+/* 811 */,
+/* 812 */,
+/* 813 */,
+/* 814 */,
+/* 815 */,
+/* 816 */,
+/* 817 */,
+/* 818 */,
+/* 819 */,
+/* 820 */,
+/* 821 */,
+/* 822 */,
+/* 823 */,
+/* 824 */,
+/* 825 */,
+/* 826 */,
+/* 827 */,
+/* 828 */,
+/* 829 */,
+/* 830 */,
+/* 831 */,
+/* 832 */,
+/* 833 */,
+/* 834 */,
+/* 835 */,
+/* 836 */,
+/* 837 */,
+/* 838 */,
+/* 839 */,
+/* 840 */,
+/* 841 */,
+/* 842 */,
+/* 843 */,
+/* 844 */,
+/* 845 */,
+/* 846 */,
+/* 847 */,
+/* 848 */,
+/* 849 */,
+/* 850 */,
+/* 851 */,
+/* 852 */,
+/* 853 */,
+/* 854 */,
+/* 855 */,
+/* 856 */,
+/* 857 */,
+/* 858 */,
+/* 859 */,
+/* 860 */,
+/* 861 */,
+/* 862 */,
+/* 863 */,
+/* 864 */,
+/* 865 */,
+/* 866 */,
+/* 867 */,
+/* 868 */,
+/* 869 */,
+/* 870 */,
+/* 871 */,
+/* 872 */,
+/* 873 */,
+/* 874 */,
+/* 875 */,
+/* 876 */,
+/* 877 */,
+/* 878 */,
+/* 879 */,
+/* 880 */,
+/* 881 */,
+/* 882 */,
+/* 883 */,
+/* 884 */,
+/* 885 */,
+/* 886 */,
+/* 887 */,
+/* 888 */,
+/* 889 */,
+/* 890 */,
+/* 891 */,
+/* 892 */,
+/* 893 */,
+/* 894 */,
+/* 895 */,
+/* 896 */,
+/* 897 */,
+/* 898 */,
+/* 899 */,
+/* 900 */,
+/* 901 */,
+/* 902 */,
+/* 903 */,
+/* 904 */,
+/* 905 */,
+/* 906 */,
+/* 907 */,
+/* 908 */,
+/* 909 */,
+/* 910 */,
+/* 911 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(912)
+/* template */
+var __vue_template__ = __webpack_require__(913)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\tran\\quit-edit.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-15f02aee", Component.options)
+  } else {
+    hotAPI.reload("data-v-15f02aee", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 912 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'EditQuit',
+    props: {
+        tran: {
+            type: Object,
+            default: null
+        }
+    },
+    data: function data() {
+        return {
+
+            form: null,
+
+            //quitDetails:[],
+
+            payway: null,
+
+            submitting: false
+
+        };
+    },
+
+    computed: {},
+    beforeMount: function beforeMount() {
+        this.init();
+    },
+
+    methods: {
+        init: function init() {
+            var _this = this;
+
+            var params = {
+                tran: this.tran.id
+            };
+            var fetchData = Tran.createQuit(params);
+
+            fetchData.then(function (data) {
+                _this.form = new Form({
+                    quit: _extends({}, data.quit),
+                    details: []
+                });
+                //this.quitDetails=data.details.slice(0);
+
+                _this.payway = _extends({}, data.payway);
+            }).catch(function (error) {
+
+                Helper.BusEmitError(error);
+            });
+        },
+        cancel: function cancel() {
+            this.$emit('cancel');
+        },
+        onSubmit: function onSubmit() {
+
+            this.submitQuit();
+        },
+        submitQuit: function submitQuit() {
+            var _this2 = this;
+
+            var save = Tran.storeQuit(this.form);
+
+            save.then(function () {
+                _this2.submitting = false;
+                _this2.$emit('saved');
+                Helper.BusEmitOK('資料已存檔');
+            }).catch(function (error) {
+                _this2.submitting = false;
+                Helper.BusEmitError(error, '存檔失敗');
+            });
+        },
+        clearErrorMsg: function clearErrorMsg(name) {
+            this.form.errors.clear(name);
+        }
+    }
+});
+
+/***/ }),
+/* 913 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.form
+    ? _c(
+        "form",
+        {
+          staticClass: "form",
+          on: {
+            submit: function($event) {
+              $event.preventDefault()
+              return _vm.onSubmit($event)
+            },
+            keydown: function($event) {
+              _vm.clearErrorMsg($event.target.name)
+            }
+          }
+        },
+        [
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("日期")]),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "quit.date", readonly: "" },
+                  domProps: { value: _vm.form.quit.date }
+                })
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("退款方式")]),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "quit.date", readonly: "" },
+                  domProps: { value: _vm.payway.name }
+                })
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("退還學費")]),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "quit.date", readonly: "" },
+                  domProps: { value: _vm.form.quit.tuitions }
+                })
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("銀行名稱")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.quit.account_bank,
+                      expression: "form.quit.account_bank"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "quit.account_bank" },
+                  domProps: { value: _vm.form.quit.account_bank },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.form.quit,
+                        "account_bank",
+                        $event.target.value
+                      )
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm.form.errors.has("quit.account_bank")
+                  ? _c("small", {
+                      staticClass: "text-danger",
+                      domProps: {
+                        textContent: _vm._s(
+                          _vm.form.errors.get("quit.account_bank")
+                        )
+                      }
+                    })
+                  : _vm._e()
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("分行")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.quit.account_branch,
+                      expression: "form.quit.account_branch"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "quit.account_branch" },
+                  domProps: { value: _vm.form.quit.account_branch },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.form.quit,
+                        "account_branch",
+                        $event.target.value
+                      )
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm.form.errors.has("quit.account_branch")
+                  ? _c("small", {
+                      staticClass: "text-danger",
+                      domProps: {
+                        textContent: _vm._s(
+                          _vm.form.errors.get("quit.account_branch")
+                        )
+                      }
+                    })
+                  : _vm._e()
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("戶名")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.quit.account_owner,
+                      expression: "form.quit.account_owner"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "quit.account_owner" },
+                  domProps: { value: _vm.form.quit.account_owner },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.form.quit,
+                        "account_owner",
+                        $event.target.value
+                      )
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm.form.errors.has("quit.account_owner")
+                  ? _c("small", {
+                      staticClass: "text-danger",
+                      domProps: {
+                        textContent: _vm._s(
+                          _vm.form.errors.get("quit.account_owner")
+                        )
+                      }
+                    })
+                  : _vm._e()
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("銀行帳號")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.quit.account_number,
+                      expression: "form.quit.account_number"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "quit.account_number" },
+                  domProps: { value: _vm.form.quit.account_number },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.form.quit,
+                        "account_number",
+                        $event.target.value
+                      )
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm.form.errors.has("quit.account_number")
+                  ? _c("small", {
+                      staticClass: "text-danger",
+                      domProps: {
+                        textContent: _vm._s(
+                          _vm.form.errors.get("quit.account_number")
+                        )
+                      }
+                    })
+                  : _vm._e()
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "row" }, [
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("金資代碼")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.quit.account_code,
+                      expression: "form.quit.account_code"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "quit.account_code" },
+                  domProps: { value: _vm.form.quit.account_code },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.form.quit,
+                        "account_code",
+                        $event.target.value
+                      )
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm.form.errors.has("quit.account_code")
+                  ? _c("small", {
+                      staticClass: "text-danger",
+                      domProps: {
+                        textContent: _vm._s(
+                          _vm.form.errors.get("quit.account_code")
+                        )
+                      }
+                    })
+                  : _vm._e()
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-9" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("備註")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.quit.ps,
+                      expression: "form.quit.ps"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "quit.ps" },
+                  domProps: { value: _vm.form.quit.ps },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.form.quit, "ps", $event.target.value)
+                    }
+                  }
+                })
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _vm.submitting
+            ? _c("div", { staticClass: "row" }, [_vm._m(0)])
+            : _c("div", { staticClass: "row" }, [
+                _c("div", { staticClass: "col-sm-12" }, [
+                  _c("div", { staticClass: "form-group" }, [
+                    _vm._m(1),
+                    _vm._v(
+                      " \n                   \n                         \n                    "
+                    ),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-default",
+                        attrs: { type: "button" },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.cancel($event)
+                          }
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                        取消\n                    "
+                        )
+                      ]
+                    )
+                  ])
+                ])
+              ])
+        ]
+      )
+    : _vm._e()
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-sm-4" }, [
+      _c("div", { staticClass: "form-group" }, [
+        _c("button", { staticClass: "btn btn-default" }, [
+          _c("i", { staticClass: "fa fa-spinner fa-spin" }),
+          _vm._v(" \n                        處理中\n                    ")
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      { staticClass: "btn btn-success", attrs: { type: "submit" } },
+      [
+        _c("i", { staticClass: "fa fa-save" }),
+        _vm._v("\n                        確認存檔\n                    ")
+      ]
+    )
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-15f02aee", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

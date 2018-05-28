@@ -19,8 +19,8 @@ class CreateQuitDetailsTable extends Migration
             $table->integer('quitId')->unsigned();
             $table->foreign('quitId')->references('id')->on('quits')->onDelete('cascade');
 
-            $table->integer('signupDetailId')->unsigned();
-            $table->integer('percents')->unsigned();
+            $table->integer('signupDetailId')->unsigned()->nullable();
+            $table->integer('percents')->unsigned()->nullable();
             $table->decimal('tuition', 8, 2)->default(0); 
 
            

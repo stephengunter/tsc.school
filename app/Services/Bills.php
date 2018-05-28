@@ -24,7 +24,7 @@ class Bills
     public function __construct(ESuns $ESuns)
     {
         $this->ESuns=$ESuns;
-        $this->with=['signup','pays'];
+        $this->with=['signup','payway'];
 
     }
    
@@ -47,45 +47,28 @@ class Bills
         return $this->getAll()->where('code',$code)->first();
     }
 
-    public function unPayBill($id)
-    {
-        $bill=$this->getById($id);
+    
 
-        $bill->payed=false;
-        $bill->payDate=null;
-        $bill->paywayId=null;
-
-        DB::transaction(function() use($bill) {
-            $bill->save();
-
-            $signup=$bill->signup;
-            $signup->status = 0;
-           
-            $signup->save();
-          
-        });
-
-        event(new SignupUnPayed($bill->signup));
-    }
-
-    function payBill(Bill $bill,Payway $payway, $amount , $date='')
+    function payBill(Bill $bill,Payway $payway, $date='')
     {
         if(!$date) $date=Carbon::now();
 
-        $pay=new Pay([
-            'amount' => $amount,
+        $bill->update([
+            'payed' => true,
             'paywayId' => $payway->id,
-            'date' => $date
+            'payDate' => $date
         ]);
 
-        $bill->pays()->save($pay);
+        
 
-        $signup=$bill->signup;
+        $signup=Signup::find($bill->signupId);
+
+      
         $signup->updateStatus();
-
+        
         if($signup->status==1)
         {
-            event(new SignupPayed($bill->signup));
+            event(new SignupPayed($signup));
         }
         
         return $bill;
@@ -93,25 +76,23 @@ class Bills
     }
 
    
-    public function payBillByCode(Payway $payway, $code, $amount , $date='')
+    public function payBillByCode(Payway $payway, $code, $date='')
     {
         $bill = $this->getBillByCode($code);
       
-        return $this->payBill($bill,$payway,$amount , $date);
+        return $this->payBill($bill,$payway, $date);
     }
     
-    public function payBillById(int $id, Payway $payway, $amount, $date='')
+    public function payBillById(int $id, Payway $payway, $date='')
     {
         $bill = $this->getById($id);
-        return $this->payBill($bill,$payway,$amount , $date);
+        return $this->payBill($bill,$payway,$date);
         
     }
 
     public function initBill()
     {
         return new Bill([
-           
-            'payed' => false,
            
         ]);
         
@@ -135,9 +116,10 @@ class Bills
 
     public function createBillCode(Signup $signup)
     {
-      
-        $bill=$signup->bill;
-        $this->setBillCode($bill);
+        
+        $bill=$signup->unPayedBills()->first();
+        $code=$this->setBillCode($bill);
+        return $code;
     }
 
     function setBillCode(Bill $bill)
@@ -171,6 +153,8 @@ class Bills
             'deadLine' => $deadLineDate,
             'sevenCodes' => implode(',', $sevenCodes)
         ]);
+
+        return $bill->code;
     }
 
     

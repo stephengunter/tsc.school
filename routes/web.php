@@ -6,9 +6,8 @@ Auth::routes();
 
 Route::get('/test', function(){
    
-    $tran= \App\Tran::first();
-    $signup=$tran->getSignup();
-    dd($signup->bill->getAmountShorted());
+    $signup=\App\Signup::find(51);
+    dd($signup->getPayDate());
 });
 
 
@@ -160,7 +159,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/signups', 'SignupsController');
     Route::post('/manage/signups/updatePS', 'SignupsController@updatePS');
 
-    Route::get('/manage/bills/{id}/print', 'BillsController@print');
+    Route::get('/manage/signups/{id}/print-bill', 'SignupsController@printBill');
 
     Route::resource('/manage/pays', 'PaysController');
 
@@ -169,6 +168,8 @@ Route::group(['middleware' => 'admin'], function()
 
    
     Route::get('/manage/trans/courses', 'TransController@fetchCourses');
+    Route::get('/manage/trans/create-quit', 'TransController@createQuit');
+    Route::post('/manage/trans/store-quit', 'TransController@storeQuit');
     Route::resource('/manage/trans', 'TransController');
 
     Route::resource('/manage/notices', 'NoticesController');

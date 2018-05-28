@@ -34,6 +34,7 @@ class CreateQuitsTable extends Migration
 
             $table->boolean('special')->default(false); //有特殊原因
             $table->boolean('auto')->default(false); //系統自動產生的
+            $table->integer('tranId')->unsigned()->nullable();
             
             $table->string('ps')->nullable();
             $table->integer('updatedBy')->unsigned()->nullable();

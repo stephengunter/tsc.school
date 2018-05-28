@@ -16,7 +16,7 @@ class Quit extends Model
 		'paywayId' , 'status',
 		'account_bank','account_branch','account_owner',
 		'account_number','account_code',
-		
+		'tranId',
         'ps', 'updatedBy'
     ];
                           
@@ -110,6 +110,7 @@ class Quit extends Model
 
 	public function getReasonText()
 	{
+		if($this->tranId) return '轉班退差額';
 		if($this->auto) return '課程停開';
 		if($this->special) return '學員有特殊原因須退出';
 		return '';

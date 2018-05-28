@@ -108,6 +108,7 @@ class SignupsController extends Controller
         $updatedBy=$this->currentUserId();
        
         $userList = \App\User::all();
+        
         for ($i = 0; $i < 50; $i++)
         {
             $user = $userList[$i];
@@ -168,7 +169,7 @@ class SignupsController extends Controller
            
             if($userCanAddDetailSignup){
                 $userCanAddDetailSignup->identity_ids=join(',', $identityIds);
-                $userCanAddDetailSignup->net=false;
+                $userCanAddDetailSignup->net=$net;
                 $userCanAddDetailSignup->updatedBy=$updatedBy;
 
                 $this->signups->updateSignup($userCanAddDetailSignup,$signupDetails);
@@ -176,7 +177,7 @@ class SignupsController extends Controller
                 $signup=new Signup(Signup::init());
                 $signup->userId=$user->id;
                 $signup->identity_ids=join(',', $identityIds);
-                $signup->net=false;
+                $signup->net=$net;
                 $signup->updatedBy=$updatedBy;
             
                 $signup=$this->signups->createSignup($signup,$signupDetails,$user,$lotus);
@@ -789,6 +790,19 @@ class SignupsController extends Controller
 
         return response() ->json();
 
+
+    }
+
+    public function printBill($id)
+    {
+        $signup = $this->signups->getById($id);
+        if(!$signup) abort(404);
+
+        if($signup->payed) about(404);
+
+        $this->bills->createBillCode($signup);
+
+        return response()->json();
 
     }
    

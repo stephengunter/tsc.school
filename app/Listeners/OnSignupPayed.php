@@ -32,11 +32,13 @@ class OnSignupPayed
         
         $signup=$event->signup;
 
-        $joinDate=$signup->bill->payDate;
+        $joinDate=$signup->getPayDate();
       
         foreach($signup->details as $detail){
+            if(!$detail->canceled){
+                $this->students->createStudent($detail->courseId, $signup->userId, $joinDate);
+            }
             
-            $this->students->createStudent($detail->courseId, $signup->userId, $joinDate);
         }
 
         

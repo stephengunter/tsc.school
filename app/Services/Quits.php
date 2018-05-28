@@ -218,6 +218,48 @@ class Quits
         }
     }
 
+    public function  initQuitAccountValues(array $quitValues , User $user)
+    {
+        $userAccount=$user->getAccount();
+        if($userAccount){
+            $quitValues['account_bank'] = $userAccount->bank;
+            $quitValues['account_branch'] = $userAccount->branch;
+            $quitValues['account_owner'] = $userAccount->owner;
+            $quitValues['account_number'] = $userAccount->number;
+            $quitValues['account_code'] = $userAccount->code;
+
+            return $quitValues;
+        }
+
+        $quit=$this->getByUser($user)->orderBy('date','desc')->first();
+
+        if($quit){
+          
+            $quitValues['account_bank'] = $quit['account_bank'];
+            $quitValues['account_branch'] = $quit['account_branch'];
+            $quitValues['account_owner'] = $quit['account_owner'];
+            $quitValues['account_number'] = $quit['account_number'];
+            $quitValues['account_code'] = $quit['account_code'];
+        } 
+
+        return $quitValues;
+    }
+
+    public function validateQuitInputs(array $values,Payway $payway)
+    {
+        $errors=[];
+       
+        if($payway->needAccount()){
+            if(!$values['account_bank'])  $errors['quit.account_bank'] = ['必須填寫銀行名稱'];
+            if(!$values['account_branch'])  $errors['quit.account_branch'] = ['必須填寫分行'];
+            if(!$values['account_owner'])  $errors['quit.account_owner'] = ['必須填寫戶名'];
+            if(!$values['account_number'])  $errors['quit.account_number'] = ['必須填寫銀行帳號'];
+            if(!$values['account_code'])  $errors['quit.account_code'] = ['必須填寫金資代碼'];
+        }
+
+        return $errors;
+    }
+
     public function createQuit(Signup $signup,Quit $quit, array $quitDetails)
     {
        
@@ -226,8 +268,10 @@ class Quits
             $signup->quits()->save($quit);
            
             $quit->details()->saveMany($quitDetails);
-
+           
             $quit=Quit::find($quit->id);
+
+           
 
             $quit->updateMoney();
 
@@ -235,7 +279,8 @@ class Quits
             $signup->updateStatus();
             
             return $quit;
-		});
+        });
+       
         
         $this->setStudentsQuit($quit);
 

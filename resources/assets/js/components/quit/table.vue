@@ -135,6 +135,7 @@ export default {
 			return this.quits;
         },
         getDetails(quit){
+            if(quit.tranId) return '';
           
             let html='';
             quit.details.forEach(item=>{

@@ -86,7 +86,7 @@ class Menus
                         'active' => $current =='manage/signups'
                     ],
                     [
-                        'text' => '報名統計',
+                        'text' => '學員統計',
                         'path' => '/manage/signups/report',
                         'active' => $current=='manage/signups/report'
                     ],

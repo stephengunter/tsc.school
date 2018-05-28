@@ -60,8 +60,10 @@ class StudentsController extends Controller
 
     function canTrans($student)
     {
+      
         if($student->hasQuit()) return false;
         if($student->tran_id_from) return false;
+        
         return $this->canEdit($student);
         
 

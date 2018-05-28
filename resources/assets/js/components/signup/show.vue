@@ -37,7 +37,7 @@
                             <th>課程編號</th> 
                             <th>課程名稱</th> 
                             <th>課程費用</th>
-                            <th>教材費用</th>
+                            <th v-if="false">教材費用</th>
                             <th>備註</th>
                         </tr>
                     </thead>
@@ -46,7 +46,7 @@
                             <td>{{ item.course.number }} </td>
                             <td>{{ item.course.fullName }} </td>
                             <td>{{  item.tuition | formatMoney }}   </td>
-                            <td>{{  item.cost | formatMoney}}   </td>    
+                            <td v-if="false">{{  item.cost | formatMoney}}   </td>    
                             <td>{{ item.ps }}</td>
                         </tr>
                     </tbody>
@@ -69,7 +69,7 @@
                     {{ signup.amount | formatMoney }} 
                 </p>                   
             </div>
-            <div class="col-sm-6" v-if="hasPayRecords">
+            <div class="col-sm-6" v-if="payRecords.length > 0">
                 <label class="label-title">付款紀錄</label>
                 <p>
                     <table class="table table-striped">
@@ -81,8 +81,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(item,index) in signup.bill.pays" :key="index">
-                                <td>{{ item.date }} </td>
+                            <tr v-for="(item,index) in payRecords" :key="index">
+                                <td>{{ item.payDate }} </td>
                                 <td>{{ item.amount  | formatMoney }} </td>
                                 <td>{{ item.payway.name   }} </td>
                                
@@ -157,9 +157,10 @@
                 if(!this.signup.reviewedBy) return false;
                 return true;
             },
-            hasPayRecords(){
-                return Signup.hasPayRecords(this.signup);
-            }
+            payRecords(){
+                if(!this.signup) return [];
+                return Signup.payRecords(this.signup);
+            },
         }, 
         methods: { 
             editReview(){

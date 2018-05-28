@@ -186,6 +186,21 @@ class Signup {
 
         })
     }
+
+    static initPrint(id){
+        let url =`${this.source()}/${id}/print-bill`;
+
+        return new Promise((resolve, reject) => {
+            axios.get(url)
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+
+        })
+    }
     
     static print(canvas){
         
@@ -265,10 +280,15 @@ class Signup {
         return parseInt(signup.status) < 0;
     }
 
+    static payRecords(signup){
+        return signup.bills.filter((item) => {
+            return Helper.isTrue(item.payed);
+        });
+    }
+
     static hasPayRecords(signup){
-        if(!signup.bill) return false;
-        if(!signup.bill.pays) return false;
-        return signup.bill.pays.length > 0;
+        let payRecords=this.payRecords(Signup);
+        return payRecords.length > 0;
     }
  
     

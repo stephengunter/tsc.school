@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Bill;
 use App\Tran;
 use App\Discount;
 
@@ -13,6 +14,7 @@ class Signup extends Model
     protected $fillable = [  
                             'userId', 'net', 'points', 'discount' ,'discountId' ,
                             'tuitions', 'costs', 'status','identity_ids',
+                            'payed',
                             'updatedBy', 'removed','ps'
                           ];
                           
@@ -39,6 +41,16 @@ class Signup extends Model
 	{
 		return $this->hasMany('App\SignupDetail','signupId');
     }
+    public function bills() 
+	{
+		return $this->hasMany('App\Bill','signupId');
+    }
+
+    public function unPayedBills()
+    {
+        return $this->bills()->where('payed',false);
+    }
+    
     
     public function amount()
 	{
@@ -46,6 +58,52 @@ class Signup extends Model
         
         return $total;
 
+    }
+
+    public function initBill($amount=0)
+    {
+        if($this->payed) return;
+
+        if(!$amount) $amount= $this->getAmountShorted();
+        if($amount <= 0) return;
+
+        $existBill = $this->unPayedBills()->first();
+        if($existBill){
+            $existBill->update([
+                'amount' => $amount,
+            ]);
+            return;
+        } 
+        
+        
+
+        $bill=new Bill([
+            'amount' => $amount,
+            'payed' => false
+        ]);
+        $this->bills()->save($bill);
+    }
+
+    public function getPayDate()
+    {
+        return $this->bills()->orderBy('payDate','desc')->first()->payDate;
+    }
+
+    public function getAmountShorted()
+    {
+        $amount=$this->amount();
+        $moneyPayed=$this->getPaysTotalMoney();
+        return $amount - $moneyPayed;
+    }
+
+    public function getPaysTotalMoney()
+    {
+        $total=0;
+        foreach($this->bills as $bill){
+            if($bill->payed) $total += $bill->amount;
+        }
+
+        return $total;
     }
     
     public function getCenter()
@@ -82,10 +140,7 @@ class Signup extends Model
 		return $this->hasOne('App\User', 'id' ,'userId');
     }
     
-    public function bill() 
-	{
-		return $this->hasOne(Bill::class,'signupId');
-    }
+    
     public function quits() 
 	{
 		return $this->hasMany(Quit::class,'signupId');
@@ -95,7 +150,7 @@ class Signup extends Model
 
     public function  canDelete()
     {
-        if(!$this->canAddDetail()) return false;
+        if($this->payed) return false;
         if(count($this->quits)) return false;
 
         return true;
@@ -105,8 +160,6 @@ class Signup extends Model
     {
        
         if($this->hasCanceled()) return false;
-        if($this->bill->code) return false;
-        if($this->bill->getPaysTotalMoney() > 0) return false;
 
         return true;
     }
@@ -144,17 +197,26 @@ class Signup extends Model
         }
         
         $this->updateMoney();
-
-        $this->bill->updateStatus();
       
         
         $validDetail=$this->details()->where('canceled',false)->first();
 
         if($validDetail){
-            if($this->bill->payed) $this->status=1;
-            else $this->status=0;
+            $amountShorted=$this->getAmountShorted();
+
+            if($amountShorted > 0){
+                $this->payed=false;
+                $this->status=0;
+
+                $this->initBill($amountShorted);
+            }
+            else{
+                $this->payed=true;
+                $this->status=1;
+            }  
 
         }else{
+            //所有報名課程已取消
             $this->status=-1;
         } 
 
@@ -207,7 +269,7 @@ class Signup extends Model
 
     public function hasPayed()
     {
-        return $this->bill->payed;
+        return $this->payed;
     }
     
     public function getTranRecords()
@@ -233,7 +295,12 @@ class Signup extends Model
             $quit->loadViewModel();
         } 
 
-        $this->bill->loadViewModel();
+        foreach($this->bills as $bill){
+            $bill->loadViewModel();
+        } 
+
+        $this->amountPayed = $this->getPaysTotalMoney();
+        $this->amountShorted = $this->getAmountShorted();
 
 
         

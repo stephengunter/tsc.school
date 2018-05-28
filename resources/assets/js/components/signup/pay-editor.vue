@@ -12,7 +12,7 @@
                 <div class="form-group">
                     <label class="col-md-2 control-label">日期</label>
                     <div class="col-md-4">
-                       <datetime-picker :date="form.date" :can_clear="false" @selected="setDate"></datetime-picker>
+                       <datetime-picker :date="form.payDate" :can_clear="false" @selected="setDate"></datetime-picker>
                 
                     </div>
                    
@@ -102,6 +102,8 @@
                 let fetchData=Pay.create(this.signup.id);
                 fetchData.then(data => {
                     this.form = new Form({...data });
+
+                    this.form.amount=Helper.formatMoney(data.amount);
                     
                     this.form.paywayId=this.payways[0].value
 				})
@@ -113,8 +115,8 @@
             },
             setDate(val){
                 if(!this.form) return;
-                if(!this.form.quit) return;
-                this.form.quit.date=val;
+               
+                this.form.payDate=val;
             },
             cancel(){
                 this.$emit('close');

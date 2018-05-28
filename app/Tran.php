@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use App\Course;
+use App\Quit;
 
 class Tran extends Model
 {
@@ -54,10 +55,24 @@ class Tran extends Model
 	{
 		return $this->course->center;
 	}
+	public function getQuit()
+	{
+		return Quit::where('tranId',$this->id)->first();
+	}
 
 	public function  canDelete()
 	{
 		return true;
+	}
+
+	public function  getMustBackAmount()
+	{
+		$signup=$this->getSignup();
+		$amount=$signup->getAmountShorted();
+
+		if($amount<0) return abs($amount);
+
+		return 0;
 	}
 	
 	public function  loadViewModel()
@@ -70,10 +85,13 @@ class Tran extends Model
 		$this->user=$this->getUser();
 		$this->user->profile;
 
+		$this->quit=$this->getQuit();
+		
+
 		$this->amountMustPay=0;
 		$this->amountMustBack=0;
 		$signup=$this->getSignup();
-		$amount=$signup->bill->getAmountShorted();
+		$amount=$signup->getAmountShorted();
 		if($amount>0) $this->amountMustPay = $amount;
 		if($amount<0) $this->amountMustBack = abs($amount);
 

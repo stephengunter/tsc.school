@@ -29,7 +29,7 @@ class Signups
             ['value'=> -1 , 'text' => '已取消']
         );
         $this->shopId=config('app.bill.shopId');
-        $this->with=['bill.pays.payway', 'quits.details' ,'details.course.center','user.profile'];
+        $this->with=['bills.payway', 'quits.details' ,'details.course.center','user.profile'];
 
         $this->bills=$bills;
         $this->centers=$centers;
@@ -119,9 +119,8 @@ class Signups
         $signup=DB::transaction(function() use($signup,$details) {
             $signup->save();
             $signup->details()->saveMany($details);
-            $signup->bill()->save(new Bill([]));
 
-            $signup->updateMoney();
+            $signup->updateStatus();
 
             return $signup;
         });
@@ -150,7 +149,7 @@ class Signups
             $signup->details()->saveMany($newDetails);
 
             $signup=Signup::find($signup->id);
-            $signup->updateMoney();
+       
             $signup->updateStatus();
         });
         

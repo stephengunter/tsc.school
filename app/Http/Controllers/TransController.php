@@ -5,13 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\TranRequest;
+use App\Http\Requests\QuitRequest;
 
 use App\Term;
 use App\Center;
 use App\Course;
 use App\Student;
 use App\Tran;
+use App\Quit;
+use App\Payway;
+use App\Signup;
 use App\SignupDetail;
+use App\QuitDetail;
 
 
 use App\Services\Terms;
@@ -20,6 +25,8 @@ use App\Services\Centers;
 use App\Services\Signups;
 use App\Services\Students;
 use App\Services\Trans;
+use App\Services\Payways;
+use App\Services\Quits;
 
 use App\Core\PagedList;
 use Carbon\Carbon;
@@ -31,7 +38,7 @@ class TransController extends Controller
 {
     
     public function __construct(Terms $terms,Trans $trans,Students $students,Courses $courses,
-        Signups $signups,Centers $centers)             
+        Signups $signups,Centers $centers,Payways $payways,Quits $quits)             
     {
         $this->terms=$terms;
         $this->trans=$trans;
@@ -39,6 +46,8 @@ class TransController extends Controller
         $this->courses=$courses;
         $this->signups=$signups;
         $this->centers=$centers;
+        $this->payways=$payways;
+        $this->quits=$quits;
     }
 
     function canEditStudent($student)
@@ -51,6 +60,13 @@ class TransController extends Controller
     {
         if(!$tran->canDelete()) return false;
         return $this->canAdminCenter($tran->getCenter());
+    }
+    function canQuitSignup(Signup $signup)
+    {
+        if($signup->status < 1) return false;
+
+        return $this->canAdminCenter($signup->getCenter());
+
     }
 
     function readIndexRequest()
@@ -288,8 +304,83 @@ class TransController extends Controller
        
     }
 
-    
+    public function createQuit()
+    {
+        $request=request();
 
+        $tran=0;
+        if($request->tran)  $tran=(int)$request->tran;
 
+        $selectedTran=$this->trans->getById($tran);
+        if(!$selectedTran) abort(404);
+
+        $mustBackAmount = $selectedTran->getMustBackAmount();
+        if(!$mustBackAmount) abort(404);
+
+        $selectedSignup=$selectedTran->signupDetail->signup;
+
+        $payway=$this->payways->defaultQuitPayway();
+
+        $quit=Quit::init();
+        $quit['tranId'] = $selectedTran->id;
+        $quit['paywayId'] = $payway->id;
+        $quit['signupId'] = $selectedSignup->id;
+        $quit['tuitions'] = $mustBackAmount;
+
+        if($payway->needAccount()){
+            $quit= $this->quits->initQuitAccountValues($quit ,$selectedSignup->user);
+        }
+
+       
+        $form=[
+            'quit' => $quit,
+            'payway' => $payway
+        ];
+
+        return response()->json($form);
+        
+    }
+
+    public function storeQuit(QuitRequest $request)
+    {
+        $updatedBy=$this->currentUserId();
+        $quitValues=$request->getQuitValues(); 
+
+        $signup=$this->signups->getById($quitValues['signupId']);
+        if(!$this->canQuitSignup($signup)) return $this->unauthorized();
+
+        $selectedTran=$this->trans->getById($quitValues['tranId']);
+        if(!$selectedTran) abort(404);
+
+        $mustBackAmount = $selectedTran->getMustBackAmount();
+        if(!$mustBackAmount) abort(404);
+
+       
+        $special=false;
+        $auto=false;
+
+        $payway=Payway::findOrFail($quitValues['paywayId']);      
+
+        $errors=$this->quits->validateQuitInputs($quitValues,$payway);
+       
+        if($errors) return $this->requestError($errors);
+
+        $quitDetail=new QuitDetail([
+           
+            'signupDetailId' => $selectedTran->signupDetail->id,
+            'percents' => 0,
+            'tuition' => $mustBackAmount,
+            'updatedBy' => $updatedBy
+        ]);
+
+        $quitValues['updatedBy']=$updatedBy;
+
+        $quit=new Quit($quitValues);
+
+        $quit=$this->quits->createQuit($signup, $quit,[$quitDetail]);
+        
+        
+        return response()->json();
+    }
     
 }

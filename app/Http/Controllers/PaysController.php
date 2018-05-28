@@ -46,29 +46,33 @@ class PaysController extends Controller
 
         $signup=0;
         if($request->signup)  $signup=(int)$request->signup;
-        $selectedBill=null;
-        if($signup) $selectedBill=$this->bills->getById($signup);
 
-        if(!$selectedBill) abort(404);
-        
-        $pay=Pay::init($selectedBill);
+        $selectedSignup=Signup::findOrFail($signup);
 
-        return response() ->json($pay);
+        $unPayedBill=$selectedSignup->unPayedBills()->first();
+        if(!$unPayedBill) abort(404);
+
+        $unPayedBill->payDate=Carbon::today()->toDateString();
+
+        return response()->json($unPayedBill);
       
     }
 
     //處理現場繳費
     public function store(Request $form)
     {
-        $id = (int)$form['signupId'];
+        $id = (int)$form['id'];
+
+        $bill=Bill::findOrFail($id);
+        $bill->updatedBy=$this->currentUserId();
        
         $payway=Payway::find($form['paywayId']);
 
         $amount=$form['amount'];
 
-        $date=$form['date'];
+        $date=$form['payDate'];
 
-        $this->bills->payBillById($id,$payway,$amount,$date);
+        $this->bills->payBill($bill,$payway,$date);
 
         return response()->json();
     }
@@ -87,20 +91,7 @@ class PaysController extends Controller
         return response()->json();
     }
 
-    public function print($id)
-    {
-      
-        $signup = $this->signups->getById($id);
-        if(!$signup) abort(404);
-        
-
-        if($signup->bill->payed) about(404);
-
-        $this->bills->createBillCode($signup);
-
-        return response()->json();
-
-    }
+    
     
 
    

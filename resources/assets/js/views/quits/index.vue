@@ -48,6 +48,7 @@
         
         <quit-table :model="model" :can_review="canReview" :can_checked="canChecked"  ref="quitTable" :center="center!=null"
             @selected="onSelected" @check-changed="onCheckIdsChanged">
+            
             <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
                 <page-controll   :model="model" @page-changed="onPageChanged"
                     @pagesize-changed="onPageSizeChanged">
@@ -331,7 +332,7 @@
             exportReports(){
                 let url = '/manage/reports/quits';
                 window.open(url);
-            }
+            },
             
         }
     }

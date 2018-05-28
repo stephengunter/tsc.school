@@ -39,7 +39,16 @@
 
                         </td>
                         <td v-if="tran.amountMustBack">
-                            {{ tran.amountMustBack | formatMoney }} 
+                           
+                          
+                                {{ tran.amountMustBack | formatMoney }} 
+
+                                &nbsp;
+                                <button v-if="!tran.quit" class="btn btn-primary btn-xs" @click.prevent="editQuit(tran)">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                          
+                            
                         </td>
                         <td v-else>
 
@@ -146,8 +155,8 @@ export default {
         isTrue(val){
             return Helper.isTrue(val);
         },
-        quit(tran){
-            this.$emit('quit',tran.id);
+        editQuit(tran){
+            this.$emit('edit-quit',tran);
         },
 
         

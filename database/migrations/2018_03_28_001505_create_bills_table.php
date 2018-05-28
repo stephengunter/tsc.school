@@ -14,10 +14,11 @@ class CreateBillsTable extends Migration
     public function up()
     {
         Schema::create('bills', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('signupId')->unsigned();
-			$table->primary('signupId');
             $table->foreign('signupId')->references('id')->on('signups')->onDelete('cascade');
-
+            
+            $table->decimal('amount', 8, 2)->nullable();
             $table->integer('serial')->unsigned()->nullable();
             $table->string('code')->nullable();  //虛擬帳號
             $table->string('sevenCodes')->nullable();  // 超商條碼
@@ -25,6 +26,7 @@ class CreateBillsTable extends Migration
 
             $table->dateTime('payDate')->nullable();
             $table->boolean('payed')->default(false); 
+            $table->integer('paywayId')->unsigned()->nullable();
 			
 
 			$table->integer('updatedBy')->unsigned()->nullable();

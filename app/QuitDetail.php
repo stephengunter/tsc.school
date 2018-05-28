@@ -58,6 +58,8 @@ class QuitDetail extends Model
 
     public function loadViewModel()
     {
+        
+
         $this->percentsText=$this->percentsText();
 
         $this->course=$this->getCourse();

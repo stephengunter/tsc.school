@@ -14,10 +14,10 @@
                     {{ signup.user.profile.fullname  }} 
                     </h4> 
                 </div>
-                <div class="col-sm-3" >
+                <div v-if="!payed" class="col-sm-3">
                     <h4>
                     應繳金額：
-                    {{ signup.amount | formatMoney }} 
+                    {{ signup.amountShorted | formatMoney }} 
                     </h4> 
                 </div>
                 <div class="col-sm-3" >
@@ -27,9 +27,9 @@
                     </h4> 
                 </div>
                 <div class="col-sm-3 text-right">  
-                    <h4 v-if="!payed">
+                    <h4 v-if="!payed && bill">
                     繳費期限：
-                       {{ signup.bill.deadLine }}
+                       {{ bill.deadLine }}
                     </h4>     
                 </div>
             </div>
@@ -45,15 +45,15 @@
                                     <th>課程編號</th> 
                                     <th>課程名稱</th> 
                                     <th>課程費用</th>
-                                    <th>教材費用</th>
+                                    <th v-if="false" > 教材費用</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(item,index) in signup.details" :key="index">
+                                <tr v-for="(item,index) in validDetails" :key="index">
                                     <td>{{ item.course.number }} </td>
                                     <td>{{ item.course.fullName }} </td>
-                                    <td>{{  item.course.tuition | formatMoney }}   </td>
-                                    <td>{{  item.course.cost | formatMoney}}   </td>    
+                                    <td>{{  item.tuition | formatMoney }}   </td>
+                                    <td v-if="false" >{{  item.cost | formatMoney}}   </td>    
                                     
                                 </tr>
                             </tbody>
@@ -62,7 +62,7 @@
                         <hr>
 
                         <div class="row">
-                            <div class="col-sm-8" >
+                            <div class="col-sm-4" >
                                 <p v-if="hasDiscount">
                                     <label class="label-title">折扣：</label>
                                     {{ signup.discount }} 
@@ -72,8 +72,18 @@
                                 </p>        
                             </div>
                             <div class="col-sm-4">
-                                <label class="label-title">應繳金額：</label>
-                                {{ signup.amount | formatMoney }} 
+                                <p  v-if="signup.amountPayed > 0">
+                                    <label class="label-title">已繳金額：</label>
+                                    {{ signup.amountPayed | formatMoney }} 
+                                </p>
+                                
+                            </div>
+                            <div class="col-sm-4">
+                                <p v-if="bill" v-show="signup.amountShorted > 0">
+                                    <label class="label-title">待繳金額：</label>
+                                    {{ bill.amount | formatMoney }} 
+                                </p>
+                               
                             </div>
                         </div>
                     
@@ -84,8 +94,8 @@
             <hr style="border:1px dashed #000; height:1px">
 
 
-            <div  v-if="signup.bill.sevenCodes" v-show="!payed" class="row">
-                <div class="col-sm-6">
+            <div  v-if="bill && !payed" class="row">
+                <div v-if="sevenCodes.length" class="col-sm-6">
                     
                     <h4>超商專用條碼</h4>
                     <p>
@@ -140,8 +150,8 @@
         name:'BillPrint',
         props: {
             signup: {
-              type: Object,
-              default: null
+                type: Object,
+                default: null
             }
         },
         data() {
@@ -153,19 +163,37 @@
             }
         },
         computed:{
-            title(){
-                return Bill.titleText(this.payed);
-            },
             payed(){
                if(!this.signup) return false;
-               return Helper.isTrue(this.signup.bill.payed);
+               return Helper.isTrue(this.signup.payed);
+            },
+            bill(){
+                if(!this.signup) return null;
+                if(this.payed){
+                    return null;
+                }else{
+                    return this.signup.bills.find((item) => {
+                        return !Helper.isTrue(item.payed);
+                    });    
+                } 
+                
+            },
+            validDetails(){
+                if(!this.signup) return [];
+                return this.signup.details.filter((item) => {
+                    return !Helper.isTrue(item.canceled);
+                });
+            },
+            title(){
+                return Bill.titleText(this.payed);
             },
             hasDiscount(){
                 return Signup.hasDiscount(this.signup);
             },
             sevenCodes(){
-                if(!this.signup.bill.sevenCodes) return [];
-                return this.signup.bill.sevenCodes.split(',');
+                if(!this.bill) return [];
+                if(!this.bill.sevenCodes) return [];
+                return this.bill.sevenCodes.split(',');
             },
             getStyle(){
                 if(this.payed) return 'height:350px';

@@ -79,7 +79,7 @@
         },
         data(){
             return {
-                title: Menus.getIcon('signups')  + '  報名統計',
+                title: '學員統計',
                
                 loaded:false,
 

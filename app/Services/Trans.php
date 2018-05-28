@@ -92,13 +92,12 @@ class Trans
             $student->update([
                 'tran_id_to' => $tran->id,
                 'status' => -1, 
+                'quitDate' => Carbon::today()
             ]);
 
             $signup->updateStatus();
 
            
-
-           
             return $tran;
         });
         
@@ -110,33 +109,6 @@ class Trans
 
     
 
-    public function xxcreateTran(Tran $tran,Student $student)
-    {
-       
-        $tran= DB::transaction(function() use($tran,$student) {
-            $tran->save();
-            
-            $newStudent =Student::create([
-                'tran_id_from' => $tran->id,
-                'status' => 1,
-                'userId' => $student->userId,
-                'courseId' => $tran->courseId,
-                'joinDate' => Carbon::today()
-            ]);
-
-            $student->update([
-                'tran_id_to' => $tran->id,
-                'status' => -1, 
-            ]);
-           
-            return $tran;
-        });
-        
-        event(new StudentTrans($tran));
-    
-
-        return $tran;
-    }
 
     
     
