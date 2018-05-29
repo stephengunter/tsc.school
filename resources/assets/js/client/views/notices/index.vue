@@ -5,12 +5,11 @@
     <div >
 
         <notice-table :model="model" @selected="onSelected" >
-            <div v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
-                <pager></pager>
-        
+            <div v-if="model" v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
+                 <pager  :model="model"></pager>
             </div>
         </notice-table> 
-        
+       
     </div>
 
 </div>

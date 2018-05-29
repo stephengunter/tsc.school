@@ -8,10 +8,10 @@
             <div class="box">              
                 <form @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
                     <div class="field">
-                        <label class="label">Email</label>
+                        <label class="label">身分證號</label>
                         <div class="control">
-                            <input name="email" class="input" type="text" v-model="form.email" >
-                            <p class="help is-danger" v-if="form.errors.has('email')" v-text="form.errors.get('email')"></p> 
+                            <input name="name" class="input" type="text" v-model="form.name" >
+                            <p class="help is-danger" v-if="form.errors.has('name')" v-text="form.errors.get('name')"></p> 
                         </div>
                         <label class="label">密碼</label>
                         <div class="control">
@@ -55,7 +55,7 @@
         data(){
             return {
                 form: new Form({
-                    email:'',
+                    name:'',
                     password:'',
                     remember:0
                 }),
@@ -76,7 +76,7 @@
             },
             getErrors(){
                 let errors={ };
-                if(!this.form.email) errors.email=['必須填寫Email'];
+                if(!this.form.name) errors.email=['必須填寫身分證號'];
                 if(!this.form.password) errors.password=['必須填寫密碼'];
 
                 return errors;

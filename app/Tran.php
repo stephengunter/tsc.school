@@ -57,7 +57,13 @@ class Tran extends Model
 	}
 	public function getQuit()
 	{
-		return Quit::where('tranId',$this->id)->first();
+		$quit =  Quit::where('tranId',$this->id)->first();
+		if($quit) return $quit;
+
+		$signup=$this->getSignup();
+		return Quit::where('signupId',$signup->id)->first();
+
+		
 	}
 
 	public function  canDelete()

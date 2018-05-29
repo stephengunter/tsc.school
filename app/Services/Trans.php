@@ -38,7 +38,7 @@ class Trans
         return Tran::with($this->with)->find($id);
     }
 
-    public function fetchTrans($key,$termId)
+    public function fetchTrans($key,$termId,$keyword='')
     {
         $selectedCenterIds=$this->centers->getCentersByKey($key)
                                          ->pluck('id')->toArray();
@@ -47,8 +47,14 @@ class Trans
                                 ->pluck('id')->toArray();
 
 
-        $tranIds = Student::whereIn('courseId', $courseIds)
-                            ->pluck('tran_id_from')->toArray(); 
+        $students = Student::whereIn('courseId', $courseIds);
+
+        if($keyword){
+            $userIds=Profile::where('fullname', 'LIKE', '%' .$keyword .'%')->pluck('userId')->toArray();
+            $students = $students->whereIn('userId', $userIds);
+        }
+
+        $tranIds = $students->pluck('tran_id_from')->toArray(); 
                             
         $tranIds = array_filter($tranIds);
       

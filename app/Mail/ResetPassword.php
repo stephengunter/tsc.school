@@ -17,7 +17,6 @@ class ResetPassword extends Mailable
     {
         $this->user = $user;
         $this->token = $token;
-        
     }
 
     /**

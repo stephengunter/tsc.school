@@ -8,7 +8,7 @@ class PagedList
     public $viewList;
     public $totalItems;
     public $pageNumber;
-    public $PageSize;
+    public $pageSize;
     public $totalPages;
     public $hasPreviousPage;
     public $hasNextPage;

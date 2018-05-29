@@ -18,12 +18,14 @@ class CreateTransTable extends Migration
             $table->date('date');
             $table->integer('signupDetailId')->unsigned();
             $table->integer('courseId')->unsigned();
+            $table->string('ps')->nullable();
+            $table->integer('updatedBy')->unsigned()->nullable();
             
             $table->boolean('reviewed')->default(false);
             $table->integer('reviewedBy')->unsigned()->nullable();
 			
-            $table->string('ps')->nullable();
-            $table->integer('updatedBy')->unsigned()->nullable();
+           
+           
            
             $table->timestamps();
         });

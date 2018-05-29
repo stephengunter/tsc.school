@@ -6,8 +6,11 @@ Auth::routes();
 
 Route::get('/test', function(){
    
-    $signup=\App\Signup::find(51);
-    dd($signup->getPayDate());
+    $user=\App\User::find(7);
+    $mail =new \App\Mail\ResetPassword($user,'ujuj');
+    $mail->from='MAIL_DRIVER';
+    dd($mail);
+    \Mail::to($user->email)->send(new \App\Mail\ResetPassword($user,'ujuj'));
 });
 
 
@@ -17,6 +20,7 @@ Route::get('/', '\App\Http\Controllers\Client\HomeController@index')->name('home
 
 Route::get('/about', '\App\Http\Controllers\Client\AboutController@index');
 Route::get('/faq', '\App\Http\Controllers\Client\FaqController@index');
+Route::resource('/notices', '\App\Http\Controllers\Client\NoticesController',['only' => ['index','show']]);
 Route::resource('/centers', '\App\Http\Controllers\Client\CentersController',['only' => ['index','show']]);
 Route::resource('/courses', '\App\Http\Controllers\Client\CoursesController',['only' => ['index','show']]);
 
@@ -92,6 +96,8 @@ Route::group(['middleware' => 'admin'], function()
     
     Route::resource('/manage/users', 'UsersController');
     Route::post('/manage/users/find', 'UsersController@find');
+    Route::post('/manage/users/reset-password', 'UsersController@resetPassword');
+
 
     Route::resource('/manage/accounts', 'AccountsController');
 

@@ -10,9 +10,14 @@
                     <i class="fa fa-arrow-circle-left"></i>
                     返回
                 </button>
+                <button v-if="can_reset_pw" v-show="canEdit" @click.prevent="beginResetPassword" class="btn btn-warning btn-sm" >
+                        <i class="fa fa-key"></i> 密碼重設
+                </button>
+
                 <button v-if="canEdit" @click.prevent="beginEdit" class="btn btn-primary btn-sm" >
                         <i class="fa fa-edit"></i> 編輯
                 </button>
+                
                 <button v-if="canDelete" v-show="can_edit" @click.prevent="beginDelete" class="btn btn-danger btn-sm" >
                     <i class="fa fa-trash"></i>  刪除
                 </button>
@@ -28,7 +33,9 @@
         </div>
         
     </div>
-    
+    <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
+      @close="deleteConfirm.show=false" @confirmed="resetPassword">        
+    </delete-confirm>
 </div>
 </template>
 <script>
@@ -56,7 +63,11 @@
             can_edit:{
                 type: Boolean,
                 default: true
-            },            
+            },    
+            can_reset_pw:{
+                type: Boolean,
+                default: false
+            },         
             can_back:{
                 type: Boolean,
                 default: true
@@ -74,6 +85,13 @@
             return {
                 icon:Menus.getIcon('users') ,
                 readOnly:true,
+
+                deleteConfirm:{
+                    id:0,
+                    show:false,
+                    msg:'',
+
+                },
 
                 user:null,
             }
@@ -168,6 +186,25 @@
             },
             onEditCanceled(){
                 this.readOnly=true;
+            },
+            beginResetPassword(){
+                let id=this.userId;
+                this.deleteConfirm.msg='確定要重設密碼?';
+                this.deleteConfirm.id=id;
+                this.deleteConfirm.show=true; 
+            },
+            resetPassword(){
+                this.deleteConfirm.show=false;
+                
+                let id = this.deleteConfirm.id;
+                let save= User.resetPassword(id);
+                save.then(() => {
+                    Helper.BusEmitOK('重設密碼成功');
+                })
+                .catch(error => {
+                    Helper.BusEmitError(error,'重設密碼失敗');
+                  
+                })
             },
             onSaved(){
                 this.init();

@@ -25,12 +25,33 @@ class UsersController extends Controller
     {
         if($this->currentUserIsDev()) return true;
 
+        if($user->admin){
+            if(!count($user->admin->centers)) return true;
+
+            return $this->canAdminCenters($user->admin->centers);
+        }
         if($user->teacher){
             if(!count($user->teacher->centers)) return true;
 
             return $this->canAdminCenters($user->teacher->centers);
         }
-        return true;
+        if($user->volunteer){
+            if(!count($user->volunteer->centers)) return true;
+
+            return $this->canAdminCenters($user->volunteer->centers);
+        }
+
+        if(count($user->students)){
+
+            $centers = $user->students->map(function ($student) {
+                return $student->getCenter();
+            });
+
+            return $this->canAdminCenters($centers);
+        }
+
+        $admin=$this->currentAdmin();
+        return $admin->isHeadCenterAdmin();
     }
 
     function canDelete($user)
@@ -200,13 +221,11 @@ class UsersController extends Controller
         $current_user=$this->currentUser();
         $userValues['updatedBy'] = $current_user->id;
         $profileValues['updatedBy'] = $current_user->id;
-
-       
-        $user->profile->update($profileValues);
         
-        $this->users->updateUser($user,$userValues);
+        
+        $this->users->updateUser($user,$userValues,$profileValues);
 
-        return response() ->json();
+        return response()->json();
     }
 
     public function find(UserRequest $request)
@@ -229,5 +248,21 @@ class UsersController extends Controller
         return response()->json($pageList);
     }
 
-    
+    public function resetPassword(Request $request)
+    {
+        
+        $id=$request['id'];
+      
+        $user=User::findOrFail($id);
+        if(!$this->canEdit($user)) return $this->unauthorized();
+
+        $password=$this->users->getDefaultPassword($user);
+        $user->update([
+            'password' =>  $password
+        ]);
+       
+        
+        
+        return response()->json();
+    }
 }

@@ -87,7 +87,7 @@ class User extends Authenticatable
     
     public function students() 
 	{
-		return $this->hasMany('App\Students','userId');
+		return $this->hasMany('App\Student','userId');
     }
 
     public function payrolls() 
@@ -103,10 +103,17 @@ class User extends Authenticatable
 
     public function setPasswordAttribute($value) 
     {
+       
         if(!$value){
             $value = config('app.user.default_pw') ;
         }
 		$this->attributes['password'] = bcrypt($value);
+    }
+
+    public function setNameAttribute($value) 
+    {
+        if($this->profile) $this->attributes['name'] = strtoupper($this->profile->sid);
+		else $this->attributes['name'] = $value;
     }
    
 

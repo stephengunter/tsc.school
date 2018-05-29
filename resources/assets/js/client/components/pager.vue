@@ -29,17 +29,9 @@
     export default {
         name:'Pager',
         props: {
-            page_size: {
-              type: Number,
-              default: 10,
-            },
-            current: {
-              type: Number,
-              default: 1,
-            },
-            total:{
-              type: Number,
-              default: 0,
+            model:{
+               type: Object,
+               default: null,
             },
         },
         beforeMount(){
@@ -49,7 +41,7 @@
             return{
                 interCurrent: 1,
                 interPageSize: 10,
-                maxPage:0,
+              
 
                 items:[],
                 hasMore:false,
@@ -57,6 +49,30 @@
 
                 showMore:false,
                 showLess:false,
+            }
+        },
+        computed: {
+            page_size(){
+                if(!this.model) return 10;
+                return this.model.pageSize;
+            },
+            current(){
+                if(!this.model) return 1;
+                return this.model.pageNumber;
+            },
+            total(){
+                if(!this.model) return 0;
+                return this.model.totalItems;
+            },
+            showFirstPage(){
+                return false
+            },
+            hasNextPage() {
+                if(!this.model) return false;
+                return this.model.hasNextPage
+            },
+            maxPage(){
+                 return this.model.maxPage;
             }
         },
         watch: {
@@ -75,21 +91,14 @@
                }
             },
             total(){
-                this.maxPage=this.calcTotalPage()
+               
                  this.createItems()
             }
         },
         mounted() {
-            this.interPageSize=this.page_size
-            this.interCurrent=this.current
-        },
-        computed: {
-            showFirstPage(){
-                return false
-            },
-            hasNextPage() {
-               return true
-            },
+            this.interPageSize=this.page_size;
+            this.interCurrent=this.current;
+            this.createItems();
         },
         methods:{
             calcTotalPage() {
@@ -101,13 +110,15 @@
                   
             },
             createItems(){
-                
+              
                 let curren=this.interCurrent
                 let min=curren-2
                 if(min < 1) min=1
                 let max=min+4
                 if(max > this.maxPage) max=this.maxPage
                 this.items=[]
+                alert(min);
+                 alert(max);
                 for(let i=min; i<=max; i++){
                    
                     let className='pagination-link'

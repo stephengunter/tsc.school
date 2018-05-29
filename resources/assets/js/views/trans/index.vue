@@ -50,7 +50,8 @@
             </div>
         
             <div slot="modal-body" class="modal-body">
-                <quit-edit  v-if="quitEdit.show" :tran="quitEdit.tran" @saved="onQuitSaved">
+                <quit-edit  v-if="quitEdit.show" :tran="quitEdit.tran"
+                 @saved="onQuitSaved" @cancel="quitEdit.show=false">
 
                 </quit-edit>
             </div>

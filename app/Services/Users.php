@@ -8,6 +8,7 @@ use App\Role;
 use App\ContactInfo;
 use App\Address;
 use App\District;
+use Carbon\Carbon;
 use App\Core\Helper;
 use DB;
 
@@ -23,11 +24,23 @@ class Users
 	}
 	public function getById($id)
     {   
-        return User::with($this->with)->find($id);
+        return $this->getAll()->find($id);
 	}
 	public function getByIds(array $ids)
     {   
-        return User::with($this->with)->whereIn('id',$ids);
+        return $this->getAll()->whereIn('id',$ids);
+	}
+
+	public function findByName($name)
+	{
+		
+		return $this->getAll()->where('name',$name)->first();
+
+	}
+
+	public function getByNames(array $usernames)
+    {   
+        return $this->getAll()->whereIn('name',$usernames);
 	}
 	
 	public function fetchUsers(Role $role = null, $keyword = '')
@@ -59,20 +72,27 @@ class Users
 		return $this->getAll()->whereIn('id' , $userIds );
 		
 	}
+
+	public function getDefaultPassword(User $user)
+	{
+		if ($user->profile->dob){
+			$dob=new Carbon($user->profile->dob);
+			return Helper::toTaipeiDateString($dob);
+		} 
+		return config('app.user.default_pw');
+	}
     
     public function createUser(User $user,Profile $profile, array $roleNames=[])
     {
-		
-		$user->name=strtoupper($profile->sid);
-
-		if (!$user->password) $user->password = config('app.user.default_pw');
-
 		$sid=strtoupper($profile->sid);
-        $profile->gender = Helper::getGenderFromSID($sid);
+		$profile->sid=$sid;
+		$user->name=$sid;
+
+		if (!$user->password) $user->password = $this->getDefaultPassword($user);
+
+		
 		if(Helper::isTaiwanSID($sid)){
 			$profile->gender = Helper::getGenderFromSID($sid);
-		}else{
-				
 		}
 		
 		$user= DB::transaction(function() use($user,$profile) {
@@ -91,36 +111,26 @@ class Users
         
 	}
 
-	public function storeUser($email, $phone, Profile $profile, array $roleNames=[])
+	
+
+	public function updateUser(User $user,array $userValues,array $profileValues)
 	{
-		$userName = $email;
-		if (!$email) $userName = $phone;
+		$sid=strtoupper($profileValues['sid']);
+        
+		if(Helper::isTaiwanSID($sid)){
+			$profileValues['gender'] = Helper::getGenderFromSID($sid);
+		}
 
-		$user=new User([
-			'name' => $userName,
-			'email' => $email,
-			'phone' => $phone
-		]);
-		
-
-		return $this->createUser($user,$profile, $roleNames);
+		DB::transaction(function() use($user,$userValues,$profileValues) {
+			
+			$user->profile->update($profileValues);
+			$user->update($userValues);
+		});
 
 	}
 
-	public function updateUser(User $user,array $values)
-	{
-		
-		$user->update($values);
-	}
 
-
-	public function findByName($name)
-	{
-		
-		return User::where('name',$name)->first();
-
-	}
-
+	
 	
 
 	public function findUsers($email, $phone, $sid)
@@ -150,11 +160,12 @@ class Users
 
 	public function findBySID($sid)
 	{
-		$sid=strtoupper($sid);
-		$profile=Profile::where('sid',$sid)->first();
-        if(!$profile) return null;
+		
+		return $this->findByName(strtoupper($sid));
+		// $profile=Profile::where('sid',$sid)->first();
+        // if(!$profile) return null;
 
-        return User::find($profile->userId);
+        // return User::find($profile->userId);
 	}
 
 	public function getBySIDs(array $sids)
@@ -162,10 +173,12 @@ class Users
 		$sids=array_map(function($sid){
 			return strtoupper($sid);
 		}, $sids);
+
+		return $this->getByNames($sids);
 		
-		$userIds=Profile::whereIn('sid',$sids)->pluck('userId')->toArray();
+		// $userIds=Profile::whereIn('sid',$sids)->pluck('userId')->toArray();
 		
-		return $this->getByIds($userIds);
+		// return $this->getByIds($userIds);
        
 	}
 	

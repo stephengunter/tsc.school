@@ -38,7 +38,7 @@
             <span v-if="isTop(category)" class="label label-warning"> 置頂 </span>
         </td>
         
-        <td v-if="can_order" >
+        <td v-if="false" >
             <button class="btn btn-sm btn-default" v-if="can_order" @click.prevent="up(category)">
                 <i class="fa fa-arrow-up" aria-hidden="true"></i>
             </button>

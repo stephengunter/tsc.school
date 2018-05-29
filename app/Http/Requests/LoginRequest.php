@@ -22,7 +22,7 @@ class LoginRequest extends FormRequest
     {
        
         return [
-            'email' => 'required|max:255',
+            'name' => 'required|max:255',
             'password' => 'required|max:255',
 
         ];
@@ -31,7 +31,7 @@ class LoginRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.required' => '必須填寫Email',
+            'name.required' => '必須填寫身分證號',
             'password.required' => '必須填寫密碼',
 
         ];

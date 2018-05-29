@@ -55,3 +55,13 @@
         
     }
 </script>
+
+<style scoped>
+a {
+    color: #3273dc;
+    cursor: pointer;
+    text-decoration: none;
+    transition: none 86ms ease-out;
+}
+</style>
+

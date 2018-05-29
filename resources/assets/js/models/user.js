@@ -189,6 +189,24 @@ class User {
         })
     }
 
+    static resetPassword(id){
+        let form=new Form({
+            id:id
+        });
+        let url = this.source() + '/reset-password';
+        return new Promise((resolve, reject) => {
+            axios.post(url, form)
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(error => {
+                   
+                    reject(error);
+                })
+
+        })
+    }
+
     
 
     static groupOptions() {

@@ -53,7 +53,7 @@ class LoginController extends Controller
 
     public function login(LoginRequest $request)
     {
-        
+       
         if ($this->attemptLogin($request)) {
             $request->session()->regenerate();
             return response() ->json();
@@ -71,7 +71,7 @@ class LoginController extends Controller
     {
         $request=$request->getValues();
 
-        $name=$request['email'];
+        $name=$request['name'];
         $password=$request['password'];
         $remember=$request['remember'];
        

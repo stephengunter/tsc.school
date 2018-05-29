@@ -143,8 +143,9 @@ class TransController extends Controller
 
         $selectedTerm=$requestValues['selectedTerm'];
         $key=$params['key'];
+        $keyword=$params['keyword'];
 
-        $trans = $this->trans->fetchTrans($key,$selectedTerm->id);
+        $trans = $this->trans->fetchTrans($key,$selectedTerm->id,$keyword);
 
         $pageList =$this->getPageList($trans, $params['page'],$params['pageSize']);
         

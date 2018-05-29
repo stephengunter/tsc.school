@@ -34,6 +34,11 @@ class Controller extends BaseController
         return auth()->user();
     }
 
+    protected function currentAdmin()
+    {
+        return $this->currentUser()->admin;
+    }
+
     protected function currentUserId()
     {
         return $this->currentUser()->id;
@@ -50,7 +55,7 @@ class Controller extends BaseController
     protected function centersCanAdmin()
     {
         if($this->currentUserIsDev()) return Center::where('removed',false)->get();
-        $admin = $this->currentUser();
+        $admin = $this->currentAdmin();
         if(!$admin) return [];
 
         return $admin->centersCanAdmin();
@@ -96,7 +101,7 @@ class Controller extends BaseController
                 'current' => $current,
                 'user' => [
                     'id' => $user->id,
-                    'name' => $user->name
+                    'name' => $user->profile->fullname
                 ],
                 'teacher' => $user->isTeacher(),
                 'students' => $user->isStudent()

@@ -128,6 +128,12 @@ class Helper
         return $year - 1911;
     }
 
+    public static function toTaipeiDateString(Carbon  $date)
+    {
+        $date=$date->subYears(1911);
+        return $date->year . static::getMonthDayString($date->month, $date->day);
+    }
+
     public static function isTrue($val)
     {
         if(is_null($val)) return false;
