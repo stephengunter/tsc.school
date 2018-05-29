@@ -40,6 +40,9 @@ window.Helper = Helper;
 import Form from '../utilities/form';
 window.Form = Form;
 
+import Notice from './models/notice';
+window.Notice=Notice;
+
 import Course from './models/course';
 window.Course=Course;
 

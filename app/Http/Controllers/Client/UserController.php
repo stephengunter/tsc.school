@@ -67,8 +67,6 @@ class UserController extends Controller
         $id = $this->currentUserId();
         $user = $this->users->getById($id);
 
-       
-
         $userValuesWithProfile=$request->getUserValues(true);
        
         $roleName=$request['role'];
@@ -93,11 +91,8 @@ class UserController extends Controller
         $current_user=$this->currentUser();
         $userValues['updatedBy'] = $id;
         $profileValues['updatedBy'] = $id;
-
-       
-        $user->profile->update($profileValues);
         
-        $this->users->updateUser($user,$userValues);
+        $this->users->updateUser($user,$userValues,$profileValues);
 
         return response() ->json();
     }

@@ -13,6 +13,7 @@ use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\RegisterRequest;
 
 use App\Services\Users;
+use App\Core\Helper;
 
 class RegisterController extends Controller
 {
@@ -55,15 +56,34 @@ class RegisterController extends Controller
     {
         //event(new Registered($user = $this->create($request->all())));
         $values=$request->getValues();
+
+        $sid=$values['sid'];
+        $errors=[];
+        if(Helper::isTaiwanSID($sid)){
+            $isValid=Helper::checkSID($sid);
+            if(!$isValid){
+                $errors['sid'] = ['身分證號錯誤'];
+                return $this->requestError($errors);
+            }
+           
+        }
+
+        $existUser=$this->users->findBySID($sid);
+        if($existUser){
+            $errors['sid'] = ['身分證號重複了'];
+            return $this->requestError($errors);
+        } 
        
         $user=new User([
-            'name' => $values['email'],
+           
             'email' => $values['email'],
             'phone' => $values['phone'],
-            'password' => Hash::make($values['password']),
+            'password' => $values['password'],
         ]);
         $profile=new Profile([
-            'fullname' => $values['name'],
+            'sid' => $values['sid'],
+            'fullname' => $values['fullname'],
+            'dob' => $values['dob'],
             'gender' => $values['gender'],
         ]);
 

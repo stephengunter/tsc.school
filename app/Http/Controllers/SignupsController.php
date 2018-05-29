@@ -526,13 +526,13 @@ class SignupsController extends Controller
         $courseIds=[];
         
         if($selectedCourse){
-            $signupDetails=SignupDetail::init($selectedCourse);
+            $signupDetail=SignupDetail::init($selectedCourse);
 
             $selectedCourse->fullName();
             $selectedCourse->loadClassTimes();
-            $signupDetails['course'] =$selectedCourse;
+            $signupDetail['course'] =$selectedCourse;
 
-            $signup['details']=[$signupDetails];
+            $signup['details']=[$signupDetail];
 
             $courseIds = [$selectedCourse->id];
         }else{
@@ -617,60 +617,7 @@ class SignupsController extends Controller
         return $user;
     }
 
-    function initSignupDetails(User $user,$selectedCourses, $updatedBy)
-    {
-        $errors=[];
-        $signupDetails=[];
-
-          //User報名過的課程記錄
-        $coursesSignupedIds = [];
-        $userSignupDetailRecords = $this->signups->getSignupDetailsByUser($user);
-        $coursesSignupedIds = $userSignupDetailRecords->pluck('courseId')->toArray();
-        foreach ($selectedCourses as $selectedCourse)
-        {
-          
-            if (in_array($selectedCourse->id, $coursesSignupedIds)){
-                $errors['courseIds'] = ['此學員已經報名過課程' . $selectedCourse->fullName() ];
-                break;
-            }else{
-                $detail = new SignupDetail([
-                    'courseId' => $selectedCourse->id,
-                    'tuition' => $selectedCourse->tuition,
-                    'cost' => $selectedCourse->cost,
-                    'updatedBy' => $updatedBy
     
-                ]);
-                array_push($signupDetails,$detail);
-            }
-
-            
-        }
-
-        return [
-            'signupDetails' => $signupDetails,
-            'errors' => $errors
-        ];
-        
-       
-    }
-
-    function checkSelectedCourses($selectedCourses)
-    {
-        $errors=[];
-        $termIds=array_unique($selectedCourses->pluck('termId')->all());
-        if(count($termIds) > 1)
-        {
-            $errors['courseIds'] = ['報名課程必須在同一學期'];
-            return $errors;
-        }  
-       
-        //課程必須在同一中心分類
-        $centerIds= $selectedCourses->pluck('centerId')->all();
-        $centerKeys=$this->centers->getByIds($centerIds)->pluck('key')->toArray();
-        if(count(array_unique($centerKeys)) > 1) $errors['courseIds'] = ['報名課程必須在同一開課中心分類'];
-
-        return $errors;
-    }
 
     public function store(SignupRequest $request)
     {
@@ -697,7 +644,7 @@ class SignupsController extends Controller
         $identityIds = $request['identityIds'];
 
         $selectedCourses=$this->courses->getByIds($courseIds)->get();
-        $errors=$this->checkSelectedCourses($selectedCourses);
+        $errors=$this->signups->checkSelectedCourses($selectedCourses);
         if($errors)  return $this->requestError($errors);
         
         
@@ -705,7 +652,7 @@ class SignupsController extends Controller
         $center = $selectedCourses[0]->center;
         $term = $selectedCourses[0]->term;
       
-        $result=$this->initSignupDetails($user,$selectedCourses,$updatedBy);
+        $result=$this->signups->initSignupDetails($user,$selectedCourses,$updatedBy);
        
         $errors=$result['errors'];
         if($errors)  return $this->requestError($errors);
@@ -721,7 +668,7 @@ class SignupsController extends Controller
             $userCanAddDetailSignup->net=false;
             $userCanAddDetailSignup->updatedBy=$updatedBy;
 
-            $this->signups->updateSignup($userCanAddDetailSignup,$signupDetails);
+            $this->signups->updateSignup($userCanAddDetailSignup,$signupDetails,$lotus);
         }else{
             $signup=new Signup(Signup::init());
             $signup->userId=$userId;

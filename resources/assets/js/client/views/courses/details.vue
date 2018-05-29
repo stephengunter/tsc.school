@@ -22,7 +22,7 @@
                 
             </ul>
         </div>
-        <div style="padding-top:1.2em">
+        <div v-if="false" style="padding-top:1.2em">
             <h1 class="title" >優惠辦法</h1>
             <discount-view :center="model.center" :bird_date_text="model.term.birdDate" ></discount-view>
         </div>

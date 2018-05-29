@@ -11,7 +11,7 @@
 				@cancel="cancel">
 			</submit-buttons>
 
-			<div class="control" style="padding-top:1em">
+			<div v-if="false" class="control" style="padding-top:1em">
 				<discount-view :center="center" :bird_date_text="bird_date_text"></discount-view>
 			</div>
 

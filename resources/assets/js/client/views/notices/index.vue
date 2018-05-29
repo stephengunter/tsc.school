@@ -6,7 +6,11 @@
 
         <notice-table :model="model" @selected="onSelected" >
             <div v-if="model" v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
-                 <pager  :model="model"></pager>
+               
+                <pagination :total="model.totalItems" :page-size="model.pageSize" :current="params.page" layout="pager"
+                 :change="onPageChanged">
+                </pagination>
+                
             </div>
         </notice-table> 
        
@@ -37,6 +41,8 @@
                 this.params.pageSize=this.init_model.pageSize;
             }  
 
+            
+
         },
         mounted(){
             this.$emit('loaded');
@@ -47,10 +53,8 @@
                 model:null,
 
                 params:{
-                 
-                    keyword:'',
                     page:1,
-                    pageSize:10
+                   
                 },
             }
         },
@@ -58,7 +62,25 @@
            
         },
         methods:{
-            
+            fetchData() {
+              
+                let getData = Notice.index(this.params);
+
+                getData.then(model => {
+
+                    this.model={ ...model };
+
+                })
+                .catch(error => {
+                    Helper.BusEmitError(error);
+                
+                })
+            },
+            onPageChanged(page){
+               
+				this.params.page=page;
+				this.fetchData();
+            },
             onSelected(id){
                alert(id);
             },

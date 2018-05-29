@@ -73,10 +73,11 @@ class Users
 		
 	}
 
-	public function getDefaultPassword(User $user)
+	public function getDefaultPassword(User $user,Profile $profile=null)
 	{
-		if ($user->profile->dob){
-			$dob=new Carbon($user->profile->dob);
+		if(!$profile) $profile=$user->profile;
+		if ($profile->dob){
+			$dob=new Carbon($profile->dob);
 			return Helper::toTaipeiDateString($dob);
 		} 
 		return config('app.user.default_pw');
@@ -88,7 +89,7 @@ class Users
 		$profile->sid=$sid;
 		$user->name=$sid;
 
-		if (!$user->password) $user->password = $this->getDefaultPassword($user);
+		if (!$user->password) $user->password = $this->getDefaultPassword($user,$profile);
 
 		
 		if(Helper::isTaiwanSID($sid)){
@@ -271,13 +272,9 @@ class Users
 		if($needFullname){
 			$fullname=$values['profile']['fullname'];
 			if(!$fullname) $errors['user.profile.fullname'] = ['必須填寫姓名'];
-				
 		}
 
-		
-
 		$sid=$values['profile']['sid'];
-		
 
 		if($sid){
 			

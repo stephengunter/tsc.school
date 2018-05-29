@@ -2,12 +2,11 @@
     <div>
         <h1 v-if="show_title" class="title" v-text="title"></h1>
         
-        <h2 class="subtitle" style="padding-top:1em">
-            {{ notice.date }} &nbsp; {{ notice.title }}
-        </h2>
+        <h3 class="title is-3" style="padding-top:1em;color:#003c99"> {{ notice.title }}</h3>
+        <p class="subtitle is-5">{{ notice.date }}</p>
         <hr>
         <div class="content" style="font-size:1.2em;" >
-            {{ notice.content }}
+            <p v-html="notice.content"></p>
         </div>
         <div style="clear: both;text-align:right;">
              <a @click.prevent="onBack" class="button is-primary is-outlined">

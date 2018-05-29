@@ -158,8 +158,10 @@ class Signup extends Model
 
     public function canAddDetail()
     {
-       
         if($this->hasCanceled()) return false;
+
+        $moneyPayed=$this->getPaysTotalMoney();
+        if($moneyPayed>0) return false;
 
         return true;
     }

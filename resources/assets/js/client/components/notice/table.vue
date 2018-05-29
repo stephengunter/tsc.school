@@ -5,12 +5,12 @@
         <table  class="table" style="font-size:1.2em">
             <tbody>
                 <tr v-for="(notice,index) in model.viewList" :key="index">
-                <td>{{ notice.date }}</td>
-                <td>
-                    <a @click.prevent="onSelected(notice.id)" >
-                        {{ notice.title }}
-                    </a>
-                </td>
+                    <td>{{ notice.date }}</td>
+                    <td>
+                        <a :href="`notices/${notice.id}`">
+                            {{ notice.title }}
+                        </a>
+                    </td>
                 </tr>
             
             </tbody>

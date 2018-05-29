@@ -26,27 +26,22 @@ class NoticesController extends Controller
         $page=1;
         if($request->page)  $page=(int)$request->page;
 
-        $pageSize=999;
-        if($request->pageSize)  $pageSize=(int)$request->pageSize;
+        $pageSize=10;
 
         $notices = $this->notices->fetchNotices();
         
         $pageList = new PagedList($notices,$page,$pageSize);
 
-      
-      
-        // foreach($pageList->viewList as $signup){
-        //     $signup->loadViewModel();
+        if($this->isAjaxRequest()){
           
-        //     if($canQuit)  $signup->canQuit=$this->canQuit($signup);
-            
-        // }  
+            return response()->json($pageList);
+        }
         
         $model=[
             'title' => '公告訊息',
             'topMenus' => $this->clientMenus(),
             
-
+           
             'list' => $pageList,
         ];
 
@@ -55,5 +50,20 @@ class NoticesController extends Controller
         return view('client.notices.index')->with($model);
     }
 
+    public function show($id)
+    {
+        $notice = Notice::findOrFail($id);
+        $notice->date=new Carbon($notice->created_at);//->toDateString();
+        $notice->date=$notice->date->toDateString();
+        $model=[
+            'title' => '公告訊息',
+            'topMenus' => $this->clientMenus(),
+
+            'notice' => $notice           
+        ];
+
+        return view('client.notices.details')->with($model);
+        
+    }
    
 }

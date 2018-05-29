@@ -49,6 +49,7 @@ new Vue({
         
         
             let identityIds = {!! json_encode($identityIds) !!};
+            let courseIds = {!! json_encode($courseIds) !!};
             let lotus = {!! json_encode($lotus) !!};
 
             this.identityOptions = {!! json_encode($identityOptions) !!};
@@ -61,7 +62,7 @@ new Vue({
                                     ...user
                                 },
                                 lotus:lotus,
-                                
+                                courseIds:courseIds.slice(0),
                                 identityIds:identityIds.map(item=> parseInt(item))
                             });
 

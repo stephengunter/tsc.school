@@ -28,7 +28,7 @@
                 </td>  
               
                 <td >
-                    <button v-if="signup.canPay" class="button is-primary" @click.prevent="onPay(signup)">
+                    <button v-if="false" v-show="signup.canPay" class="button is-primary" @click.prevent="onPay(signup)">
                         <span class="icon is-small" style="vertical-align:middle;">
                             <i class="fa fa-check"></i> 
                         </span>

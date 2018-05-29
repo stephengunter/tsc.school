@@ -53,7 +53,7 @@
 				<label class="label label-title">生日</label>
 				
 				<div class="control">
-					<datetime-picker :date="form.user.profile.dob" :can_clear="true" @selected="setDOB"></datetime-picker>
+					<datetime-picker :date="form.user.profile.dob"  @selected="setDOB"></datetime-picker>
 					<p class="help is-danger" v-if="form.errors.has('user.profile.dob')" v-text="form.errors.get('user.profile.dob')"></p>
 				</div>
 			</div>

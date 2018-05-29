@@ -22,9 +22,11 @@ class RegisterRequest extends FormRequest
     {
        
         return [
-            'name' => 'required|max:255',
-            'phone'      => 'required|unique:users,phone',
-            'email'      => 'required|email|unique:users,email',
+            'fullname' => 'required|max:255',
+            'sid' => 'required|max:255',
+            'dob' => 'required|max:255',
+            'phone'      => 'required',
+            'email'      => 'required|email',
             'password' => 'min:6|required',
             'confirmation' => 'required|same:password'
 
@@ -34,11 +36,12 @@ class RegisterRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => '必須填寫使用者名稱',
+            'fullname.required' => '必須填寫姓名',
+            'sid.required' => '必須填寫身分證號',
+            'dob.required' => '必須填寫生日',
 
             'email.email' => 'Email格式不正確',
             'email.required' => '必須填寫Email',
-            'email.unique' => 'Email與現存使用者重複',
 
             'password.required' => '必須填寫密碼',
             'password.min' => '密碼長度不足(最少6位)',
@@ -47,7 +50,6 @@ class RegisterRequest extends FormRequest
             'confirmation.same' => '確認密碼錯誤',
 
             'phone.required' => '必須填寫手機號碼',
-            'phone.unique' => '手機號碼與現存使用者重複',
 
         ];
     }

@@ -118,6 +118,7 @@ class SignupsController extends Controller
 
     public function create()
     {
+       
         $user = $this->users->getById($this->currentUserId());
 
         $request=request();
@@ -128,6 +129,8 @@ class SignupsController extends Controller
 
         $selectedCourse = $this->courses->getById($course);
         if(!$selectedCourse) abort(404);
+
+        $courseIds=[$selectedCourse->id];
 
         if($this->canNotSignup($selectedCourse, $user)){
             
@@ -140,42 +143,45 @@ class SignupsController extends Controller
     
             return view('client.signups.error')->with($model);
         }
-       
-
-        $userSignupRecords = $this->signups->fetchSignupsByUser($user)
-                                ->orderBy('created_at','desc');
-                               
-        $unPayedSignups=$userSignupRecords->where('status',0)->get();
-
-        $signupDetails=[];
-        $signupId=0;
-        foreach($unPayedSignups as $record){
-            foreach($record->details as $detail){
-                if($detail->course->termId==$selectedCourse->termId && $detail->course->centerId==$selectedCourse->centerId){
-                    array_push($signupDetails,$detail);
-                    if(!$signupId) $signupId=$detail->signupId;
-                }
-            }
-        }
-
-        foreach($signupDetails as $detail){
-          
-            $detail->course->fullName();
-            $detail->course->loadClassTimes();
-        }
-        
-        
 
         $signup=Signup::init();
-        if($signupId) $signup['id']=$signupId;
-        array_push($signupDetails,SignupDetail::init($selectedCourse));
        
+
+        $signupDetail=SignupDetail::init($selectedCourse);
+
+        $selectedCourse->fullName();
+        $selectedCourse->loadClassTimes();
+        $signupDetail['course'] =$selectedCourse;
+
+        $signupDetails=[$signupDetail];
+       
+
+        $term=$selectedCourse->term;
+        $center=$selectedCourse->center;
+
+        $userCanAddDetailSignup=$this->signups->getUserCanAddDetailSignup($term, $center,$user);
+        if($userCanAddDetailSignup){
+            $signup['id'] = $userCanAddDetailSignup->id;
+            foreach($userCanAddDetailSignup->details as $detail){
+                $course=$detail->course;
+                $course->fullName();
+                $course->loadClassTimes();
+
+                $detail= $detail->toArray();
+                $detail['course'] =$selectedCourse;
+                array_push($signupDetails,$detail);
+               
+            }
+          
+        }
+
+        
 
         $signup['details']=$signupDetails;
 
         $identityIds=$user->identities()->pluck('identity_id')->toArray();
 
-        $center=$signup->getCenter();
+      
         $center->discounts;
 
         $model=[
@@ -185,7 +191,8 @@ class SignupsController extends Controller
             'signup' => $signup,
             'user' => $user,
             'center' => $center,
-          
+            'birdDateText' => $selectedCourse->term->birdDateText(),
+            'courseIds' => $courseIds,
             'identityOptions' => $this->discounts->getIdentitiesOptions($selectedCourse->center),            
             'identityIds' => $identityIds,
             'lotus' => false,
@@ -201,52 +208,49 @@ class SignupsController extends Controller
 
     public function store(SignupRequest $request)
     {
-        
+       
         $user=$this->currentUser();
+        $updatedBy=$user->id;
+        $identityIds = $request['identityIds'];
 
         $errors = $this->updateUser($request,$user);
         if($errors) return $this->requestError($errors);
 
-        $signupDetails=[];
-
-        $postedSignupDetails=$request->getSignupDetails();
-        foreach($postedSignupDetails as $detail){
-              //新資料
-            $selectedCourse=$this->courses->getById($detail['courseId']);
-            $error=$this->canNotSignup($selectedCourse,$user);
-            if($error){
-                $errors['courseIds'] = [$error];
-                return $this->requestError($errors);
-            }
-
-            array_push($signupDetails,new SignupDetail([
-                
-                'courseId' => $selectedCourse->id,
-                'tuition' => $selectedCourse->tuition,
-                'cost' => $selectedCourse->cost,
-                'updatedBy' => $user->id
-    
-            ]));
-        }
-
-        $signup=new Signup(['userId' => $user->id , 'points' => 0 , 
-                            'status' => 0 , 'net'=> true , 
-                            'updatedBy' => $user->id ]
-                        );
-
-        $identityIds = $request['identityIds'];
+        $courseIds=$request['courseIds'];
+        $selectedCourses=$this->courses->getByIds($courseIds)->get();
+        $errors=$this->signups->checkSelectedCourses($selectedCourses);
+      
+        if($errors)  return $this->requestError($errors);
        
-        $this->setSignupMoney($signup, $signupDetails ,collect([$selectedCourse]), $identityIds);
+        $center = $selectedCourses[0]->center;
+        $term = $selectedCourses[0]->term;
+        $result=$this->signups->initSignupDetails($user,$selectedCourses,$updatedBy);
+        
+        $errors=$result['errors'];
+        if($errors)  return $this->requestError($errors);
+      
+        $signupDetails=$result['signupDetails'];
+        $lotus=Helper::isTrue($request['lotus']);
 
+        $userCanAddDetailSignup=$this->signups->getUserCanAddDetailSignup($term, $center,$user);
        
-        $signup=$this->signups->createSignup($signup,$signupDetails);
-    
-        if(count($identityIds)){
-            $this->users->addIdentitiesToUser($user,$identityIds);
-        }
+        if($userCanAddDetailSignup){
+            $userCanAddDetailSignup->identity_ids=join(',', $identityIds);
+            $userCanAddDetailSignup->net=true;
+            $userCanAddDetailSignup->updatedBy=$updatedBy;
 
-
-        return response()->json($signup);
+            $this->signups->updateSignup($userCanAddDetailSignup,$signupDetails);
+        }else{
+            $signup=new Signup(Signup::init());
+            $signup->userId=$user->id;
+            $signup->identity_ids=join(',', $identityIds);
+            $signup->net=true;
+            $signup->updatedBy=$updatedBy;
+           
+            $signup=$this->signups->createSignup($signup,$signupDetails,$user,$lotus);
+            
+            return response()->json($signup);
+        };
        
     }
 
@@ -265,9 +269,7 @@ class SignupsController extends Controller
         $userValues['updatedBy'] =  $user->id;
         $profileValues['updatedBy'] =  $user->id;
         
-    
-        $user->profile->update($profileValues);
-        $this->users->updateUser($user,$userValues);
+        $this->users->updateUser($user,$userValues,$profileValues);
     }
 
     public function show($id)
@@ -341,114 +343,42 @@ class SignupsController extends Controller
     public function update($id,SignupRequest $request)
     {
         $signup=$this->signups->getById($id);
+       
         if(!$signup) abort(404);
         if(!$this->canEdit($signup)) abort(404);
 
         $user=$this->currentUser();
+        $updatedBy=$user->id;
+        $identityIds = $request['identityIds'];
 
         $errors = $this->updateUser($request,$user);
         if($errors) return $this->requestError($errors);
 
-        $signupDetails=[];
-        $selectedCourses=[];
-        $postedSignupDetails=$request->getSignupDetails();
-        foreach($postedSignupDetails as $detail){
-            $detailId=0;        
-            if(array_key_exists ( 'id' ,$detail)) $detailId=(int)$detail['id'];
-            
-            if($detailId){
-                array_push($signupDetails,SignupDetail::findOrFail($detailId));
-                array_push($selectedCourses,$this->courses->getById($detail['courseId']));
-            }else{
-                 //新資料
-                $selectedCourse=$this->courses->getById($detail['courseId']);
-                array_push($selectedCourses,$selectedCourse);
-
-                $error=$this->canNotSignup($selectedCourse,$user);
-                if($error){
-                    $errors['courseIds'] = [$error];
-                    return $this->requestError($errors);
-                }
-
-                array_push($signupDetails,new SignupDetail([
-                   
-                    'courseId' => $selectedCourse->id,
-                    'tuition' => $selectedCourse->tuition,
-                    'cost' => $selectedCourse->cost,
-                    'updatedBy' => $user->id
-        
-                ]));
-               
-
-            }
-        }
+        $courseIds=$request['courseIds'];
+        $selectedCourses=$this->courses->getByIds($courseIds)->get();
+        $errors=$this->signups->checkSelectedCourses($selectedCourses);
+      
+        if($errors)  return $this->requestError($errors);
        
-
-        $identityIds = $request['identityIds'];
-       
-        $this->setSignupMoney($signup, $signupDetails ,collect($selectedCourses), $identityIds);
-
+        $center = $selectedCourses[0]->center;
+        $term = $selectedCourses[0]->term;
+        $result=$this->signups->initSignupDetails($user,$selectedCourses,$updatedBy);
         
-        $this->signups->updateSignup( $signup,  $signupDetails);
-        
-        return response()->json();
+        $errors=$result['errors'];
+        if($errors)  return $this->requestError($errors);
+      
+        $signupDetails=$result['signupDetails'];
+        $lotus=Helper::isTrue($request['lotus']);
+
+        $signup->identity_ids=join(',', $identityIds);
+        $signup->net=false;
+        $signup->updatedBy=$updatedBy;
+
+        $this->signups->updateSignup($signup,$signupDetails,$lotus);
        
     }
 
-    function setSignupMoney(Signup $signup, array $signupDetails ,$courses, $identityIds=[], $lotus=false)
-    {
-       
-        $terms= $courses->pluck('termId')->all();
-        //課程必須在同一學期
-        if(count(array_unique($terms)) > 1) abort(500);
-        //課程必須在同一中心
-        $centers= $courses->pluck('centerId')->all();
-        if(count(array_unique($centers)) > 1) abort(500);
-        
-     
-        $center = $courses[0]->center;
-        $term = $courses[0]->term;
-
-        $bestDiscount=$this->discounts->findBestDiscount($center,$term,$identityIds,$lotus, count($courses));
-       
-        
-        if($term->canBird(Carbon::today())){
-        
-           
-            $signup->points = $bestDiscount->pointOne;
-
-            if ($signup->points < 100)
-            {
-                $signup->discount = $bestDiscount->name;
-            }
-
-            if ($bestDiscount->bird())
-            {
-                $signup->discount .= " - 早鳥優惠";
-            }
-
-        }else{
-        
-            if ($signup->points < 100)
-            {
-                $signup->discount = $bestDiscount->name;
-            }
-
-            $signup->points = $bestDiscount->pointTwo;
-        }
-
-        $tuitions = 0;
-        foreach($signupDetails as $signupDetail) {
-            $tuitions += $signupDetail['tuition'];
-        }
-        
-        $signup->tuitions = $tuitions * $signup->points / 100;
-        $signup->costs = 0;
-        foreach($signupDetails as $signupDetail) {
-            if($signupDetail->cost)  $signup->costs += $signupDetail->cost;
-        }
-
-    }
+    
 
     public function destroy($id) 
     {
