@@ -5,12 +5,8 @@ Auth::routes();
 //Route::get('/test', 'BillsController@test');
 
 Route::get('/test', function(){
-   
-    $user=\App\User::find(7);
-    $mail =new \App\Mail\ResetPassword($user,'ujuj');
-    $mail->from='MAIL_DRIVER';
-    dd($mail);
-    \Mail::to($user->email)->send(new \App\Mail\ResetPassword($user,'ujuj'));
+    
+    dd(url('password/reset',  'token'));
 });
 
 
@@ -25,8 +21,6 @@ Route::resource('/centers', '\App\Http\Controllers\Client\CentersController',['o
 Route::resource('/courses', '\App\Http\Controllers\Client\CoursesController',['only' => ['index','show']]);
 
 //銀行回傳資料
-Route::post('/bills', '\App\Http\Controllers\Client\BillsController@store');
-
 Route::post('/bills', array('middleware' => 'cors', 'uses' => '\App\Http\Controllers\Client\BillsController@store'));
 
 Route::group(['middleware' => 'auth'], function()
@@ -67,7 +61,8 @@ Route::group(['middleware' => 'admin'], function()
 {
     Route::get('/manage', function () {
         $current='manage';
-        $keys=[ 'CoursesAdmin','SignupsAdmin', 'TeachersAdmin','StudentsAdmin','UsersAdmin','MainSettings' ];
+        $keys=[ 'CoursesAdmin','SignupsAdmin', 'TeachersAdmin','StudentsAdmin'
+        ,'UsersAdmin','MainSettings','MyReports' ];
         $systems=[];
     
         foreach ($keys as $key) {
@@ -201,6 +196,9 @@ Route::group(['middleware' => 'admin'], function()
     Route::post('/manage/payrolls/updatePS', 'PayrollsController@updatePS');
     Route::post('/manage/payrolls/updateStatus', 'PayrollsController@updateStatus');
 
+
+
+    Route::get('/manage/my-reports', 'MyReportsController@index');
    
 
 });

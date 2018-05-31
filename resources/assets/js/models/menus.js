@@ -98,6 +98,9 @@ class Menus {
             case 'reports':
                 html = '<i class="fa fa-file-word-o" aria-hidden="true"></i>';
                 break;
+            case 'myreports':
+                html = '<i class="fa fa-file-word-o" aria-hidden="true"></i>';
+                break;
             case 'scores':
                 html = '<i class="fa fa-check-square-o" aria-hidden="true"></i>';
                 break;
@@ -175,6 +178,9 @@ class Menus {
             break
             case 'reports':
                 text= '報表';
+                break;
+            case 'myreports':
+            text = '我的報表';
                 break;
             break
         }

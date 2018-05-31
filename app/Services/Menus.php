@@ -151,6 +151,15 @@ class Menus
                     ],
                 );
         } 
+        if($key=='MyReports'){
+            return array(
+                    [
+                        'text' => '我的報表',
+                        'path' => '/manage/my-reports',
+                        'active' => $current =='manage/my-reports'
+                    ],
+                );
+        } 
     }
     
     

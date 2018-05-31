@@ -61997,7 +61997,7 @@ module.exports = Component.exports
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(142);
-module.exports = __webpack_require__(699);
+module.exports = __webpack_require__(702);
 
 
 /***/ }),
@@ -62011,7 +62011,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_select___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_select__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__xkeshi_vue_barcode__ = __webpack_require__(78);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__xkeshi_vue_barcode___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__xkeshi_vue_barcode__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_footer__ = __webpack_require__(696);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_footer__ = __webpack_require__(699);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_footer___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_footer__);
 
 
@@ -62106,6 +62106,8 @@ Vue.component('lessons-details', __webpack_require__(657));
 
 Vue.component('payrolls-index', __webpack_require__(675));
 Vue.component('payrolls-details', __webpack_require__(681));
+
+Vue.component('my-reports-index', __webpack_require__(696));
 
 
 new Vue({
@@ -62813,6 +62815,9 @@ var Menus = function () {
                 case 'reports':
                     html = '<i class="fa fa-file-word-o" aria-hidden="true"></i>';
                     break;
+                case 'myreports':
+                    html = '<i class="fa fa-file-word-o" aria-hidden="true"></i>';
+                    break;
                 case 'scores':
                     html = '<i class="fa fa-check-square-o" aria-hidden="true"></i>';
                     break;
@@ -62893,6 +62898,9 @@ var Menus = function () {
                     break;
                 case 'reports':
                     text = '報表';
+                    break;
+                case 'myreports':
+                    text = '我的報表';
                     break;
                     break;
             }
@@ -72973,6 +72981,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -73327,6 +73343,42 @@ var render = function() {
                     attrs: {
                       title: _vm.getKey(5),
                       items: _vm.getItems(5),
+                      badges: _vm.badges
+                    }
+                  })
+                ],
+                1
+              )
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "row" }, [
+          _vm.systemsCount > 6
+            ? _c(
+                "div",
+                { staticClass: "col-md-6" },
+                [
+                  _c("menu-item", {
+                    attrs: {
+                      title: _vm.getKey(6),
+                      items: _vm.getItems(6),
+                      badges: _vm.badges
+                    }
+                  })
+                ],
+                1
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.systemsCount > 7
+            ? _c(
+                "div",
+                { staticClass: "col-md-6" },
+                [
+                  _c("menu-item", {
+                    attrs: {
+                      title: _vm.getKey(7),
+                      items: _vm.getItems(7),
                       badges: _vm.badges
                     }
                   })
@@ -130243,6 +130295,372 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
+Component.options.__file = "resources\\assets\\js\\views\\reports\\index.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-4ed12f58", Component.options)
+  } else {
+    hotAPI.reload("data-v-4ed12f58", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 697 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'ReportIndexView',
+    components: {},
+    props: {
+        init_model: {
+            type: Object,
+            default: null
+        },
+        summary_model: {
+            type: Object,
+            default: null
+        },
+        init_params: {
+            type: Object,
+            default: null
+        },
+        can_quit: {
+            type: Boolean,
+            default: false
+        },
+        terms: {
+            type: Array,
+            default: null
+        },
+        centers: {
+            type: Array,
+            default: null
+        },
+        courses: {
+            type: Array,
+            default: null
+        },
+        statuses: {
+            type: Array,
+            default: null
+        },
+        payways: {
+            type: Array,
+            default: null
+        },
+        version: {
+            type: Number,
+            default: 0
+        }
+    },
+    data: function data() {
+        return {
+            title: Menus.getIcon('signups') + '  報名管理',
+
+            loaded: false,
+
+            model: null,
+
+            summary: null,
+
+            canQuit: false,
+
+            courseOptions: [],
+
+            params: {
+                term: '0',
+                center: '0',
+                course: '0',
+                status: '0',
+                keyword: '',
+
+                page: 1,
+                pageSize: 999
+            },
+
+            checkedIds: []
+        };
+    },
+
+    watch: {
+        'version': 'fetchData'
+    },
+    beforeMount: function beforeMount() {},
+
+    computed: {},
+    methods: {
+        getList: function getList() {
+            if (this.model) return this.model.viewList;
+            return [];
+        },
+        onSearch: function onSearch(keyword) {
+
+            this.params.keyword = keyword;
+            this.fetchData();
+        },
+        onCreate: function onCreate() {
+            var params = {
+                course: this.params.course,
+                center: this.params.center
+            };
+            this.$emit('create', params);
+        },
+        onSelected: function onSelected(id) {
+            this.$emit('selected', id);
+        },
+        onPageChanged: function onPageChanged(page) {
+            this.params.page = page;
+            this.fetchData();
+        },
+        onPageSizeChanged: function onPageSizeChanged() {
+
+            this.params.pageSize = this.model.pageSize;
+            this.fetchData();
+        },
+        onTermSelected: function onTermSelected(item) {
+            this.params.term = item.value;
+            this.params.course = '0';
+            this.fetchData();
+        },
+        onCenterSelected: function onCenterSelected(item) {
+            this.params.center = item.value;
+            this.params.course = '0';
+            this.fetchData();
+        },
+        setStatus: function setStatus(item) {
+            this.params.status = item.value;
+            this.fetchData();
+        },
+        setPayway: function setPayway(item) {
+            this.params.payway = item.value;
+            this.fetchData();
+        },
+        onCourseSelected: function onCourseSelected(item) {
+            this.params.course = item.value;
+            this.fetchData();
+        },
+        onQuit: function onQuit(id) {
+            this.$emit('quit', id);
+        },
+        setReviewed: function setReviewed(val) {
+            this.params.reviewed = val;
+            this.fetchData();
+        },
+        fetchData: function fetchData() {
+            var _this = this;
+
+            if (!this.payed) this.params.payway = '0';
+            var getData = Signup.index(this.params);
+
+            getData.then(function (model) {
+
+                _this.model = _extends({}, model.model);
+                _this.summary = _extends({}, model.summaryModel);
+                _this.courseOptions = model.courseOptions.slice(0);
+
+                _this.canQuit = model.canQuit;
+            }).catch(function (error) {
+                Helper.BusEmitError(error);
+            });
+        },
+        onCheckIdsChanged: function onCheckIdsChanged(ids) {
+            this.checkedIds = ids.slice(0);
+        }
+    }
+});
+
+/***/ }),
+/* 698 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "row" }, [
+    _vm._m(0),
+    _vm._v(" "),
+    _vm._m(1),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "col-sm-3", staticStyle: { "margin-top": "20px" } },
+      [_c("searcher", { on: { search: _vm.onSearch } })],
+      1
+    ),
+    _vm._v(" "),
+    _vm._m(2)
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "col-sm-2", staticStyle: { "margin-top": "3px" } },
+      [_c("h3", [_vm._v(" 報表管理\n        ")])]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      {
+        staticClass: "col-sm-6 form-inline",
+        staticStyle: { "margin-top": "20px" }
+      },
+      [
+        _c("div", { staticClass: "form-group" }, [
+          _c(
+            "select",
+            { staticClass: "form-control", attrs: { name: "", id: "AA" } },
+            [
+              _c("option", { attrs: { value: "1" } }, [_vm._v("選單A")]),
+              _vm._v(" "),
+              _c("option", { attrs: { value: "1" } }, [_vm._v("選單B")])
+            ]
+          )
+        ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "form-group", staticStyle: { "padding-left": "1em" } },
+          [
+            _c(
+              "select",
+              { staticClass: "form-control", attrs: { name: "", id: "BB" } },
+              [
+                _c("option", { attrs: { value: "1" } }, [_vm._v("選單A")]),
+                _vm._v(" "),
+                _c("option", { attrs: { value: "1" } }, [_vm._v("選單B")])
+              ]
+            )
+          ]
+        )
+      ]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      {
+        staticClass: "col-sm-1 pull-right",
+        staticStyle: { "margin-top": "20px" },
+        attrs: { align: "right" }
+      },
+      [
+        _c(
+          "button",
+          { staticClass: "btn btn-primary", attrs: { type: "button" } },
+          [_vm._v("送出")]
+        )
+      ]
+    )
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-4ed12f58", module.exports)
+  }
+}
+
+/***/ }),
+/* 699 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(700)
+/* template */
+var __vue_template__ = __webpack_require__(701)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
 Component.options.__file = "resources\\assets\\js\\components\\footer.vue"
 
 /* hot reload */
@@ -130265,7 +130683,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 697 */
+/* 700 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -130364,7 +130782,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 698 */
+/* 701 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -130457,7 +130875,7 @@ if (false) {
 }
 
 /***/ }),
-/* 699 */
+/* 702 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

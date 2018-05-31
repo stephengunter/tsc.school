@@ -93,6 +93,9 @@ Vue.component('payrolls-index', require('./views/payrolls/index'));
 Vue.component('payrolls-details', require('./views/payrolls/details'));
 
 
+Vue.component('my-reports-index', require('./views/reports/index'));
+
+
 
 import Footer from './components/footer'
 new Vue({

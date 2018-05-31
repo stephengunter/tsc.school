@@ -24,6 +24,14 @@
             <menu-item  :title="getKey(5)" :items="getItems(5)" :badges="badges"></menu-item>
         </div>
     </div> 
+    <div class="row">
+        <div v-if="systemsCount > 6" class="col-md-6">
+            <menu-item  :title="getKey(6)" :items="getItems(6)" :badges="badges"></menu-item>
+        </div>
+        <div v-if="systemsCount > 7" class="col-md-6">
+            <menu-item  :title="getKey(7)" :items="getItems(7)" :badges="badges"></menu-item>
+        </div>
+    </div> 
  </div>   
 </template>
 
