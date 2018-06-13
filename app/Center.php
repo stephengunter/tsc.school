@@ -45,10 +45,6 @@ class Center extends Model
 	}
 
 	
-	public function notices() 
-	{
-		return $this->hasMany('App\Notice','centerId');
-	}
 
 	public function area() 
 	{

@@ -8,9 +8,9 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @if (isset($title))
-        <title>{{ config('app.company.name') . config('app.name') . ' - ' . $title }}</title>
+        <title>{{ '慈大社推課程管理系統' . ' - ' . $title }}</title>
     @else
-        <title>{{ config('app.company.name') . config('app.name') }}</title>
+        <title>慈大社推課程管理系統</title>
     @endif
 
     <!-- Fonts -->
@@ -41,7 +41,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a href="/manage" class="navbar-brand" style="font-size:1.6em">{{ config('app.company.name') . config('app.name')  }}</a>
+                    <a href="/manage" class="navbar-brand" style="font-size:1.6em">慈大社推課程管理系統</a>
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
@@ -91,16 +91,23 @@
     </div>
     <hr />
     <footer class="container">
-        <p>&copy; 2018 - {{ config('app.company.fullname') }}</p>
+        <p>&copy; 2018 - {{ config('app.company.east.fullname') }}</p>
 
         <div id="footer" ></div>
         
     </footer>
 
+    <script src="{{ asset('js/jquery.min.js') }}" ></script>
+	<script src="{{ asset('js/tether.min.js') }}" ></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/summernote/summernote.min.js') }}" ></script>
+
     <script src="{{ asset('js/babel.min.js') }}" ></script>
     <script src="{{ asset('js/polyfill.js') }}" ></script>
-    <script src="{{ asset('js/app.js') }}"></script>
 
+   
+    
+    <script src="{{ asset('js/app.js') }}"></script>
     @yield('scripts')   
    
 </body>

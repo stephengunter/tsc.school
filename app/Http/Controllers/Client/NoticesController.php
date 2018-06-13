@@ -28,7 +28,11 @@ class NoticesController extends Controller
 
         $pageSize=10;
 
-        $notices = $this->notices->fetchNotices();
+        $center_key=config('app.center_key');
+
+        $notices=$this->notices->fetchNotices($center_key);
+       
+        $notices=$this->notices->getOrdered($notices);
         
         $pageList = new PagedList($notices,$page,$pageSize);
 
@@ -40,7 +44,7 @@ class NoticesController extends Controller
         $model=[
             'title' => '公告訊息',
             'topMenus' => $this->clientMenus(),
-            
+            'company' => $this->getCompany(),
            
             'list' => $pageList,
         ];
@@ -53,12 +57,12 @@ class NoticesController extends Controller
     public function show($id)
     {
         $notice = Notice::findOrFail($id);
-        $notice->date=new Carbon($notice->created_at);//->toDateString();
+        $notice->date=new Carbon($notice->created_at);
         $notice->date=$notice->date->toDateString();
         $model=[
             'title' => '公告訊息',
             'topMenus' => $this->clientMenus(),
-
+            'company' => $this->getCompany(),
             'notice' => $notice           
         ];
 

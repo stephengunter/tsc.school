@@ -21,7 +21,9 @@ class HomeController extends Controller
   
     public function index()
     {
-        $notices = $this->notices->fetchNotices();
+        $center_key=config('app.center_key');
+        $notices=$this->notices->fetchNotices($center_key);
+       
         $notices = $this->notices->getOrdered($notices);
                                 
         $page=1;
@@ -68,7 +70,7 @@ class HomeController extends Controller
         $model=[
             'title' => '',
             'topMenus' => $this->clientMenus(),
-
+            'company' => $this->getCompany(),
             'noticesModel' => $notices,
             'latestCourses' => $latestCourses,
             'recommendCourses' => $recommendCourses

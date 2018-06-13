@@ -47,6 +47,7 @@ class AboutController extends Controller
         $model=[
             'title' => '關於我們',
             'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
             'menus' => $menus,
 
             'model' => $selectedContent,

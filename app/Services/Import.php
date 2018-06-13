@@ -33,18 +33,25 @@ trait Import
 
 		$sid=strtoupper(trim($row['id']));
 		$fullname=trim($row['fullname']);
+		$gender=trim($row['gender']);
 
-		if(Helper::isTaiwanSID($sid)){
-			if(!Helper::checkSID($sid)){
-				$err_msg .=  $fullname . '身分證錯誤';			
+		if(Helper::isSIDPattern($sid)){
+			if(Helper::isTaiwanSID($sid)){
+				//中華民國身分證
+				if(!Helper::checkSID($sid)){
+					$err_msg .=  $fullname . '身分證錯誤';			
+				}else $gender=Helper::getGenderFromSID($sid);
+				
+			}else{
+				//外籍人士
+				$gender = trim($row['gender']);
+				if(!$gender) $err_msg .=  $fullname . '性別錯誤';
+				else $gender = Helper::isTrue((int)$gender);			
 			}
-			$gender=Helper::getGenderFromSID($sid);
+		
 		}else{
-			$gender = trim($row['gender']);
-			if(!$gender) $err_msg .=  $fullname . '性別錯誤';
-			$gender = Helper::isTrue((int)$gender);			
+			$err_msg .=  $fullname . '身分證錯誤';	
 		}
-
 		
 
 		

@@ -8,9 +8,9 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @if (isset($title)  && $title)
-        <title>{{ config('app.company.fullname')  . ' - ' . $title }}</title>
+        <title>{{ $company['fullname']   . ' - ' . $title }}</title>
     @else
-        <title>{{ config('app.company.fullname') }}</title>
+        <title>{{ $company['fullname']  }}</title>
     @endif
 
     
@@ -30,7 +30,8 @@
                     <div class="columns is-vcentered">
                         <div class="column">
                             <p class="title is-2">
-                            	{{ config('app.company.fullname') }}
+                            	
+                            	{{ $company['fullname'] }}
 
                             </p>
                             <p class="subtitle">
@@ -41,7 +42,7 @@
                 </div>
             </div>
             <div class="hero-foot is-hidden-mobile">
-				<main-nav :items="menus"></main-nav>
+				<main-nav  :areas="areas" :items="menus"></main-nav>
             </div>
         </section>
 		<sub-nav :items="subMenus"></sub-nav>
@@ -61,9 +62,9 @@
 	<footer>
 		<div class="container">
 			<div class="content">
-				<span style="font-size: 1.2em"> &copy; 2018 - {{ config('app.company.fullname') }}</span>
+				<span style="font-size: 1.2em"> &copy; 2018 - {{ $company['fullname'] }}</span>
 				&nbsp;&nbsp;&nbsp;
-				<span>地址：{{ config('app.company.address') }}</span> <span style="padding-left: 2em">電話：{{ config('app.company.tel') }}</span>
+				<span>地址：{{ $company['address'] }}</span> <span style="padding-left: 2em">電話：{{ $company['tel'] }}</span>
 				
 			</div>
 		</div>
@@ -84,6 +85,7 @@
 			data() {
 				return {
 					topMenus:null,
+					areas:[],
 					menus:[],
 					subMenus:[],
 				}
@@ -104,6 +106,12 @@
 
 					this.menus = {!! json_encode($menus) !!} ;
 				
+				@endif
+
+				@if (isset($areas))
+
+					this.areas = {!! json_encode($areas) !!} ;
+
 				@endif
 
 				@if (isset($subMenus))

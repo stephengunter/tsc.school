@@ -4,7 +4,7 @@
 
     <div >
 
-        <notice-table :model="model" @selected="onSelected" >
+        <notice-table :model="model" >
             <div v-if="model" v-show="model.totalItems > 0" slot="table-footer" class="panel-footer pagination-footer">
                
                 <pagination :total="model.totalItems" :page-size="model.pageSize" :current="params.page" layout="pager"
@@ -80,9 +80,6 @@
                
 				this.params.page=page;
 				this.fetchData();
-            },
-            onSelected(id){
-               alert(id);
             },
         },
         

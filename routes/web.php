@@ -5,8 +5,8 @@ Auth::routes();
 //Route::get('/test', 'BillsController@test');
 
 Route::get('/test', function(){
-    
-    dd(url('password/reset',  'token'));
+    $center_key=config('app.center_key');
+  dd(config('app.company.' . $center_key));
 });
 
 
@@ -16,9 +16,11 @@ Route::get('/', '\App\Http\Controllers\Client\HomeController@index')->name('home
 
 Route::get('/about', '\App\Http\Controllers\Client\AboutController@index');
 Route::get('/faq', '\App\Http\Controllers\Client\FaqController@index');
-Route::resource('/notices', '\App\Http\Controllers\Client\NoticesController',['only' => ['index','show']]);
 Route::resource('/centers', '\App\Http\Controllers\Client\CentersController',['only' => ['index','show']]);
 Route::resource('/courses', '\App\Http\Controllers\Client\CoursesController',['only' => ['index','show']]);
+
+Route::resource('/notices', '\App\Http\Controllers\Client\NoticesController',['only' => ['index','show']]);
+Route::resource('/docs', '\App\Http\Controllers\Client\DocsController',['only' => ['index','show']]);
 
 //銀行回傳資料
 Route::post('/bills', array('middleware' => 'cors', 'uses' => '\App\Http\Controllers\Client\BillsController@store'));
@@ -62,7 +64,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::get('/manage', function () {
         $current='manage';
         $keys=[ 'CoursesAdmin','SignupsAdmin', 'TeachersAdmin','StudentsAdmin'
-        ,'UsersAdmin','MainSettings','MyReports' ];
+        ,'UsersAdmin','MainSettings','HomePageAdmin','MyReports' ];
         $systems=[];
     
         foreach ($keys as $key) {
@@ -80,6 +82,8 @@ Route::group(['middleware' => 'admin'], function()
     });
 
     //test
+    
+    Route::get('/manage/seedNotices', 'NoticesController@seed');
     Route::get('/manage/SeedUsers', 'UsersController@seed');
     Route::get('/manage/SeedSignups', 'SignupsController@seed');
     Route::get('/manage/seedPays', 'BillsController@seedPays');
@@ -174,6 +178,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/trans', 'TransController');
 
     Route::resource('/manage/notices', 'NoticesController');
+    Route::resource('/manage/docs', 'DocsController'); 
 
     Route::resource('/manage/files', 'FilesController'); 
     Route::get('/manage/files/download/{name}', 'FilesController@download');

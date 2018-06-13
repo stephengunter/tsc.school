@@ -58,13 +58,18 @@ class Helper
         return is_numeric(substr($sid,1 ,1 ));
     }
 
-    public static function checkSID($pid)
+    public static function isSIDPattern($pid)
     {
         $iPidLen = strlen($pid);
-        if(!preg_match("/^[A-Za-z][1-2][0-9]{8}$/",$pid) && $iPidLen != 10)
-        {
-            return FALSE;
-        }
+        if($iPidLen != 10) return false;
+        return preg_match("/^[A-Za-z][1-2][0-9]{8}$/",$pid) > 0;
+    }
+
+    public static function checkSID($pid)
+    {
+        if(!static::isSIDPattern($pid)) return false;
+
+        $iPidLen = strlen($pid);
         $head = array("A"=>1,"B"=>10,"C"=>19,"D"=>28,"E"=>37,"F"=>46,"G"=>55,"H"=>64,"I"=>39,"J"=>73,"K"=>82,"M"=>11,"N"=>20,"O"=>48,"P"=>29,"Q"=>38,"T"=>65,"U"=>74,"V"=>83,"W"=>21,"X"=>3,"Z"=>30,"L"=>2,"R"=>47,"S"=>56,"Y"=>12);
         $pid  = strtoupper($pid);
         $iSum  = 0;

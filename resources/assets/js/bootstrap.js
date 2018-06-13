@@ -11,9 +11,8 @@ window.Popper = require('popper.js').default;
  */
 
 try {
-    window.$ = window.jQuery = require('jquery');
-
-    require('bootstrap');
+    //window.$ = window.jQuery = require('jquery');
+    //require('bootstrap');
 } catch (e) {}
 
 /**
@@ -95,6 +94,8 @@ import Quit from './models/quit';
 import Student from './models/student';
 import Tran from './models/tran';
 import Files from './models/files';
+import Notice from './models/notice';
+import Doc from './models/doc';
 
 window.Auth=Auth;
 window.Menus=Menus;
@@ -124,6 +125,8 @@ window.Quit=Quit;
 window.Student=Student;
 window.Tran=Tran;
 window.Files=Files;
+window.Notice=Notice;
+window.Doc=Doc;
 
 window.Bus = new Vue({});
 

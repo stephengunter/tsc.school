@@ -4,7 +4,6 @@
                  
 </template>
 <script>
-
     export default {
         name: 'HtmlEditor',
         props: {
@@ -46,7 +45,7 @@
                 default: function() {
                     return [
                         ["font", ["bold", "italic", "underline", "clear"]],
-                        ["fontsize", ["fontsize"]],
+                       
                         ["para", ["ul", "ol", "paragraph"]],
                         ["color", ["color"]],
                         ["insert", ["link", "hr"]]

@@ -47,6 +47,7 @@ class FaqController extends Controller
         $model=[
             'title' => '常見問題',
             'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
             'menus' => $menus,
 
             'model' => $selectedContent,

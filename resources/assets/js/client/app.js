@@ -27,6 +27,8 @@ Vue.component('reset-password-view', require('./views/auth/reset-password'));
 Vue.component('notices-index', require('./views/notices/index'));
 Vue.component('notice-details', require('./views/notices/details'));
 
+Vue.component('docs-index', require('./views/docs/index'));
+
 Vue.component('centers-index', require('./views/centers/index'));
 
 Vue.component('courses-index', require('./views/courses/index'));

@@ -68,6 +68,19 @@ body {
     font-size: 15px;
 }
 
+.show>.dropdown-menu {
+    display: block;
+}
+
+.show>a {
+    outline: 0;
+}
+
+video {
+    max-width: 85%;
+    max-height: 85%;
+}
+
 .dropup,
 .dropdown {
     position: relative;
@@ -157,14 +170,6 @@ body {
     background-color: transparent;
 }
 
-.show>.dropdown-menu {
-    display: block;
-}
-
-.show>a {
-    outline: 0;
-}
-
 .dropdown-menu-right {
     right: 0;
     left: auto;
@@ -197,9 +202,4 @@ body {
     top: auto;
     bottom: 100%;
     margin-bottom: 0.125rem;
-}
-
-video {
-    max-width: 85%;
-    max-height: 85%;
 }

@@ -8,8 +8,8 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Services\Menus;
 use App\Role;
-use Route;
 use App\Center;
+use Route;
 
 use Illuminate\Auth\AuthenticationException;
 
@@ -50,7 +50,13 @@ class Controller extends BaseController
         return $this->currentUser()->hasRole($roleName);
     }
 
-    
+    protected function defaultAdminCenter()
+    {
+        if($this->currentUserIsDev()) return Center::where('code','A')->first();
+        if($this->currentAdmin()) return $this->currentAdmin()->centers()->first();
+        return null;
+    }
+
 
     protected function centersCanAdmin()
     {
@@ -116,5 +122,11 @@ class Controller extends BaseController
         }
       
 
+    }
+
+    protected function  getCompany()
+    {
+        $center_key=config('app.center_key');
+        return config('app.company.' . $center_key);
     }
 }

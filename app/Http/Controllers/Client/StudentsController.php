@@ -91,7 +91,7 @@ class StudentsController extends Controller
        
         $students = $students->orderBy('status','desc')->get();
 
-        return response() ->json($students);
+        return response()->json($students);
 
        
         

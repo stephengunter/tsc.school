@@ -1,6 +1,9 @@
 
 import CommonService from './services/common';
 class Helper {
+	static appUrl(){
+		return 'http://tsc.school';
+	}
 	static isEmptyObj(obj){
 		for(var key in obj) {
 			if(obj.hasOwnProperty(key)) return false;

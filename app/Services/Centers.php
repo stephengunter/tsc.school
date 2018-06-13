@@ -52,6 +52,11 @@ class Centers
         return $this->getAll()->whereIn('id',$ids);
     }
 
+    public function getByAreaId($areaId)
+    {
+        return $this->getAll()->where('areaId',$areaId);
+    }
+
     public function getCentersByKey($key)
     {
         return $this->getAll()->where('key',$key);

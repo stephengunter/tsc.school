@@ -8,26 +8,32 @@ class Notices
 {
     public function getAll()
     {
-        return Notice::where('removed',false); 
+        return Notice::with('center')->where('removed',false); 
     }
     public function getById($id)
     {
         return $this->getAll()->where('id',$id)->first();
     }
 
-    public function getByCenter(Center $center)
+    public function getByKey($key)
     {
-        return $this->getAll()->where('centerId',$center->id)->first();
+        $key=strtolower($key);
+        $centerIds=Center::where('key',$key)->pluck('id')->toArray();
+        
+        return $this->getAll()->whereIn('centerId',$centerIds);
     }
 
     public function getActiveNotice()
     {
-        return $this->getAll()->where('active',true)->first();
+        return $this->getAll()->where('active',true);
     }
     
-    public function fetchNotices(bool $active=true)
+    public function fetchNotices($key,bool $active=true,bool $reviewed=true)
     {
-        return $this->getAll()->where('active',$active);
+       
+        return $this->getByKey($key)
+                    ->where('active',$active)
+                    ->where('reviewed',$reviewed);
     }
 
     

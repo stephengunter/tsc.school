@@ -39,6 +39,7 @@ class UserController extends Controller
         $model=[
             'title' => '個人資訊',
             'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
             'user' => $user
         ];
 

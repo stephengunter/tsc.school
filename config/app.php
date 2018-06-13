@@ -2,21 +2,22 @@
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Application Name
-    |--------------------------------------------------------------------------
-    |
-    | This value is the name of your application. This value is used when the
-    | framework needs to place the application's name in a notification or
-    | any other location as required by the application or its packages.
-    |
-    */
+    
+    'center_key' => env('CENTER_KEY', 'west'),
     'company' => array(
-		'name' => '慈大社推',
-		'fullname' =>'慈濟大學社會教育推廣中心',
-        'tel' => '03-8565301轉1703、1704',
-        'address' => '花蓮市中央路三段701號',
+        'west' => [
+            'name' => '玄奘文教基金會',
+            'fullname' =>'財團法人玄奘文教基金會',
+            'tel' => '02-27114672',
+            'address' => '台北市松山區八德路二段358號10樓',
+        ],
+        'east' => [
+            'name' => '慈大社推',
+            'fullname' =>'慈濟大學社會教育推廣中心',
+            'tel' => '03-8565301轉1703、1704',
+            'address' => '花蓮市中央路三段701號',
+        ]
+		
      ),
     'name' => '課程管理系統',
     'address' => '',

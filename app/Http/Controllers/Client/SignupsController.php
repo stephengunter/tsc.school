@@ -323,6 +323,7 @@ class SignupsController extends Controller
         $model=[
             'title' => '線上報名 - ' .  $selectedCourse->fullName(),
             'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
 
             'signup' => $signup,
             'user' => $user,

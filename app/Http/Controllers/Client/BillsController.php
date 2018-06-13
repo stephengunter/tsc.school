@@ -89,7 +89,7 @@ class BillsController extends Controller
         $model=[
             'title' => '列印繳費單',
             'topMenus' => $this->clientMenus(),
-
+            'company' => $this->getCompany(),
             'signup' => $signup
            
         ];

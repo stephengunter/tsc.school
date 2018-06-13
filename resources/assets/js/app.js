@@ -92,6 +92,15 @@ Vue.component('lessons-details', require('./views/lessons/details'));
 Vue.component('payrolls-index', require('./views/payrolls/index'));
 Vue.component('payrolls-details', require('./views/payrolls/details'));
 
+Vue.component('notices-index', require('./views/notices/index'));
+Vue.component('notices-create', require('./views/notices/create'));
+Vue.component('notices-details', require('./views/notices/details'));
+
+
+Vue.component('docs-index', require('./views/docs/index'));
+Vue.component('docs-create', require('./views/docs/create'));
+Vue.component('docs-details', require('./views/docs/details'));
+
 
 Vue.component('my-reports-index', require('./views/reports/index'));
 

@@ -101,6 +101,9 @@ class Menus {
             case 'myreports':
                 html = '<i class="fa fa-file-word-o" aria-hidden="true"></i>';
                 break;
+            case 'homepageadmin':
+                html = '<i class="fa fa-home" aria-hidden="true"></i>';
+                break;
             case 'scores':
                 html = '<i class="fa fa-check-square-o" aria-hidden="true"></i>';
                 break;
@@ -168,6 +171,9 @@ class Menus {
                 break;
             case 'settings':
                 text= '基本設定';
+                break;
+            case 'homepageadmin':
+                text= '首頁管理';
                 break;
             case 'admins':
                 text= '權限管理';

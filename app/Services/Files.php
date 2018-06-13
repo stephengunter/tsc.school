@@ -106,6 +106,13 @@ class Files
         
     }
 
+    function createRandomFileName($file)
+    {
+        $timestamp = str_replace([' ', ':','-'], '', Carbon::now()->toDateTimeString());
+        $random_file_name= $timestamp .'.' .$file->getClientOriginalExtension(); 
+        return $random_file_name;
+    }
+
     public function downloadTemplate($name)
     {
         $fileName=$this->getTemplateFileName($name);
@@ -127,6 +134,40 @@ class Files
         return response()->download($path,  $title , $headers);
        
        
+    }
+
+    public function downloadPublicDoc($doc)
+    {
+        $headers = ['Content-Type: ' . Helper::getMimeTypes($doc->type)];
+
+        $public=true;
+        $disk=$this->getDisk($public);
+        $path =$disk->getDriver()->getAdapter()->getPathPrefix(); 
+
+        $docPath=$doc->path;
+        if(Helper::str_starts_with($docPath, '/')){
+            $docPath=substr($docPath, 1);
+        }
+      
+        $path .= $docPath;
+        
+        $title = $doc->title;
+        $title .= '.' . $doc->type;
+        
+        return response()->download($path,  $title , $headers);
+    }
+
+    public function savePublicDoc($file)
+    {
+        $random_file_name= $this->createRandomFileName($file); 
+        $public=true;
+        $disk=$this->getDisk($public);
+        $save_path= '/docs/' . $random_file_name;
+
+        $this->saveFile($disk , $file, $save_path);
+        
+        return $save_path;
+
     }
 
     public function saveUploadsData($file, $type ,Center $center=null,Term $term=null)

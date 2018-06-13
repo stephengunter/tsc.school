@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Course;
+use App\Area;
 use App\Center;
 use App\Category;
 use App\User;
@@ -149,11 +150,33 @@ class CoursesController extends Controller
 
         $term=$this->terms->getActiveTerm();
 
-        $withEmpty=false;
-        $centerOptions=$this->centers->centerOptions($withEmpty);
+        $center_key=config('app.center_key');
+        $centers=$this->centers->getCentersByKey($center_key)->where('active',true)->get();
 
         $selectedCenter = $this->getSelectedCenter();
-        if (!$selectedCenter)  $selectedCenter = Center::find($centerOptions[0]['value']);
+        if (!$selectedCenter)  $selectedCenter = $centers[0];
+        
+        
+        $areaIds=array_unique($centers->pluck('areaId')->toArray());
+        $areaIds=array_filter($areaIds,function($item)use($selectedCenter){
+            return $item!=$selectedCenter->areaId;
+        });
+       
+        $areas=Area::whereIn('id',$areaIds)->get();
+      
+        foreach($areas as $area){
+            $centersInArea=$centers->where('areaId',$area->id);
+            foreach($centersInArea as $center){
+                $center->url=sprintf('/courses?center=%s', $center->id);
+            }
+            $area->centers=$centersInArea;
+        }
+
+        $centers=$centers->where('areaId',$selectedCenter->areaId);
+        $centerOptions=$centers->map(function ($item) {
+            return [ 'text' => $item->name ,  'value' => $item->id ];
+        })->all();
+
 
      
         $selectedCategory = $this->getSelectedCategory();
@@ -178,7 +201,14 @@ class CoursesController extends Controller
            
         } 
 
+        $centers=$centers->where('areaId',$selectedCenter->areaId);
+        $centerOptions =$centers->map(function ($center) {
+            return $center->toOption();
+        })->values()->toArray();
+      
         $centerOptions = $this->setCenterOptions($centerOptions, $selectedCenter);
+       
+     
 
         $categoryOptions = $this->setCategoryOptions($categoryOptions,$selectedCenter,$selectedCategory);
         
@@ -186,6 +216,8 @@ class CoursesController extends Controller
         $model=[
             'title' => $selectedCenter->name . '課程總覽',
             'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
+            'areas' => $areas,
             'menus' => $centerOptions,
             'subMenus' => $categoryOptions,
             'list' => $pageList

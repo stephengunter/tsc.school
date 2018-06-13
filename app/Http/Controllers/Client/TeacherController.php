@@ -56,6 +56,7 @@ class TeacherController extends Controller
         $model=[
             'title' => '教師資訊',
             'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
             'teacher' => $teacher
         ];
 

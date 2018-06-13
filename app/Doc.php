@@ -20,6 +20,7 @@ class Doc extends Model
             'type' => '',
             'name' => '',
             'title' => '',
+            'ps'=> '',
             'importance' => 0,
         ];
         

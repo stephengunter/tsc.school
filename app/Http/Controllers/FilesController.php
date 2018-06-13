@@ -59,32 +59,6 @@ class FilesController extends Controller
        
     }
 
-    //public async Task<IActionResult> Download(string name)
-    //{
-        //下載範本
-
-        // var docFile =  filesService.FindDocFileByName(name);
-        // if (docFile == null) return NotFound();
-
-        // string folderPath = UploadFilesPath;
-        // var filePath = Path.Combine(folderPath, docFile.Path);
-
-        // string extension = docFile.Type;
-        // string contentType = GetContentType(extension);
-
-
-        // string fileDownloadName = String.Format("{0}{1}", docFile.Title, extension);
-
-        // var memory = new MemoryStream();
-        // using (var stream = new FileStream(filePath, FileMode.Open))
-        // {
-        //     await stream.CopyToAsync(memory);
-        // }
-        // memory.Position = 0;
-        // return File(memory, contentType, fileDownloadName);
-    //}
-
-
    
 
 

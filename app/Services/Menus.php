@@ -149,6 +149,11 @@ class Menus
                         'path' => '/manage/notices',
                         'active' => $current =='manage/notices'
                     ],
+                    [
+                        'text' => '下載專區',
+                        'path' => '/manage/docs',
+                        'active' => $current =='manage/docs'
+                    ],
                 );
         } 
         if($key=='MyReports'){

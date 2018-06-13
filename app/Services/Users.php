@@ -277,11 +277,23 @@ class Users
 		$sid=$values['profile']['sid'];
 
 		if($sid){
+
+			if(Helper::isSIDPattern($sid)){
+				if(Helper::isTaiwanSID($sid)){
+					//中華民國身分證
+					if(!Helper::checkSID($sid)){
+						$errors['user.profile.sid'] = ['身分證號錯誤'];	
+					}
+					
+				}else{
+					//外籍人士
+						
+				}
 			
-			if(Helper::isTaiwanSID($sid)){
-				$isValid=Helper::checkSID($sid);
-				if(!$isValid) $errors['user.profile.sid'] = ['身分證號錯誤'];
+			}else{
+				$errors['user.profile.sid'] = ['身分證號錯誤'];
 			}
+		
 
 			$existUser=$this->findBySID($sid);
 			if($existUser && $existUser->id!=$id){

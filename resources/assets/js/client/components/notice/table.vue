@@ -48,9 +48,6 @@
             init(){
                
             },
-            onSelected(id){
-                this.$emit('selected',id);
-            }
         },
         
     }
