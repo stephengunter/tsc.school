@@ -33,7 +33,7 @@
                      :weekdays="weekdays" :can_edit="course.canEdit"
                      @saved="reloadCourse">
                     </class-time>
-                    <process v-if="activeIndex==2" :model="course"
+                    <process v-if="activeIndex==2" :course="course"
                      :can_edit="course.canEdit"
                      @saved="reloadCourse">
                     </process>

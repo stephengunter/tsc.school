@@ -2,7 +2,7 @@
     <div class="container">
         <nav class="nav">
             <div class="nav-left">
-                <a href="/"  @click="setCurrent('/')"  class="nav-item">
+                <a v-if="center_key!='west'" href="/"  @click="setCurrent('/')"  class="nav-item">
                     <img src="../../../../assets/images/logo.gif" alt="">
                 </a>
             </div>
@@ -53,6 +53,10 @@ export default {
         'user-menus':UserMenus,
     },
     props: {
+        center_key:{
+            type: String,
+            default: 'west'
+        },
         model: {
             type: Object,
             default: null

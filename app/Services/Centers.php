@@ -97,8 +97,9 @@ class Centers
         
     }
     
-    public function fetchCenters($key,bool $active = true)
+    public function fetchCenters($key='',bool $active = true)
     {
+        if(!$key) return $this->getAll()->where('active',$active);
         
         $centers=$this->getAll()->where('key',$key)->where('active',$active);
        

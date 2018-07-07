@@ -89,6 +89,10 @@
                 type: Object,
                 default: null
             },
+            init_params: {
+                type: Object,
+                default: null
+            },
             can_review:{
                 type:Boolean,
                 default:false
@@ -151,7 +155,18 @@
                 this.params.pageSize=this.init_model.pageSize;
             }  
 
-            this.params.term=this.terms[0].value;
+            if(this.init_params){
+                if(this.init_params.term) this.params.term=this.init_params.term.id;
+                if(this.init_params.center) this.params.center=this.init_params.center.id;
+                if(this.init_params.category) this.params.category=this.init_params.category.id;
+
+                this.params.reviewed=this.init_params.reviewed;
+                this.params.keyword=this.init_params.keyword;
+                this.params.page=this.init_params.page;
+                this.params.pageSize=this.init_params.pageSize;
+            
+            }  
+            
             this.canReview=this.can_review;	
         },
         computed:{

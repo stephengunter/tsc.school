@@ -5,8 +5,9 @@ Auth::routes();
 //Route::get('/test', 'BillsController@test');
 
 Route::get('/test', function(){
-    $center_key=config('app.center_key');
-  dd(config('app.company.' . $center_key));
+    $sid='ED00281782';
+    dd(\App\Core\Helper::isSIDPattern($sid));
+    dd('test');
 });
 
 

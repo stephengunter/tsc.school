@@ -96,6 +96,7 @@ class Signups
 
     public function initSignupDetails(User $user,$selectedCourses, $updatedBy)
     {
+       
         $errors=[];
         $signupDetails=[];
 
@@ -113,7 +114,7 @@ class Signups
                 $detail = new SignupDetail([
                     'courseId' => $selectedCourse->id,
                     'tuition' => $selectedCourse->tuition,
-                    'cost' => $selectedCourse->cost,
+                    'cost' => 0,
                     'updatedBy' => $updatedBy
     
                 ]);
@@ -163,6 +164,7 @@ class Signups
         
     public function createSignup(Signup $signup, array $details,User $user, bool $lotus=false)
     {
+        
         $course=$this->courses->getById($details[0]['courseId']);
        
         $identityIds=explode(',', $signup['identity_ids']);

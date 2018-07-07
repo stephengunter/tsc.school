@@ -49,9 +49,11 @@ class Admin extends Model
     public function centersCanAdmin()
     {
         $centers=$this->centers;
+        
         if(!count($centers)) return [];
 
-        $headCenter=$centers->where('head')->first();
+        $headCenter=$centers->where('head',true)->first();
+        
         if(!$headCenter) return $centers;
 
         return Center::where('removed',false)->get();

@@ -12,6 +12,8 @@ use App\Profile;
 use App\Term;
 use App\Center;
 use App\Course;
+use App\ClassTime;
+use App\Weekday;
 use App\Wage;
 use App\ContactInfo;
 use App\Address;
@@ -20,6 +22,7 @@ use App\Services\Users;
 use App\Services\Teachers;
 use App\Services\Volunteers;
 use App\Services\Categories;
+use App\Services\CourseInfoes;
 use DB;
 use Carbon\Carbon;
 use Excel;
@@ -30,12 +33,13 @@ use App\Events\CourseShutDown;
 class Courses 
 {
     public function __construct(Users $users, Teachers $teachers, Volunteers $volunteers,
-                                Categories $categories)
+                                Categories $categories,CourseInfoes $courseInfoes)
     {
         $this->users=$users;
         $this->teachers=$teachers;
         $this->volunteers=$volunteers;
         $this->categories=$categories;
+        $this->courseInfoes=$courseInfoes;
       
         $this->with=['teacherGroup','term','center','classTimes.weekday'];
     }
@@ -281,6 +285,7 @@ class Courses
            
             $number=trim($row['number']);
             $name=trim($row['name']);
+            
             $level=trim($row['level']);
 
             $center_code=trim($row['center']);
@@ -288,6 +293,8 @@ class Courses
 
             $categoryCode=trim($row['categories']);
             $teacherSIDs= trim($row['teachers']);  
+           
+           
             $teacherGroupId= trim($row['group']);
           
             $volunteerSIDs= trim($row['volunteers']);
@@ -298,6 +305,8 @@ class Courses
 
             $hours=(int)trim($row['hours']);
             $weeks=(int)trim($row['weeks']);
+            
+
 
             if(!$name){
                 continue;
@@ -305,12 +314,12 @@ class Courses
 
             $term=null;
             if(!$termNumber){
-                $err_msg .= '學期不可空白' . ',';
+                $err_msg .=$name . '學期不可空白' . ',';
                 continue;
             }else{
                 $term=Term::where('number',$termNumber)->first();
                 if(!$term){
-                    $err_msg .= '學期'. $termNumber .'錯誤' . ',';
+                    $err_msg .= $name .'學期'. $termNumber .'錯誤' . ',';
                     continue;
                 }
             }
@@ -318,48 +327,50 @@ class Courses
 
             $center=null;
             if(!$center_code){
-                $err_msg .= '中心代碼不可空白' . ',';
+                $err_msg .= $name .'中心代碼不可空白' . ',';
                 continue;
             }else{
                 $center=Center::where('code',$center_code)->first();
                 if(!$center){
-                    $err_msg .= '中心代碼'. $center_code .'錯誤' . ',';
+                    $err_msg .= $name .'中心代碼'. $center_code .'錯誤' . ',';
                     continue;
                 }
             }
 
             if(!$number){
-                $err_msg .= '編號不可空白' . ',';
+                $err_msg .= $name .'編號不可空白' . ',';
                 continue;
             }
             if(!$hours){
-                $err_msg .= '時數不可空白' . ',';
+                $err_msg .= $name .'時數不可空白' . ',';
                 continue;
             }
             if(!$weeks){
-                $err_msg .= '週數不可空白' . ',';
+                $err_msg .= $name .'週數不可空白' . ',';
                 continue;
             }
             if(!$begin_date){
-                $err_msg .= '開始日期不可空白' . ',';
+                $err_msg .= $name .'開始日期不可空白' . ',';
                 continue;
             }
             if(!$end_date){
-                $err_msg .= '結束日期不可空白' . ',';
+                $err_msg .= $name .'結束日期不可空白' . ',';
                 continue;
             }
 
             $category=null;
             if(!$categoryCode){
-                $err_msg .= '課程分類不可空白' . ',';
+                $err_msg .= $name .'課程分類不可空白' . ',';
                 continue;
             }else{
                 $category=$this->categories->getCategoryByCode($categoryCode);
                 if(!$category){
-                    $err_msg .= '課程分類錯誤' . ',';
+                    $err_msg .= $name .'課程分類錯誤' . ',';
                     continue;
                 }
             }
+
+           
 
             $teacherIds=[];
             if($teacherSIDs){
@@ -387,12 +398,11 @@ class Courses
             }else{
                 
                 if(!$teacherIds){
-                    $err_msg .= '教師不可空白' . ',';
+                    
+                    $err_msg .= $name . '教師不可空白' . ',';
                     continue;
                 }
             }
-
-            
 
             $courseNumber=Course::initCourseNumber($number ,$category,$center ,$term );
            
@@ -426,9 +436,73 @@ class Courses
 
             if($teacherGroup) $course->teacherGroupId=$teacherGroup->id;
 
-            $course=$this->createCourse($course,[$category->id],$teacherIds,$volunteerIds);
+          
 
+            $course=$this->createCourse($course,[$category->id],$teacherIds,$volunteerIds);
             
+            if(array_key_exists ( 'weekday' ,$row)){
+                $weekday_text=trim($row['weekday']);
+                $weekday_val = 0;
+
+                switch ($weekday_text)
+                {
+                    case '一':
+                        $weekday_val= 1;
+                        break;
+                    case '二':
+                        $weekday_val= 2;
+                        break;
+                    case '三':
+                        $weekday_val= 3;
+                        break;
+                    case '四':
+                        $weekday_val= 4;
+                        break;
+                    case '五':
+                        $weekday_val= 5;
+                        break;
+                    case '六':
+                        $weekday_val= 6;
+                        break;
+                    case '日':
+                        $weekday_val= 0;
+                        break;
+                }
+
+                $weekday=Weekday::where('val',$weekday_val)->first();
+                if(!$weekday){
+                    $err_msg .= $name . '星期幾錯誤' . ',';
+                    continue;
+                }
+
+                $time=trim($row['time']);
+
+                $times=explode('-', $time);  
+                
+                $on=(int)$times[0];
+                $off=(int)$times[1];
+                
+                
+                if(!$this->courseInfoes->isValidTimeNumber($on)){
+                    $err_msg .= $name . '時間錯誤' . ',';
+                    continue;
+                }
+              
+                if(!$this->courseInfoes->isValidTimeNumber($off)){
+                    $err_msg .= $name . '時間錯誤' . ',';
+                    continue;
+                }
+
+                $classtime=[
+                    'courseId' => $course->id,
+                    'weekdayId' => $weekday->id,
+                    'on' => $on,
+                    'off' => $off
+                ];
+
+                ClassTime::create($classtime);
+
+            }     
             
            
         }  //end for  
@@ -477,6 +551,7 @@ class Courses
             if(!$number){
                 continue;
             }
+            
             $course= $this->getByNumber($number);
             if(!$course)
             {
@@ -484,16 +559,7 @@ class Courses
                 continue;
             }
           
-            if(!$tuition){
-                $err_msg .= '學費不可空白' . ',';
-                continue;
-            }else{
-                $tuition=floatval($tuition);
-                if(!$tuition){
-                    $err_msg .= '學費錯誤' . ',';
-                    continue;
-                }
-            }
+            $tuition=floatval($tuition);
 
            
             $course->update([

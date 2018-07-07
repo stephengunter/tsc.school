@@ -168,9 +168,16 @@
             }  
 
             if(this.init_params){
-                this.params={...this.init_params };
-            }
+                if(this.init_params.term) this.params.term=this.init_params.term.id;
+                if(this.init_params.center) this.params.center=this.init_params.center.id;
+                if(this.init_params.course) this.params.course=this.init_params.course.id;
 
+                this.params.status=this.init_params.status;
+                this.params.keyword=this.init_params.keyword;
+                this.params.page=this.init_params.page;
+                this.params.pageSize=this.init_params.pageSize;
+            
+            } 
            
 
             this.courseOptions=this.courses.slice(0);

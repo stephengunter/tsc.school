@@ -12,18 +12,23 @@
                 </button>
             </div>
             <div v-else>
-                
-                <button v-if="canCreate" @click.prevent="beginCreate" class="btn btn-primary btn-sm" >
-                    <i class="fa fa-plus-circle"></i> 
-                    新增
-                </button>
-               
-                <label v-if="false" @click="beginImport" href="#" class="btn btn-warning btn-sm btn-file" >
-                    <i class="fa fa-upload"></i>
-                    匯入
-                    <input  type="file"  ref="fileinput"  name="import_file" style="display: none;"  
-                       @change="onFileChange" >
-                </label>
+                <div v-if="editting">
+                    <button @click.prevent="onSubmit" class="btn btn-success">
+                        <i class="fa fa-save"></i>
+						存檔
+					</button>
+                    <button @click.prevent="cancelEdit" class="btn btn-default btn-sm">
+                        <i class="fa fa-arrow-circle-left"></i>
+                        返回
+                    </button>
+                </div>
+                <div v-else>
+                    
+                    <button v-show="can_edit" @click.prevent="beginEdit" class="btn btn-primary btn-sm" >
+                        <i class="fa fa-edit"></i>  
+                        編輯
+                    </button>
+                </div>
                 <small class="text-danger" v-if="err_msg" v-text="err_msg"></small>
             </div>
         </div>  
@@ -31,27 +36,22 @@
             <table  class="table">
                 <thead>
                     <tr>
-                        <th style="width:8%">
+                        <th style="width:5%">
                             順序
                         </th>
-                        <th style="width:25%">
+                        <th style="width:45%">
                             標題
                         </th>
                         <th>
                             說明
                         </th>
-                        <th style="width:8%"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <row  v-if="creating" :form="form"   :edit="true"  :orders="orders"
-                       @cancel="creating=false" @submit="onSubmit">
-                    </row>
-                    <row v-for="(item,index) in course.processes" :key="index"
-                      :can_edit="can_edit" :model="item" :form="form"  
-                      :edit="form.id==item.id" :orders="orders"
-                      @edit="beginEdit" @cancel="form.id=0" @submit="onSubmit"
-                      @delete="onDelete">
+                    
+                    <row v-for="(item,index) in processes" :key="index"
+                      :model="item" 
+                      :edit="editting" >
                     </row>
                 </tbody>
             
@@ -59,10 +59,6 @@
         </div>
         
     </div>
-
-    <delete-confirm :showing="deleteConfirm.show" :message="deleteConfirm.msg"
-      @close="closeConfirm" @confirmed="deleteCourse">        
-    </delete-confirm>
 </div>
 </template>
 <script>
@@ -73,7 +69,7 @@
             Row
         },
         props: {
-            model: {
+            course: {
               type: Object,
               default: null
             },
@@ -85,16 +81,13 @@
         data() {
             return {
                 icon:Menus.getIcon('process') ,
-                course:null,
-                creating:false,
 
-                orders:Helper.numberOptions(1, 30),
+                processes:[],
+
+                editting:false,
 
                 form:new Form({
-                    id:0,
-                    courseId:0,
-                    title:'',
-                    content:''
+                    processes:[]
                 }),
 
                 deleteConfirm:{
@@ -110,17 +103,6 @@
             }
         },
         computed:{
-            canCreate(){
-                if(!this.can_edit) return false;
-                if(this.creating) return false;
-                if(this.form.id>0) return false;
-                return true;
-            },
-            showImportBtn(){
-                if(!this.canCreate) return false;
-                if(this.course.processes && this.course.processes.length) return false;
-                return true;
-            },
             title(){
                 let text='教學大綱';
 
@@ -134,57 +116,53 @@
         },
         methods: {
             init() {
-                this.course={
-                    ...this.model
-                };
-                this.creating=false;
                
-            },
-            beginCreate(){
-                let order=1;
-                if(this.course.processes.length){
-                    order=this.course.processes.length+1;
-                }
-              
-                this.form=new Form({
-                    id:0,
-                    order:order,
-                    courseId:this.course.id,
-                    title:'',
-                    content:''
-                });
-                this.creating=true;
-            },
-            beginImport(){
-                this.$refs.fileinput.value = null;
-                this.err_msg='';
-            },
-            onFileChange(e) {
-               
-                var files = e.target.files || e.dataTransfer.files;
-                if (!files.length)  return;
-                   
-                this.files = e.target.files;
+                this.editting=false;
+                this.processes=[];
 
-                this.submitImport();
+                for(let i=1; i<=12; i++){
+                    let exist=this.course.processes.find(processItem=>{
+                        return parseInt(processItem.order)==i;
+                    })
+                    let item={
+                        id:0,
+                        order:i,
+                        title:'',
+                        content:'',
+                    };
+
+                    if(exist){
+                        item.id=exist.id;
+                        item.title=exist.title;
+                        item.content=exist.content;
+                    }
+                    this.processes.push(item);
+                }
+               
             },
-            beginEdit(item) {
-                this.form=new Form({
-                    id:item.id,
-                    order:item.order,
-                    courseId:this.course.id,
-                    title:item.title,
-                    content:item.content
-                });
+            loadProcesses(){
+
+            },
+            beginEdit(){
+                this.editting=true;
+                
+            },
+            cancelEdit(){
+                this.init();
             },
             onEditCanceled(){
                 this.init();
             },
             onSubmit(){
+               
                 this.submitting=true;
-                let save=null;
-                if(this.form.id < 1) save=Process.store(this.form);
-                else save=Process.update(this.form.id,this.form);
+                let form = new Form({
+                    course_id:this.course.id,
+                    processes:this.processes.slice(0)
+                });
+                
+               
+                let save = Process.store(form);
 
                 save.then(() => {
                         this.$emit('saved');
@@ -223,35 +201,8 @@
                         this.submitting=false
                     })
 
-            },
-            onDelete(item){
-             
-                let name=item.order + ' ' + item.title;
-                let id=item.id;
-
-                this.deleteConfirm.msg='確定要刪除 ' + name + ' 嗎?';
-                this.deleteConfirm.id=id;
-                this.deleteConfirm.show=true;   
-            },
-            closeConfirm(){
-                this.deleteConfirm.show=false;
-            },
-            deleteCourse(){
-                this.closeConfirm();
-
-                let id = this.deleteConfirm.id;
-                let remove= Process.remove(id);
-                remove.then(() => {
-                    Helper.BusEmitOK('刪除成功');
-                    this.$emit('saved');
-                })
-                .catch(error => {
-                    Helper.BusEmitError(error,'刪除失敗');
-                    this.closeConfirm(); 
-                })
-
-                 
-            },
+            }
+           
             
         }
     }

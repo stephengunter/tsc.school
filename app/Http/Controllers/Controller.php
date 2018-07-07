@@ -76,9 +76,11 @@ class Controller extends BaseController
 
     protected function canAdminCenters($centers)
     {
+       
         if($this->currentUserIsDev()) return true;
 
         $centersCanAdmin= $this->centersCanAdmin();
+       
         $intersect = $centersCanAdmin->intersect($centers);
 
         if(count($intersect)) return true;

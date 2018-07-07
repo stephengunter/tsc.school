@@ -13,10 +13,10 @@
                         <th style="width:20%">Email</th>
                         <th style="width:10%">手機</th>
                         
-                        <th style="width:10%">專長</th>
+                        <th v-if="false" style="width:10%">專長</th>
                         <th style="width:10%" v-if="!center">所屬中心</th>
-                        <th style="width:10%">薪酬標準</th>
-                        <th style="width:10%">特殊講師鐘點費</th>
+                        <th v-if="false" style="width:10%">薪酬標準</th>
+                        <th v-if="false" style="width:10%">特殊講師鐘點費</th>
                         <th style="width:10%">審核</th>
                         
                     </tr>
@@ -40,13 +40,13 @@
                         
 
 
-                        <td>{{  teacher.specialty }}</td>
+                        <td v-if="false">{{  teacher.specialty }}</td>
 
                         <td v-if="!center" v-text="centerNames(teacher)"></td>
 
-                        <td>{{  teacher.wage.name }}</td>
+                        <td v-if="false">{{  teacher.wage.name }}</td>
 
-                        <td>{{  teacher.pay | formatMoney }}</td>
+                        <td v-if="false">{{  teacher.pay | formatMoney }}</td>
                         
                         <td v-html="$options.filters.reviewedLabel(teacher.reviewed)" ></td>
                         

@@ -4,7 +4,8 @@
 @section('content')
 
 
-<courses-index v-show="indexMode" :init_model="model" :terms="terms" :centers="centers" :categories="categories"
+<courses-index v-show="indexMode" :init_model="model" :init_params="params"
+               :terms="terms" :centers="centers" :categories="categories"
                :can_review="can_review" :can_import="can_import" :version="version"
                 v-on:selected="onSelected" v-on:create="onCreate" v-on:import="beginImport">
 </courses-index>
@@ -36,6 +37,8 @@
                     can_review: false,
                     can_import: false,
 
+                    params:{},
+
                     terms: [],
                     centers: [],
                     categories: [],
@@ -63,6 +66,9 @@
             },
             beforeMount() {
                 this.model = {!! json_encode($list) !!} ;
+
+                let params = {!! json_encode($params) !!} ;
+                this.params=params;
 
                 this.terms = {!! json_encode($terms) !!} ;
                 this.centers = {!! json_encode($centers) !!} ;

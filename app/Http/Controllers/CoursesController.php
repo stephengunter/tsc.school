@@ -167,11 +167,8 @@ class CoursesController extends Controller
         return true;
     }
 
-    
-
-    public function index()
+    function readIndexRequest()
     {
-       
         $request=request();
 
         $term=0;
@@ -197,29 +194,65 @@ class CoursesController extends Controller
 
         $selectedCenter = null;
         if ($center) $selectedCenter = Center::find($center);
-        if (!$selectedCenter)
-        {
-            $center = 0;
-            if ($pageSize == 999) $pageSize = 10;
+
+        if(!$this->isAjaxRequest() && !$selectedCenter){
+            $selectedCenter=$this->defaultAdminCenter();
         }
-        else
-        {
+
+        if (!$selectedCenter && $pageSize == 999){
+            $pageSize = 10;
+        }else{
             $pageSize = 999;
         }
 
-        $canReview=$this->canReviewCenter($selectedCenter);
+        $selectedTerm = null;
+        if ($term) $selectedTerm = $this->terms->getById($term);
 
         $selectedCategory = null;
         if ($category) $selectedCategory = Category::find($category);
 
-        $termOptions = $this->terms->options();
-        if (!$term){
-            if(count($termOptions)) $term = (int)$termOptions[0]['value'];
-            
-        } 
+
+        $params=[
+            'term' => $selectedTerm,
+            'center' => $selectedCenter,
+            'category' => $selectedCategory,
+            'keyword' => $keyword,
+            'reviewed' => $reviewed,
+            'page' => $page,
+            'pageSize' => $pageSize
+
+        ];
+
+        return $params;
+    }
+
+    
+
+    public function index()
+    {
+        $params=$requestValues=$this->readIndexRequest();
+
+        $selectedTerm=$params['term'];
+        if(!$selectedTerm){
+            $selectedTerm=$this->terms->getActiveTerm();
+        }
+
+        $selectedCenter=$params['center'];
+        
+        $canReview=$this->canReviewCenter($selectedCenter);
+        
+
+        $selectedCategory = $params['category'];
+
+        $reviewed= $params['reviewed'];
+        $keyword= $params['keyword'];
+
+        
       
-        $courses =  $this->courses->fetchCourses($term ,$selectedCenter, $selectedCategory,$reviewed, $keyword);
-      
+        $courses = $this->courses->fetchCourses($selectedTerm->id ,$selectedCenter, $selectedCategory,$reviewed, $keyword);
+           
+        $page= $params['page'];
+        $pageSize= $params['pageSize'];
         $pageList = new PagedList($courses,$page,$pageSize);
 
         foreach($pageList->viewList as $course){
@@ -236,12 +269,15 @@ class CoursesController extends Controller
             ]);
         }
 
+        // 初次載入頁面 Not Ajax
+        $termOptions = $this->terms->options();
         foreach ($termOptions as $item)
         {
             $item['text'] .= '學期';
         }
 
         $centerOptions=$this->centers->centerOptions();
+
         $categoryOptions = $this->categories->options();
 
         $percentsOptions=$this->quits->percentsOptions(false);
@@ -252,6 +288,7 @@ class CoursesController extends Controller
             'title' => '課程管理',
             'menus' => $this->adminMenus('CoursesAdmin'),
 
+            'params' => $params,
             'centers' => $centerOptions,
             'terms' => $termOptions,
             'categories' => $categoryOptions,

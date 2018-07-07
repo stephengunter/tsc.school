@@ -62,7 +62,8 @@ class Helper
     {
         $iPidLen = strlen($pid);
         if($iPidLen != 10) return false;
-        return preg_match("/^[A-Za-z][1-2][0-9]{8}$/",$pid) > 0;
+        
+        return preg_match("/^[A-Z]{1}[12ABCD]{1}[[:digit:]]{8}$/",$pid);
     }
 
     public static function checkSID($pid)

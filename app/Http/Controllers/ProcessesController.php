@@ -23,19 +23,41 @@ class ProcessesController extends Controller
         $this->courseInfoes=$courseInfoes;
       
     }
+
+    function canEdit(Course $course)
+    {
+        return $this->canAdminCenter($course->center);
+
+    }
     
     public function store(Request $request)
     {
         $values=$request->toArray();
 
-        $errors=$this->validateInputs($values);
+        $courseId=$values['course_id'];
+        $processes=$values['processes'];
 
-        if($errors) return $this->requestError($errors);
-
-        $values['updatedBy']=$this->currentUserId();
-        Process::create($values);
+        $course=Course::findOrFail($courseId);
+        $canEdit=$this->canEdit($course);
+        if(!$canEdit) return $this->unauthorized();
+       
         
-        return response() ->json();
+        foreach($processes as $process){
+            if(!$process['title']) continue;
+
+            $process['courseId']=$courseId;
+
+            $process_id=(int)$process['id'];
+            if($process_id){
+                $exist=Process::find($process_id);
+                if($exist) $exist->update($process);
+            }else{
+                if($process['title']) Process::create($process);
+                
+            }
+        }
+        
+        return response()->json();
       
     }
     function validateInputs(array $values)

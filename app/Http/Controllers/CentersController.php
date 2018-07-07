@@ -29,10 +29,13 @@ class CentersController extends Controller
         $this->files=$files;
     }
 
-    function keyOptions()
+    function keyOptions($withOversea=false,$withEmpty=false)
     {
-        return $this->centers->getKeyOptions();
-
+        
+        $options=$this->centers->getKeyOptions($withOversea);
+        if($withEmpty) array_unshift($options, ['text' => '----------' , 'value' => '']);
+        
+        return $options;
     }
 
     function canEdit()
@@ -68,11 +71,10 @@ class CentersController extends Controller
         $active=true;
         if($request->active)  $active=Helper::isTrue($request->active);
 
-        $keys=['west','east','oversea'];
-        if(!in_array($key,$keys)) $key=$keys[0];
+        $keys=['west','east'];
+        if(!in_array($key,$keys)) $key='';
 
-        if(!$active) $centers=$this->centers->getAll()->where('active',$active);
-        else $centers=$this->centers->fetchCenters($key);
+        $centers=$this->centers->fetchCenters($key);
         
        
         $centers=$this->centers->getOrdered($centers);
@@ -90,12 +92,16 @@ class CentersController extends Controller
        
 
         $menus=$this->adminMenus('MainSettings');
+
+        $withOversea=false;
+        $withEmpty=true;
+        $keyOptions=$this->keyOptions($withOversea,$withEmpty);
        
         return view('centers.index')->with([
             'title' => '開課中心管理',
             'menus' => $menus,
             'key' => $key,
-            'keys' => $this->keyOptions(),
+            'keys' => $keyOptions,
             'areas' => $this->areaOptions(),
             'canEdit' => $this->canEdit(),
             'canImport' => $this->canImport(),
