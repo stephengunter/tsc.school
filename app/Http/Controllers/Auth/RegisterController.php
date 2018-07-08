@@ -41,7 +41,8 @@ class RegisterController extends Controller
     {
         $model=[
             'title' => '註冊 - 建立新帳號',
-            'topMenus' => $this->clientMenus()
+            'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany()
            
         ];
 

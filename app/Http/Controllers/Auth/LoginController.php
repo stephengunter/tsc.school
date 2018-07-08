@@ -36,6 +36,7 @@ class LoginController extends Controller
    
     public function showLoginForm()
     {
+      
         $request=request();
 
         $intend='';
@@ -45,6 +46,7 @@ class LoginController extends Controller
         $model=[
             'title' => '登入',
             'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
             'intend' => $intend
            
         ];

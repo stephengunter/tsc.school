@@ -26,9 +26,11 @@ class ForgotPasswordController extends Controller
 
     public function showLinkRequestForm()
     {
+       
         $model=[
             'title' => '忘記密碼',
-            'topMenus' => $this->clientMenus()
+            'topMenus' => $this->clientMenus(), 
+            'company' => $this->getCompany()
            
         ];
         return view('auth.passwords.email')->with($model);
