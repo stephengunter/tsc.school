@@ -12,10 +12,11 @@
                         <th style="width:10%">姓名</th>
                         <th style="width:15%">Email</th>
                         <th style="width:10%">手機</th>
+                        <th style="width:10%">市話</th>
                         <th style="width:15%">所屬中心</th>
                         <th style="width:10%">身分</th>
-                        <th style="width:10%">可服務時間</th>
-                        <th style="width:10%">可服務時段</th>
+                        <th v-if="false" style="width:10%">可服務時間</th>
+                        <th v-if="false" style="width:10%">可服務時段</th>
                         <th >備註</th>
                     </tr>
                 </thead>
@@ -35,14 +36,15 @@
                        
                         <td>{{  volunteer.user.email }}</td>
                         <td>{{  volunteer.user.phone }}</td>
+                        <td v-text="getTEL(volunteer.user)"></td>
                         <td>
                             {{  volunteer.centersText }}
                         </td>
                         <td>
                             {{  volunteer.user.identityNames }}
                         </td>
-                        <td>{{  volunteer.weekdaysText }}</td>
-                        <td>{{  volunteer.time }}</td>
+                        <td v-if="false" >{{  volunteer.weekdaysText }}</td>
+                        <td v-if="false" >{{  volunteer.time }}</td>
                         <td>{{  volunteer.ps }}</td>
                         
                     </tr>    
@@ -110,6 +112,10 @@ export default {
         getViewList(){
 			if(this.model) return this.model.viewList;
 			return this.volunteers;
+        },
+        getTEL(user){
+            if(user.contactInfo) return user.contactInfo.tel;
+            return '';
         },
         hasContactInfo(volunteer){
             if(volunteer.user.contactInfo) return true;

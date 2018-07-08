@@ -254,7 +254,12 @@ class User {
         return '';
     }
 
-    
+    static getContactInfo(user){
+        if(user.contactInfo) return user.contactInfo;
+        if(!user.contactInfoes) return null;
+        if(!user.contactInfoes.length) return null;
+        return user.contactInfoes[0];
+    }
     
  
     

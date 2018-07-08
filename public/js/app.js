@@ -50244,6 +50244,14 @@ var User = function () {
             if (role == 'Volunteer') return '<span class="label label-primary" > 志工 </span>';
             return '';
         }
+    }, {
+        key: 'getContactInfo',
+        value: function getContactInfo(user) {
+            if (user.contactInfo) return user.contactInfo;
+            if (!user.contactInfoes) return null;
+            if (!user.contactInfoes.length) return null;
+            return user.contactInfoes[0];
+        }
     }]);
 
     return User;
@@ -71020,15 +71028,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (teacher.centerNames) return teacher.centerNames;
             return teacher.centers;
         },
+        getContactInfo: function getContactInfo(user) {
+            return User.getContactInfo(user);
+        },
         hasContactInfo: function hasContactInfo(teacher) {
-            if (teacher.user.contactInfo) return true;
+            var contactInfo = this.getContactInfo(teacher.user);
+            if (contactInfo) return true;
             return false;
         },
         hasAddress: function hasAddress(teacher) {
-
-            if (!this.hasContactInfo(teacher)) return false;
-            if (teacher.user.contactInfo.address) return true;
+            var contactInfo = this.getContactInfo(teacher.user);
+            if (!contactInfo) return false;
+            if (contactInfo.address) return true;
             return false;
+        },
+        getTEL: function getTEL(user) {
+            var contactInfo = this.getContactInfo(user);
+            if (contactInfo) return contactInfo.tel;
+            return '';
         },
         onSelected: function onSelected(id) {
 
@@ -71110,9 +71127,11 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("姓名")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "20%" } }, [_vm._v("Email")]),
+              _c("th", { staticStyle: { width: "15%" } }, [_vm._v("Email")]),
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("手機")]),
+              _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("市話")]),
               _vm._v(" "),
               false
                 ? _c("th", { staticStyle: { width: "10%" } }, [_vm._v("專長")])
@@ -71188,6 +71207,12 @@ var render = function() {
                     _c("td", [_vm._v(_vm._s(teacher.user.email))]),
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(teacher.user.phone))]),
+                    _vm._v(" "),
+                    _c("td", {
+                      domProps: {
+                        textContent: _vm._s(_vm.getTEL(teacher.user))
+                      }
+                    }),
                     _vm._v(" "),
                     false
                       ? _c("td", [_vm._v(_vm._s(teacher.specialty))])
@@ -81143,6 +81168,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'VolunteerTable',
@@ -81196,6 +81223,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         getViewList: function getViewList() {
             if (this.model) return this.model.viewList;
             return this.volunteers;
+        },
+        getTEL: function getTEL(user) {
+            if (user.contactInfo) return user.contactInfo.tel;
+            return '';
         },
         hasContactInfo: function hasContactInfo(volunteer) {
             if (volunteer.user.contactInfo) return true;
@@ -81290,17 +81321,23 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("手機")]),
               _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("市話")]),
+              _vm._v(" "),
               _c("th", { staticStyle: { width: "15%" } }, [_vm._v("所屬中心")]),
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("身分")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [
-                _vm._v("可服務時間")
-              ]),
+              false
+                ? _c("th", { staticStyle: { width: "10%" } }, [
+                    _vm._v("可服務時間")
+                  ])
+                : _vm._e(),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [
-                _vm._v("可服務時段")
-              ]),
+              false
+                ? _c("th", { staticStyle: { width: "10%" } }, [
+                    _vm._v("可服務時段")
+                  ])
+                : _vm._e(),
               _vm._v(" "),
               _c("th", [_vm._v("備註")])
             ])
@@ -81357,6 +81394,12 @@ var render = function() {
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(volunteer.user.phone))]),
                     _vm._v(" "),
+                    _c("td", {
+                      domProps: {
+                        textContent: _vm._s(_vm.getTEL(volunteer.user))
+                      }
+                    }),
+                    _vm._v(" "),
                     _c("td", [
                       _vm._v(
                         "\n                            " +
@@ -81373,9 +81416,13 @@ var render = function() {
                       )
                     ]),
                     _vm._v(" "),
-                    _c("td", [_vm._v(_vm._s(volunteer.weekdaysText))]),
+                    false
+                      ? _c("td", [_vm._v(_vm._s(volunteer.weekdaysText))])
+                      : _vm._e(),
                     _vm._v(" "),
-                    _c("td", [_vm._v(_vm._s(volunteer.time))]),
+                    false
+                      ? _c("td", [_vm._v(_vm._s(volunteer.time))])
+                      : _vm._e(),
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(volunteer.ps))])
                   ])
@@ -81446,10 +81493,15 @@ var render = function() {
                 staticStyle: { "padding-left": "1em" }
               },
               [
-                _c("drop-down", {
-                  attrs: { items: _vm.weekdays, selected: _vm.params.weekday },
-                  on: { selected: _vm.onWeekdaySelected }
-                })
+                false
+                  ? _c("drop-down", {
+                      attrs: {
+                        items: _vm.weekdays,
+                        selected: _vm.params.weekday
+                      },
+                      on: { selected: _vm.onWeekdaySelected }
+                    })
+                  : _vm._e()
               ],
               1
             )
@@ -88287,6 +88339,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             return this.checkedIds.length > 0;
         },
         showReportsBtn: function showReportsBtn() {
+
             var term = Helper.tryParseInt(this.params.term);
             var center = Helper.tryParseInt(this.params.center);
             return term > 0 && center > 0;
@@ -98600,6 +98653,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			});
 		},
 		submit: function submit() {
+			var _this4 = this;
+
 			var save = null;
 
 			this.form.signup.user = _extends({}, this.form.user);
@@ -98607,7 +98662,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			if (this.isCreate) save = Signup.store(this.form);else save = Signup.update(this.id, this.form);
 
 			save.then(function (signup) {
-				//this.$emit('saved',signup);
+				_this4.$emit('saved', signup);
 				Helper.BusEmitOK('資料已存檔');
 			}).catch(function (error) {
 				Helper.BusEmitError(error, '存檔失敗');

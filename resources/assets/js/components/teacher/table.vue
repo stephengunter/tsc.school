@@ -10,9 +10,9 @@
 							</check-box>
                         </th>
                         <th style="width:10%">姓名</th>
-                        <th style="width:20%">Email</th>
+                        <th style="width:15%">Email</th>
                         <th style="width:10%">手機</th>
-                        
+                        <th style="width:10%">市話</th>
                         <th v-if="false" style="width:10%">專長</th>
                         <th style="width:10%" v-if="!center">所屬中心</th>
                         <th v-if="false" style="width:10%">薪酬標準</th>
@@ -37,7 +37,7 @@
                        
                         <td>{{  teacher.user.email }}</td>
                         <td>{{  teacher.user.phone }}</td>
-                        
+                        <td v-text="getTEL(teacher.user)"></td>
 
 
                         <td v-if="false">{{  teacher.specialty }}</td>
@@ -128,15 +128,24 @@ export default {
             if(teacher.centerNames) return teacher.centerNames;
             return teacher.centers;
         },
+        getContactInfo(user){
+            return User.getContactInfo(user);
+        },
         hasContactInfo(teacher){
-            if(teacher.user.contactInfo) return true;
+            let contactInfo=this.getContactInfo(teacher.user);
+            if(contactInfo) return true;
             return false;
         },
         hasAddress(teacher){
-             
-            if(!this.hasContactInfo(teacher)) return false;
-            if(teacher.user.contactInfo.address) return true;
+            let contactInfo=this.getContactInfo(teacher.user); 
+            if(!contactInfo) return false;
+            if(contactInfo.address) return true;
             return false;
+        },
+        getTEL(user){
+            let contactInfo=this.getContactInfo(user); 
+            if(contactInfo) return contactInfo.tel;
+            return '';
         },
         onSelected(id){
         

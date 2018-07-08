@@ -182,6 +182,7 @@
                 return this.checkedIds.length > 0;
             },
             showReportsBtn(){
+                
                 let term= Helper.tryParseInt(this.params.term);
                 let center= Helper.tryParseInt(this.params.center);
                 return term > 0 && center > 0 ;

@@ -218,7 +218,7 @@ export default {
 			else  save=Signup.update(this.id,this.form);
 
 			save.then(signup => {
-                    //this.$emit('saved',signup);
+                    this.$emit('saved',signup);
 					Helper.BusEmitOK('資料已存檔');
 				})
 				.catch(error => {

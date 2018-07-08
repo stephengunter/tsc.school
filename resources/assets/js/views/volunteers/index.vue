@@ -13,7 +13,7 @@
                         </drop-down>
                     </div>
                     <div  class="form-group" style="padding-left:1em;">
-                        <drop-down :items="weekdays" :selected="params.weekday"
+                        <drop-down v-if="false" :items="weekdays" :selected="params.weekday"
                             @selected="onWeekdaySelected">
                         </drop-down>
                     </div>

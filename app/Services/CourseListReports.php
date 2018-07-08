@@ -156,7 +156,7 @@ class CourseListReports
            
         );
 
-        $sheet->setHeight($current_row, 360);
+        $sheet->setHeight($current_row, 120);
         $sheet->row($current_row, $data);
 
         $range=$this->rowRange($current_row);

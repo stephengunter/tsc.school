@@ -233,8 +233,10 @@ class CoursesController extends Controller
         $params=$requestValues=$this->readIndexRequest();
 
         $selectedTerm=$params['term'];
+       
         if(!$selectedTerm){
             $selectedTerm=$this->terms->getActiveTerm();
+            $params['term']=$selectedTerm;
         }
 
         $selectedCenter=$params['center'];
