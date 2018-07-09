@@ -69,14 +69,17 @@ class TeachersController extends Controller
         return $this->canAdminCenter($center);
 
     }
-    function canReviewCenter(Center $center)
+    function canReviewCenter(Center $center=null)
     {
-        if(!$center) return false;
 
         if($this->currentUserIsDev()) return true;
         if(!$this->currentUser()->isBoss()) return false;
 
-        return $this->canAdminCenter($center);
+        if($center) return $this->canAdminCenter($center);
+        
+        return true;
+
+
     }
 
     function canDelete($teacher)
@@ -148,8 +151,7 @@ class TeachersController extends Controller
             return $this->teacherGroupsIndex($selectedCenter, $keyword ,$page, $pageSize);
         }
 
-        $canReview=false;
-        if($selectedCenter)   $canReview=$this->canReviewCenter($selectedCenter);
+        $canReview=$this->canReviewCenter($selectedCenter);
       
         $teachers =  $this->teachers->fetchTeachers($selectedCenter, $reviewed, $keyword);
       

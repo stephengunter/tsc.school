@@ -184,8 +184,8 @@
             showReviewBtn(){
                 if(this.params.reviewed) return false;
                 if(this.isGroup) return false;
-                if(!this.center) return false;
-                return true;
+
+                return this.canReview;
             },
             canSubmitReview(){
                 return this.checkedIds.length > 0;
@@ -265,6 +265,7 @@
                     page:this.params.page,
                     pageSize:this.params.pageSize,
                 };
+
                 if(this.isGroup) params.active =this.params.active;
                 else  params.reviewed=this.params.reviewed;
 

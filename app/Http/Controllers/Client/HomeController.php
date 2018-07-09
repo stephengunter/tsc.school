@@ -36,6 +36,7 @@ class HomeController extends Controller
 
         $term = $this->terms->getActiveTerm(); 
         
+        $needRecommend=false;
        
 		if($term){
             $courses=$this->courses->fetchCourses($term->id);
@@ -47,18 +48,22 @@ class HomeController extends Controller
                
             } 
 
-            $excludeIds = $latestCourses->pluck('id')->toArray();
-            $recommendCourses = $courses->whereNotIn('id',$excludeIds)->get();
+            if($needRecommend){
+                $excludeIds = $latestCourses->pluck('id')->toArray();
+                $recommendCourses = $courses->whereNotIn('id',$excludeIds)->get();
 
-            if(count($recommendCourses) > 4 ){
-                $recommendCourses = $recommendCourses->random(4);
+                if(count($recommendCourses) > 4 ){
+                    $recommendCourses = $recommendCourses->random(4);
+                }
+
+                foreach($recommendCourses as $course){
+                    $course->fullName();
+                    $course->loadClassTimes();
+                
+                } 
             }
 
-            foreach($recommendCourses as $course){
-                $course->fullName();
-                $course->loadClassTimes();
-               
-            } 
+            
             
            
         }

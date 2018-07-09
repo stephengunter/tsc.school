@@ -34,7 +34,7 @@
         </td>
         <td>{{  category.code }}</td>
         <td>{{  category.name }}</td>
-        <td>
+        <td v-if="false">
             <span v-if="isTop(category)" class="label label-warning"> 置頂 </span>
         </td>
         

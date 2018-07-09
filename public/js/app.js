@@ -65236,13 +65236,15 @@ var render = function() {
         _vm._v(" "),
         _c("td", [_vm._v(_vm._s(_vm.category.name))]),
         _vm._v(" "),
-        _c("td", [
-          _vm.isTop(_vm.category)
-            ? _c("span", { staticClass: "label label-warning" }, [
-                _vm._v(" 置頂 ")
-              ])
-            : _vm._e()
-        ]),
+        false
+          ? _c("td", [
+              _vm.isTop(_vm.category)
+                ? _c("span", { staticClass: "label label-warning" }, [
+                    _vm._v(" 置頂 ")
+                  ])
+                : _vm._e()
+            ])
+          : _vm._e(),
         _vm._v(" "),
         false
           ? _c("td", [
@@ -65341,7 +65343,9 @@ var render = function() {
               _vm._v(" "),
               _c("th", [_vm._v("名稱")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("類型")]),
+              false
+                ? _c("th", { staticStyle: { width: "10%" } }, [_vm._v("類型")])
+                : _vm._e(),
               _vm._v(" "),
               false
                 ? _c("th", { staticStyle: { width: "12%" } }, [
@@ -70775,8 +70779,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         showReviewBtn: function showReviewBtn() {
             if (this.params.reviewed) return false;
             if (this.isGroup) return false;
-            if (!this.center) return false;
-            return true;
+
+            return this.canReview;
         },
         canSubmitReview: function canSubmitReview() {
             return this.checkedIds.length > 0;
@@ -70852,6 +70856,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 page: this.params.page,
                 pageSize: this.params.pageSize
             };
+
             if (this.isGroup) params.active = this.params.active;else params.reviewed = this.params.reviewed;
 
             var getData = Teacher.index(params);
@@ -117448,7 +117453,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 			textEditor: {
 				height: 360,
-				toolbar: []
+				toolbar: [['misc', ['undo']], ['style', ['bold', 'italic', 'underline']], ['fontsize', ['fontsize']], ['color', ['color']], ['insert', ['link']], ['para', ['ul', 'ol']]]
 			},
 			submitting: false
 

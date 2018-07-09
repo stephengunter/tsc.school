@@ -166,7 +166,7 @@ class NoticesController extends Controller
        
       
         $pageList = new PagedList($notices,$page,$pageSize);
-        
+       
       
         if($this->isAjaxRequest()){
            

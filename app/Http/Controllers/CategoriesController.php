@@ -41,6 +41,7 @@ class CategoriesController extends Controller
       
      
         $categories=$this->categories->fetchCategories($active);
+        $categories=$categories->where('top',false);
        
         $categories=$this->categories->getOrdered($categories);
        

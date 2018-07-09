@@ -19,6 +19,8 @@ class Notices
     {
         $key=strtolower($key);
         $centerIds=Center::where('key',$key)->pluck('id')->toArray();
+//dd($centerIds);
+  //      dd($this->getAll()->whereIn('centerId',$centerIds)->get());
         
         return $this->getAll()->whereIn('centerId',$centerIds);
     }

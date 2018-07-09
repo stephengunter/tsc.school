@@ -7,7 +7,7 @@
                         <th style="width:12%"></th>
                         <th style="width:10%">代碼</th>
                         <th>名稱</th>
-                        <th style="width:10%">類型</th>
+                        <th v-if="false" style="width:10%">類型</th>
                         <th v-if="false" style="width:12%">順序 
                             <button class="btn btn-success btn-xs" @click.prevent="saveOrders">
                                 <span aria-hidden="true" class="glyphicon glyphicon-floppy-disk"></span>

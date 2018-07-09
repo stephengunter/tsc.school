@@ -111,7 +111,15 @@ export default {
 
             textEditor:{
 				height:360,
-				toolbar:[]
+				toolbar: [
+					['misc', ['undo']],
+					['style', ['bold', 'italic', 'underline']],
+					['fontsize', ['fontsize']],
+					['color', ['color']],
+					['insert',['link']],
+					['para', ['ul', 'ol']],
+					
+				]
 			},
 			submitting:false,
 			

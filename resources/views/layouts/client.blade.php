@@ -21,6 +21,11 @@
 		html * {
 			font-family: "微軟正黑體", "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
 		}
+
+		
+		.home-title a:hover{
+			border-bottom: 0px;
+		}
 	</style>
     <div id="head">
 		<top-nav :model="topMenus"></top-nav>
@@ -30,9 +35,12 @@
                     <div class="columns is-vcentered">
                         <div class="column">
                             <p class="title is-2">
-                            	
-                            	{{ $company['fullname'] }}
-
+								<span class="home-title">
+								<a href="/"  >
+                            		{{ $company['fullname'] }}
+								</a>
+								</span>
+                            
                             </p>
                             <p class="subtitle">
                                 啟發善念 終身學習 生活有智慧
@@ -160,6 +168,6 @@
 
 	</script>
    
-   
+    
 </body>
 </html>
