@@ -34,9 +34,10 @@
                 <div class="col-sm-3">
                     <div class="form-group">                           
                         <label>開課中心</label>
-                        <select   v-model="form.course.centerId"  name="course.centerId" class="form-control" >
-                            <option v-for="(item,index) in centers" :key="index"  :value="item.value" v-text="item.text"></option>
-                        </select>
+                       
+                        <drop-down :items="centers" :selected="form.course.centerId"
+                            @selected="onCenterSelected">
+                        </drop-down>
                     </div>
                                             
                 </div> 
@@ -213,13 +214,17 @@
                 
             },
             onTeacherChanged(val){
+               
                 if(val.length) this.clearErrorMsg('teacherIds');
             },
             onVolunteerChanged(val){
                
             },
-            onCenterSelected(center){
-               this.form.Course.centerId=center.value;
+            onCenterSelected(item){
+               this.form.course.centerId=item.value;
+               this.$emit('center-changed');
+               this.form.teacherIds=[];
+               this.form.volunteerIds=[];
             },
             setActive(val){
                 this.form.Course.active=val;

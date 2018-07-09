@@ -19,7 +19,7 @@
 			</div>
 		</div>
         <hr/>
-        <edit 
+        <edit :params="params" :terms="terms" :categories="edit_categories"
             @saved="onSaved"   @cancel="cancel" >                 
         </edit>
     </div>      
@@ -32,16 +32,35 @@ export default {
     components: {
         'edit':CourseEdit
     },
+	props: {
+		params: {
+			type: Object,
+			default: null
+		},
+		terms:{
+			type:Array,
+			default:null
+		},
+		categories:{
+			type:Array,
+			default:null
+		},
+            
+    },
 	data(){
 		return {
 			
             title:'新增課程',
-            
 			
 		}
 	},
 	computed:{
-		
+		edit_categories(){
+			if(!this.categories) return [];
+			return this.categories.filter(item=>{
+				return Helper.tryParseInt(item.value) > 0;
+			});
+        },
 	},
 	beforeMount() {
 		

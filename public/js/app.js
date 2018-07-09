@@ -48168,13 +48168,7 @@ var Helper = function () {
 		_classCallCheck(this, Helper);
 	}
 
-	_createClass(Helper, [{
-		key: 'static',
-		value: function _static(val) {
-			var number = parseFloat(val);
-			return number > 0;
-		}
-	}], [{
+	_createClass(Helper, null, [{
 		key: 'appUrl',
 		value: function appUrl() {
 			return 'http://tsc.school';
@@ -48241,6 +48235,12 @@ var Helper = function () {
 			}
 
 			return false;
+		}
+	}, {
+		key: 'isValidFloat',
+		value: function isValidFloat(val) {
+			var number = parseFloat(val);
+			return number > 0;
 		}
 	}, {
 		key: 'buildQuery',
@@ -51423,8 +51423,14 @@ var Course = function () {
         }
     }, {
         key: 'create',
-        value: function create() {
+        value: function create(term, center) {
             var url = this.createUrl();
+            var params = {
+                term: term,
+                center: center
+            };
+
+            url = Helper.buildQuery(url, params);
 
             return new Promise(function (resolve, reject) {
                 axios.get(url).then(function (response) {
@@ -88373,7 +88379,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
             return [];
         },
         beginCreate: function beginCreate() {
-            this.$emit('create');
+
+            this.$emit('create', this.params);
         },
         beginImport: function beginImport() {
             this.$emit('import');
@@ -89741,6 +89748,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -89749,6 +89757,18 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		id: {
 			type: Number,
 			default: 0
+		},
+		params: {
+			type: Object,
+			default: null
+		},
+		terms: {
+			type: Array,
+			default: null
+		},
+		categories: {
+			type: Array,
+			default: null
 		},
 		group: {
 			type: Boolean,
@@ -89763,8 +89783,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 		return {
 
 			centerOptions: [],
-			termOptions: [],
-			categoryOptions: [],
+
 			teacherOptions: [],
 			volunteerOptions: [],
 
@@ -89781,8 +89800,18 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 	},
 
 	methods: {
-		onCentersChanged: function onCentersChanged(values) {
-			this.form.centerIds = values.slice(0);
+		onCentersChanged: function onCentersChanged() {
+			var _this = this;
+
+			var getData = Course.create(this.form.course.termId, this.form.course.centerId);
+
+			getData.then(function (model) {
+
+				_this.teacherOptions = model.teacherOptions.slice(0);
+				_this.volunteerOptions = model.volunteerOptions.slice(0);
+			}).catch(function (error) {
+				Helper.BusEmitError(error);
+			});
 		},
 		cancel: function cancel() {
 			this.$emit('cancel');
@@ -89791,24 +89820,35 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			this.fetchData();
 		},
 		fetchData: function fetchData() {
-			var _this = this;
+			var _this2 = this;
 
 			var getData = null;
-			if (this.id) getData = Course.edit(this.id);else getData = Course.create();
+			if (this.id) getData = Course.edit(this.id);else {
+				var term = 0;
+				var center = 0;
+				if (this.params) {
+					term = this.params.term;
+					center = this.params.center;
+				}
+				getData = Course.create(term, center);
+			}
 
 			getData.then(function (model) {
 
-				_this.form = new Form({
+				_this2.form = new Form({
 					course: _extends({}, model.course),
 					teacherIds: model.teacherIds.slice(0),
 					volunteerIds: model.volunteerIds.slice(0)
 				});
 
-				_this.centerOptions = model.centerOptions.slice(0);
-				_this.termOptions = model.termOptions.slice(0);
-				_this.categoryOptions = model.categoryOptions.slice(0);
-				_this.teacherOptions = model.teacherOptions.slice(0);
-				_this.volunteerOptions = model.volunteerOptions.slice(0);
+				if (!_this2.form.course.categoryId) {
+					_this2.form.course.categoryId = _this2.categories[0].value;
+				}
+
+				_this2.centerOptions = model.centerOptions.slice(0);
+
+				_this2.teacherOptions = model.teacherOptions.slice(0);
+				_this2.volunteerOptions = model.volunteerOptions.slice(0);
 			}).catch(function (error) {
 				Helper.BusEmitError(error);
 			});
@@ -89826,7 +89866,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			this.form.course.closeDate = val;
 		},
 		onSubmit: function onSubmit() {
-			var _this2 = this;
+			var _this3 = this;
 
 			this.submitting = true;
 
@@ -89834,11 +89874,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 			if (this.id) save = Course.update(this.id, this.form);else save = Course.store(this.form);
 
 			save.then(function (course) {
-				_this2.submitting = false;
-				if (_this2.id) _this2.$emit('saved');else _this2.$emit('saved', course);
+				_this3.submitting = false;
+				if (_this3.id) _this3.$emit('saved');else _this3.$emit('saved', course);
 				Helper.BusEmitOK('資料已存檔');
 			}).catch(function (error) {
-				_this2.submitting = false;
+				_this3.submitting = false;
 				Helper.BusEmitError(error, '存檔失敗');
 			});
 		},
@@ -90062,6 +90102,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'CourseInputs',
@@ -90113,11 +90154,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
         init: function init() {},
         onTeacherChanged: function onTeacherChanged(val) {
+
             if (val.length) this.clearErrorMsg('teacherIds');
         },
         onVolunteerChanged: function onVolunteerChanged(val) {},
-        onCenterSelected: function onCenterSelected(center) {
-            this.form.Course.centerId = center.value;
+        onCenterSelected: function onCenterSelected(item) {
+            this.form.course.centerId = item.value;
+            this.$emit('center-changed');
+            this.form.teacherIds = [];
+            this.form.volunteerIds = [];
         },
         setActive: function setActive(val) {
             this.form.Course.active = val;
@@ -90222,53 +90267,22 @@ var render = function() {
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-3" }, [
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", [_vm._v("開課中心")]),
-              _vm._v(" "),
-              _c(
-                "select",
-                {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.form.course.centerId,
-                      expression: "form.course.centerId"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  attrs: { name: "course.centerId" },
-                  on: {
-                    change: function($event) {
-                      var $$selectedVal = Array.prototype.filter
-                        .call($event.target.options, function(o) {
-                          return o.selected
-                        })
-                        .map(function(o) {
-                          var val = "_value" in o ? o._value : o.value
-                          return val
-                        })
-                      _vm.$set(
-                        _vm.form.course,
-                        "centerId",
-                        $event.target.multiple
-                          ? $$selectedVal
-                          : $$selectedVal[0]
-                      )
-                    }
-                  }
-                },
-                _vm._l(_vm.centers, function(item, index) {
-                  return _c("option", {
-                    key: index,
-                    domProps: {
-                      value: item.value,
-                      textContent: _vm._s(item.text)
-                    }
-                  })
+            _c(
+              "div",
+              { staticClass: "form-group" },
+              [
+                _c("label", [_vm._v("開課中心")]),
+                _vm._v(" "),
+                _c("drop-down", {
+                  attrs: {
+                    items: _vm.centers,
+                    selected: _vm.form.course.centerId
+                  },
+                  on: { selected: _vm.onCenterSelected }
                 })
-              )
-            ])
+              ],
+              1
+            )
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-2" }, [
@@ -90754,12 +90768,13 @@ var render = function() {
           _c("course-inputs", {
             attrs: {
               form: _vm.form,
+              terms: _vm.terms,
+              categories: _vm.categories,
               centers: _vm.centerOptions,
-              terms: _vm.termOptions,
-              categories: _vm.categoryOptions,
               teachers: _vm.teacherOptions,
               volunteers: _vm.volunteerOptions
-            }
+            },
+            on: { "center-changed": _vm.onCentersChanged }
           }),
           _vm._v(" "),
           _vm.submitting
@@ -93787,19 +93802,19 @@ var staticRenderFns = [
       _c("tr", [
         _c("th", { staticStyle: { width: "5%" } }, [
           _vm._v(
-            "\r\n                            順序\r\n                        "
+            "\r\n                            週次\r\n                        "
           )
         ]),
         _vm._v(" "),
         _c("th", { staticStyle: { width: "45%" } }, [
           _vm._v(
-            "\r\n                            標題\r\n                        "
+            "\r\n                            課程內容\r\n                        "
           )
         ]),
         _vm._v(" "),
         _c("th", [
           _vm._v(
-            "\r\n                            說明\r\n                        "
+            "\r\n                            備註\r\n                        "
           )
         ])
       ])
@@ -94068,6 +94083,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	components: {
 		'edit': __WEBPACK_IMPORTED_MODULE_0__components_course_edit___default.a
 	},
+	props: {
+		params: {
+			type: Object,
+			default: null
+		},
+		terms: {
+			type: Array,
+			default: null
+		},
+		categories: {
+			type: Array,
+			default: null
+		}
+
+	},
 	data: function data() {
 		return {
 
@@ -94076,7 +94106,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		};
 	},
 
-	computed: {},
+	computed: {
+		edit_categories: function edit_categories() {
+			if (!this.categories) return [];
+			return this.categories.filter(function (item) {
+				return Helper.tryParseInt(item.value) > 0;
+			});
+		}
+	},
 	beforeMount: function beforeMount() {},
 
 	methods: {
@@ -94142,7 +94179,14 @@ var render = function() {
       _vm._v(" "),
       _c("hr"),
       _vm._v(" "),
-      _c("edit", { on: { saved: _vm.onSaved, cancel: _vm.cancel } })
+      _c("edit", {
+        attrs: {
+          params: _vm.params,
+          terms: _vm.terms,
+          categories: _vm.edit_categories
+        },
+        on: { saved: _vm.onSaved, cancel: _vm.cancel }
+      })
     ],
     1
   )

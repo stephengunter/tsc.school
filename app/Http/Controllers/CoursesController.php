@@ -280,7 +280,9 @@ class CoursesController extends Controller
 
         $centerOptions=$this->centers->centerOptions();
 
-        $categoryOptions = $this->categories->options();
+        $categoryOptions = $this->categories->forEditCourseOptions();
+        array_unshift($categoryOptions, ['text' => '所有分類' , 'value' =>'0']);
+        
 
         $percentsOptions=$this->quits->percentsOptions(false);
         array_unshift($percentsOptions, ['text' => '全額退費' , 'value' => 100 ]);
@@ -307,43 +309,56 @@ class CoursesController extends Controller
 
     public function create()
     {
-        $termOptions = $this->terms->options();
+        $request=request();
+
+        $term=0;
+        if($request->term)  $term=(int)$request->term;
+
+        $center=0;
+        if($request->center)  $center=(int)$request->center;
+
+        $selectedCenter = null;
+        if ($center) $selectedCenter = Center::find($center);
+
+        if(!$selectedCenter){
+            $selectedCenter=$this->defaultAdminCenter();
+        }
+
+        $selectedTerm = null;
+        if ($term) $selectedTerm = $this->terms->getById($term);
+
+        if(!$selectedTerm){
+            $selectedTerm=$this->terms->getActiveTerm();
+        }
+      
 
         $centersCanAdmin= $this->centersCanAdmin();
         $centerOptions = $centersCanAdmin->map(function ($item) {
             return [ 'text' => $item->name ,  'value' => $item->id ];
         })->all();
-
-        $termId=$termOptions[0]['value'];
-        $centerId=$centerOptions[0]['value'];
-        $course=Course::init($termId,$centerId);
        
-      
+        $course=Course::init($selectedTerm->id,$selectedCenter->id);
 
+        $center=$this->centers->getById($selectedCenter->id);
        
-        $categoryOptions = $this->categories->forEditCourseOptions();
-        $course['categoryId'] = $categoryOptions[0]['value'];
-
-        $center=$this->centers->getById($centerId);
        
-        $teacherOptions = array_merge($this->teachers->options($center), $this->teacherGroups->options($center));
-        
-        $volunteerOptions = $this->volunteers->options();
+        $teacherOptions = array_merge($this->teachers->options($selectedCenter), $this->teacherGroups->options($selectedCenter));
+       
+        $volunteerOptions = $this->volunteers->options($selectedCenter);
         
       
         $form=[
             'course' => $course,
             'teacherIds' =>[],
             'volunteerIds' =>[],
+            'centerOptions' => $centerOptions,
             'teacherOptions' => $teacherOptions,
             'volunteerOptions' => $volunteerOptions,
-            'termOptions' => $termOptions,
-            'centerOptions' => $centerOptions,
-            'categoryOptions' => $categoryOptions
+           
         
         ];
 
-        return response() ->json($form);
+        return response()->json($form);
       
     }
 

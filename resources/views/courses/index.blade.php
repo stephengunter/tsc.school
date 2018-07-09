@@ -12,7 +12,9 @@
 <courses-details v-if="selected" :id="selected"  :weekdays="weekdays"  :percents_options="percents_options"
                   v-on:back="backToIndex" v-on:course-deleted="backToIndex">
 </courses-details>
-<courses-create v-if="creating" v-on:cancel="backToIndex" v-on:saved="onCreated">
+<courses-create v-if="creating" v-on:cancel="backToIndex" 
+:terms="terms"  :categories="categories" :params="create_params"
+v-on:saved="onCreated">
 </courses-create>
 
 <courses-import v-if="importing" :can_import="can_import" :terms="terms" :centers="centers"
@@ -38,6 +40,7 @@
                     can_import: false,
 
                     params:{},
+                    create_params:{},
 
                     terms: [],
                     centers: [],
@@ -83,7 +86,8 @@
                 
 			},
             methods: {
-                onCreate() {
+                onCreate(params) {
+                    this.create_params={...params };
                     this.creating = true;
                 },
                 onSelected(id) {

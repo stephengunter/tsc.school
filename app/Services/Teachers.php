@@ -154,7 +154,6 @@ class Teachers
     } 
     public function  options(Center $center)
     {
-       
         $teachers=$this->getByCenter($center)->get();
         return $teachers->map(function ($teacher) {
             return $teacher->toOption();

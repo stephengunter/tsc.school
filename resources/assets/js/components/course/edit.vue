@@ -2,8 +2,9 @@
     
     <form v-if="form" class="form" @submit.prevent="onSubmit" @keydown="clearErrorMsg($event.target.name)">
         
-		<course-inputs :form="form" :centers="centerOptions" :terms="termOptions" 
-			:categories="categoryOptions" :teachers="teacherOptions"  :volunteers="volunteerOptions">
+		<course-inputs :form="form"  :terms="terms"  :categories="categories"
+			:centers="centerOptions" :teachers="teacherOptions"  :volunteers="volunteerOptions"
+			@center-changed="onCentersChanged">
 		</course-inputs>
 		
 		
@@ -48,6 +49,18 @@ export default {
             type: Number,
             default: 0
 		},
+		params: {
+			type: Object,
+			default: null
+		},
+		terms:{
+			type:Array,
+			default:null
+		},
+		categories:{
+			type:Array,
+			default:null
+		},
 		group:{
 			type: Boolean,
 			default: false
@@ -61,8 +74,7 @@ export default {
 		return {
 
 			centerOptions:[],
-			termOptions:[],
-			categoryOptions:[],
+			
 			teacherOptions:[],
 			volunteerOptions:[],
 
@@ -79,8 +91,19 @@ export default {
 		this.init();
 	}, 
 	methods:{
-		onCentersChanged(values){
-			this.form.centerIds=values.slice(0);
+		onCentersChanged(){
+			
+			let getData=Course.create(this.form.course.termId,this.form.course.centerId);
+			
+			getData.then(model => {
+				
+				this.teacherOptions=model.teacherOptions.slice(0);
+				this.volunteerOptions=model.volunteerOptions.slice(0);
+				
+			})
+			.catch(error=> {
+				Helper.BusEmitError(error); 
+			})
 			
 		},
 		cancel(){
@@ -92,7 +115,15 @@ export default {
 		fetchData(){
             let getData=null;
             if(this.id)  getData=Course.edit(this.id);
-			else getData=Course.create();
+			else{
+				let term=0;
+				let center=0;
+				if(this.params){
+					term=this.params.term;
+					center=this.params.center;
+				}
+				getData=Course.create(term,center);
+			}
 			
 			getData.then(model => {
 				
@@ -104,9 +135,14 @@ export default {
 					volunteerIds:model.volunteerIds.slice(0)
 				});
 
+				if(!this.form.course.categoryId){
+					this.form.course.categoryId=this.categories[0].value;
+				}
+
+				
+
 				this.centerOptions=model.centerOptions.slice(0);
-				this.termOptions=model.termOptions.slice(0);
-				this.categoryOptions=model.categoryOptions.slice(0);
+				
 				this.teacherOptions=model.teacherOptions.slice(0);
 				this.volunteerOptions=model.volunteerOptions.slice(0);
 				

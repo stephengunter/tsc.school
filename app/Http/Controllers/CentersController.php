@@ -33,7 +33,7 @@ class CentersController extends Controller
     {
         
         $options=$this->centers->getKeyOptions($withOversea);
-        if($withEmpty) array_unshift($options, ['text' => '----------' , 'value' => '']);
+        if($withEmpty) array_unshift($options, ['text' => '全部' , 'value' => '']);
         
         return $options;
     }

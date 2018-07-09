@@ -120,10 +120,10 @@ class Volunteers
        
     }
    
-    public function  options()
+    public function  options(Center $center=null)
     {
        
-        $volunteers=$this->getAll()->get();
+        $volunteers=$this->fetchVolunteers($center)->get();
        
         return $volunteers->map(function ($volunteer) {
             return $volunteer->toOption();

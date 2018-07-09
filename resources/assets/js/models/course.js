@@ -98,16 +98,22 @@ class Course {
         })
     }
      
-    static create() {
+    static create(term,center) {
         let url = this.createUrl();
+        let params={
+            term:term,
+            center:center
+        };
+
+        url=Helper.buildQuery(url,params);
  
         return new Promise((resolve, reject) => {
             axios.get(url)
                 .then(response => {
-                        resolve(response.data);
+                    resolve(response.data);
                 })
                 .catch(error => {
-                        reject(error);
+                    reject(error);
                 })
  
         })

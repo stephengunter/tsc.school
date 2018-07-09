@@ -52,7 +52,7 @@ class Helper {
 		return false;
 	}
 
-	static (val){
+	static isValidFloat(val){
 		let number = parseFloat(val);
 		return number > 0;
 	}

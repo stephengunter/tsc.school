@@ -220,7 +220,8 @@
                 return [];
             },
             beginCreate(){
-                this.$emit('create');
+                
+                this.$emit('create',this.params);
             },
             beginImport(){
                 this.$emit('import');

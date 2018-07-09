@@ -37,13 +37,13 @@
                 <thead>
                     <tr>
                         <th style="width:5%">
-                            順序
+                            週次
                         </th>
                         <th style="width:45%">
-                            標題
+                            課程內容
                         </th>
                         <th>
-                            說明
+                            備註
                         </th>
                     </tr>
                 </thead>
