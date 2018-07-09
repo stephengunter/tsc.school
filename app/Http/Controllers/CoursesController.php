@@ -230,7 +230,7 @@ class CoursesController extends Controller
 
     public function index()
     {
-        $params=$requestValues=$this->readIndexRequest();
+        $params=$this->readIndexRequest();
 
         $selectedTerm=$params['term'];
        

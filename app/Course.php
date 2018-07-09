@@ -121,6 +121,11 @@ class Course extends Model
 	{
 		return $this->hasMany('App\Process','courseId');
     }
+
+    public function defaultCategory()
+    {
+        return Category::find($this->categoryId);
+    }
     
     public function serial()
     {

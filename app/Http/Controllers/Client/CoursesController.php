@@ -34,18 +34,10 @@ class CoursesController extends Controller
        
     }
 
-    function getSelectedCenter()
+    function getCenters()
     {
-        $request=request();
-
-        $center=0;
-        if($request->center)  $center=(int)$request->center;
-
-        $selectedCenter = null;
-        if ($center) $selectedCenter = $this->centers->getById($center);
-
-        return $selectedCenter;
-        
+        $center_key=config('app.center_key');
+        return $this->centers->getCentersByKey($center_key)->where('active',true)->get();
     }
 
     function getSelectedCategory()
@@ -90,7 +82,7 @@ class CoursesController extends Controller
     }
     
 
-    function fetchCourses($term , $center)
+    function fetchCourses($term ,$center)
     {
         if(!$term) return Course::where('id' ,'<' , 0);
         $courses = $this->courses->fetchCourses($term->id ,$center);
@@ -141,21 +133,10 @@ class CoursesController extends Controller
         return true;
     }
 
-   
-    
-    public function index()
+    function loadAreaCenters($centers,$selectedCenter=null)
     {
-        
-        $request=request();
-
-        $term=$this->terms->getActiveTerm();
-
-        $center_key=config('app.center_key');
-        $centers=$this->centers->getCentersByKey($center_key)->where('active',true)->get();
-
-        $selectedCenter = $this->getSelectedCenter();
+       
         if (!$selectedCenter)  $selectedCenter = $centers[0];
-        
         
         $areaIds=array_unique($centers->pluck('areaId')->toArray());
         $areaIds=array_filter($areaIds,function($item)use($selectedCenter){
@@ -172,20 +153,102 @@ class CoursesController extends Controller
             $area->centers=$centersInArea;
         }
 
-        $centers=$centers->where('areaId',$selectedCenter->areaId);
-        $centerOptions=$centers->map(function ($item) {
+       
+        $centerOptions=$centers->where('areaId',$selectedCenter->areaId)->map(function ($item) {
             return [ 'text' => $item->name ,  'value' => $item->id ];
         })->all();
 
-
-     
-        $selectedCategory = $this->getSelectedCategory();
         
+        // $centers=$centers->where('areaId',$selectedCenter->areaId);
+        // $centerOptions =$centers->map(function ($center) {
+        //     return $center->toOption();
+        // })->values()->toArray();
+      
+        $centerOptions = $this->setCenterOptions($centerOptions, $selectedCenter);
 
-        $courses = $this->fetchCourses($term,$selectedCenter);
+        return [
+            'centerOptions'=> $centerOptions,
+            'areas'=>$areas
+        ];
+    }
+
+    function readIndexRequest()
+    {
+        $centers=$this->getCenters();
+
+        $request=request();
+
+        $center=0;
+        if($request->center)  $center=(int)$request->center;
+        $selectedCenter = null;
+        if ($center) $selectedCenter = $this->centers->getById($center);
+        
+        if (!$selectedCenter) $selectedCenter = $centers[0];
+
+        $category=0;
+        if($request->category)  $category=(int)$request->category;
+
+        $selectedCategory = null;
+        if ($category) $selectedCategory = $this->categories->getById($category);
+       
+
+        $selectedTerm=$this->terms->getActiveTerm();
+
+        $areaCenters=$this->loadAreaCenters($centers,$selectedCenter);
+
+        $centerOptions=$areaCenters['centerOptions'];
+        $areas=$areaCenters['areas'];
+
+        $requestValues=[
+            'term' => $selectedTerm,
+            'center' => $selectedCenter,
+            'category' => $selectedCategory,
+            'centers' => $centers,
+            'centerOptions' => $centerOptions,
+            'areas' =>$areas
+        ];
+
+        return $requestValues;
+    }
+
+    function readDetailsRequest($id)
+    {
+        $course = $this->courses->getById($id);
+        if(!$course) abort(404);
+
+        $centers=$this->getCenters();
+
+        // $selectedCenter= $course->center;
+        // $selectedTerm= $course->term;
+        // $selectedCategory = $course->defaultCategory();
+
+        $areaCenters=$this->loadAreaCenters($centers,$course->center);
+
+        $centerOptions=$areaCenters['centerOptions'];
+        $areas=$areaCenters['areas'];
+
+        $requestValues=[
+            'course' => $course,
+            'centers' => $centers,
+            'centerOptions' => $centerOptions,
+            'areas' =>$areas
+        ];
+
+        return $requestValues;
+    }
+    
+    public function index()
+    {
+        $requestValues=$this->readIndexRequest();
+
+        $selectedCenter= $requestValues['center'];
+        $selectedTerm= $requestValues['term'];
+
+        $courses = $this->fetchCourses($selectedTerm ,$selectedCenter);
 
         $categoryOptions = $this->getCategoryOptions($courses);
-     
+
+        $selectedCategory = $requestValues['category'];
         if (!$selectedCategory && count($categoryOptions)) {
             $selectedCategory = Category::find($categoryOptions[0]['value']);
         } 
@@ -201,14 +264,8 @@ class CoursesController extends Controller
            
         } 
 
-        $centers=$centers->where('areaId',$selectedCenter->areaId);
-        $centerOptions =$centers->map(function ($center) {
-            return $center->toOption();
-        })->values()->toArray();
-      
-        $centerOptions = $this->setCenterOptions($centerOptions, $selectedCenter);
-       
-     
+        $centerOptions= $requestValues['centerOptions'];
+        $areas= $requestValues['areas'];
 
         $categoryOptions = $this->setCategoryOptions($categoryOptions,$selectedCenter,$selectedCategory);
         
@@ -228,35 +285,14 @@ class CoursesController extends Controller
 
     public function show($id)
     {
-        $course = $this->courses->getById($id);
-        if(!$course) abort(404);
+        $requestValues=$this->readDetailsRequest($id);
+        $course= $requestValues['course'];
 
         $course->fullName();
         $course->loadClassTimes();
         $course->center->loadContactInfo();
         $this->setTeachers($course);
-       
-
         $course->processes;
-
-        $withEmpty=false;
-        $centerOptions=$this->centers->centerOptions($withEmpty);
-
-        $courses = $this->fetchCourses($course->term, $course->center);
-
-
-        $selectedCategory=Category::find($course->categoryId);
-
-        $categoryOptions = $this->getCategoryOptions($courses);
-     
-        if (!$selectedCategory && count($categoryOptions)) {
-            $selectedCategory = Category::find($categoryOptions[0]['value']);
-        } 
-
-        $centerOptions = $this->setCenterOptions($centerOptions, $course->center);
-
-        $categoryOptions = $this->setCategoryOptions($categoryOptions,$course->center,$selectedCategory);
-        
 
         $course->canSignup = $this->canSignup($course,$this->currentUser());
         
@@ -267,9 +303,25 @@ class CoursesController extends Controller
        
         $course->term->birdDateText=$course->term->birdDateText();
 
+
+
+        $courses = $this->fetchCourses($course->term ,$course->center);
+
+
+        $categoryOptions = $this->getCategoryOptions($courses);
+
+
+        $centerOptions= $requestValues['centerOptions'];
+        $areas= $requestValues['areas'];
+
+        $categoryOptions = $this->setCategoryOptions($categoryOptions,$course->center, $course->defaultCategory());
+        
+
         $model=[
             'title' => $course->center->name . ' - ' . $course->fullName,
             'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
+            'areas' => $areas,
             'menus' => $centerOptions,
             'subMenus' => $categoryOptions,
             'model' => $course
