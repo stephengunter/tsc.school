@@ -258,7 +258,7 @@ class Signup {
 
     static courseNames(signup){
         let names= signup.details.map((item)=>{
-            return item.course.fullName;
+            return item.course.number + ' ' +  item.course.fullName;
         });
       
         return  names.join().replace(',','<br>');

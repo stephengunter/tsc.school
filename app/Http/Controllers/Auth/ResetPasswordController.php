@@ -44,7 +44,7 @@ class ResetPasswordController extends Controller
 
     public function showResetForm(Request $request, $token = null)
     {
-       
+        
         $model=[
             'title' => '重設密碼',
             'topMenus' => $this->clientMenus(),

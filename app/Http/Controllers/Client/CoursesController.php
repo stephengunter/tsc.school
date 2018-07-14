@@ -40,20 +40,6 @@ class CoursesController extends Controller
         return $this->centers->getCentersByKey($center_key)->where('active',true)->get();
     }
 
-    function getSelectedCategory()
-    {
-        $request=request();
-
-        $category=0;
-        if($request->category)  $category=(int)$request->category;
-
-        $selectedCategory = null;
-        if ($category) $selectedCategory = $this->categories->getById($category);
-
-        return $selectedCategory;
-        
-    }
-
     function getCategoryOptions($courses)
     {
 
@@ -159,10 +145,6 @@ class CoursesController extends Controller
         })->all();
 
         
-        // $centers=$centers->where('areaId',$selectedCenter->areaId);
-        // $centerOptions =$centers->map(function ($center) {
-        //     return $center->toOption();
-        // })->values()->toArray();
       
         $centerOptions = $this->setCenterOptions($centerOptions, $selectedCenter);
 
@@ -217,10 +199,6 @@ class CoursesController extends Controller
         if(!$course) abort(404);
 
         $centers=$this->getCenters();
-
-        // $selectedCenter= $course->center;
-        // $selectedTerm= $course->term;
-        // $selectedCategory = $course->defaultCategory();
 
         $areaCenters=$this->loadAreaCenters($centers,$course->center);
 

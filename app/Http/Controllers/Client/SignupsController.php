@@ -77,6 +77,7 @@ class SignupsController extends Controller
   
     public function index()
     {
+        
         $user=$this->currentUser();
 
         $signups = $this->signups->fetchSignupsByUser($user)
@@ -110,6 +111,7 @@ class SignupsController extends Controller
         $model=[
             'title' => '',
             'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
             'signups' => $signups
         ];
 

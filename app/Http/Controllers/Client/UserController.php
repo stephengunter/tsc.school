@@ -101,11 +101,11 @@ class UserController extends Controller
     public function showChangePasswordForm()
     {
         
-
+       
         $model=[
             'title' => '變更密碼',
-            'topMenus' => $this->clientMenus()
-           
+            'topMenus' => $this->clientMenus(),
+            'company' => $this->getCompany(),
         ];
         
 

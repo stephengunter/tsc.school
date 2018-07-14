@@ -52736,7 +52736,7 @@ var Signup = function () {
         key: 'courseNames',
         value: function courseNames(signup) {
             var names = signup.details.map(function (item) {
-                return item.course.fullName;
+                return item.course.number + ' ' + item.course.fullName;
             });
 
             return names.join().replace(',', '<br>');
