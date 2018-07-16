@@ -8,20 +8,29 @@ use App\Role;
 use App\Profile;
 use App\Course;
 use App\Signup;
+use App\Payway;
 use App\Bill;
 use App\SignupDetail;
 use App\Discount;
+use App\Services\Users;
+use App\ContactInfo;
+use App\Address;
+use App\District;
 use App\Services\Bills;
 use App\Services\Centers;
 use App\Services\Courses;
 use App\Services\Discounts;
-use DB;
 use Carbon\Carbon;
 use App\Core\Helper;
+use App\Services\Import;
+use DB;
+use Excel;
 
 class Signups 
 {
-    public function __construct(Bills $bills,Centers $centers,Discounts $discounts,Courses $courses)
+    use Import;
+
+    public function __construct(Users $users, Bills $bills,Centers $centers,Discounts $discounts,Courses $courses)
     {
         $this->statuses=array(
             ['value'=> 0 , 'text' => '待繳費'],
@@ -35,6 +44,8 @@ class Signups
         $this->centers=$centers;
         $this->courses=$courses;
         $this->discounts=$discounts;
+
+        $this->users=$users;
 
     }
    
@@ -284,6 +295,176 @@ class Signups
     {
         return $this->statuses;
     }
+
+    public function importSignups($file,$updatedBy)
+    {
+        $err_msg='';
+
+        $excel=Excel::load($file, function($reader) {             
+            $reader->limitColumns(20);
+            $reader->limitRows(100);
+        })->get();
+
+        $signupList=$excel->toArray()[0];
+       
+        for($i = 1; $i < count($signupList); ++$i) {
+            $row=$signupList[$i];
+
+            $fullname=trim($row['fullname']);
+            if(!$fullname) continue;
+
+            $courses=[];               
+            $array_courses = explode(',', trim($row['courses']));
+            for($j = 0; $j < count($array_courses); ++$j){
+                $course_number=$array_courses[$j];
+                $course =Course::where('number',$course_number)->first();
+                
+                if(!$course){
+                    $err_msg .= $course_number . '課程不存在' . ',';
+                    continue;
+                }else{
+                    array_push($courses, $course);
+                }
+            }
+
+           
+            $date=trim($row['date']);
+            if(!$date){
+                $err_msg .= $fullname . '報名日期不可空白' . ',';
+                continue;
+            }else{
+                try {  
+                    $date=Carbon::parse($date);
+    
+                }catch (Exception $e) {  
+                    $err_msg .= $fullname . '報名日期錯誤' . ',';
+                }     
+            }
+
+            $pay=false;
+            $payway=null;
+            $pay_date=trim($row['pay_date']);
+            $pay_amount=trim($row['pay_amount']);
+            $paywayCode=trim($row['pay_way']);
+            if($pay_date){
+                try {  
+                    $pay_date=Carbon::parse($pay_date);
+    
+                }catch (Exception $e) {  
+                    $err_msg .= $fullname . '繳費日期錯誤' . ',';
+                }  
+
+                $pay_amount=floatval($pay_amount);
+                if(!$pay_amount){
+                    $err_msg .= $fullname . '繳費金額錯誤' . ',';
+                    continue;
+                }
+
+                $payway=Payway::where('code',$paywayCode)->first();
+                if(!$payway){
+                    $err_msg .= $fullname . '繳費方式錯誤' . ',';
+                    continue;
+                }
+
+                $pay=true;
+
+            }
+          
+
+            $userDatas=$this->getImportUserDatas($row,$updatedBy);
+            if(array_key_exists('err',$userDatas)){
+                $err_msg .= $userDatas['err'] . ',';
+                continue;
+            }
+
+            $userValues=$userDatas['userValues'];
+            $profileValues=$userDatas['profileValues'];
+           
+            $contactInfoValues=$userDatas['contactInfoValues'];
+            $addressValues=$userDatas['addressValues'];
+            $identities=$userDatas['identities'];
+
+            $sid=$profileValues['sid'];
+            $user= $this->users->findBySID($sid);
+
+            if(!$user)
+            {
+                $user=$this->users->createUser(
+                    new User($userValues),
+                    new Profile($profileValues)
+                );
+               
+            }
+
+            foreach($identities as $identity){
+                $user->addIdentity($identity->id);
+            }
+
+            $contactInfo=new ContactInfo($contactInfoValues);
+            $address=new Address($addressValues);
+            
+
+            $this->users->setContactInfo($user,$contactInfo,$address);
+
+            $result=$this->initSignupDetails($user,$courses,$updatedBy);
+       
+            $errors=$result['errors'];
+            if($errors){
+                $err_msg .= $fullname . '報名課程錯誤' . ',';
+            }  
+
+           
+
+            $signupDetails=$result['signupDetails'];
+
+            $lotus=trim($row['lotus']);
+            $lotus=Helper::isTrue($lotus);
+            
+
+            $signup=new Signup(Signup::init());
+            $signup->userId=$user->id;
+
+            $identityIds = array_map(function($item){
+                return $item->id;
+            }, $identities);
+
+
+            $signup->identity_ids=join(',', $identityIds);
+            $signup->net=false;
+            $signup->updatedBy=$updatedBy;
+            
+            $signup=$this->createSignup($signup,$signupDetails,$user,$lotus);
+
+
+           
+
+            if($pay){
+                $bill=Bill::where('signupId', $signup->id)->first();
+                if($pay_amount!=floatval($bill->amount)){
+                    $err_msg .= $fullname . '繳費金額錯誤' . ',';
+                    continue;
+                }
+                $bill->updatedBy=$updatedBy;
+                $this->bills->payBill($bill,$payway,$pay_date);
+            }
+    
+            
+            
+           
+        }  //end for  
+
+        
+        
+
+        
+
+        return $err_msg;
+
+       
+
+
+
+   }
     
     
 }

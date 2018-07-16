@@ -47916,6 +47916,7 @@ Vue.component('signups-index', __webpack_require__(545));
 Vue.component('signups-report', __webpack_require__(548));
 Vue.component('signups-details', __webpack_require__(554));
 Vue.component('signups-create', __webpack_require__(606));
+Vue.component('signups-import', __webpack_require__(961));
 
 Vue.component('quits-index', __webpack_require__(609));
 Vue.component('quits-details', __webpack_require__(615));
@@ -52657,6 +52658,19 @@ var Signup = function () {
                 axios.get(url).then(function (response) {
                     resolve(response.data);
                 }).catch(function (error) {
+                    reject(error);
+                });
+            });
+        }
+    }, {
+        key: 'import',
+        value: function _import(form) {
+            var url = this.source() + '/import';
+            return new Promise(function (resolve, reject) {
+                axios.post(url, form).then(function (response) {
+                    resolve(response.data);
+                }).catch(function (error) {
+
                     reject(error);
                 });
             });
@@ -95123,6 +95137,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
 
 
 
@@ -95276,14 +95293,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         user: {
             type: Object,
             default: null
+        },
+        can_select: {
+            type: Boolean,
+            default: false
         }
     },
     data: function data() {
-        return {
-
-            signups: []
-
-        };
+        return {};
     },
 
     computed: {},
@@ -95292,21 +95309,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
     methods: {
-        init: function init() {
-            this.fetchData();
-        },
-        fetchData: function fetchData() {
-            var _this = this;
-
-            var getData = Signup.getByUser(this.user.id);
-
-            getData.then(function (signups) {
-                _this.signups = signups.slice(0);
-            }).catch(function (error) {
-
-                Helper.BusEmitError(error);
-            });
-        }
+        init: function init() {}
     }
 
 });
@@ -95616,18 +95619,24 @@ var render = function() {
                   : _vm._e(),
                 _vm._v(" "),
                 _c("td", [
-                  _c("a", {
-                    attrs: { href: "#" },
-                    domProps: {
-                      textContent: _vm._s(signup.user.profile.fullname)
-                    },
-                    on: {
-                      click: function($event) {
-                        $event.preventDefault()
-                        _vm.onSelected(signup.id)
-                      }
-                    }
-                  })
+                  _vm.can_select
+                    ? _c("a", {
+                        attrs: { href: "#" },
+                        domProps: {
+                          textContent: _vm._s(signup.user.profile.fullname)
+                        },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            _vm.onSelected(signup.id)
+                          }
+                        }
+                      })
+                    : _c("span", {
+                        domProps: {
+                          textContent: _vm._s(signup.user.profile.fullname)
+                        }
+                      })
                 ]),
                 _vm._v(" "),
                 _c("td", [
@@ -95742,7 +95751,9 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("signup-table", { attrs: { signups: _vm.signups } })
+  return _c("signup-table", {
+    attrs: { signups: _vm.user.signups, can_select: _vm.can_select }
+  })
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -96007,6 +96018,29 @@ var render = function() {
                     [_vm._v("聯絡資訊")]
                   )
                 ]
+              ),
+              _vm._v(" "),
+              _c(
+                "li",
+                {
+                  staticClass: "label-title",
+                  class: { active: _vm.activeIndex == 1 }
+                },
+                [
+                  _c(
+                    "a",
+                    {
+                      attrs: { href: "#" },
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          _vm.activeIndex = 1
+                        }
+                      }
+                    },
+                    [_vm._v("報名記錄")]
+                  )
+                ]
               )
             ]),
             _vm._v(" "),
@@ -96034,6 +96068,10 @@ var render = function() {
                             deleted: _vm.reloadUser
                           }
                         })
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _vm.activeIndex == 1
+                      ? _c("signup-records", { attrs: { user: _vm.user } })
                       : _vm._e()
                   ],
                   1
@@ -96113,6 +96151,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_signup_table___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_signup_table__);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+//
+//
+//
 //
 //
 //
@@ -96325,6 +96366,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                 center: this.params.center
             };
             this.$emit('create', params);
+        },
+        onImport: function onImport() {
+            this.$emit('import');
         },
         onSelected: function onSelected(id) {
             this.$emit('selected', id);
@@ -96545,6 +96589,21 @@ var render = function() {
                     _c("i", { staticClass: "fa fa-plus-circle" }),
                     _vm._v(" 新增\n            ")
                   ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    staticClass: "btn btn-warning",
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.onImport($event)
+                      }
+                    }
+                  },
+                  [_vm._v("\n                 匯入\n            ")]
                 )
               ]
             )
@@ -120252,6 +120311,491 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 740 */,
+/* 741 */,
+/* 742 */,
+/* 743 */,
+/* 744 */,
+/* 745 */,
+/* 746 */,
+/* 747 */,
+/* 748 */,
+/* 749 */,
+/* 750 */,
+/* 751 */,
+/* 752 */,
+/* 753 */,
+/* 754 */,
+/* 755 */,
+/* 756 */,
+/* 757 */,
+/* 758 */,
+/* 759 */,
+/* 760 */,
+/* 761 */,
+/* 762 */,
+/* 763 */,
+/* 764 */,
+/* 765 */,
+/* 766 */,
+/* 767 */,
+/* 768 */,
+/* 769 */,
+/* 770 */,
+/* 771 */,
+/* 772 */,
+/* 773 */,
+/* 774 */,
+/* 775 */,
+/* 776 */,
+/* 777 */,
+/* 778 */,
+/* 779 */,
+/* 780 */,
+/* 781 */,
+/* 782 */,
+/* 783 */,
+/* 784 */,
+/* 785 */,
+/* 786 */,
+/* 787 */,
+/* 788 */,
+/* 789 */,
+/* 790 */,
+/* 791 */,
+/* 792 */,
+/* 793 */,
+/* 794 */,
+/* 795 */,
+/* 796 */,
+/* 797 */,
+/* 798 */,
+/* 799 */,
+/* 800 */,
+/* 801 */,
+/* 802 */,
+/* 803 */,
+/* 804 */,
+/* 805 */,
+/* 806 */,
+/* 807 */,
+/* 808 */,
+/* 809 */,
+/* 810 */,
+/* 811 */,
+/* 812 */,
+/* 813 */,
+/* 814 */,
+/* 815 */,
+/* 816 */,
+/* 817 */,
+/* 818 */,
+/* 819 */,
+/* 820 */,
+/* 821 */,
+/* 822 */,
+/* 823 */,
+/* 824 */,
+/* 825 */,
+/* 826 */,
+/* 827 */,
+/* 828 */,
+/* 829 */,
+/* 830 */,
+/* 831 */,
+/* 832 */,
+/* 833 */,
+/* 834 */,
+/* 835 */,
+/* 836 */,
+/* 837 */,
+/* 838 */,
+/* 839 */,
+/* 840 */,
+/* 841 */,
+/* 842 */,
+/* 843 */,
+/* 844 */,
+/* 845 */,
+/* 846 */,
+/* 847 */,
+/* 848 */,
+/* 849 */,
+/* 850 */,
+/* 851 */,
+/* 852 */,
+/* 853 */,
+/* 854 */,
+/* 855 */,
+/* 856 */,
+/* 857 */,
+/* 858 */,
+/* 859 */,
+/* 860 */,
+/* 861 */,
+/* 862 */,
+/* 863 */,
+/* 864 */,
+/* 865 */,
+/* 866 */,
+/* 867 */,
+/* 868 */,
+/* 869 */,
+/* 870 */,
+/* 871 */,
+/* 872 */,
+/* 873 */,
+/* 874 */,
+/* 875 */,
+/* 876 */,
+/* 877 */,
+/* 878 */,
+/* 879 */,
+/* 880 */,
+/* 881 */,
+/* 882 */,
+/* 883 */,
+/* 884 */,
+/* 885 */,
+/* 886 */,
+/* 887 */,
+/* 888 */,
+/* 889 */,
+/* 890 */,
+/* 891 */,
+/* 892 */,
+/* 893 */,
+/* 894 */,
+/* 895 */,
+/* 896 */,
+/* 897 */,
+/* 898 */,
+/* 899 */,
+/* 900 */,
+/* 901 */,
+/* 902 */,
+/* 903 */,
+/* 904 */,
+/* 905 */,
+/* 906 */,
+/* 907 */,
+/* 908 */,
+/* 909 */,
+/* 910 */,
+/* 911 */,
+/* 912 */,
+/* 913 */,
+/* 914 */,
+/* 915 */,
+/* 916 */,
+/* 917 */,
+/* 918 */,
+/* 919 */,
+/* 920 */,
+/* 921 */,
+/* 922 */,
+/* 923 */,
+/* 924 */,
+/* 925 */,
+/* 926 */,
+/* 927 */,
+/* 928 */,
+/* 929 */,
+/* 930 */,
+/* 931 */,
+/* 932 */,
+/* 933 */,
+/* 934 */,
+/* 935 */,
+/* 936 */,
+/* 937 */,
+/* 938 */,
+/* 939 */,
+/* 940 */,
+/* 941 */,
+/* 942 */,
+/* 943 */,
+/* 944 */,
+/* 945 */,
+/* 946 */,
+/* 947 */,
+/* 948 */,
+/* 949 */,
+/* 950 */,
+/* 951 */,
+/* 952 */,
+/* 953 */,
+/* 954 */,
+/* 955 */,
+/* 956 */,
+/* 957 */,
+/* 958 */,
+/* 959 */,
+/* 960 */,
+/* 961 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(0)
+/* script */
+var __vue_script__ = __webpack_require__(962)
+/* template */
+var __vue_template__ = __webpack_require__(963)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\views\\signups\\import.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-ea387b1a", Component.options)
+  } else {
+    hotAPI.reload("data-v-ea387b1a", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 962 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'SignupImport',
+    data: function data() {
+        return {
+            title: Menus.getIcon('signups') + '  匯入報名資料',
+
+            loading: false,
+
+            files: [],
+
+            err_msg: ''
+
+        };
+    },
+
+    computed: {
+        hasError: function hasError() {
+            if (this.err_msg) return true;
+            return false;
+        }
+    },
+    beforeMount: function beforeMount() {},
+
+    methods: {
+        init: function init() {
+            this.$refs.fileinput.value = null;
+            this.err_msg = '';
+            this.loading = false;
+        },
+        onBack: function onBack() {
+            this.$emit('cancel');
+        },
+        onFileChange: function onFileChange(e) {
+
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length) return;
+
+            this.files = e.target.files;
+
+            this.submitImport();
+        },
+        submitImport: function submitImport() {
+            var _this = this;
+
+            this.loading = true;
+
+            var form = new FormData();
+            for (var i = 0; i < this.files.length; i++) {
+                form.append('file', this.files[i]);
+            }
+
+            var store = Signup.import(form);
+            store.then(function (result) {
+
+                Helper.BusEmitOK();
+                _this.loading = false;
+                //this.$emit('imported');
+            }).catch(function (error) {
+
+                var msg = error.response.data.errors.msg[0];
+                if (msg) {
+                    _this.err_msg = msg;
+                } else {
+                    Helper.BusEmitError(error);
+                }
+
+                _this.loading = false;
+            });
+        }
+    }
+
+});
+
+/***/ }),
+/* 963 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("div", { staticClass: "panel panel-default" }, [
+      _c("div", { staticClass: "panel-heading " }, [
+        _c("h4", { domProps: { innerHTML: _vm._s(_vm.title) } }),
+        _vm._v(" "),
+        _c("div", [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-default btn-sm",
+              on: { click: _vm.onBack }
+            },
+            [
+              _c("i", { staticClass: "fa fa-arrow-circle-left" }),
+              _vm._v("\r\n                    返回\r\n                ")
+            ]
+          )
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "panel-body" }, [
+        _c(
+          "div",
+          { staticClass: "row", staticStyle: { "margin-top": "1em" } },
+          [
+            _c("div", { staticClass: "col-sm-6" }, [
+              _vm.loading
+                ? _c("button", { staticClass: "btn btn-default" }, [
+                    _c("i", { staticClass: "fa fa-spinner fa-spin" }),
+                    _vm._v(
+                      " \r\n                         處理中\r\n                    "
+                    )
+                  ])
+                : _c("div", [
+                    _c(
+                      "label",
+                      {
+                        staticClass: "btn  btn-success btn-file",
+                        attrs: { disabled: _vm.loading },
+                        on: { click: _vm.init }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-upload" }),
+                        _vm._v(
+                          "\r\n                                匯入\r\n                            "
+                        ),
+                        _c("input", {
+                          ref: "fileinput",
+                          staticStyle: { display: "none" },
+                          attrs: {
+                            disabled: _vm.loading,
+                            type: "file",
+                            name: "file"
+                          },
+                          on: { change: _vm.onFileChange }
+                        })
+                      ]
+                    )
+                  ]),
+              _vm._v(" "),
+              _vm.hasError
+                ? _c("small", {
+                    staticClass: "text-danger",
+                    domProps: { textContent: _vm._s(_vm.err_msg) }
+                  })
+                : _vm._e()
+            ])
+          ]
+        )
+      ])
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-ea387b1a", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

@@ -7,7 +7,8 @@
 <signups-index v-show="indexMode" :init_model="model" :summary_model="summary" :init_params="params"  
                :terms="terms" :centers="centers" :courses="courses" :statuses="statuses"
                :version="version" :can_quit="canQuit"
-               v-on:selected="onSelected" v-on:quit="onQuit" v-on:create="onCreate" >
+               v-on:selected="onSelected" v-on:quit="onQuit" v-on:create="onCreate" 
+               v-on:import="beginImport">
 </signups-index>
 <signups-details v-if="selected" :id="selected" :payways="counter_payways" :mode="detailsMode"
                  v-on:back="backToIndex" v-on:signup-deleted="backToIndex">
@@ -15,6 +16,10 @@
 <signups-create v-if="creating" :params="params"  v-on:cancel="backToIndex" v-on:saved="onCreated">
 </signups-create>
 
+
+<signups-import v-if="importing"  :can_import="can_import"  
+                v-on:cancel="backToIndex" v-on:imported="backToIndex">
+</signups-import>
 
 
 @endsection
@@ -49,6 +54,8 @@
                     creating:false,
                     selected: 0,
 
+                    importing: false,
+
                     detailsMode:''
 
                 }
@@ -57,6 +64,7 @@
                 indexMode() {
                     if (this.creating) return false;
                     if (this.selected) return false;
+                    if (this.importing) return false;
 
                     return true;
                 }
@@ -72,6 +80,7 @@
                 this.courses = {!! json_encode($courses) !!} ;
                 this.statuses = {!! json_encode($statuses) !!} ;
                
+                this.can_import = Helper.isTrue('{!! $canImport !!}');  
 
                 this.canQuit = {!! json_encode($canQuit) !!} ;
               
@@ -88,11 +97,16 @@
 
                     this.detailsMode='';
                 },
+                beginImport() {
+
+                    this.importing = true;
+                },
                 backToIndex() {
                     this.version += 1;
 
                     this.selected = 0;
                     this.creating = false;
+                    this.importing = false;
 
                     this.detailsMode='';
                 },

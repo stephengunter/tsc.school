@@ -5,9 +5,18 @@ Auth::routes();
 //Route::get('/test', 'BillsController@test');
 
 Route::get('/test', function(){
-    $sid='ED00281782';
-    dd(\App\Core\Helper::isSIDPattern($sid));
-    dd('test');
+    $val='s';
+    $tuition=floatval($val);
+    if($tuition)dd($tuition);
+    dd('yy');
+    
+    try {  
+        $date=\Carbon\Carbon::parse($val);
+        dd($date);
+
+    }catch (Exception $e) {  
+        dd('er');
+    }  
 });
 
 
@@ -163,6 +172,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::get('/manage/signups/report', 'SignupsController@report');
     Route::get('/manage/signups/courses', 'SignupsController@fetchCourses');
     Route::resource('/manage/signups', 'SignupsController');
+    Route::post('/manage/signups/import', 'SignupsController@import');
     Route::post('/manage/signups/updatePS', 'SignupsController@updatePS');
 
     Route::get('/manage/signups/{id}/print-bill', 'SignupsController@printBill');

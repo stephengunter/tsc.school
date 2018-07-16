@@ -68,6 +68,11 @@ class SignupsController extends Controller
         return $this->canAdminCenter($signup->getCenter());
 
     }
+    
+    function canImport()
+    {
+        return $this->currentUserIsDev();
+    }
     function canQuit($signup)
     {
         if(!$signup->canQuit()) return false;
@@ -194,6 +199,39 @@ class SignupsController extends Controller
         dd('done');
 
           
+    }
+
+    public function import(Request $form)
+    {
+        
+        if(!$this->canImport()){
+            return $this->unauthorized();
+        }
+
+        
+        $errors=[];
+      
+        if(!$form->hasFile('file')){
+            $errors['msg'] = ['無法取得上傳檔案'];
+        } 
+
+        if($errors) return $this->requestError($errors);
+
+
+        $file=Input::file('file');   
+
+        $err_msg=$this->signups->importSignups($file,$this->currentUserId());
+     
+        
+        if($err_msg)
+        {
+            $errors['msg'] = [$err_msg];
+            return $this->requestError($errors);
+        }
+
+        return response() ->json();
+
+       
     }
 
     function readIndexRequest()
@@ -344,6 +382,7 @@ class SignupsController extends Controller
             'statuses' => $this->signups->statusOptions(),
 
             'canQuit' => $canQuit,
+            'canImport' => $this->canImport(),
             'counterPayways' => $counterPaywayOptions,
 
             'summary' => $summary,

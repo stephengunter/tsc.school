@@ -42,6 +42,9 @@
                 <a @click.prevent="onCreate" href="#" class="btn btn-primary">
                     <i class="fa fa-plus-circle"></i> 新增
                 </a>
+                <a @click.prevent="onImport" href="#" class="btn btn-warning">
+                     匯入
+                </a>
             </div>
         </div>
             
@@ -213,6 +216,9 @@
                     center:this.params.center
                 };
                 this.$emit('create',params);
+            },
+            onImport(){
+                this.$emit('import');
             },
             onSelected(id){
                this.$emit('selected',id);

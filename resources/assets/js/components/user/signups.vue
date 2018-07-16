@@ -1,5 +1,5 @@
 <template>
-    <signup-table :signups="signups">
+    <signup-table :signups="user.signups" :can_select="can_select">
     </signup-table>
 </template>
 
@@ -14,12 +14,16 @@ export default {
         user: {
             type: Object,
             default: null
+        },
+        can_select: {
+            type: Boolean,
+            default: false
         }
     },
     data(){
         return{
 
-            signups:[],
+            
            
         }
     },
@@ -31,18 +35,7 @@ export default {
     },
     methods:{
         init(){
-            this.fetchData();
-        },
-        fetchData() {
-            let getData=Signup.getByUser(this.user.id);
             
-            getData.then(signups => {
-                this.signups = signups.slice(0);
-            })
-            .catch(error=> {
-              
-                Helper.BusEmitError(error);
-            })
         }
         
     }

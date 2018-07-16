@@ -77,6 +77,7 @@ Vue.component('signups-index', require('./views/signups/index'));
 Vue.component('signups-report', require('./views/signups/report'));
 Vue.component('signups-details', require('./views/signups/details'));
 Vue.component('signups-create', require('./views/signups/create'));
+Vue.component('signups-import', require('./views/signups/import'));
 
 Vue.component('quits-index', require('./views/quits/index'));
 Vue.component('quits-details', require('./views/quits/details'));

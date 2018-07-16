@@ -187,6 +187,21 @@ class Signup {
         })
     }
 
+    static import(form){
+        let url = this.source() + '/import';
+        return new Promise((resolve, reject) => {
+            axios.post(url, form)
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(error => {
+                   
+                    reject(error);
+                })
+
+        })
+    }
+
     static initPrint(id){
         let url =`${this.source()}/${id}/print-bill`;
 

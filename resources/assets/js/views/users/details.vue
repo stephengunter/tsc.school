@@ -14,7 +14,9 @@
                 <li :class="{ active: activeIndex==0 }" class="label-title">
                     <a @click.prevent="activeIndex=0" href="#" >聯絡資訊</a>
                 </li>
-                
+                <li :class="{ active: activeIndex==1 }" class="label-title">
+                    <a @click.prevent="activeIndex=1" href="#" >報名記錄</a>
+                </li>
             </ul>
        
            
@@ -27,7 +29,8 @@
                         @created="reloadUser" @deleted="reloadUser" >             
                     </contact-info> 
 
-                   
+                    <signup-records v-if="activeIndex==1"  :user="user" >  
+                    </signup-records> 
 
                 </div>
                           

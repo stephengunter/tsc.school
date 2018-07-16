@@ -49,7 +49,7 @@ class Bills
 
     
 
-    function payBill(Bill $bill,Payway $payway, $date='')
+    public function payBill(Bill $bill,Payway $payway, $date='')
     {
         if(!$date) $date=Carbon::now();
 

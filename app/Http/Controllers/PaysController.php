@@ -61,6 +61,7 @@ class PaysController extends Controller
     //處理現場繳費
     public function store(Request $form)
     {
+      
         $id = (int)$form['id'];
 
         $bill=Bill::findOrFail($id);

@@ -9,6 +9,8 @@ use App\Http\Requests\UserRequest;
 use App\User;
 use App\Role;
 use App\Services\Users;
+use App\Services\Signups;
+
 use App\Core\PagedList;
 use Carbon\Carbon;
 use App\Core\Helper;
@@ -16,9 +18,10 @@ use Illuminate\Support\Facades\Input;
 
 class UsersController extends Controller
 {
-    public function __construct(Users $users)
+    public function __construct(Users $users,Signups $signups)
     {
         $this->users=$users;
+        $this->signups=$signups;
     }
 
     function canEdit(User $user)
@@ -167,6 +170,13 @@ class UsersController extends Controller
         $this->loadRoleNames($user);
 
         $user->loadContactInfo();
+
+        $signups = $this->signups->fetchSignupsByUser($user)->get();
+      
+        foreach($signups as $signup){
+            $signup->loadViewModel();            
+        }  
+        $user->signups=$signups;
      
         $user->canEdit=$this->canEdit($user);
         $user->canDelete=$this->canDelete($user);

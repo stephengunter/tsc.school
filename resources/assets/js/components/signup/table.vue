@@ -32,8 +32,8 @@
                         </td>
                       
                         <td> 
-                            <a  href="#" @click.prevent="onSelected(signup.id)" v-text="signup.user.profile.fullname"> </a> 
-                         
+                            <a v-if="can_select"  href="#" @click.prevent="onSelected(signup.id)" v-text="signup.user.profile.fullname"> </a> 
+                            <span v-else v-text="signup.user.profile.fullname"></span>
                         </td>
                         <td> 
                             {{ signup.date }} 
