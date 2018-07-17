@@ -16,7 +16,7 @@ class CreateSignupsTable extends Migration
         Schema::create('signups', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('userId')->unsigned();
-
+            $table->date('date')->nullable();
             $table->boolean('net')->default(true);
             $table->decimal('tuitions', 8, 2);  
             $table->decimal('costs', 8, 2);  

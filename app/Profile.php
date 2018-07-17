@@ -45,12 +45,13 @@ class Profile extends Model
 		
 	}
 
-	public function getAge()
+	public function getAge($date=null)
 	{
-		$today=Carbon::today();
+		if(!$date) $date=Carbon::today();
+
 		$dob=new Carbon($this->dob);
 
-		return $dob->diffInYears(Carbon::today());
+		return $dob->diffInYears($date);
 	}
     
 	

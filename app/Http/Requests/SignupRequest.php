@@ -57,8 +57,14 @@ class SignupRequest extends FormRequest
     public function getSignupValues()
     {
         return $this->get('signup');
-        //return array_except($values, ['teacherGroup','term','center','classTimes','teachers']);
         
+    }
+
+    public function getSignupDate()
+    {
+        $values= $this->get('signup');
+        return $values['date'];
+       
     }
 
     public function getSignupDetails()

@@ -534,7 +534,7 @@ class SignupsController extends Controller
 
     public function store(SignupRequest $request)
     {
-       
+      
         $updatedBy=$this->currentUserId();
 
         $courseIds=$request['courseIds'];
@@ -573,6 +573,8 @@ class SignupsController extends Controller
         $signupDetails=$result['signupDetails'];
 
         $lotus=Helper::isTrue($request['lotus']);
+
+       
         
 
         $userCanAddDetailSignup=$this->signups->getUserCanAddDetailSignup($term, $center,$user);
@@ -584,6 +586,7 @@ class SignupsController extends Controller
             $this->signups->updateSignup($userCanAddDetailSignup,$signupDetails,$lotus);
         }else{
             $signup=new Signup(Signup::init());
+            $signup->date=$request->getSignupDate();
             $signup->userId=$userId;
             $signup->identity_ids=join(',', $identityIds);
             $signup->net=false;

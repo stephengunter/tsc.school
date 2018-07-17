@@ -82,8 +82,11 @@ class Discounts
         return null;
     }
 
-    public function findBestDiscount(Center $center, Term $term, User $user,array $identityIds, bool $lotus, int $courseCount)
+    public function findBestDiscount(Center $center, Term $term, User $user,array $identityIds, bool $lotus, int $courseCount,Carbon $date=null)
     {
+       
+        if(!$date) $date=Carbon::today();
+
         $validDiscounts = [];
        
         $lotusDiscount = $this->getLotusDiscount($center);
@@ -99,7 +102,7 @@ class Discounts
             
         }
 
-        $age=$user->getAge();
+        $age=$user->getAge($date);
         $discountsInCenter =$discountsInCenter->where('age','<=',$age);
         $discountsInCenter =$discountsInCenter->get();
         foreach ($discountsInCenter as $discountInCenter)
@@ -127,7 +130,7 @@ class Discounts
         $validDiscounts = collect($validDiscounts);
 
         //是否在早鳥優惠截止前
-        $canBird = $term->canBird(Carbon::today());
+        $canBird = $term->canBird($date);
         
         if ($canBird)
         {

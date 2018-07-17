@@ -175,13 +175,16 @@ class Signups
         
     public function createSignup(Signup $signup, array $details,User $user, bool $lotus=false)
     {
+        $date=null;
+        if($signup->date) $date=Carbon::parse($signup->date);
+        else $date=Carbon::today();
         
         $course=$this->courses->getById($details[0]['courseId']);
        
         $identityIds=explode(',', $signup['identity_ids']);
 
         
-        $bestDiscount=$this->discounts->findBestDiscount($course->center,$course->term,$user,$identityIds,$lotus, count($details));
+        $bestDiscount=$this->discounts->findBestDiscount($course->center,$course->term,$user,$identityIds,$lotus, count($details),$date);
       
         $this->setSignupDiscount($signup,$course->term,$bestDiscount);
        
@@ -200,7 +203,10 @@ class Signups
 
     public function updateSignup(Signup $signup, array $newDetails=[],bool $lotus=false)
     {
-       
+        $date=null;
+        if($signup->date) $date=Carbon::parse($signup->date);
+        else $date=Carbon::today();
+
         $course=$this->courses->getById($signup->details[0]['courseId']);
 
         $identityIds=explode(',', $signup['identity_ids']);
@@ -209,7 +215,7 @@ class Signups
         
         $courseCount= $signup->getValidCoursesCount() + count($newDetails);
         
-        $bestDiscount=$this->discounts->findBestDiscount($course->center,$course->term,$signup->user,$identityIds,$lotus, $courseCount);
+        $bestDiscount=$this->discounts->findBestDiscount($course->center,$course->term,$signup->user,$identityIds,$lotus, $courseCount,$date);
       
         $this->setSignupDiscount($signup,$course->term,$bestDiscount);
        

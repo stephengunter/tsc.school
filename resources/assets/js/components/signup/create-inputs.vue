@@ -1,5 +1,19 @@
 <template>
     <div v-if="form">
+        <form  class="form">
+            
+            <div class="form-group">
+                <label class="col-md-1 control-label">報名日期</label>
+                <div class="col-md-3">
+                    <datetime-picker :date="form.signup.date" :can_clear="false" @selected="setDate"></datetime-picker>
+            
+                </div>
+
+                
+            </div>
+               
+			
+        </form>
         <signup-details text="報名課程" :model="form.signup"
             @add-detail="onAddDetail" @remove-detail="onRemoveDetail">
 
@@ -109,6 +123,9 @@ export default {
     methods:{
         onAddDetail(){
             this.$emit('add-detail');
+        },
+        setDate(val){
+            this.form.signup.date=val;
         },
         onRemoveDetail(item){
             let courseId=item.courseId;

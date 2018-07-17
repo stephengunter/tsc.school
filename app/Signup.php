@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use App\Bill;
 use App\Tran;
 use App\Discount;
+use Carbon\Carbon;
 
 class Signup extends Model
 {
     public static $snakeAttributes = false;
 	
     protected $fillable = [  
+                            'date',
                             'userId', 'net', 'points', 'discount' ,'discountId' ,
                             'tuitions', 'costs', 'status','identity_ids',
                             'payed',
@@ -23,7 +25,8 @@ class Signup extends Model
 	public static function init()
 	{
 		return [
-			'userId' => 0,
+            'userId' => 0,
+            'date' => Carbon::today()->toDateString(),
 			'net' => 0,
 			'points' => 0,
 			'tuitions' => 0,
@@ -131,8 +134,9 @@ class Signup extends Model
 
     public function getDate()
 	{
-        $this->date = $this->created_at->format('Y-m-d');
-        return $this->created_at;
+        if(!$this->date)  $this->date = $this->created_at->format('Y-m-d');
+       
+        return $this->date;
     }
 
     public function user() 

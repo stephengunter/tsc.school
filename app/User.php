@@ -175,9 +175,9 @@ class User extends Authenticatable
 		if($this->contactInfo)  $this->contactInfo->address->fullText();
     }
 
-    public function getAge()
+    public function getAge($date=null)
     {
-        return $this->profile->getAge();
+        return $this->profile->getAge($date);
     }
 
     public function loadIdentityNames()
