@@ -16,7 +16,7 @@
 						</drop-down>
 					</div>
 					
-					<div class="form-group" style="padding-left:1em;">
+					<div v-if="false" class="form-group" style="padding-left:1em;">
                        <toggle  v-if="!isGroup" :items="reviewedOptions"   :default_val="params.reviewed" @selected="setReviewed"></toggle>
                         
 					</div>

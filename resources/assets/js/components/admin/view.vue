@@ -91,9 +91,9 @@
             },
             title(){
                
-                if(this.readOnly) return this.icon + ' 管理員資料';
-                if(this.creating) return this.icon + ' 新增管理員';
-                return `${this.icon}  編輯管理員資料：${this.admin.user.profile.fullname}`
+                if(this.readOnly) return this.icon + ' 系統管理人員資料';
+                if(this.creating) return this.icon + ' 新增系統管理人員';
+                return `${this.icon}  編輯系統管理人員資料：${this.admin.user.profile.fullname}`
                 
             }
            

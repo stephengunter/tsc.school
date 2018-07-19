@@ -44,7 +44,7 @@ class Menus
                         'active' => $current =='manage/users'
                     ],
                     [
-                        'text' => '權限管理',
+                        'text' => '系統管理人員',
                         'path' => '/manage/admins',
                         'active' => $current=='manage/admins'
                     ],

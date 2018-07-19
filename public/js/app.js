@@ -71180,7 +71180,9 @@ var render = function() {
                   ])
                 : _vm._e(),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("審核")])
+              false
+                ? _c("th", { staticStyle: { width: "10%" } }, [_vm._v("審核")])
+                : _vm._e()
             ])
           ]),
           _vm._v(" "),
@@ -71261,13 +71263,17 @@ var render = function() {
                         ])
                       : _vm._e(),
                     _vm._v(" "),
-                    _c("td", {
-                      domProps: {
-                        innerHTML: _vm._s(
-                          _vm.$options.filters.reviewedLabel(teacher.reviewed)
-                        )
-                      }
-                    })
+                    false
+                      ? _c("td", {
+                          domProps: {
+                            innerHTML: _vm._s(
+                              _vm.$options.filters.reviewedLabel(
+                                teacher.reviewed
+                              )
+                            )
+                          }
+                        })
+                      : _vm._e()
                   ])
                 })
               )
@@ -71543,25 +71549,27 @@ var render = function() {
               1
             ),
             _vm._v(" "),
-            _c(
-              "div",
-              {
-                staticClass: "form-group",
-                staticStyle: { "padding-left": "1em" }
-              },
-              [
-                !_vm.isGroup
-                  ? _c("toggle", {
-                      attrs: {
-                        items: _vm.reviewedOptions,
-                        default_val: _vm.params.reviewed
-                      },
-                      on: { selected: _vm.setReviewed }
-                    })
-                  : _vm._e()
-              ],
-              1
-            )
+            false
+              ? _c(
+                  "div",
+                  {
+                    staticClass: "form-group",
+                    staticStyle: { "padding-left": "1em" }
+                  },
+                  [
+                    !_vm.isGroup
+                      ? _c("toggle", {
+                          attrs: {
+                            items: _vm.reviewedOptions,
+                            default_val: _vm.params.reviewed
+                          },
+                          on: { selected: _vm.setReviewed }
+                        })
+                      : _vm._e()
+                  ],
+                  1
+                )
+              : _vm._e()
           ]
         ),
         _vm._v(" "),
@@ -72423,37 +72431,41 @@ var render = function() {
                   })
                 ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-4" }, [
-                  _c("label", { staticClass: "label-title" }, [
-                    _vm._v("資料審核")
-                  ]),
-                  _vm._v(" "),
-                  _c("p", [
-                    _c("span", {
-                      domProps: {
-                        innerHTML: _vm._s(
-                          _vm.$options.filters.reviewedLabel(
-                            _vm.teacher.reviewed
-                          )
-                        )
-                      }
-                    }),
-                    _vm._v("\r\n                     \r\n                    "),
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary btn-xs",
-                        on: {
-                          click: function($event) {
-                            $event.preventDefault()
-                            return _vm.editReview($event)
+                false
+                  ? _c("div", { staticClass: "col-sm-4" }, [
+                      _c("label", { staticClass: "label-title" }, [
+                        _vm._v("資料審核")
+                      ]),
+                      _vm._v(" "),
+                      _c("p", [
+                        _c("span", {
+                          domProps: {
+                            innerHTML: _vm._s(
+                              _vm.$options.filters.reviewedLabel(
+                                _vm.teacher.reviewed
+                              )
+                            )
                           }
-                        }
-                      },
-                      [_c("i", { staticClass: "fa fa-edit" })]
-                    )
-                  ])
-                ])
+                        }),
+                        _vm._v(
+                          "\r\n                     \r\n                    "
+                        ),
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-primary btn-xs",
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.editReview($event)
+                              }
+                            }
+                          },
+                          [_c("i", { staticClass: "fa fa-edit" })]
+                        )
+                      ])
+                    ])
+                  : _vm._e()
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "row" }, [
@@ -78588,6 +78600,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'ShowAccount',
@@ -78765,6 +78781,14 @@ var render = function() {
                     ]),
                     _vm._v(" "),
                     _c("p", [_vm._v(" " + _vm._s(_vm.account.code) + " ")])
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-sm-4" }, [
+                    _c("label", { staticClass: "label-title" }, [
+                      _vm._v("備註")
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [_vm._v(" " + _vm._s(_vm.account.ps) + " ")])
                   ])
                 ])
               ])
@@ -78853,6 +78877,16 @@ module.exports = Component.exports
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -79249,6 +79283,43 @@ var render = function() {
                       staticClass: "text-danger",
                       domProps: {
                         textContent: _vm._s(_vm.form.errors.get("account.code"))
+                      }
+                    })
+                  : _vm._e()
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("備註")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.account.ps,
+                      expression: "form.account.ps"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "account.ps" },
+                  domProps: { value: _vm.form.account.ps },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.form.account, "ps", $event.target.value)
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _vm.form.errors.has("account.ps")
+                  ? _c("small", {
+                      staticClass: "text-danger",
+                      domProps: {
+                        textContent: _vm._s(_vm.form.errors.get("account.ps"))
                       }
                     })
                   : _vm._e()
@@ -81350,7 +81421,9 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "15%" } }, [_vm._v("所屬中心")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("身分")]),
+              false
+                ? _c("th", { staticStyle: { width: "10%" } }, [_vm._v("身分")])
+                : _vm._e(),
               _vm._v(" "),
               false
                 ? _c("th", { staticStyle: { width: "10%" } }, [
@@ -81364,7 +81437,7 @@ var render = function() {
                   ])
                 : _vm._e(),
               _vm._v(" "),
-              _c("th", [_vm._v("備註")])
+              false ? _c("th", [_vm._v("備註")]) : _vm._e()
             ])
           ]),
           _vm._v(" "),
@@ -81433,13 +81506,15 @@ var render = function() {
                       )
                     ]),
                     _vm._v(" "),
-                    _c("td", [
-                      _vm._v(
-                        "\n                            " +
-                          _vm._s(volunteer.user.identityNames) +
-                          "\n                        "
-                      )
-                    ]),
+                    false
+                      ? _c("td", [
+                          _vm._v(
+                            "\n                            " +
+                              _vm._s(volunteer.user.identityNames) +
+                              "\n                        "
+                          )
+                        ])
+                      : _vm._e(),
                     _vm._v(" "),
                     false
                       ? _c("td", [_vm._v(_vm._s(volunteer.weekdaysText))])
@@ -81449,7 +81524,7 @@ var render = function() {
                       ? _c("td", [_vm._v(_vm._s(volunteer.time))])
                       : _vm._e(),
                     _vm._v(" "),
-                    _c("td", [_vm._v(_vm._s(volunteer.ps))])
+                    false ? _c("td", [_vm._v(_vm._s(volunteer.ps))]) : _vm._e()
                   ])
                 })
               )
@@ -82150,25 +82225,31 @@ var render = function() {
               : _vm._e()
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "row" }, [
-            _c("div", { staticClass: "col-sm-4" }, [
-              _c("label", { staticClass: "label-title" }, [
-                _vm._v("可服務時段")
-              ]),
-              _vm._v(" "),
-              _c("p", { domProps: { textContent: _vm._s(_vm.volunteer.time) } })
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "col-sm-8" }, [
-              _c("label", { staticClass: "label-title" }, [
-                _vm._v("可服務時間")
-              ]),
-              _vm._v(" "),
-              _c("p", {
-                domProps: { textContent: _vm._s(_vm.volunteer.weekdaysText) }
-              })
-            ])
-          ]),
+          false
+            ? _c("div", { staticClass: "row" }, [
+                _c("div", { staticClass: "col-sm-4" }, [
+                  _c("label", { staticClass: "label-title" }, [
+                    _vm._v("可服務時段")
+                  ]),
+                  _vm._v(" "),
+                  _c("p", {
+                    domProps: { textContent: _vm._s(_vm.volunteer.time) }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-8" }, [
+                  _c("label", { staticClass: "label-title" }, [
+                    _vm._v("可服務時間")
+                  ]),
+                  _vm._v(" "),
+                  _c("p", {
+                    domProps: {
+                      textContent: _vm._s(_vm.volunteer.weekdaysText)
+                    }
+                  })
+                ])
+              ])
+            : _vm._e(),
           _vm._v(" "),
           _c("div", { staticClass: "row" }, [
             _c("div", { staticClass: "col-sm-12" }, [
@@ -82890,77 +82971,81 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", { staticClass: "col-md-2 control-label" }, [
-                _vm._v("可服務時間")
-              ]),
-              _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "col-md-10" },
-                [
-                  _c("check-box-list", {
-                    attrs: {
-                      options: _vm.weekdays,
-                      default_values: _vm.form.weekdayIds
-                    },
-                    on: { "select-changed": _vm.onWeekdaysChanged }
-                  })
-                ],
-                1
-              )
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group" }, [
-              _c("label", { staticClass: "col-md-2 control-label" }, [
-                _vm._v("可服務時段")
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-md-2" }, [
-                _c(
-                  "select",
-                  {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.form.volunteer.time,
-                        expression: "form.volunteer.time"
-                      }
+            false
+              ? _c("div", { staticClass: "form-group" }, [
+                  _c("label", { staticClass: "col-md-2 control-label" }, [
+                    _vm._v("可服務時間")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-md-10" },
+                    [
+                      _c("check-box-list", {
+                        attrs: {
+                          options: _vm.weekdays,
+                          default_values: _vm.form.weekdayIds
+                        },
+                        on: { "select-changed": _vm.onWeekdaysChanged }
+                      })
                     ],
-                    staticClass: "form-control",
-                    on: {
-                      change: function($event) {
-                        var $$selectedVal = Array.prototype.filter
-                          .call($event.target.options, function(o) {
-                            return o.selected
-                          })
-                          .map(function(o) {
-                            var val = "_value" in o ? o._value : o.value
-                            return val
-                          })
-                        _vm.$set(
-                          _vm.form.volunteer,
-                          "time",
-                          $event.target.multiple
-                            ? $$selectedVal
-                            : $$selectedVal[0]
-                        )
-                      }
-                    }
-                  },
-                  _vm._l(_vm.time_options, function(item, index) {
-                    return _c("option", {
-                      key: index,
-                      domProps: {
-                        value: item.value,
-                        textContent: _vm._s(item.text)
-                      }
-                    })
-                  })
-                )
-              ])
-            ]),
+                    1
+                  )
+                ])
+              : _vm._e(),
+            _vm._v(" "),
+            false
+              ? _c("div", { staticClass: "form-group" }, [
+                  _c("label", { staticClass: "col-md-2 control-label" }, [
+                    _vm._v("可服務時段")
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-md-2" }, [
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.form.volunteer.time,
+                            expression: "form.volunteer.time"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        on: {
+                          change: function($event) {
+                            var $$selectedVal = Array.prototype.filter
+                              .call($event.target.options, function(o) {
+                                return o.selected
+                              })
+                              .map(function(o) {
+                                var val = "_value" in o ? o._value : o.value
+                                return val
+                              })
+                            _vm.$set(
+                              _vm.form.volunteer,
+                              "time",
+                              $event.target.multiple
+                                ? $$selectedVal
+                                : $$selectedVal[0]
+                            )
+                          }
+                        }
+                      },
+                      _vm._l(_vm.time_options, function(item, index) {
+                        return _c("option", {
+                          key: index,
+                          domProps: {
+                            value: item.value,
+                            textContent: _vm._s(item.text)
+                          }
+                        })
+                      })
+                    )
+                  ])
+                ])
+              : _vm._e(),
             _vm._v(" "),
             _c("div", { staticClass: "form-group" }, [
               _c("label", { staticClass: "col-md-2 control-label" }, [
@@ -83242,88 +83327,98 @@ var render = function() {
         ])
       : _vm._e(),
     _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-sm-4" }, [
-        _c("div", { staticClass: "form-group" }, [
-          _c("label", [_vm._v("可服務時段")]),
-          _vm._v(" "),
-          _c(
-            "select",
-            {
-              directives: [
+    false
+      ? _c("div", { staticClass: "row" }, [
+          _c("div", { staticClass: "col-sm-4" }, [
+            _c("div", { staticClass: "form-group" }, [
+              _c("label", [_vm._v("可服務時段")]),
+              _vm._v(" "),
+              _c(
+                "select",
                 {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.form.volunteer.time,
-                  expression: "form.volunteer.time"
-                }
-              ],
-              staticClass: "form-control",
-              on: {
-                change: function($event) {
-                  var $$selectedVal = Array.prototype.filter
-                    .call($event.target.options, function(o) {
-                      return o.selected
-                    })
-                    .map(function(o) {
-                      var val = "_value" in o ? o._value : o.value
-                      return val
-                    })
-                  _vm.$set(
-                    _vm.form.volunteer,
-                    "time",
-                    $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-                  )
-                }
-              }
-            },
-            _vm._l(_vm.time_options, function(item, index) {
-              return _c("option", {
-                key: index,
-                domProps: { value: item.value, textContent: _vm._s(item.text) }
-              })
-            })
-          )
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "col-sm-8" }, [
-        _c(
-          "div",
-          { staticClass: "form-group" },
-          [
-            _c("label", [_vm._v("可服務時間")]),
-            _vm._v(" "),
-            _c("check-box-list", {
-              attrs: {
-                options: _vm.weekdays,
-                default_values: _vm.form.weekdayIds
-              },
-              on: { "select-changed": _vm.onWeekdaysChanged }
-            })
-          ],
-          1
-        )
-      ]),
-      _vm._v(" "),
-      false
-        ? _c("div", { staticClass: "col-sm-4" }, [
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form.volunteer.time,
+                      expression: "form.volunteer.time"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  on: {
+                    change: function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.$set(
+                        _vm.form.volunteer,
+                        "time",
+                        $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      )
+                    }
+                  }
+                },
+                _vm._l(_vm.time_options, function(item, index) {
+                  return _c("option", {
+                    key: index,
+                    domProps: {
+                      value: item.value,
+                      textContent: _vm._s(item.text)
+                    }
+                  })
+                })
+              )
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-sm-8" }, [
             _c(
               "div",
               { staticClass: "form-group" },
               [
-                _c("label", [_vm._v("加入日期")]),
+                _c("label", [_vm._v("可服務時間")]),
                 _vm._v(" "),
-                _c("datetime-picker", {
-                  attrs: { date: _vm.form.volunteer.joinDate, can_clear: true },
-                  on: { selected: _vm.setJoinDate }
+                _c("check-box-list", {
+                  attrs: {
+                    options: _vm.weekdays,
+                    default_values: _vm.form.weekdayIds
+                  },
+                  on: { "select-changed": _vm.onWeekdaysChanged }
                 })
               ],
               1
             )
-          ])
-        : _vm._e()
-    ]),
+          ]),
+          _vm._v(" "),
+          false
+            ? _c("div", { staticClass: "col-sm-4" }, [
+                _c(
+                  "div",
+                  { staticClass: "form-group" },
+                  [
+                    _c("label", [_vm._v("加入日期")]),
+                    _vm._v(" "),
+                    _c("datetime-picker", {
+                      attrs: {
+                        date: _vm.form.volunteer.joinDate,
+                        can_clear: true
+                      },
+                      on: { selected: _vm.setJoinDate }
+                    })
+                  ],
+                  1
+                )
+              ])
+            : _vm._e()
+        ])
+      : _vm._e(),
     _vm._v(" "),
     _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col-sm-12" }, [
@@ -84861,7 +84956,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     },
     data: function data() {
         return {
-            title: Menus.getIcon('admins') + '  權限管理',
+            title: Menus.getIcon('admins') + '  系統管理人員',
 
             loaded: false,
 
@@ -85157,6 +85252,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (admin.user.contactInfo.address) return true;
             return false;
         },
+        getTEL: function getTEL(user) {
+
+            if (user.contactInfo) return user.contactInfo.tel;
+            return '';
+        },
         roleLabels: function roleLabels(user) {
             if (user.roleNames) return User.roleLabels(user.roleNames);
             return User.roleLabels(user.roles);
@@ -85242,6 +85342,8 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("手機")]),
               _vm._v(" "),
+              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("市話")]),
+              _vm._v(" "),
               !_vm.center ? _c("th", [_vm._v("所屬中心")]) : _vm._e(),
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("角色")])
@@ -85289,6 +85391,10 @@ var render = function() {
                 _c("td", [_vm._v(_vm._s(admin.user.email))]),
                 _vm._v(" "),
                 _c("td", [_vm._v(_vm._s(admin.user.phone))]),
+                _vm._v(" "),
+                _c("td", {
+                  domProps: { textContent: _vm._s(_vm.getTEL(admin.user)) }
+                }),
                 _vm._v(" "),
                 !_vm.center
                   ? _c("td", {
@@ -85708,9 +85814,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
         },
         title: function title() {
 
-            if (this.readOnly) return this.icon + ' 管理員資料';
-            if (this.creating) return this.icon + ' 新增管理員';
-            return this.icon + '  \u7DE8\u8F2F\u7BA1\u7406\u54E1\u8CC7\u6599\uFF1A' + this.admin.user.profile.fullname;
+            if (this.readOnly) return this.icon + ' 系統管理人員資料';
+            if (this.creating) return this.icon + ' 新增系統管理人員';
+            return this.icon + '  \u7DE8\u8F2F\u7CFB\u7D71\u7BA1\u7406\u4EBA\u54E1\u8CC7\u6599\uFF1A' + this.admin.user.profile.fullname;
         }
     },
     beforeMount: function beforeMount() {

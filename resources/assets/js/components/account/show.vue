@@ -47,6 +47,10 @@
                         <label class="label-title">金資代碼</label>
                         <p> {{ account.code }} </p>                         
                     </div> 
+                    <div class="col-sm-4">
+                        <label class="label-title">備註</label>
+                        <p> {{ account.ps }} </p>                         
+                    </div> 
                 </div>  <!-- End Row -->
                 
                 

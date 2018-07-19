@@ -45,7 +45,7 @@
                  
                 </p>                   
             </div>
-            <div class="col-sm-4">
+            <div v-if="false"  class="col-sm-4">
                 <label class="label-title">資料審核</label>
                 <p>
                     <span v-html="$options.filters.reviewedLabel(teacher.reviewed)"></span>

@@ -20,7 +20,7 @@
             </div>
             
         </div>  <!-- End row--> 
-        <div class="row" >
+        <div v-if="false" class="row" >
             <div class="col-sm-4">
                 <label class="label-title">可服務時段</label>
                 <p v-text="volunteer.time"></p>                    

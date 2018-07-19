@@ -142,6 +142,7 @@ class AdminsController extends Controller
         
 
         foreach($pageList->viewList as $admin){
+            $admin->user->loadContactInfo();
             $this->loadCenterNames($admin);
             $this->loadRoleNames($admin);
         } 

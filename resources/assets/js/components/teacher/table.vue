@@ -17,7 +17,7 @@
                         <th style="width:10%" v-if="!center">所屬中心</th>
                         <th v-if="false" style="width:10%">薪酬標準</th>
                         <th v-if="false" style="width:10%">特殊講師鐘點費</th>
-                        <th style="width:10%">審核</th>
+                        <th v-if="false"  style="width:10%">審核</th>
                         
                     </tr>
                 </thead>
@@ -48,7 +48,7 @@
 
                         <td v-if="false">{{  teacher.pay | formatMoney }}</td>
                         
-                        <td v-html="$options.filters.reviewedLabel(teacher.reviewed)" ></td>
+                        <td  v-if="false"  v-html="$options.filters.reviewedLabel(teacher.reviewed)" ></td>
                         
                     </tr>    
                 </tbody>

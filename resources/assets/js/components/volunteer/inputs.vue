@@ -11,7 +11,7 @@
                 </div>
             </div> 
         </div>
-        <div class="row">
+        <div v-if="false" class="row">
             <div class="col-sm-4">
                 <div class="form-group">                           
                     <label>可服務時段</label>

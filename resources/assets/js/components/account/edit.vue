@@ -70,7 +70,17 @@
 				
 				
 			</div>
-            
+            <div class="col-sm-3">
+				<div class="form-group">
+					
+					<label>備註</label>
+					<input type="text" name="account.ps" class="form-control" v-model="form.account.ps" >
+					<small class="text-danger" v-if="form.errors.has('account.ps')" v-text="form.errors.get('account.ps')"></small>
+				</div>
+				
+				
+				
+			</div>
         
     	</div>
 		<div v-if="submitting"  class="row">

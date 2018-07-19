@@ -84,7 +84,7 @@
         },
         data(){
             return {
-                title: Menus.getIcon('admins')  + '  權限管理',
+                title: Menus.getIcon('admins')  + '  系統管理人員',
 
                 loaded:false,
 

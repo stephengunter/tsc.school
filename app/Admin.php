@@ -79,4 +79,6 @@ class Admin extends Model
 		$this->centers()->attach($center->id);
     }
 
+    
+
 }

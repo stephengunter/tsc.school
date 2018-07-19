@@ -324,6 +324,9 @@ class TeachersController extends Controller
         $updatedBy=$current_user->id;
 
         $teacherValues['updatedBy']=$updatedBy;
+        $teacherValues['reviewed']=true;
+        $teacherValues['reviewedBy']=$updatedBy;
+
         $userValues['updatedBy']=$updatedBy;
         $profileValues['updatedBy']=$updatedBy;
         $contactInfoValues['updatedBy']=$updatedBy;

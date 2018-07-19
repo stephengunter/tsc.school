@@ -14,10 +14,10 @@
                         <th style="width:10%">手機</th>
                         <th style="width:10%">市話</th>
                         <th style="width:15%">所屬中心</th>
-                        <th style="width:10%">身分</th>
+                        <th v-if="false" style="width:10%">身分</th>
                         <th v-if="false" style="width:10%">可服務時間</th>
                         <th v-if="false" style="width:10%">可服務時段</th>
-                        <th >備註</th>
+                        <th v-if="false">備註</th>
                     </tr>
                 </thead>
                 <tbody v-if="hasData">
@@ -40,12 +40,12 @@
                         <td>
                             {{  volunteer.centersText }}
                         </td>
-                        <td>
+                        <td v-if="false">
                             {{  volunteer.user.identityNames }}
                         </td>
                         <td v-if="false" >{{  volunteer.weekdaysText }}</td>
                         <td v-if="false" >{{  volunteer.time }}</td>
-                        <td>{{  volunteer.ps }}</td>
+                        <td v-if="false">{{  volunteer.ps }}</td>
                         
                     </tr>    
                 </tbody>

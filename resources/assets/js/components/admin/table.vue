@@ -12,7 +12,7 @@
                         <th style="width:10%">姓名</th>
                         <th style="width:20%">Email</th>
                         <th style="width:10%">手機</th>
-                        
+                        <th style="width:10%">市話</th>
                         <th  v-if="!center">所屬中心</th>
                         
                         <th style="width:10%">角色</th>
@@ -32,7 +32,7 @@
                         </td>
                         <td>{{  admin.user.email }}</td>
                         <td>{{  admin.user.phone }}</td>
-                        
+                        <td v-text="getTEL(admin.user)"></td>
 
                         <td v-if="!center" v-text="centerNames(admin)">
 
@@ -112,6 +112,11 @@ export default {
             if(!this.hasContactInfo(admin)) return false;
             if(admin.user.contactInfo.address) return true;
             return false;
+        },
+        getTEL(user){
+           
+            if(user.contactInfo) return user.contactInfo.tel;
+            return '';
         },
         roleLabels(user){
             if(user.roleNames) return User.roleLabels(user.roleNames);

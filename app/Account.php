@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Account extends Model
 {
     protected $fillable = ['userId','photoId' ,'bank', 'branch', 'owner' ,'code',
-     'number', 'updatedBy' ];
+     'number','ps', 'updatedBy' ];
 						 
 	public static function init()
 	{
@@ -17,8 +17,8 @@ class Account extends Model
 			'branch' => '',
             'owner' => '',
 			'number' => '',
-			'code' => ''
-
+			'code' => '',
+			'ps' => ''
 		];
     }	
     

@@ -31,7 +31,7 @@
             
         </div>
         
-        <div class="form-group">
+        <div v-if="false" class="form-group">
             <label class="col-md-2 control-label">可服務時間</label>
             <div class="col-md-10">
                 
@@ -41,7 +41,7 @@
             </div>
             
         </div>
-        <div class="form-group">
+        <div v-if="false" class="form-group">
             <label class="col-md-2 control-label">可服務時段</label>
             <div class="col-md-2">
                 <select v-model="form.volunteer.time" class="form-control">
