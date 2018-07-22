@@ -342,7 +342,7 @@ class Users
             
 
 			$userDatas=$this->getImportUserDatas($row,$updatedBy);
-			dd($userDatas);
+			
             if(array_key_exists('err',$userDatas)){
                 $err_msg .= $userDatas['err'] . ',';
                 continue;
@@ -356,9 +356,9 @@ class Users
             $identities=$userDatas['identities'];
 
             $sid=$profileValues['sid'];
-            $user= $this->users->findBySID($sid);
+            $user= $this->findBySID($sid);
 
-            if(!$user)
+            if($user)
             {
 				$this->updateUser($user,$userValues,$profileValues);
                

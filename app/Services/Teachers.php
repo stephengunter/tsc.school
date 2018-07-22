@@ -276,15 +276,7 @@ class Teachers
             $identities=$userDatas['identities'];
 
             $sid=$profileValues['sid'];
-            $existTeacher = $this->getTeacherBySID($sid);
-            if($existTeacher)
-            {
-                foreach($centers as $center){
-                    $existTeacher->addToCenter($center);
-                }
-               
-                continue;
-            }
+            
             
             $user= $this->users->findBySID($sid);
 
@@ -295,6 +287,9 @@ class Teachers
                     new Profile($profileValues)
                 );
                
+            }else
+            {
+                $this->users->updateUser($user,$userValues,$profileValues);
             }
 
             foreach($identities as $identity){
@@ -303,14 +298,23 @@ class Teachers
 
             $contactInfo=new ContactInfo($contactInfoValues);
             $address=new Address($addressValues);
-            
-
             $this->users->setContactInfo($user,$contactInfo,$address);
-    
-            $teacher = new Teacher($teacherValues);
-            
 
-            $teacher=$this->createTeacher($user,$teacher,$centerIds);
+            $existTeacher = $this->getTeacherBySID($sid);
+            if($existTeacher)
+            {
+                $existTeacher->update($teacherValues);
+                foreach($centers as $center){
+                    $existTeacher->addToCenter($center);
+                }
+               
+                
+            }else{
+                $teacher = new Teacher($teacherValues);
+                $teacher=$this->createTeacher($user,$teacher,$centerIds);
+            }
+    
+           
             
            
         }  //end for  
