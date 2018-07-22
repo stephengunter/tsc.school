@@ -10,10 +10,14 @@ use App\Address;
 use App\District;
 use Carbon\Carbon;
 use App\Core\Helper;
+use App\Services\Import;
 use DB;
+use Excel;
 
 class Users
 {
+	use Import;
+
 	public function __construct()
     {
         $this->with=['profile','contactInfoes.address.district.city'];
@@ -317,6 +321,82 @@ class Users
 
         return $errors;
 	}
+
+	public function importUsers($file,$updatedBy)
+    {
+        $err_msg='';
+
+        $excel=Excel::load($file, function($reader) {             
+            $reader->limitColumns(20);
+            $reader->limitRows(100);
+        })->get();
+
+        $userList=$excel->toArray()[0];
+       
+        for($i = 1; $i < count($userList); ++$i) {
+            $row=$userList[$i];
+
+            $fullname=trim($row['fullname']);
+            if(!$fullname) continue;
+
+            
+
+			$userDatas=$this->getImportUserDatas($row,$updatedBy);
+			dd($userDatas);
+            if(array_key_exists('err',$userDatas)){
+                $err_msg .= $userDatas['err'] . ',';
+                continue;
+            }
+
+            $userValues=$userDatas['userValues'];
+            $profileValues=$userDatas['profileValues'];
+           
+            $contactInfoValues=$userDatas['contactInfoValues'];
+            $addressValues=$userDatas['addressValues'];
+            $identities=$userDatas['identities'];
+
+            $sid=$profileValues['sid'];
+            $user= $this->users->findBySID($sid);
+
+            if(!$user)
+            {
+				$this->updateUser($user,$userValues,$profileValues);
+               
+            }else{
+				$user=$this->createUser(
+                    new User($userValues),
+                    new Profile($profileValues)
+                );
+			}
+
+            foreach($identities as $identity){
+                $user->addIdentity($identity->id);
+            }
+
+            $contactInfo=new ContactInfo($contactInfoValues);
+            $address=new Address($addressValues);
+            
+
+            $this->setContactInfo($user,$contactInfo,$address);
+
+            
+            
+            
+           
+        }  //end for  
+
+        
+        
+
+        
+
+        return $err_msg;
+
+       
+
+
+
+   }
 	
 	
 }

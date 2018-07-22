@@ -72,6 +72,7 @@ Vue.component('courses-import', require('./views/courses/import'));
 
 Vue.component('users-index', require('./views/users/index'));
 Vue.component('users-details', require('./views/users/details'));
+Vue.component('users-import', require('./views/users/import'));
 
 Vue.component('signups-index', require('./views/signups/index'));
 Vue.component('signups-report', require('./views/signups/report'));
@@ -101,9 +102,6 @@ Vue.component('notices-details', require('./views/notices/details'));
 Vue.component('docs-index', require('./views/docs/index'));
 Vue.component('docs-create', require('./views/docs/create'));
 Vue.component('docs-details', require('./views/docs/details'));
-
-
-Vue.component('my-reports-index', require('./views/reports/index'));
 
 
 

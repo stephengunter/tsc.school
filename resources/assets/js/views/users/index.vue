@@ -21,7 +21,10 @@
                 </div>
                 
                 <div class="col-sm-2 pull-right" align="right" style="margin-top: 20px;">
-
+                    <a  @click.prevent="beginImport" href="#" class="btn btn-warning pull-right">
+                        <i class="fa fa-upload"></i>
+                        匯入
+                    </a>
                     
                 </div>
             </div>
@@ -144,6 +147,9 @@
             },
             onCheckIdsChanged(ids){
                 this.checkedIds=ids.slice(0);
+            },
+            beginImport(){
+                this.$emit('import');
             },
             
         }

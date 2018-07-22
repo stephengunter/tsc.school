@@ -106,6 +106,7 @@ Route::group(['middleware' => 'admin'], function()
     Route::resource('/manage/users', 'UsersController');
     Route::post('/manage/users/find', 'UsersController@find');
     Route::post('/manage/users/reset-password', 'UsersController@resetPassword');
+    Route::post('/manage/users/import', 'UsersController@import');
 
 
     Route::resource('/manage/accounts', 'AccountsController');

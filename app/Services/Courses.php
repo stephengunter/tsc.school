@@ -279,6 +279,8 @@ class Courses
         })->get();
 
         $courseList=$excel->toArray()[0];
+
+       
        
         for($i = 1; $i < count($courseList); ++$i) {
             $row=$courseList[$i];

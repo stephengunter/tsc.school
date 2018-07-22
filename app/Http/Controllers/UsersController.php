@@ -57,6 +57,11 @@ class UsersController extends Controller
         return $admin->isHeadCenterAdmin();
     }
 
+    function canImport()
+    {
+        return $this->currentUserIsDev();
+    }
+
     function canDelete($user)
     {
         return $this->canEdit($user);
@@ -155,7 +160,7 @@ class UsersController extends Controller
         return view('users.index')->with([
             'title' => '使用者管理',
             'menus' => $menus,
-       
+            'canImport' => $this->canImport(),
             'list' =>  $pageList
         ]);
     }
@@ -274,5 +279,38 @@ class UsersController extends Controller
         
         
         return response()->json();
+    }
+
+    public function import(Request $form)
+    {
+        
+        if(!$this->canImport()){
+            return $this->unauthorized();
+        }
+
+        
+        $errors=[];
+      
+        if(!$form->hasFile('file')){
+            $errors['msg'] = ['無法取得上傳檔案'];
+        } 
+
+        if($errors) return $this->requestError($errors);
+
+
+        $file=Input::file('file');   
+
+        $err_msg=$this->users->importUsers($file,$this->currentUserId());
+     
+        
+        if($err_msg)
+        {
+            $errors['msg'] = [$err_msg];
+            return $this->requestError($errors);
+        }
+
+        return response() ->json();
+
+       
     }
 }

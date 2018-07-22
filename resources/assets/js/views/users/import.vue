@@ -46,10 +46,10 @@
 <script>
     
     export default {
-        name: 'SignupImport',
+        name: 'UserImport',
         data() {
             return {
-                title: Menus.getIcon('signups')  + '  匯入報名資料',
+                title: Menus.getIcon('users')  + '  匯入使用者資料',
                 
                 loading:false,
 
@@ -98,14 +98,13 @@
                     form.append('file', this.files[i]);
                     
                 }
-               
 
-                let store=Signup.import(form)
+                let store=User.import(form)
                 store.then(result => {
                        
                         Helper.BusEmitOK();
                         this.loading=false;
-                        this.$emit('imported');
+                        //this.$emit('imported');
                     })
                     .catch(error => {
                         

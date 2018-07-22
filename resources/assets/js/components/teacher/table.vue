@@ -10,6 +10,7 @@
 							</check-box>
                         </th>
                         <th style="width:10%">姓名</th>
+                        <th style="width:10%">生日</th>
                         <th style="width:15%">Email</th>
                         <th style="width:10%">手機</th>
                         <th style="width:10%">市話</th>
@@ -33,8 +34,9 @@
                            
                         </td>
                         <td v-else v-text="teacher.user.profile.fullname">  </td>
+                        
+                        <td>{{  teacher.user.profile.dob }}</td>
 
-                       
                         <td>{{  teacher.user.email }}</td>
                         <td>{{  teacher.user.phone }}</td>
                         <td v-text="getTEL(teacher.user)"></td>
