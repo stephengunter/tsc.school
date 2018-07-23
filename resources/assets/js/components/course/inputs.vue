@@ -64,7 +64,7 @@
                     <div class="form-group">  
                         <label>課程分類</label>
                         <select v-model="form.course.categoryId"  name="course.categoryId" class="form-control" >
-                            <option v-for="(item,index) in categories" :key="index"  :value="item.value" v-text="item.text"></option>
+                            <option v-for="(item,index) in edit_categories" :key="index"  :value="item.value" v-text="item.text"></option>
                         </select>
                     </div>
                 </div>  
@@ -200,8 +200,14 @@
             isCreate(){
                 if(!this.form.course.id) return true;
                 return parseInt(this.form.course.id) < 1;
-            }
-            
+            },
+            edit_categories(){
+                if(!this.categories) return [];
+                return this.categories.filter(item=>{
+                    return Helper.tryParseInt(item.value) > 0;
+                });
+            },
+                
         },
         watch:{
            

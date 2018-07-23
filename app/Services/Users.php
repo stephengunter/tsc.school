@@ -77,14 +77,17 @@ class Users
 		
 	}
 
-	public function getDefaultPassword(User $user,Profile $profile=null)
+	public function getDefaultPassword(Profile $profile=null)
 	{
-		if(!$profile) $profile=$user->profile;
+		
+		if(!$profile) return config('app.user.default_pw');
+		
 		if ($profile->dob){
 			$dob=new Carbon($profile->dob);
 			return Helper::toTaipeiDateString($dob);
 		} 
 		return config('app.user.default_pw');
+		
 	}
     
     public function createUser(User $user,Profile $profile, array $roleNames=[])
@@ -93,7 +96,7 @@ class Users
 		$profile->sid=$sid;
 		$user->name=$sid;
 
-		if (!$user->password) $user->password = $this->getDefaultPassword($user,$profile);
+		if (!$user->password) $user->password = $this->getDefaultPassword($profile);
 
 		
 		if(Helper::isTaiwanSID($sid)){

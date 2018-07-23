@@ -10,6 +10,7 @@ use App\Address;
 use App\Role;
 use App\Account;
 use App\Identity;
+use Carbon\Carbon;
 use App\Core\Helper;
 use DB;
 
@@ -101,11 +102,22 @@ class User extends Authenticatable
         return $this->belongsToMany(Identity::class,'identity_user','user_id','identity_id');
     }
 
+    public function getDefaultPassword(Profile $profile=null)
+	{
+        if(!$profile) $profile=$this->profile;
+		if(!$profile) return config('app.user.default_pw');
+		if ($profile->dob){
+			$dob=new Carbon($profile->dob);
+			return Helper::toTaipeiDateString($dob);
+		} 
+		return config('app.user.default_pw');
+	}
+
     public function setPasswordAttribute($value) 
     {
        
         if(!$value){
-            $value = config('app.user.default_pw') ;
+            $value = $this->getDefaultPassword();
         }
 		$this->attributes['password'] = bcrypt($value);
     }

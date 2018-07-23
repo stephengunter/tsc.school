@@ -9,7 +9,8 @@
                :can_review="can_review" :can_import="can_import" :version="version"
                 v-on:selected="onSelected" v-on:create="onCreate" v-on:import="beginImport">
 </courses-index>
-<courses-details v-if="selected" :id="selected"  :weekdays="weekdays"  :percents_options="percents_options"
+<courses-details v-if="selected" :id="selected" :terms="terms" :categories="categories"  
+                :weekdays="weekdays"  :percents_options="percents_options"
                   v-on:back="backToIndex" v-on:course-deleted="backToIndex">
 </courses-details>
 <courses-create v-if="creating" v-on:cancel="backToIndex" 

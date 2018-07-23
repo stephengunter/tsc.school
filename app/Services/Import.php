@@ -20,8 +20,9 @@ trait Import
 		$err_msg='';
 
 		$phone=trim($row['phone']);
+	
 		$email=trim($row['email']);
-		
+	
 
 		$userValues=[
 			'email' => $email,
@@ -32,7 +33,9 @@ trait Import
 		
 
 		$sid=strtoupper(trim($row['id']));
+		
 		$fullname=trim($row['fullname']);
+		
 		$gender=trim($row['gender']);
 
 		
@@ -58,6 +61,7 @@ trait Import
 
 		
 		$dob=trim($row['dob']);
+		
 		
 		if($dob){
 		
@@ -142,8 +146,9 @@ trait Import
 
 
 		$street=trim($row['street']);
+		$district=District::where('zipcode','100')->first();
 		if(!$street){
-			$district=District::where('zipcode','100')->first();
+			
 			$addressValues=[
 				'districtId'=>$district->id,
 				'street' => $street,
@@ -168,16 +173,19 @@ trait Import
 
 
 
-		$district=null;
+	
 		$zipcode=trim($row['zipcode']);
 
-		if($zipcode) $district=District::with(['city'])->where('zipcode',$zipcode)->first();
-		if(!$district){
+		if($zipcode){
+			$district=District::with(['city'])->where('zipcode',$zipcode)->first();
+			if(!$district){
 			
-			return [
-				'err' => '郵遞區號' . $zipcode . '錯誤'
-			];		
-		}
+				return [
+					'err' => '郵遞區號' . $zipcode . '錯誤'
+				];		
+			}
+		} 
+		
 		
 		$addressValues=[
 			'districtId'=>$district->id,

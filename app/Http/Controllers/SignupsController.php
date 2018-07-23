@@ -517,15 +517,16 @@ class SignupsController extends Controller
         $errors=$this->users->validateUserInputs($userValues,$roleName);
 
         if($errors) return $this->requestError($errors);
-        
-        $profileValues= $userValues['profile'];
-        
-        $userValues=$request->getClearUserValues();
 
-        $user=$this->users->createUser(
-            new User($userValues),
-            new Profile($profileValues)
-        );
+      
+        $profileValues= $userValues['profile'];
+        $profile=new Profile($profileValues);
+
+        $userValues=$request->getClearUserValues();
+        $userValues['password'] = $this->users->getDefaultPassword($profile);
+           
+        
+        $user=$this->users->createUser(new User($userValues),$profile);
 
         return $user;
     }

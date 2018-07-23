@@ -233,9 +233,12 @@ class AdminsController extends Controller
             $user->update($userValues);
             
         }else{
-          
-           $user=$this->users->createUser(new User($userValues),new Profile($profileValues));
-           $userId=$user->id;
+            $profile=new Profile($profileValues);
+            $userValues['password'] = $this->users->getDefaultPassword($profile);
+           
+            
+            $user=$this->users->createUser(new User($userValues),$profile);
+            $userId=$user->id;
          
         }
 
@@ -249,7 +252,7 @@ class AdminsController extends Controller
             $admin->userId=$userId;
         }
        
-        return response() ->json($admin);
+        return response()->json($admin);
     }
 
     public function show($id)

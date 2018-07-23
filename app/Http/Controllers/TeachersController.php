@@ -338,14 +338,18 @@ class TeachersController extends Controller
         $user=null;
         if($userId){
             $user = User::find($userId);
-
-            $user->profile->update($profileValues);
-            $this->users->updateUser($user,$userValues);
+           
+            $this->users->updateUser($user,$userValues,$profileValues);
             
         }else{
-          
-           $user=$this->users->createUser(new User($userValues),new Profile($profileValues));
-           $userId=$user->id;
+
+            $profile=new Profile($profileValues);
+            $userValues['password'] = $this->users->getDefaultPassword($profile);
+           
+            
+            $user=$this->users->createUser(new User($userValues),$profile);
+            $userId=$user->id;
+           
          
         }
 

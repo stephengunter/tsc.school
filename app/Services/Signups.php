@@ -302,7 +302,7 @@ class Signups
         return $this->statuses;
     }
 
-    public function importSignups($file,$updatedBy)
+    public function importPays($file,$updatedBy)
     {
         $err_msg='';
 
@@ -335,17 +335,12 @@ class Signups
 
            
             $date=trim($row['date']);
-            if(!$date){
-                $err_msg .= $fullname . '報名日期不可空白' . ',';
-                continue;
-            }else{
-                try {  
+            try {  
                     $date=Carbon::parse($date);
     
                 }catch (Exception $e) {  
                     $err_msg .= $fullname . '報名日期錯誤' . ',';
-                }     
-            }
+                }  
 
             $pay=false;
             $payway=null;
@@ -453,6 +448,120 @@ class Signups
                 $bill->updatedBy=$updatedBy;
                 $this->bills->payBill($bill,$payway,$pay_date);
             }
+        }
+    }
+
+    public function importSignups($file,$updatedBy)
+    {
+        $err_msg='';
+
+        $excel=Excel::load($file, function($reader) {             
+            $reader->limitColumns(20);
+            $reader->limitRows(300);
+        })->get();
+
+        $signupList=$excel->toArray()[0];
+       
+        for($i = 1; $i < count($signupList); ++$i) {
+            $row=$signupList[$i];
+
+            $fullname=trim($row['fullname']);
+            if(!$fullname) continue;
+
+            $courses=[];               
+            $array_courses = explode(',', trim($row['courses']));
+            for($j = 0; $j < count($array_courses); ++$j){
+                $course_number=$array_courses[$j];
+                $course =Course::where('number',$course_number)->first();
+                
+                if(!$course){
+                    $err_msg .= $course_number . '課程不存在' . ',';
+                   
+                    continue;
+                }else{
+                    array_push($courses, $course);
+                }
+            }
+         
+           
+            $date=trim($row['date']);
+            
+            if($date){
+                try {  
+                    $date=Carbon::parse($date);
+    
+                }catch (Exception $e) {  
+                    $err_msg .= $fullname . '報名日期錯誤' . ',';
+                }     
+            }
+
+            $userDatas=$this->getImportUserDatas($row,$updatedBy);
+            if(array_key_exists('err',$userDatas)){
+                dd($userDatas['err'] );
+                $err_msg .= $userDatas['err'] . ',';
+                continue;
+            }
+
+
+            $userValues=$userDatas['userValues'];
+            $profileValues=$userDatas['profileValues'];
+           
+            $contactInfoValues=$userDatas['contactInfoValues'];
+            $addressValues=$userDatas['addressValues'];
+            $identities=$userDatas['identities'];
+
+            $sid=$profileValues['sid'];
+            $user= $this->users->findBySID($sid);
+
+            if($user)
+            {
+				$this->users->updateUser($user,$userValues,$profileValues);
+               
+            }else{
+				$user=$this->users->createUser(
+                    new User($userValues),
+                    new Profile($profileValues)
+                );
+			}
+          
+            foreach($identities as $identity){
+                $user->addIdentity($identity->id);
+            }
+
+            $contactInfo=new ContactInfo($contactInfoValues);
+            $address=new Address($addressValues);
+            $this->users->setContactInfo($user,$contactInfo,$address);
+
+            continue;
+
+            $result=$this->initSignupDetails($user,$courses,$updatedBy);
+       
+            $errors=$result['errors'];
+            if($errors){
+                $err_msg .= $fullname . '報名課程錯誤' . ',';
+            }  
+
+           
+
+            $signupDetails=$result['signupDetails'];
+
+            $lotus=trim($row['lotus']);
+            $lotus=Helper::isTrue($lotus);
+            
+
+            $signup=new Signup(Signup::init());
+            $signup->userId=$user->id;
+
+            $identityIds = array_map(function($item){
+                return $item->id;
+            }, $identities);
+
+
+            $signup->identity_ids=join(',', $identityIds);
+            $signup->net=false;
+            $signup->updatedBy=$updatedBy;
+            
+            $signup=$this->createSignup($signup,$signupDetails,$user,$lotus);
     
             
             
@@ -462,7 +571,7 @@ class Signups
         
         
 
-        
+     
 
         return $err_msg;
 

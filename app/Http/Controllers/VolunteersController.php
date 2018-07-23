@@ -207,9 +207,12 @@ class VolunteersController extends Controller
             $this->users->updateUser($user,$userValues);
             
         }else{
-          
-           $user=$this->users->createUser(new User($userValues),new Profile($profileValues));
-           $userId=$user->id;
+            $profile=new Profile($profileValues);
+            $userValues['password'] = $this->users->getDefaultPassword($profile);
+           
+            
+            $user=$this->users->createUser(new User($userValues),new Profile($profileValues));
+            $userId=$user->id;
          
         }
 

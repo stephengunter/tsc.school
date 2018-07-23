@@ -1,6 +1,6 @@
 <template>
 <div>
-    <course :id="id" ref="courseView" :percents_options="percents_options"
+    <course :id="id" ref="courseView" :terms="terms" :categories="categories" :percents_options="percents_options"
      :can_edit="courseSettings.can_edit" :can_back="courseSettings.can_back"  
       @loaded="onCourseLoaded"   @back="onBack" @saved="onCourseSaved"  
       @deleted="onCourseDeleted" >
@@ -68,6 +68,14 @@
             id: {
               type: Number,
               default: 0
+            },
+            terms:{
+                type:Array,
+                default:null
+            },
+            categories:{
+                type:Array,
+                default:null
             },
             weekdays:{
               type: Array,

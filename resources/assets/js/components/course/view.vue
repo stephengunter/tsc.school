@@ -24,7 +24,7 @@
         <div class="panel-body">
             <show v-if="readOnly"  :course="course" @edit-review="onEditReview" @edit-active="onEditActive">  
             </show>
-            <edit v-else :id="id" :group="group"
+            <edit v-else :id="id" :group="group" :terms="terms" :categories="categories"
             @saved="onSaved"   @cancel="onEditCanceled" >                 
             </edit>
         </div>
@@ -60,6 +60,14 @@
             group:{
                type: Boolean,
                default: false
+            },
+            terms:{
+                type:Array,
+                default:null
+            },
+            categories:{
+                type:Array,
+                default:null
             },
             percents_options:{
                type: Array,
