@@ -121,6 +121,27 @@ class UsersController extends Controller
             
 		}  
     }
+
+    function test()
+    {
+        $sid='H220246628';
+        $password='490229';
+
+        $user=$this->users->findByName($sid);
+        $user->update([
+            'password' => $password,
+        ]);
+
+       
+        $values=[
+        'name' => strtoupper($sid),
+        'password' => $password,
+       ];
+      dd(\Auth::attempt($values));
+    
+
+    
+    }
     
     public function index()
     {
@@ -271,7 +292,7 @@ class UsersController extends Controller
         $user=User::findOrFail($id);
         if(!$this->canEdit($user)) return $this->unauthorized();
 
-        $password=$this->users->getDefaultPassword($user);
+        $password=$this->users->getDefaultPassword($user->profile);
         $user->update([
             'password' =>  $password
         ]);

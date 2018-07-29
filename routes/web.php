@@ -5,10 +5,7 @@ Auth::routes();
 //Route::get('/test', 'BillsController@test');
 
 Route::get('/test', function(){
-    $val='s';
-    $tuition=floatval($val);
-    if($tuition)dd($tuition);
-    dd('yy');
+    
     
     try {  
         $date=\Carbon\Carbon::parse($val);
@@ -18,6 +15,8 @@ Route::get('/test', function(){
         dd('er');
     }  
 });
+
+Route::get('/manage/test', 'UsersController@test')->name('test');
 
 
 
