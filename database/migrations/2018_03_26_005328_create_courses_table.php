@@ -46,7 +46,7 @@ class CreateCoursesTable extends Migration
             $table->integer('limit')->nullable();    //人數上限 
             $table->integer('min')->default(0);    //人數下限
 
-            $table->boolean('discount')->default(true);
+            $table->boolean('discount')->default(false);
 
             $table->integer('importance')->default(0);
 

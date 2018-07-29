@@ -20,6 +20,7 @@ class CreateDiscountsTable extends Migration
             $table->integer('pointOne');
             $table->integer('pointTwo');
             $table->boolean('prove');
+            $table->boolean('top')->default(false);
             $table->string('ps')->nullable();
             $table->boolean('active');
             $table->boolean('removed')->default(false);

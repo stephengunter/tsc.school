@@ -71153,7 +71153,9 @@ var render = function() {
               _vm._v(" "),
               _c("th", { staticStyle: { width: "10%" } }, [_vm._v("姓名")]),
               _vm._v(" "),
-              _c("th", { staticStyle: { width: "10%" } }, [_vm._v("生日")]),
+              false
+                ? _c("th", { staticStyle: { width: "10%" } }, [_vm._v("生日")])
+                : _vm._e(),
               _vm._v(" "),
               _c("th", { staticStyle: { width: "15%" } }, [_vm._v("Email")]),
               _vm._v(" "),
@@ -71234,7 +71236,9 @@ var render = function() {
                           }
                         }),
                     _vm._v(" "),
-                    _c("td", [_vm._v(_vm._s(teacher.user.profile.dob))]),
+                    false
+                      ? _c("td", [_vm._v(_vm._s(teacher.user.profile.dob))])
+                      : _vm._e(),
                     _vm._v(" "),
                     _c("td", [_vm._v(_vm._s(teacher.user.email))]),
                     _vm._v(" "),
@@ -76435,6 +76439,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'CourseTable',
@@ -76503,6 +76509,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         getViewList: function getViewList() {
             if (this.model) return this.model.viewList;
             return this.courses;
+        },
+        isTrue: function isTrue(val) {
+            return Helper.isTrue(val);
         },
         onSelected: function onSelected(id) {
             this.$emit('selected', id);
@@ -76704,6 +76713,10 @@ var render = function() {
                   _vm._v(" "),
                   _c("th", { staticStyle: { width: "8%" } }, [_vm._v("學費")]),
                   _vm._v(" "),
+                  _c("th", { staticStyle: { width: "8%" } }, [
+                    _vm._v("優惠價")
+                  ]),
+                  _vm._v(" "),
                   _c("th", [_vm._v("教材費")]),
                   _vm._v(" "),
                   _c("th", { staticStyle: { width: "8%" } }, [
@@ -76877,6 +76890,15 @@ var render = function() {
                           _vm._s(_vm._f("formatMoney")(course.tuition)) +
                           "  "
                       )
+                    ]),
+                    _vm._v(" "),
+                    _c("td", [
+                      _vm.isTrue(course.discount)
+                        ? _c("i", {
+                            staticClass: "fa fa-check-circle",
+                            staticStyle: { color: "green" }
+                          })
+                        : _vm._e()
                     ]),
                     _vm._v(" "),
                     _c("td", [
@@ -91860,6 +91882,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'ShowCourseInfo',
@@ -91893,6 +91919,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
         editReview: function editReview() {
             this.$emit('edit-review');
+        },
+        isTrue: function isTrue(val) {
+            return Helper.isTrue(val);
         },
         cautions: function cautions(course) {
             if (!course.caution) return '';
@@ -91943,6 +91972,19 @@ var render = function() {
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-3" }, [
+            _c("label", { staticClass: "label-title" }, [_vm._v("優惠價")]),
+            _vm._v(" "),
+            _c("p", [
+              _vm.isTrue(_vm.course.discount)
+                ? _c("i", {
+                    staticClass: "fa fa-check-circle",
+                    staticStyle: { color: "green" }
+                  })
+                : _vm._e()
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-sm-3" }, [
             _c("label", { staticClass: "label-title" }, [_vm._v("教材費")]),
             _vm._v(" "),
             _c("p", {
@@ -91954,7 +91996,7 @@ var render = function() {
             })
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "col-sm-6" }, [
+          _c("div", { staticClass: "col-sm-" }, [
             _c("label", { staticClass: "label-title" }, [_vm._v("教材")]),
             _vm._v(" "),
             _c("p", { domProps: { innerHTML: _vm._s(_vm.course.materials) } })
@@ -92136,6 +92178,13 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 	name: 'EditCourseInfo',
@@ -92150,6 +92199,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 			form: null,
 
+			discountOptions: Helper.boolOptions(),
+
 			submitting: false
 
 		};
@@ -92163,6 +92214,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 	methods: {
 		init: function init() {
 			this.fetchData();
+		},
+		setDiscount: function setDiscount(val) {
+			this.form.course.discount = val;
 		},
 		fetchData: function fetchData() {
 			var _this = this;
@@ -92352,6 +92406,26 @@ var render = function() {
             _vm._v(" "),
             _c("div", { staticClass: "col-sm-3" }, [
               _c("div", { staticClass: "form-group" }, [
+                _c("label", [_vm._v("優惠價")]),
+                _vm._v(" "),
+                _c(
+                  "p",
+                  [
+                    _c("toggle", {
+                      attrs: {
+                        items: _vm.discountOptions,
+                        default_val: _vm.form.course.discount
+                      },
+                      on: { selected: _vm.setDiscount }
+                    })
+                  ],
+                  1
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-sm-3" }, [
+              _c("div", { staticClass: "form-group" }, [
                 _c("label", [_vm._v("教材費用")]),
                 _vm._v(" "),
                 _c("input", {
@@ -92385,9 +92459,7 @@ var render = function() {
                     })
                   : _vm._e()
               ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "col-sm-6" })
+            ])
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "row" }, [

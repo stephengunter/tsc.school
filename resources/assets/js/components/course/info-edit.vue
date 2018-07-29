@@ -37,13 +37,20 @@
             
             <div class="col-sm-3">
                 <div class="form-group">                           
+                    <label>優惠價</label>
+                    <p>
+                         <toggle :items="discountOptions"   :default_val="form.course.discount" @selected="setDiscount"></toggle>
+            
+                    </p>
+                   
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">                           
                     <label>教材費用</label>
                     <input type="text" name="course.cost" class="form-control" v-model="form.course.cost">
                     <small class="text-danger" v-if="form.errors.has('course.cost')" v-text="form.errors.get('course.cost')"></small>
                 </div>
-            </div>
-            <div class="col-sm-6">
-                
             </div>
         </div>
         <div class="row">
@@ -109,6 +116,9 @@ export default {
 		return {
 			
             form:null,
+
+            discountOptions:Helper.boolOptions(),
+                
             
             submitting:false,
 			
@@ -124,7 +134,10 @@ export default {
 		
 		init(){
 			this.fetchData();
-		},
+        },
+        setDiscount(val){
+            this.form.course.discount=val;
+        },
 		fetchData(){
             let getData=Course.editInfo(this.id);
 			

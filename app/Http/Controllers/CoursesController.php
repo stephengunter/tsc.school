@@ -710,6 +710,7 @@ class CoursesController extends Controller
         $file=Input::file('file');   
 
         $type=$form['type'];
+      //  $err_msg=$this->courses->importCoursesDiscount($file,$this->currentUserId());
         if($type=='create'){
             $err_msg=$this->courses->importCourses($file,$this->currentUserId());
         }else if($type=='details'){
@@ -725,7 +726,7 @@ class CoursesController extends Controller
             return $this->requestError($errors);
         }
 
-        return response() ->json();
+        return response()->json();
 
        
     }

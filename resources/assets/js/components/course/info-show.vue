@@ -25,19 +25,23 @@
         <div class="col-sm-3">
                                     
             <label class="label-title">學費</label>
-            <p v-html="$options.filters.formatMoney(course.tuition)" ></p>  
-                
-            
-            
+            <p v-html="$options.filters.formatMoney(course.tuition)" ></p> 
+             
         </div>
-            
+        <div class="col-sm-3">
+                                    
+            <label class="label-title">優惠價</label>
+            <p>
+                <i v-if="isTrue(course.discount)" class="fa fa-check-circle" style="color:green"></i>
+            </p>
+        </div>
         <div class="col-sm-3">
                                 
             <label class="label-title">教材費</label>
             <p v-html="$options.filters.formatMoney(course.cost)" ></p>  
             
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-">
                                 
             <label class="label-title">教材</label>
             <p v-html="course.materials"></p>  
@@ -97,6 +101,9 @@
         methods: { 
             editReview(){
                 this.$emit('edit-review')
+            },
+            isTrue(val){
+                return Helper.isTrue(val);
             },
             cautions(course){
                 if(!course.caution) return '';

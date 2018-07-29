@@ -514,7 +514,7 @@ class Courses
 
    }
 
-   public function importCourseDetails($file,$updatedBy)
+    public function importCourseDetails($file,$updatedBy)
     {
         $err_msg='';
 
@@ -541,9 +541,12 @@ class Courses
            
             $number=trim($row['number']);
             $tuition=trim($row['tuition']);
-            $materials=trim($row['materials']);
+            $discount=trim($row['discount']);
 
+
+          
             $cost=floatval(trim($row['cost']));
+            $materials=trim($row['materials']);
             $caution=trim($row['caution']);
 
             $limit=(int)trim($row['limit']);
@@ -563,15 +566,78 @@ class Courses
           
             $tuition=floatval($tuition);
 
+            if($discount)$discount=true;
+            else $discount=false;
+
            
             $course->update([
                 'tuition' => $tuition,
+                'discount'=>$discount,
                 'materials'=> $materials,
                 'cost'=> $cost,
                 'caution'=> $caution,
                 'limit'=> $limit,
                 'min'=> $min,
                 'target'=> $target
+            ]);
+
+            
+            
+           
+        }  //end for  
+        
+        return $err_msg;
+
+
+   }
+
+   public function importCoursesDiscount($file,$updatedBy)
+    {
+        $err_msg='';
+
+        $excel=Excel::load($file, function($reader) {             
+            $reader->limitColumns(16);
+            $reader->limitRows(100);
+        })->get();
+
+        $courseList=$excel->toArray()[0];
+
+        array_shift($courseList);
+        $numbers = array_pluck($courseList, 'number');
+        $numbers = array_filter($numbers);
+
+        if(Helper::array_has_dupes($numbers))
+        {
+            return '課程編號有重複';
+        }
+      
+       
+        for($i = 0; $i < count($courseList); ++$i) {
+            $row=$courseList[$i];
+
+           
+            $number=trim($row['number']);
+            $discount=trim($row['discount']);
+            
+
+            if(!$number){
+                continue;
+            }
+            
+            $course= $this->getByNumber($number);
+            if(!$course)
+            {
+                $err_msg .= '課程編號' . $number . '不存在,';
+                continue;
+            }
+          
+            if($discount)$discount=true;
+            else $discount=false;
+
+           
+            $course->update([
+               
+                'discount'=>$discount,
             ]);
 
             

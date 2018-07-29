@@ -46,6 +46,7 @@
                         <th style="width:5%">週數</th>
                         <th style="width:5%">時數</th>
                         <th style="width:8%">學費</th>
+                        <th style="width:8%">優惠價</th>
                         <th>教材費</th>
                         <th style="width:8%">人數上限</th>
                         <th style="width:8%">最低人數</th>
@@ -99,6 +100,7 @@
 
 
                         <td> {{ course.tuition | formatMoney }}  </td>
+                        <td> <i v-if="isTrue(course.discount)" class="fa fa-check-circle" style="color:green"></i>  </td>
                         <td>
                            <span v-if="course.cost" >                            
                                {{ course.cost | formatMoney }} 
@@ -191,7 +193,10 @@ export default {
         getViewList(){
 			if(this.model) return this.model.viewList;
 			return this.courses;
-		},
+        },
+        isTrue(val){
+            return Helper.isTrue(val);
+        },
         onSelected(id){
            this.$emit('selected',id);
         },

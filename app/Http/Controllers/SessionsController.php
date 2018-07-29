@@ -27,10 +27,6 @@ class SessionsController extends Controller
 			'name' => strtoupper($request['name']),
 			'password' => $request['password'],
 		];
-
-		// dd($values);
-
-		// dd(Auth::attempt($values));
 	
 		if (!Auth::attempt($values)) {
             return   response()->json(['msg' => '登入失敗' ]  ,  422);
