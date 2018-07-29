@@ -16,7 +16,7 @@ Route::get('/test', function(){
     }  
 });
 
-Route::get('/manage/test', 'UsersController@test')->name('test');
+Route::get('/test', 'UsersController@test')->name('test');
 
 
 
